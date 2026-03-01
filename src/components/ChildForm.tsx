@@ -1,193 +1,158 @@
-import { useState, useEffect, FormEvent } from 'react';
-import { X, Calendar, Tag, Plus } from 'lucide-react';
-import { childApi } from '../services/api';
-import type { ChildResponseDTO } from '../types';
+import { useState, useEffect, FormEvent } from 'react'
+import { X, Calendar } from 'lucide-react'
+import { childApi } from '../services/api'
+import type { ChildResponseDTO, ChildRequestDTO } from '../types'
 
 interface ChildFormProps {
-  child: ChildResponseDTO | null;
-  onClose: () => void;
-  onSuccess: () => void;
+  child: ChildResponseDTO | null
+  onClose: () => void
+  onSuccess: () => void
 }
 
-export default function ChildForm({ child, onClose, onSuccess }: ChildFormProps) {
-  const [firstName, setFirstName] = useState('');
-  const [birthDate, setBirthDate] = useState('');
-  const [interests, setInterests] = useState<string[]>([]);
-  const [currentInterest, setCurrentInterest] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+export default function ChildForm({
+  child,
+  onClose,
+  onSuccess,
+}: ChildFormProps) {
+  const [gender, setGender] = useState<'BOY' | 'GIRL' | ''>('')
+  const [birthDate, setBirthDate] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
   useEffect(() => {
     if (child) {
-      setFirstName(child.firstName);
-      const today = new Date();
-      const calculatedBirthDate = new Date(
-        today.getFullYear() - child.age,
-        0,
-        1
-      ).toISOString().split('T')[0];
-      setBirthDate(calculatedBirthDate);
-      setInterests(child.interests || []);
+      setGender(child.gender)
+      // Si el backend solo devuelve edad, calculamos un año aproximado
+      const year = new Date().getFullYear() - child.age
+      setBirthDate(`${year}-01-01`)
     }
-  }, [child]);
-
-  const handleAddInterest = () => {
-    if (currentInterest.trim() && !interests.includes(currentInterest.trim())) {
-      setInterests([...interests, currentInterest.trim()]);
-      setCurrentInterest('');
-    }
-  };
-
-  const handleRemoveInterest = (interest: string) => {
-    setInterests(interests.filter((i) => i !== interest));
-  };
+  }, [child])
 
   const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
+    e.preventDefault()
+    if (!gender || !birthDate) {
+      setError('Please fill in all fields')
+      return
+    }
+
+    setError('')
+    setLoading(true)
 
     try {
-      const data = {
-        firstName,
-        birthDate,
-        interests,
-      };
-
-      if (child) {
-        await childApi.update(child.id, data);
-      } else {
-        await childApi.create(data);
+      // Ajuste para coincidir con el Record Java: ChildRequestDTO
+      const data: ChildRequestDTO = {
+        gender: gender as 'BOY' | 'GIRL',
+        birthDate: birthDate, // Formato YYYY-MM-DD
+        interestIds: [], // Enviamos Set vacío para evitar el @NotNull del backend
       }
 
-      onSuccess();
-    } catch (err) {
-      setError('Failed to save child');
+      if (child) {
+        await childApi.update(child.id, data)
+      } else {
+        await childApi.create(data)
+      }
+      onSuccess()
+    } catch (err: any) {
+      console.error('API Error:', err.response?.data || err.message)
+      setError(
+        err.response?.data?.message ||
+          'Failed to save child. Check the information provided.',
+      )
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-gray-800">
-            {child ? 'Edit Child' : 'Add New Child'}
+    <div className="w-full">
+      <div className="flex items-center justify-between mb-8 px-2">
+        <div>
+          <h2 className="text-2xl font-black text-brand-dark tracking-tight">
+            {child ? 'Update Profile' : 'New Neighbor'}
           </h2>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-xl transition-all"
-          >
-            <X className="w-6 h-6 text-gray-600" />
-          </button>
+          <p className="text-brand-orange font-bold text-xs uppercase tracking-widest mt-1">
+            Privacy-First Registration
+          </p>
+        </div>
+        <button
+          onClick={onClose}
+          className="p-2 hover:bg-brand-yellow/20 rounded-full transition-colors"
+        >
+          <X className="w-6 h-6 text-brand-dark/30" />
+        </button>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-8 px-2">
+        {/* SELECTOR DE GÉNERO */}
+        <div className="space-y-3">
+          <label className="block text-xs font-black text-brand-dark/50 uppercase tracking-tighter ml-1">
+            Choose Gender
+          </label>
+          <div className="grid grid-cols-2 gap-4">
+            {(['BOY', 'GIRL'] as const).map(g => (
+              <button
+                key={g}
+                type="button"
+                onClick={() => setGender(g)}
+                className={`py-5 rounded-[2rem] font-black text-sm transition-all border-2 flex flex-col items-center gap-2 ${
+                  gender === g
+                    ? 'border-brand-orange bg-brand-orange text-white shadow-xl shadow-brand-orange/20 scale-[1.02]'
+                    : 'border-brand-yellow/30 bg-brand-cream/40 text-brand-dark/40 hover:border-brand-orange/30'
+                }`}
+              >
+                <span className="tracking-widest uppercase">{g}</span>
+                <div
+                  className={`w-1.5 h-1.5 rounded-full ${
+                    gender === g ? 'bg-white' : 'bg-brand-orange/20'
+                  }`}
+                />
+              </button>
+            ))}
+          </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              First Name
-            </label>
+        {/* FECHA DE NACIMIENTO */}
+        <div className="space-y-3">
+          <label className="block text-xs font-black text-brand-dark/50 uppercase tracking-tighter ml-1">
+            Birth Date
+          </label>
+          <div className="relative group">
+            <div className="absolute left-5 top-1/2 -translate-y-1/2">
+              <Calendar className="w-5 h-5 text-brand-orange/40" />
+            </div>
             <input
-              type="text"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all"
-              placeholder="Child's first name"
+              type="date"
+              value={birthDate}
+              onChange={e => setBirthDate(e.target.value)}
+              className="w-full pl-14 pr-6 py-4 bg-brand-cream/40 border-2 border-brand-yellow/20 rounded-3xl focus:border-brand-orange outline-none transition-all font-bold text-brand-dark"
               required
             />
           </div>
+        </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Birth Date
-            </label>
-            <div className="relative">
-              <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                type="date"
-                value={birthDate}
-                onChange={(e) => setBirthDate(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all"
-                required
-              />
-            </div>
+        {error && (
+          <div className="p-4 bg-brand-coral/10 border border-brand-coral/20 text-brand-coral rounded-2xl text-xs font-bold">
+            {error}
           </div>
+        )}
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Interests
-            </label>
-            <div className="flex gap-2 mb-3">
-              <div className="relative flex-1">
-                <Tag className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type="text"
-                  value={currentInterest}
-                  onChange={(e) => setCurrentInterest(e.target.value)}
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      handleAddInterest();
-                    }
-                  }}
-                  className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all"
-                  placeholder="Add an interest"
-                />
-              </div>
-              <button
-                type="button"
-                onClick={handleAddInterest}
-                className="px-4 py-3 bg-green-100 hover:bg-green-200 text-green-700 rounded-2xl transition-all"
-              >
-                <Plus className="w-5 h-5" />
-              </button>
-            </div>
-            {interests.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {interests.map((interest) => (
-                  <span
-                    key={interest}
-                    className="inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-green-50 to-blue-50 text-green-700 text-sm rounded-full border border-green-200"
-                  >
-                    {interest}
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveInterest(interest)}
-                      className="hover:text-red-600 transition-colors"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </span>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-2xl text-sm">
-              {error}
-            </div>
-          )}
-
-          <div className="flex gap-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-2xl transition-all"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="flex-1 px-4 py-3 bg-gradient-to-r from-green-400 to-blue-400 text-white font-semibold rounded-2xl hover:from-green-500 hover:to-blue-500 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? 'Saving...' : child ? 'Update' : 'Add Child'}
-            </button>
-          </div>
-        </form>
-      </div>
+        <div className="flex items-center gap-4 pt-4">
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex-1 py-4 text-brand-dark/40 font-black uppercase tracking-widest text-[10px] hover:text-brand-coral"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={loading}
+            className="flex-[2] py-5 bg-brand-orange text-white font-black rounded-3xl hover:bg-brand-coral transition-all shadow-2xl shadow-brand-orange/30 disabled:opacity-50 uppercase tracking-widest text-xs"
+          >
+            {loading ? 'Saving...' : child ? 'Update' : 'Add Child'}
+          </button>
+        </div>
+      </form>
     </div>
-  );
+  )
 }
