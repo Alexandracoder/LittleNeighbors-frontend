@@ -1,6 +1,7 @@
+import familyBg from '../assets/create-family.png'
 import React, { useState, useEffect } from 'react'
 import { Home, User, FileText, Image, MapPin } from 'lucide-react'
-// Adjust the path to the correct location of the 'api' module
+
 import { familyApi, neighborhoodApi } from '../services/api'
 import type { NeighborhoodResponseDTO } from '../types'
 
@@ -41,7 +42,13 @@ export default function CreateFamilyProfile() {
         profilePictureUrl,
         neighborhoodId,
       })
-      // Aquí podrías redirigir al dashboard: window.location.href = '/dashboard';
+      // Reset form after successful creation
+      setRepresentativeName('')
+      setFamilyName('')
+      setDescription('')
+      setProfilePictureUrl('')
+      setNeighborhoodId(0)
+      alert('Family profile created successfully!')
     } catch (err: any) {
       setError(err.response?.data?.message || 'Error creating family profile')
     } finally {
@@ -50,140 +57,70 @@ export default function CreateFamilyProfile() {
   }
 
   return (
-    /* FONDO PRINCIPAL: Crema Suave */
-    <div className="min-h-screen bg-[#FDFCF0] p-4 py-12 font-sans">
-      <div className="max-w-2xl mx-auto">
-        {/* CONTENEDOR DE TU ILUSTRACIÓN: 
-            Asegúrate de que la ruta en 'src' sea la correcta para tu imagen */}
-        <div className="flex justify-center -mb-16 relative z-10 px-6">
+    <div className="min-h-screen flex items-center justify-center p-6 bg-slate-50">
+      <div className="relative w-full max-w-4xl bg-white rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col md:flex-row">
+        {/* Lado Izquierdo: Imagen */}
+        <div className="hidden md:block md:w-1/3 relative">
           <img
-            src="/assets/neighborhood-illustration.svg"
-            alt="Little Neighbors Community"
-            className="max-h-52 w-auto drop-shadow-md transform hover:scale-105 transition-transform duration-500"
+            src={familyBg}
+            alt="Neighborhood"
+            className="h-full w-full object-cover"
           />
+          <div className="absolute inset-0 bg-gradient-to-t from-orange-400/40 to-transparent" />
         </div>
 
-        {/* TARJETA DEL FORMULARIO */}
-        <div className="bg-white rounded-[2.5rem] shadow-2xl p-8 pt-20 border border-[#E0E2DB]">
-          <header className="text-center mb-10">
-            <h1 className="text-3xl font-extrabold text-[#2F3E46] mb-2">
-              Create Your Family Profile
-            </h1>
-            <p className="text-[#6B9080] font-medium">
-              Let your neighbors get to know your family
-            </p>
-          </header>
+        {/* Lado Derecho: Formulario */}
+        <div
+          className="flex-1 p-8 md:p-12 bg-cover bg-center"
+          style={{
+            backgroundImage: `linear-gradient(rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.95)), url(${familyBg})`,
+          }}
+        >
+          <div className="max-w-md mx-auto">
+            <header className="mb-8">
+              <h1 className="text-3xl font-bold text-gray-800 mb-2">
+                Create Your Family Profile
+              </h1>
+              <p className="text-gray-600">
+                Join your neighbors and start connecting!
+              </p>
+            </header>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
-            {/* REPRESENTATIVE NAME */}
-            <div>
-              <label className="block text-sm font-bold text-[#2F3E46] mb-2 ml-1">
-                Representative Name
-              </label>
-              <div className="relative group">
-                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#6B9080]/60 group-focus-within:text-[#FF8C42] transition-colors" />
-                <input
-                  type="text"
-                  value={representativeName}
-                  onChange={e => setRepresentativeName(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3.5 border-2 border-[#E0E2DB] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#FF8C42] focus:border-transparent transition-all bg-[#F9F7F2]/40"
-                  placeholder="John Doe"
-                  required
-                />
-              </div>
-            </div>
-
-            {/* FAMILY NAME */}
-            <div>
-              <label className="block text-sm font-bold text-[#2F3E46] mb-2 ml-1">
-                Family Name
-              </label>
-              <div className="relative group">
-                <Home className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#6B9080]/60 group-focus-within:text-[#FF8C42] transition-colors" />
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  Family Name
+                </label>
                 <input
                   type="text"
                   value={familyName}
                   onChange={e => setFamilyName(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3.5 border-2 border-[#E0E2DB] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#FF8C42] focus:border-transparent transition-all bg-[#F9F7F2]/40"
-                  placeholder="The Doe Family"
+                  className="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:ring-2 focus:ring-orange-300 outline-none transition-all bg-white/80"
+                  placeholder="The Rodriguez Family"
                   required
                 />
               </div>
-            </div>
 
-            {/* DESCRIPTION */}
-            <div>
-              <label className="block text-sm font-bold text-[#2F3E46] mb-2 ml-1">
-                Description
-              </label>
-              <div className="relative group">
-                <FileText className="absolute left-4 top-4 w-5 h-5 text-[#6B9080]/60 group-focus-within:text-[#FF8C42] transition-colors" />
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  About Us
+                </label>
                 <textarea
                   value={description}
                   onChange={e => setDescription(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3.5 border-2 border-[#E0E2DB] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#FF8C42] focus:border-transparent transition-all bg-[#F9F7F2]/40 resize-none min-h-[120px]"
+                  className="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:ring-2 focus:ring-orange-300 outline-none transition-all bg-white/80 h-32"
                   placeholder="Tell us about your family..."
-                  required
                 />
               </div>
-            </div>
 
-            {/* PHOTO URL */}
-            <div>
-              <label className="block text-sm font-bold text-[#2F3E46] mb-2 ml-1">
-                Profile Picture URL
-              </label>
-              <div className="relative group">
-                <Image className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#6B9080]/60 group-focus-within:text-[#FF8C42] transition-colors" />
-                <input
-                  type="url"
-                  value={profilePictureUrl}
-                  onChange={e => setProfilePictureUrl(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3.5 border-2 border-[#E0E2DB] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#FF8C42] focus:border-transparent transition-all bg-[#F9F7F2]/40"
-                  placeholder="https://example.com/photo.jpg"
-                  required
-                />
-              </div>
-            </div>
-
-            {/* NEIGHBORHOOD SELECT */}
-            <div>
-              <label className="block text-sm font-bold text-[#2F3E46] mb-2 ml-1">
-                Neighborhood
-              </label>
-              <div className="relative group">
-                <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#6B9080]/60 group-focus-within:text-[#FF8C42] transition-colors" />
-                <select
-                  value={neighborhoodId}
-                  onChange={e => setNeighborhoodId(Number(e.target.value))}
-                  className="w-full pl-12 pr-4 py-3.5 border-2 border-[#E0E2DB] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#FF8C42] focus:border-transparent transition-all appearance-none bg-[#F9F7F2]/40 cursor-pointer"
-                  required
-                >
-                  <option value="">Select a neighborhood</option>
-                  {neighborhoods.map(n => (
-                    <option key={n.id} value={n.id}>
-                      {n.name} - {n.cityName}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {error && (
-              <div className="bg-red-50 border-l-4 border-red-400 text-red-700 p-4 rounded-lg text-sm animate-shake">
-                {error}
-              </div>
-            )}
-
-            {/* BOTÓN PRINCIPAL: Naranja Coral */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-[#FF8C42] text-white font-bold py-4 rounded-2xl shadow-lg hover:bg-[#F07A2E] hover:shadow-xl hover:-translate-y-1 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-widest text-sm mt-4"
-            >
-              {loading ? 'Creating...' : 'Create Family Profile'}
-            </button>
-          </form>
+              <button
+                type="submit"
+                className="w-full py-4 bg-gradient-to-r from-orange-400 to-amber-500 text-white font-bold rounded-2xl shadow-lg hover:shadow-orange-200 hover:-translate-y-0.5 transition-all"
+              >
+                Finish Profile
+              </button>
+            </form>
+          </div>
         </div>
       </div>
     </div>

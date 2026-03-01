@@ -26,9 +26,9 @@ export interface FamilyResponseDTO {
 }
 
 export interface ChildRequestDTO {
-  firstName: string;
   birthDate: string;
-  interests: string[];
+  gender: 'BOY' | 'GIRL';
+  interests: number[];
 }
 
 export interface ChildResponseDTO {
