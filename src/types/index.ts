@@ -25,17 +25,22 @@ export interface FamilyResponseDTO {
   neighborhoodName: string;
 }
 
-export interface ChildRequestDTO {
-  birthDate: string;
-  gender: 'BOY' | 'GIRL';
-  interests: number[];
+export interface ChildSummaryDTO {
+  id: number
+  gender: 'BOY' | 'GIRL'
+  age: number
 }
 
-export interface ChildResponseDTO {
-  id: number;
-  firstName: string;
-  age: number;
-  interests: string[];
+export interface ChildResponseDTO extends ChildSummaryDTO {
+  birthDate: string
+  interestIds: number[]
+  
+}
+
+export interface ChildRequestDTO {
+  gender: 'BOY' | 'GIRL'
+  birthDate: string
+  interestIds: number[]
 }
 
 export interface NeighborhoodResponseDTO {

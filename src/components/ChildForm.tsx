@@ -21,8 +21,8 @@ export default function ChildForm({
 
   useEffect(() => {
     if (child) {
-      setGender(child.gender)
-      // Si el backend solo devuelve edad, calculamos un año aproximado
+      setGender(child.gender as 'BOY' | 'GIRL')
+      
       const year = new Date().getFullYear() - child.age
       setBirthDate(`${year}-01-01`)
     }
@@ -39,12 +39,14 @@ export default function ChildForm({
     setLoading(true)
 
     try {
-      // Ajuste para coincidir con el Record Java: ChildRequestDTO
+      
       const data: ChildRequestDTO = {
         gender: gender as 'BOY' | 'GIRL',
-        birthDate: birthDate, // Formato YYYY-MM-DD
-        interestIds: [], // Enviamos Set vacío para evitar el @NotNull del backend
+        birthDate: birthDate,
+        interestIds: [],
       }
+
+      console.log(' Enviando datos:', data)
 
       if (child) {
         await childApi.update(child.id, data)
@@ -53,9 +55,12 @@ export default function ChildForm({
       }
       onSuccess()
     } catch (err: any) {
-      console.error('API Error:', err.response?.data || err.message)
+      
+      console.error(' Error del Servidor:', err.response?.data)
+
       setError(
         err.response?.data?.message ||
+          err.response?.data?.detail ||
           'Failed to save child. Check the information provided.',
       )
     } finally {
@@ -83,7 +88,7 @@ export default function ChildForm({
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-8 px-2">
-        {/* SELECTOR DE GÉNERO */}
+        
         <div className="space-y-3">
           <label className="block text-xs font-black text-brand-dark/50 uppercase tracking-tighter ml-1">
             Choose Gender
@@ -111,7 +116,7 @@ export default function ChildForm({
           </div>
         </div>
 
-        {/* FECHA DE NACIMIENTO */}
+       
         <div className="space-y-3">
           <label className="block text-xs font-black text-brand-dark/50 uppercase tracking-tighter ml-1">
             Birth Date
@@ -131,7 +136,7 @@ export default function ChildForm({
         </div>
 
         {error && (
-          <div className="p-4 bg-brand-coral/10 border border-brand-coral/20 text-brand-coral rounded-2xl text-xs font-bold">
+          <div className="p-4 bg-brand-coral/10 border border-brand-coral/20 text-brand-coral rounded-2xl text-xs font-bold animate-in fade-in zoom-in">
             {error}
           </div>
         )}
@@ -140,14 +145,14 @@ export default function ChildForm({
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-4 text-brand-dark/40 font-black uppercase tracking-widest text-[10px] hover:text-brand-coral"
+            className="flex-1 py-4 text-brand-dark/40 font-black uppercase tracking-widest text-[10px] hover:text-brand-coral transition-colors"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="flex-[2] py-5 bg-brand-orange text-white font-black rounded-3xl hover:bg-brand-coral transition-all shadow-2xl shadow-brand-orange/30 disabled:opacity-50 uppercase tracking-widest text-xs"
+            className="flex-[2] py-5 bg-brand-orange text-white font-black rounded-3xl hover:bg-brand-coral transition-all shadow-2xl shadow-brand-orange/30 disabled:opacity-50 uppercase tracking-widest text-xs active:scale-95"
           >
             {loading ? 'Saving...' : child ? 'Update' : 'Add Child'}
           </button>

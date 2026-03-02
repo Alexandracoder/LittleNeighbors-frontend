@@ -9,6 +9,7 @@ import type {
   NeighborhoodResponseDTO,
   RegisterRequest,
   Page,
+  ChildSummaryDTO,
 } from '../types';
 
 const API_BASE_URL = 'http://localhost:8080/api';
@@ -94,25 +95,36 @@ export const familyApi = {
   },
 };
 
+
 export const childApi = {
-  getAll: async (): Promise<ChildResponseDTO[]> => {
-    const response = await api.get<ChildResponseDTO[]>('/children');
+  
+  getAll: async (): Promise<ChildSummaryDTO[]> => {
+    const response = await api.get<ChildSummaryDTO[]>('/children/summaries');
     return response.data;
   },
 
+  
   create: async (data: ChildRequestDTO): Promise<ChildResponseDTO> => {
     const response = await api.post<ChildResponseDTO>('/children', data);
     return response.data;
   },
+
 
   update: async (id: number, data: ChildRequestDTO): Promise<ChildResponseDTO> => {
     const response = await api.put<ChildResponseDTO>(`/children/${id}`, data);
     return response.data;
   },
 
+  
   delete: async (id: number): Promise<void> => {
     await api.delete(`/children/${id}`);
   },
+
+  
+  getById: async (id: number): Promise<ChildResponseDTO> => {
+    const response = await api.get<ChildResponseDTO>(`/children/${id}`);
+    return response.data;
+  }
 };
 
 export default api;
