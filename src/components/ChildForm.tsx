@@ -1,7 +1,7 @@
 import { useState, useEffect, FormEvent } from 'react'
-import { X, Calendar } from 'lucide-react'
-import { childApi } from '../services/api'
-import type { ChildResponseDTO, ChildRequestDTO } from '../types'
+import { X, Calendar, Heart } from 'lucide-react'
+import { childApi, interestApi } from '../services/api' // Asegúrate de tener interestApi
+import type { ChildResponseDTO, ChildRequestDTO, InterestDTO, InterestResponseDTO } from '../types'
 
 interface ChildFormProps {
   child: ChildResponseDTO | null
@@ -16,17 +16,41 @@ export default function ChildForm({
 }: ChildFormProps) {
   const [gender, setGender] = useState<'BOY' | 'GIRL' | ''>('')
   const [birthDate, setBirthDate] = useState('')
+  const [selectedInterestIds, setSelectedInterestIds] = useState<number[]>([])
+  const [availableInterests, setAvailableInterests] = useState<InterestDTO[]>(
+    [],
+  )
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
+ 
   useEffect(() => {
-    if (child) {
-      setGender(child.gender as 'BOY' | 'GIRL')
-      
-      const year = new Date().getFullYear() - child.age
-      setBirthDate(`${year}-01-01`)
+    interestApi.getAll().then(setAvailableInterests).catch(console.error)
+  }, [])
+
+  
+useEffect(() => {
+  if (child) {
+    setGender(child.gender as 'BOY' | 'GIRL')
+
+    if (child.birthDate) {
+      setBirthDate(child.birthDate)
     }
-  }, [child])
+
+    // CAMBIO AQUÍ: El backend envía 'interests' (objetos), no 'interestIds' (números)
+    if (child.interests && Array.isArray(child.interests)) {
+      const ids = child.interests.map((i: InterestResponseDTO) => i.id)
+      setSelectedInterestIds(ids)
+    } else {
+      setSelectedInterestIds([]) // Si no hay, reseteamos a vacío
+    }
+  }
+}, [child])
+  const toggleInterest = (id: number) => {
+    setSelectedInterestIds(prev =>
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id],
+    )
+  }
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -39,14 +63,11 @@ export default function ChildForm({
     setLoading(true)
 
     try {
-      
       const data: ChildRequestDTO = {
         gender: gender as 'BOY' | 'GIRL',
         birthDate: birthDate,
-        interestIds: [],
+        interestIds: selectedInterestIds,
       }
-
-      console.log(' Enviando datos:', data)
 
       if (child) {
         await childApi.update(child.id, data)
@@ -55,21 +76,15 @@ export default function ChildForm({
       }
       onSuccess()
     } catch (err: any) {
-      
-      console.error(' Error del Servidor:', err.response?.data)
-
-      setError(
-        err.response?.data?.message ||
-          err.response?.data?.detail ||
-          'Failed to save child. Check the information provided.',
-      )
+      setError(err.response?.data?.message || 'Failed to save child')
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="w-full">
+    <div className="w-full max-h-[80vh] overflow-y-auto custom-scrollbar">
+      
       <div className="flex items-center justify-between mb-8 px-2">
         <div>
           <h2 className="text-2xl font-black text-brand-dark tracking-tight">
@@ -102,7 +117,7 @@ export default function ChildForm({
                 className={`py-5 rounded-[2rem] font-black text-sm transition-all border-2 flex flex-col items-center gap-2 ${
                   gender === g
                     ? 'border-brand-orange bg-brand-orange text-white shadow-xl shadow-brand-orange/20 scale-[1.02]'
-                    : 'border-brand-yellow/30 bg-brand-cream/40 text-brand-dark/40 hover:border-brand-orange/30'
+                    : 'border-brand-yellow/30 bg-brand-cream/40 text-brand-dark/40'
                 }`}
               >
                 <span className="tracking-widest uppercase">{g}</span>
@@ -116,7 +131,7 @@ export default function ChildForm({
           </div>
         </div>
 
-       
+        {/* Fecha de Nacimiento */}
         <div className="space-y-3">
           <label className="block text-xs font-black text-brand-dark/50 uppercase tracking-tighter ml-1">
             Birth Date
@@ -135,8 +150,39 @@ export default function ChildForm({
           </div>
         </div>
 
+        {/* NUEVA SECCIÓN: Intereses */}
+        <div className="space-y-4">
+          <label className="block text-xs font-black text-brand-dark/50 uppercase tracking-tighter ml-1">
+            Interests & Hobbies
+          </label>
+          <div className="flex flex-wrap gap-2">
+            {availableInterests.map(interest => (
+              <button
+                key={interest.id}
+                type="button"
+                onClick={() => toggleInterest(interest.id)}
+                className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 border-2 ${
+                  selectedInterestIds.includes(interest.id)
+                    ? 'bg-brand-yellow border-brand-yellow text-brand-dark'
+                    : 'border-brand-yellow/20 text-brand-dark/40 hover:border-brand-yellow/50'
+                }`}
+              >
+                <Heart
+                  className={`w-3 h-3 ${
+                    selectedInterestIds.includes(interest.id)
+                      ? 'fill-current'
+                      : ''
+                  }`}
+                />
+                {interest.name}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Botones de acción (Tu diseño) */}
         {error && (
-          <div className="p-4 bg-brand-coral/10 border border-brand-coral/20 text-brand-coral rounded-2xl text-xs font-bold animate-in fade-in zoom-in">
+          <div className="p-4 bg-brand-coral/10 text-brand-coral rounded-2xl text-xs font-bold">
             {error}
           </div>
         )}
@@ -145,14 +191,14 @@ export default function ChildForm({
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-4 text-brand-dark/40 font-black uppercase tracking-widest text-[10px] hover:text-brand-coral transition-colors"
+            className="flex-1 py-4 text-brand-dark/40 font-black uppercase tracking-widest text-[10px]"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="flex-[2] py-5 bg-brand-orange text-white font-black rounded-3xl hover:bg-brand-coral transition-all shadow-2xl shadow-brand-orange/30 disabled:opacity-50 uppercase tracking-widest text-xs active:scale-95"
+            className="flex-[2] py-5 bg-brand-orange text-white font-black rounded-3xl hover:bg-brand-coral shadow-2xl shadow-brand-orange/30 disabled:opacity-50 uppercase tracking-widest text-xs"
           >
             {loading ? 'Saving...' : child ? 'Update' : 'Add Child'}
           </button>
