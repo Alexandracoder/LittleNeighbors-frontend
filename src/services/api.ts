@@ -3,7 +3,6 @@ import type {
   AuthRequest,
   AuthResponse,
   FamilyRequestDTO,
-  FamilyResponseDTO,
   ChildRequestDTO,
   ChildResponseDTO,
   NeighborhoodResponseDTO,
@@ -11,18 +10,19 @@ import type {
   Page,
   ChildSummaryDTO,
   InterestResponseDTO,
+  FamilyAuthResponseDTO,
 } from '../types'
 
 const API_BASE_URL = 'http://localhost:8080/api'
 
 const api = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: 'http://localhost:8080/api',
   headers: {
     'Content-Type': 'application/json',
   },
 })
 
-// Interceptor para añadir el Token JWT a cada petición
+// Interceptor para inyectar el token en cada petición
 api.interceptors.request.use(
   config => {
     const token = localStorage.getItem('accessToken')
@@ -31,12 +31,10 @@ api.interceptors.request.use(
     }
     return config
   },
-  error => {
-    return Promise.reject(error)
-  },
+  error => Promise.reject(error),
 )
 
-// Interceptor para manejar el Refresh Token (401 Unauthorized)
+// Interceptor para manejar el refresco automático de tokens (401 Unauthorized)
 api.interceptors.response.use(
   response => response,
   async error => {
@@ -48,6 +46,7 @@ api.interceptors.response.use(
       try {
         const refreshToken = localStorage.getItem('refreshToken')
         if (refreshToken) {
+          // Usamos axios directo aquí para evitar bucles infinitos con el interceptor
           const response = await axios.post<AuthResponse>(
             `${API_BASE_URL}/auth/refresh`,
             { refreshToken },
@@ -61,21 +60,17 @@ api.interceptors.response.use(
           return api(originalRequest)
         }
       } catch (refreshError) {
-        localStorage.removeItem('accessToken')
-        localStorage.removeItem('refreshToken')
+        localStorage.clear() // Limpiamos todo
         window.location.href = '/login'
         return Promise.reject(refreshError)
       }
     }
-
     return Promise.reject(error)
   },
 )
 
-// --- AUTH API ---
 export const authApi = {
   login: async (data: AuthRequest): Promise<AuthResponse> => {
-    console.log('Objeto data que recibe authApi:', data)
     const response = await api.post<AuthResponse>('/auth/login', data)
     return response.data
   },
@@ -83,9 +78,17 @@ export const authApi = {
   register: async (userData: RegisterRequest): Promise<void> => {
     await api.post('/auth/register', userData)
   },
+
+  refreshSession: async (): Promise<AuthResponse> => {
+    const refreshToken = localStorage.getItem('refreshToken')
+    // Enviamos el record tal cual lo espera el backend
+    const response = await api.post<AuthResponse>('/auth/refresh', {
+      refreshToken,
+    })
+    return response.data
+  },
 }
 
-// --- NEIGHBORHOOD API ---
 export const neighborhoodApi = {
   getAll: async (): Promise<NeighborhoodResponseDTO[]> => {
     const response = await api.get<Page<NeighborhoodResponseDTO>>(
@@ -95,15 +98,12 @@ export const neighborhoodApi = {
   },
 }
 
-// --- FAMILY API ---
 export const familyApi = {
-  create: async (data: FamilyRequestDTO): Promise<FamilyResponseDTO> => {
-    const response = await api.post<FamilyResponseDTO>('/families', data)
-    return response.data
+  create: async (data: FamilyRequestDTO): Promise<FamilyAuthResponseDTO> => {
+    const response = await api.post<FamilyAuthResponseDTO>('/families', data)
+    return response.data // <-- Esto es vital
   },
 }
-
-// --- INTEREST API (Corregido: fuera de familyApi) ---
 export const interestApi = {
   getAll: async (): Promise<InterestResponseDTO[]> => {
     const response = await api.get<InterestResponseDTO[]>('/interests')
@@ -111,9 +111,15 @@ export const interestApi = {
   },
 }
 
-// --- CHILD API ---
 export const childApi = {
-  getAll: async (): Promise<ChildSummaryDTO[]> => {
+  // --- CORRECCIÓN CLAVE: Ahora pide SOLO los niños de tu familia ---
+  getAll: async (): Promise<ChildResponseDTO[]> => {
+    const response = await api.get<ChildResponseDTO[]>('/children/my-children')
+    return response.data
+  },
+
+  // Mantenemos este para el admin si fuera necesario
+  getAdminSummaries: async (): Promise<ChildSummaryDTO[]> => {
     const response = await api.get<ChildSummaryDTO[]>('/children/summaries')
     return response.data
   },

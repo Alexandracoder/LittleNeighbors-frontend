@@ -1,3 +1,5 @@
+import { ReactNode } from "react"
+
 // --- AUTH & USER ---
 export interface AuthRequest {
   email: string
@@ -5,6 +7,12 @@ export interface AuthRequest {
 }
 
 export interface AuthResponse {
+  accessToken: string
+  refreshToken: string
+}
+
+export interface FamilyAuthResponseDTO {
+  family: FamilyResponseDTO
   accessToken: string
   refreshToken: string
 }
@@ -20,7 +28,7 @@ export interface User {
   roles: UserRole[]
 }
 
-export type UserRole = 'ROLE_USER' | 'ROLE_FAMILY' | 'ROLE_ADMIN'
+export type UserRole = 'USER' | 'FAMILY' | 'ADMIN'
 
 export interface RegisterRequest {
   firstName: string
@@ -39,20 +47,21 @@ export interface FamilyRequestDTO {
 }
 
 export interface FamilyResponseDTO {
+  data: { accessToken: any; refreshToken: any }
   id: number
   representativeName: string
   familyName: string
   description: string
   profilePictureUrl: string
   neighborhoodName: string
-  // Añadimos estos para que coincidan con tu Java Mapper
+  
   streetName?: string
   postalCode?: string
   cityName?: string
   children?: ChildSummaryDTO[]
 }
 
-// --- CHILD ---
+
 export interface ChildSummaryDTO {
   id: number
   gender: 'BOY' | 'GIRL'
@@ -60,21 +69,22 @@ export interface ChildSummaryDTO {
 }
 
 export interface ChildResponseDTO {
+  firstName: ReactNode
   id: number
   gender: 'BOY' | 'GIRL'
   birthDate: string
   age: number
-  interests: InterestResponseDTO[] // Ya no es interestIds
+  interests: InterestResponseDTO[]
   familyId: number
 }
 
 export interface ChildRequestDTO {
   gender: 'BOY' | 'GIRL'
   birthDate: string
-  interestIds: number[] // El Request sigue enviando IDs (long)
+  interestIds: number[]
 }
 
-// --- INTEREST & NEIGHBORHOOD ---
+
 export interface InterestResponseDTO {
   id: number
   name: string
@@ -87,7 +97,6 @@ export interface NeighborhoodResponseDTO {
   cityName: string
 }
 
-// --- UTILS ---
 export interface Page<T> {
   content: T[]
   totalElements: number

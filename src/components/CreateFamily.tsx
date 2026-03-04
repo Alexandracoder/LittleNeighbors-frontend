@@ -1,23 +1,26 @@
 import familyBg from '../assets/create-family.png'
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { familyApi, neighborhoodApi } from '../services/api'
 import type { NeighborhoodResponseDTO } from '../types'
 import { Users, Info, MapPin, X } from 'lucide-react'
+import { useAuth } from '../context/AuthContext'
 
-export default function CreateFamilyProfile() {
+export default function CreateFamily() {
   const [familyName, setFamilyName] = useState('')
   const [description, setDescription] = useState('')
   const [neighborhoodId, setNeighborhoodId] = useState<number>(0)
   const [neighborhoods, setNeighborhoods] = useState<NeighborhoodResponseDTO[]>(
     [],
   )
-  const [showForm, setShowForm] = useState(false) // Estado para el efecto "emerger"
+  const [showForm, setShowForm] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const navigate = useNavigate()
+  const { updateSession } = useAuth()
 
+  // 1. Cargar barrios al montar el componente
   useEffect(() => {
     const fetchNeighborhoods = async () => {
       try {
@@ -30,31 +33,51 @@ export default function CreateFamilyProfile() {
     fetchNeighborhoods()
   }, [])
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  // 2. Manejador del formulario
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+
+    if (neighborhoodId === 0) {
+      setError('Please select a neighborhood before continuing.')
+      return
+    }
+
     setLoading(true)
     setError(null)
 
     try {
-      await familyApi.create({
+      setLoading(true);
+      
+      // 1. Llamada al API (ahora devuelve directamente el DTO, no el objeto Axios)
+      const data = await familyApi.create({
         familyName,
         description,
         neighborhoodId,
-        representativeName: '', // Opcional según tu backend
-        profilePictureUrl: '', // Opcional según tu backend
-      })
-      alert('Family profile created successfully!')
-      navigate('/dashboard') // Redirigir para que el rol FAMILY se refresque
+        representativeName: '',
+        profilePictureUrl: '',
+      });
+
+      // 2. Extraemos tokens directamente de 'data'
+      const { accessToken, refreshToken } = data;
+
+      if (accessToken && refreshToken) {
+        // 3. Guardamos sesión y navegamos
+        updateSession(accessToken, refreshToken);
+        navigate('/add-child', { replace: true });
+      } else {
+        throw new Error('Tokens not found in server response');
+      }
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Error creating family profile')
+      console.error('Error creating family:', err);
+      // Ajuste para capturar el mensaje de error correctamente
+      const errorMessage = err.response?.data?.message || err.message || 'Error creating family profile';
+      setError(errorMessage);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
-
   return (
     <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden">
-      {/* 1. FONDO DE FOTO COMPLETA (SIN BLUR) */}
       <div
         className="absolute inset-0 z-0"
         style={{
@@ -63,14 +86,10 @@ export default function CreateFamilyProfile() {
           backgroundPosition: 'center',
         }}
       />
+      <div className="absolute inset-0 bg-black/30 z-10" />
 
-      {/* 2. OVERLAY PARA DAR CONTRASTE (OPCIONAL) */}
-      <div className="absolute inset-0 bg-black/20 z-10" />
-
-      {/* 3. CONTENIDO QUE EMERGE */}
       <div className="relative z-20 w-full max-w-xl px-6">
         {!showForm ? (
-          /* BOTÓN INICIAL QUE INVITA A CREAR */
           <div className="text-center animate-in fade-in zoom-in duration-500">
             <h1 className="text-5xl font-bold text-white mb-6 drop-shadow-lg">
               Welcome, Neighbor!
@@ -86,9 +105,7 @@ export default function CreateFamilyProfile() {
             </button>
           </div>
         ) : (
-          /* FORMULARIO QUE EMERGE (CARD) */
           <div className="bg-white/95 backdrop-blur-sm rounded-[2.5rem] p-8 md:p-12 shadow-2xl animate-in slide-in-from-bottom-10 duration-500 relative">
-            {/* Botón cerrar */}
             <button
               onClick={() => setShowForm(false)}
               className="absolute top-6 right-6 text-gray-400 hover:text-gray-600"
@@ -112,7 +129,7 @@ export default function CreateFamilyProfile() {
             )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="relative">
+              <div>
                 <label className="flex items-center text-sm font-bold text-gray-700 mb-2 ml-1">
                   <Users size={16} className="mr-2 text-orange-500" /> Family
                   Name
@@ -121,7 +138,7 @@ export default function CreateFamilyProfile() {
                   type="text"
                   value={familyName}
                   onChange={e => setFamilyName(e.target.value)}
-                  className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 focus:border-orange-400 focus:ring-0 outline-none transition-all bg-gray-50/50"
+                  className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 focus:border-orange-400 outline-none transition-all bg-gray-50/50"
                   placeholder="e.g. The Millers"
                   required
                 />
@@ -138,7 +155,9 @@ export default function CreateFamilyProfile() {
                   className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 focus:border-orange-400 outline-none transition-all bg-gray-50/50 appearance-none"
                   required
                 >
-                  <option value={0}>Select your area...</option>
+                  <option value={0} disabled>
+                    Select your area...
+                  </option>
                   {neighborhoods.map(n => (
                     <option key={n.id} value={n.id}>
                       {n.name}
@@ -155,7 +174,7 @@ export default function CreateFamilyProfile() {
                   value={description}
                   onChange={e => setDescription(e.target.value)}
                   className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 focus:border-orange-400 outline-none transition-all bg-gray-50/50 h-32 resize-none"
-                  placeholder="We love gardening and have two golden retrievers..."
+                  placeholder="Tell your neighbors about your family..."
                 />
               </div>
 
@@ -164,7 +183,7 @@ export default function CreateFamilyProfile() {
                 disabled={loading}
                 className="w-full py-5 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold rounded-2xl shadow-xl hover:shadow-orange-200 hover:-translate-y-1 transition-all disabled:opacity-50"
               >
-                {loading ? 'Saving Profile...' : 'Create My Profile'}
+                {loading ? 'Creating Family...' : 'Save and Continue'}
               </button>
             </form>
           </div>
