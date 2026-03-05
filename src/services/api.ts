@@ -11,18 +11,20 @@ import type {
   ChildSummaryDTO,
   InterestResponseDTO,
   FamilyAuthResponseDTO,
+  FamilyResponseDTO,
 } from '../types'
 
 const API_BASE_URL = 'http://localhost:8080/api'
 
+// 1. Instancia base de Axios
 const api = axios.create({
-  baseURL: 'http://localhost:8080/api',
+  baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
 })
 
-// Interceptor para inyectar el token en cada petición
+// 2. Interceptor para inyectar el token en cada petición
 api.interceptors.request.use(
   config => {
     const token = localStorage.getItem('accessToken')
@@ -34,7 +36,7 @@ api.interceptors.request.use(
   error => Promise.reject(error),
 )
 
-// Interceptor para manejar el refresco automático de tokens (401 Unauthorized)
+// 3. Interceptor para manejar el refresco automático de tokens (401 Unauthorized)
 api.interceptors.response.use(
   response => response,
   async error => {
@@ -46,7 +48,7 @@ api.interceptors.response.use(
       try {
         const refreshToken = localStorage.getItem('refreshToken')
         if (refreshToken) {
-          // Usamos axios directo aquí para evitar bucles infinitos con el interceptor
+          // Usamos axios directo aquí para evitar bucles infinitos
           const response = await axios.post<AuthResponse>(
             `${API_BASE_URL}/auth/refresh`,
             { refreshToken },
@@ -60,7 +62,7 @@ api.interceptors.response.use(
           return api(originalRequest)
         }
       } catch (refreshError) {
-        localStorage.clear() // Limpiamos todo
+        localStorage.clear()
         window.location.href = '/login'
         return Promise.reject(refreshError)
       }
@@ -68,6 +70,8 @@ api.interceptors.response.use(
     return Promise.reject(error)
   },
 )
+
+// --- EXPORTACIONES NOMBRADAS ---
 
 export const authApi = {
   login: async (data: AuthRequest): Promise<AuthResponse> => {
@@ -81,7 +85,6 @@ export const authApi = {
 
   refreshSession: async (): Promise<AuthResponse> => {
     const refreshToken = localStorage.getItem('refreshToken')
-    // Enviamos el record tal cual lo espera el backend
     const response = await api.post<AuthResponse>('/auth/refresh', {
       refreshToken,
     })
@@ -101,9 +104,29 @@ export const neighborhoodApi = {
 export const familyApi = {
   create: async (data: FamilyRequestDTO): Promise<FamilyAuthResponseDTO> => {
     const response = await api.post<FamilyAuthResponseDTO>('/families', data)
-    return response.data // <-- Esto es vital
+    return response.data
+  },
+
+  // CORRECCIÓN: Ahora acepta parámetros opcionales para los filtros
+  explore: async (params?: {
+    interestId?: number
+    minAge?: number
+    maxAge?: number
+  }): Promise<FamilyResponseDTO[]> => {
+    // Pasamos los params a la petición GET de axios
+    const response = await api.get<FamilyResponseDTO[]>('/families/explore', {
+      params,
+    })
+    return response.data
+  },
+
+  // Añadido para que el Dashboard pueda verificar la familia
+  getMyFamily: async () => {
+    const response = await api.get('/families/my-family')
+    return response.data
   },
 }
+
 export const interestApi = {
   getAll: async (): Promise<InterestResponseDTO[]> => {
     const response = await api.get<InterestResponseDTO[]>('/interests')
@@ -112,13 +135,12 @@ export const interestApi = {
 }
 
 export const childApi = {
-  // --- CORRECCIÓN CLAVE: Ahora pide SOLO los niños de tu familia ---
   getAll: async (): Promise<ChildResponseDTO[]> => {
+    // IMPORTANTE: Asegúrate de que esta ruta existe en tu Backend
     const response = await api.get<ChildResponseDTO[]>('/children/my-children')
     return response.data
   },
 
-  // Mantenemos este para el admin si fuera necesario
   getAdminSummaries: async (): Promise<ChildSummaryDTO[]> => {
     const response = await api.get<ChildSummaryDTO[]>('/children/summaries')
     return response.data
@@ -133,6 +155,7 @@ export const childApi = {
     id: number,
     data: ChildRequestDTO,
   ): Promise<ChildResponseDTO> => {
+    // Verifica en la consola que el ID llegue correctamente
     const response = await api.put<ChildResponseDTO>(`/children/${id}`, data)
     return response.data
   },
@@ -147,4 +170,5 @@ export const childApi = {
   },
 }
 
+// 4. Exportación por defecto de la instancia de axios
 export default api

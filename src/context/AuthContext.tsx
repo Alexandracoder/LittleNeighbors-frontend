@@ -11,12 +11,17 @@ import type { User, DecodedToken, AuthRequest, UserRole } from '../types'
 
 interface AuthContextType {
   user: User | null
+  familyEntity: any | null // Corregido el nombre a 'familyEntity'
   loading: boolean
   login: (credentials: AuthRequest) => Promise<User | null>
   logout: () => void
   hasRole: (role: UserRole) => boolean
   refreshUser: () => Promise<void>
-  updateSession: (accessToken: string, refreshToken: string) => User | null
+  updateSession: (
+    accessToken: string,
+    refreshToken: string,
+    familyData?: any,
+  ) => User | null
   updateTokenAfterFamilyCreation: () => Promise<User | null>
 }
 
@@ -24,46 +29,48 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null)
+  const [familyEntity, setFamilyEntity] = useState<any | null>(null)
   const [loading, setLoading] = useState(true)
 
   const decodeToken = (token: string): User | null => {
     try {
       const decoded = jwtDecode<DecodedToken>(token)
-      return {
-        email: decoded.sub,
-        roles: decoded.roles,
-      }
+      return { email: decoded.sub, roles: decoded.roles }
     } catch {
       return null
     }
   }
 
+  // Inicialización: Recuperamos usuario y familia del LocalStorage
   useEffect(() => {
     const initAuth = () => {
       const token = localStorage.getItem('accessToken')
+      const savedFamily = localStorage.getItem('familyEntity')
+
       if (token) {
-        const userData = decodeToken(token)
-        setUser(userData)
+        setUser(decodeToken(token))
+      }
+      if (savedFamily) {
+        setFamilyEntity(JSON.parse(savedFamily))
       }
       setLoading(false)
     }
     initAuth()
   }, [])
 
-  const refreshUser = async () => {
-    const token = localStorage.getItem('accessToken')
-    if (token) {
-      const userData = decodeToken(token)
-      setUser(userData)
-    }
-  }
-
   const updateSession = (
     accessToken: string,
     refreshToken: string,
+    familyData?: any,
   ): User | null => {
     localStorage.setItem('accessToken', accessToken)
     localStorage.setItem('refreshToken', refreshToken)
+
+    if (familyData) {
+      localStorage.setItem('familyEntity', JSON.stringify(familyData))
+      setFamilyEntity(familyData)
+    }
+
     const userData = decodeToken(accessToken)
     setUser(userData)
     return userData
@@ -71,17 +78,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (credentials: AuthRequest): Promise<User | null> => {
     const response = await authApi.login(credentials)
-    return updateSession(response.accessToken, response.refreshToken)
+  
+    return updateSession(
+      response.accessToken,
+      response.refreshToken,
+    )
   }
 
   const logout = () => {
     localStorage.removeItem('accessToken')
     localStorage.removeItem('refreshToken')
+    localStorage.removeItem('familyEntity')
     setUser(null)
+    setFamilyEntity(null)
   }
 
-  const hasRole = (role: UserRole) => {
-    return user?.roles.includes(role) || false
+  const hasRole = (role: UserRole) => user?.roles.includes(role) || false
+
+  const refreshUser = async () => {
+    const token = localStorage.getItem('accessToken')
+    if (token) setUser(decodeToken(token))
   }
 
   const updateTokenAfterFamilyCreation = async (): Promise<User | null> => {
@@ -98,6 +114,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     <AuthContext.Provider
       value={{
         user,
+        familyEntity,
         loading,
         login,
         logout,
@@ -114,7 +131,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
 export const useAuth = () => {
   const context = useContext(AuthContext)
-  if (context === undefined)
-    throw new Error('useAuth must be used within an AuthProvider')
+  if (!context) throw new Error('useAuth must be used within an AuthProvider')
   return context
 }

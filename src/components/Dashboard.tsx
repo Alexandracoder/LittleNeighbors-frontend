@@ -1,223 +1,142 @@
-import { useState, useEffect } from 'react'
-import { LogOut, Plus, Users } from 'lucide-react'
-import { useAuth } from '../context/AuthContext'
-import { childApi } from '../services/api'
-import type { ChildResponseDTO } from '../types'
-import ChildCard from './ChildCard'
-import ChildForm from './ChildForm'
-import movingBg from '../assets/moving.png'
+import { useNavigate } from 'react-router-dom'
+import {
+  Search,
+  Users,
+  Heart,
+  MapPin,
+  Calendar,
+  LogOut,
+  ArrowLeft,
+} from 'lucide-react'
+import dashboardBg from '../assets/neighborhood-picnic.png'
 
 export default function Dashboard() {
-  const [children, setChildren] = useState<ChildResponseDTO[]>([])
-  const [showForm, setShowForm] = useState(false)
-  const [editingChild, setEditingChild] = useState<ChildResponseDTO | null>(
-    null,
-  )
-  const [loading, setLoading] = useState(true)
-  const { logout, user } = useAuth()
+  const navigate = useNavigate()
 
-  const fetchChildren = async () => {
-    try {
-      setLoading(true)
-      const data = await childApi.getAll()
-      setChildren(data)
-    } catch (err) {
-      console.error('Failed to fetch children:', err)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    fetchChildren()
-  }, [])
-
-  const handleDelete = async (id: number) => {
-    if (!window.confirm('Are you sure you want to remove this profile?')) return
-
-    try {
-      await childApi.delete(id)
-      setChildren(prev => prev.filter(c => c.id !== id))
-    } catch (err) {
-      console.error('Fallo al borrar:', err)
-      // Si es un 404, el niño ya no existe, así que lo quitamos de la vista
-      setChildren(prev => prev.filter(c => c.id !== id))
-      alert(
-        'This profile no longer exists on the server. Updating your view...',
-      )
-    }
-  } // <-- Aquí faltaba cerrar la función correctamente
-
-  const handleEdit = (child: ChildResponseDTO) => {
-    setEditingChild(child)
-    setShowForm(true)
-  }
-
-  const handleFormClose = () => {
-    setShowForm(false)
-    setEditingChild(null)
-  }
-
-  const handleFormSuccess = () => {
-    fetchChildren()
-    handleFormClose()
+  const handleLogout = () => {
+    // Aquí iría tu lógica de borrar token/contexto
+    console.log('Cerrando sesión...')
+    navigate('/login')
   }
 
   return (
-    <div className="min-h-screen w-full relative overflow-x-hidden bg-brand-cream">
-      {/* --- CAPA 1: IMAGEN DE FONDO FIXED --- */}
+    <div className="relative min-h-screen w-full overflow-x-hidden font-sans">
+      {/* --- FONDO FIJO PERSONALIZADO --- */}
       <div
-        className="fixed inset-0 bg-cover bg-center z-0"
+        className="fixed inset-0 z-0"
         style={{
-          backgroundImage: `url(${movingBg})`,
-          backgroundAttachment: 'fixed',
-          filter: 'blur(1.5px) brightness(0.9)',
+          backgroundImage: `url(${dashboardBg})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
         }}
       />
+      <div className="fixed inset-0 z-10 bg-brand-dark/30 backdrop-blur-[2px]" />
 
-      {/* Overlay suave */}
-      <div className="fixed inset-0 bg-brand-cream/10 z-0" />
+      {/* --- BOTONES DE UTILIDAD (Top Bar) --- */}
+      <div className="relative z-30 flex justify-between p-6">
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-md text-white rounded-full hover:bg-white/40 transition-all font-bold text-xs uppercase tracking-widest"
+        >
+          <ArrowLeft className="w-4 h-4" /> Back
+        </button>
 
-      {/* --- CAPA 2: CONTENIDO --- */}
-      <div className="relative z-10">
-        <header className="bg-white/70 backdrop-blur-md sticky top-0 z-30 border-b border-brand-orange/20 shadow-sm">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="bg-brand-orange p-2 rounded-xl shadow-sm">
-                  <Users className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-2xl font-bold text-brand-coral leading-none">
-                    Little Neighbors
-                  </h1>
-                  <p className="text-[10px] text-brand-dark opacity-60 font-bold uppercase tracking-wider mt-1">
-                    {user?.email}
-                  </p>
-                </div>
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-2 px-4 py-2 bg-red-500/20 backdrop-blur-md text-red-200 rounded-full hover:bg-red-500/40 transition-all font-bold text-xs uppercase tracking-widest border border-red-500/30"
+        >
+          <LogOut className="w-4 h-4" /> Log Out
+        </button>
+      </div>
+
+      {/* --- CONTENIDO PRINCIPAL --- */}
+      <div className="relative z-20 px-6 pb-12">
+        <div className="max-w-6xl mx-auto">
+          <header className="mb-12 text-center md:text-left">
+            <h1 className="text-5xl font-black text-white tracking-tighter uppercase drop-shadow-2xl">
+              Welcome, <span className="text-brand-orange">Neighbor!</span>
+            </h1>
+            <p className="text-orange-50 font-bold mt-2 uppercase tracking-widest text-sm">
+              Your community headquarters
+            </p>
+          </header>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* CARD 1: EXPLORE (Find Playmates) */}
+            <div className="bg-white/95 backdrop-blur-sm p-10 rounded-[3rem] shadow-2xl border-b-8 border-brand-orange hover:scale-[1.02] transition-all group">
+              <div className="bg-brand-orange/10 w-16 h-16 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-brand-orange group-hover:text-white transition-colors">
+                <Users className="w-8 h-8" />
               </div>
+              <h2 className="text-3xl font-black text-brand-dark mb-4 uppercase">
+                Find Playmates
+              </h2>
+              <p className="text-gray-500 font-medium mb-8">
+                Connect with local families and find the perfect friends for
+                your kids.
+              </p>
               <button
-                onClick={logout}
-                className="flex items-center gap-2 px-4 py-2 bg-white/50 border-2 border-brand-orange text-brand-orange hover:bg-brand-orange hover:text-white font-bold rounded-2xl transition-all active:scale-95"
+                onClick={() => navigate('/explore')}
+                className="flex items-center gap-3 px-8 py-5 bg-brand-orange text-white font-black rounded-2xl shadow-lg hover:bg-brand-dark transition-all uppercase tracking-widest text-xs w-full justify-center"
               >
-                <LogOut className="w-4 h-4" />
-                <span>Logout</span>
+                <Search className="w-5 h-5" /> Explore Neighborhood
+              </button>
+            </div>
+
+            {/* CARD 2: SCHEDULES (Planned Playdates) */}
+            <div className="bg-white/95 backdrop-blur-sm p-10 rounded-[3rem] shadow-2xl border-b-8 border-brand-coral hover:scale-[1.02] transition-all group">
+              <div className="bg-brand-coral/10 w-16 h-16 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-brand-coral group-hover:text-white transition-colors text-brand-coral">
+                <Calendar className="w-8 h-8" />
+              </div>
+              <h2 className="text-3xl font-black text-brand-dark mb-4 uppercase">
+                Schedules
+              </h2>
+              <p className="text-gray-500 font-medium mb-8">
+                Manage your upcoming meetups and see who's coming to the park.
+              </p>
+              <button
+                onClick={() => navigate('/schedules')}
+                className="flex items-center gap-3 px-8 py-5 border-2 border-brand-coral text-brand-coral font-black rounded-2xl hover:bg-brand-coral hover:text-white transition-all uppercase tracking-widest text-xs w-full justify-center"
+              >
+                <Heart className="w-5 h-5" /> View My Playdates
               </button>
             </div>
           </div>
-        </header>
 
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-          <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6 bg-white/30 p-8 rounded-[3rem] backdrop-blur-md border border-white/60 shadow-xl">
-            <div>
-              <h2 className="text-4xl font-extrabold text-brand-dark tracking-tight">
-                Your Family
-              </h2>
-              <p className="text-brand-orange font-bold text-lg mt-1">
-                Welcome to your neighborhood dashboard!
-              </p>
+          {/* BARRA INFERIOR: INFO ÁREA */}
+          <div className="mt-12 bg-brand-dark/80 backdrop-blur-md text-white p-8 rounded-[2.5rem] flex flex-col md:flex-row items-center justify-between gap-6 border border-white/10 shadow-2xl">
+            <div className="flex items-center gap-4">
+              <div className="bg-brand-orange p-3 rounded-full">
+                <MapPin className="text-brand-dark w-6 h-6" />
+              </div>
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-orange">
+                  Active Community
+                </p>
+                <p className="font-bold text-xl">Valencia, Spain</p>
+              </div>
             </div>
 
-            <button
-              onClick={() => alert('Coming soon: Neighborhood explorer!')}
-              className="flex items-center justify-center gap-2 px-8 py-4 bg-white border-2 border-brand-coral text-brand-coral font-black rounded-2xl hover:bg-brand-coral hover:text-white transition-all shadow-lg hover:-translate-y-1 active:scale-95"
-            >
-              <Users className="w-6 h-6" />
-              <span>FIND PLAYMATES</span>
-            </button>
-          </div>
-
-          <div className="relative">
-            {loading ? (
-              <div className="text-center py-20 bg-white/20 backdrop-blur-sm rounded-[3rem]">
-                <div className="inline-block animate-spin rounded-full h-14 w-14 border-t-4 border-brand-orange"></div>
-                <p className="text-brand-dark mt-6 font-bold text-xl">
-                  Loading neighbors...
+            <div className="flex gap-8">
+              <div className="text-center">
+                <p className="text-3xl font-black italic text-brand-orange">
+                  24
+                </p>
+                <p className="text-[10px] uppercase font-bold text-gray-400 tracking-widest">
+                  Neighbors
                 </p>
               </div>
-            ) : children.length === 0 ? (
-              <div className="flex justify-center py-10">
-                <div className="bg-white/90 backdrop-blur-xl rounded-[2.5rem] shadow-2xl p-8 text-center border-2 border-white max-w-sm w-full transition-transform hover:scale-[1.01]">
-                  <div className="max-w-xs mx-auto">
-                    <div className="bg-brand-yellow/30 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 shadow-inner">
-                      <Plus className="w-8 h-8 text-brand-orange" />
-                    </div>
-                    <h3 className="text-xl font-black text-brand-dark mb-2 tracking-tight">
-                      Empty Nest?
-                    </h3>
-                    <p className="text-brand-dark/70 mb-6 text-sm font-medium leading-relaxed">
-                      Add your children to start connecting with other families
-                      in your neighborhood!
-                    </p>
-                    <button
-                      onClick={() => setShowForm(true)}
-                      className="w-full py-4 bg-brand-orange text-white font-black rounded-2xl hover:bg-brand-coral transition-all shadow-xl text-sm uppercase tracking-widest"
-                    >
-                      Add First Child
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {children.map(child => (
-                  <div
-                    key={child.id}
-                    className="transform hover:scale-[1.03] transition-all duration-300"
-                  >
-                    <ChildCard
-                      child={child}
-                      onEdit={handleEdit}
-                      onDelete={handleDelete}
-                    />
-                  </div>
-                ))}
-
-                <button
-                  onClick={() => {
-                    setEditingChild(null)
-                    setShowForm(true)
-                  }}
-                  className="group h-full min-h-[220px] border-4 border-dashed border-brand-orange/20 rounded-[2.5rem] flex flex-col items-center justify-center gap-4 hover:border-brand-orange/50 hover:bg-white/30 transition-all duration-300"
-                >
-                  <div className="bg-brand-orange/10 p-4 rounded-full group-hover:bg-brand-orange/20 transition-all">
-                    <Plus className="w-8 h-8 text-brand-orange" />
-                  </div>
-                  <span className="font-bold text-brand-orange uppercase tracking-widest text-sm">
-                    Add another child
-                  </span>
-                </button>
-              </div>
-            )}
-          </div>
-        </main>
-      </div>
-
-      {showForm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 transition-all">
-          <div
-            className="absolute inset-0 bg-brand-dark/40 backdrop-blur-md animate-in fade-in duration-500"
-            onClick={handleFormClose}
-          />
-
-          <div className="relative z-10 w-full max-w-lg transform animate-in fade-in zoom-in duration-300">
-            <div className="bg-white/95 backdrop-blur-xl rounded-[3rem] shadow-2xl border-t-8 border-brand-orange overflow-hidden flex flex-col max-h-[90vh]">
-              <div className="p-6 overflow-y-auto custom-scrollbar">
-                <ChildForm
-                  child={editingChild}
-                  onClose={handleFormClose}
-                  onSuccess={handleFormSuccess}
-                />
-              </div>
-              <div className="bg-brand-cream/30 py-3 text-center border-t border-brand-yellow/10">
-                <p className="text-[9px] text-brand-dark/40 font-bold uppercase tracking-widest">
-                  Little Neighbors • Family Profile
+              <div className="text-center">
+                <p className="text-3xl font-black italic text-brand-coral">
+                  15
+                </p>
+                <p className="text-[10px] uppercase font-bold text-gray-400 tracking-widest">
+                  Events
                 </p>
               </div>
             </div>
           </div>
         </div>
-      )}
+      </div>
     </div>
   )
 }

@@ -15,6 +15,7 @@ export interface FamilyAuthResponseDTO {
   family: FamilyResponseDTO
   accessToken: string
   refreshToken: string
+  familyEntity: FamilyResponseDTO
 }
 
 export interface DecodedToken {
@@ -26,6 +27,7 @@ export interface DecodedToken {
 export interface User {
   email: string
   roles: UserRole[]
+  familyEntidy?:
 }
 
 export type UserRole = 'USER' | 'FAMILY' | 'ADMIN'
@@ -47,6 +49,7 @@ export interface FamilyRequestDTO {
 }
 
 export interface FamilyResponseDTO {
+  neighborhood: any
   data: { accessToken: any; refreshToken: any }
   id: number
   representativeName: string
@@ -63,13 +66,14 @@ export interface FamilyResponseDTO {
 
 
 export interface ChildSummaryDTO {
+  birthDate : string
+  interests: any
   id: number
   gender: 'BOY' | 'GIRL'
   age: number
 }
 
 export interface ChildResponseDTO {
-  firstName: ReactNode
   id: number
   gender: 'BOY' | 'GIRL'
   birthDate: string

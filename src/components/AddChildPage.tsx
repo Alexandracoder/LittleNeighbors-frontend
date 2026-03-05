@@ -4,7 +4,7 @@ import { childApi } from '../services/api'
 import type { ChildResponseDTO } from '../types'
 import ChildForm from './ChildForm'
 import ChildCard from './ChildCard'
-import { Plus, ArrowRight, Baby } from 'lucide-react'
+import { Plus, ArrowRight, Baby, Sparkles } from 'lucide-react'
 
 export default function AddChildPage() {
   const [children, setChildren] = useState<ChildResponseDTO[]>([])
@@ -20,8 +20,14 @@ export default function AddChildPage() {
       setLoading(true)
       const data = await childApi.getAll()
       setChildren(data)
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error loading children:', err)
+      // Si recibimos un 401 o 403 aquí, es que el token no se ha refrescado bien
+      if (err.response?.status === 403) {
+        console.warn(
+          'Acceso denegado: el token no tiene el rol FAMILY todavía.',
+        )
+      }
     } finally {
       setLoading(false)
     }
@@ -33,11 +39,19 @@ export default function AddChildPage() {
 
   const handleDelete = async (id: number) => {
     if (window.confirm('Are you sure you want to remove this profile?')) {
+      // Sincronización optimista: lo quitamos de la UI primero
+      const previousChildren = [...children]
+      setChildren(prev => prev.filter(c => c.id !== id))
+
       try {
         await childApi.delete(id)
-        setChildren(prev => prev.filter(c => c.id !== id))
-      } catch (err) {
-        alert('Could not delete child profile. Please try again.')
+      } catch (err: any) {
+        console.error('Error al borrar:', err)
+        // Si el error NO es un 404 (porque el 404 significa que ya no existe), restauramos
+        if (err.response?.status !== 404) {
+          alert('Could not delete child profile. Please try again.')
+          setChildren(previousChildren)
+        }
       }
     }
   }
@@ -50,73 +64,94 @@ export default function AddChildPage() {
   const handleSuccess = () => {
     setIsFormOpen(false)
     setEditingChild(null)
-    loadChildren() // Recarga la lista para ver los cambios
+    loadChildren()
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 md:p-12">
-      <div className="max-w-5xl mx-auto">
-        <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
+    <div className="min-h-screen bg-brand-cream/30 p-6 md:p-12 relative overflow-hidden">
+      {/* Elemento decorativo sutil para mantener el "alma" visual */}
+      <div className="absolute top-0 right-0 -z-10 opacity-10">
+        <Sparkles className="w-96 h-96 text-brand-orange" />
+      </div>
+
+      <div className="max-w-5xl mx-auto relative z-10">
+        <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
           <div>
-            <h1 className="text-4xl font-black text-gray-900 tracking-tight flex items-center gap-3">
-              <Baby className="text-orange-500 w-10 h-10" /> Your Little
-              Neighbors
-            </h1>
-            <p className="text-gray-500 font-medium mt-1">
-              Add or manage your children's profiles
+            <div className="flex items-center gap-3 mb-2">
+              <div className="bg-brand-orange p-2 rounded-xl shadow-lg">
+                <Baby className="text-white w-8 h-8" />
+              </div>
+              <h1 className="text-4xl font-black text-brand-dark tracking-tight">
+                Little Neighbors
+              </h1>
+            </div>
+            <p className="text-gray-500 font-bold ml-1 uppercase tracking-widest text-xs">
+              Manage your family members
             </p>
           </div>
+
           <button
             onClick={() => navigate('/dashboard')}
-            className="group flex items-center gap-2 px-8 py-4 bg-white text-gray-700 font-black rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all border-2 border-transparent hover:border-orange-100"
+            className="group flex items-center gap-3 px-8 py-4 bg-white text-brand-coral font-black rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all border-2 border-brand-orange/10"
           >
-            Go to Dashboard{' '}
-            <ArrowRight className="w-5 h-5 text-orange-500 group-hover:translate-x-1 transition-transform" />
+            Go to Dashboard
+            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </button>
         </header>
 
         {loading && children.length === 0 ? (
-          <div className="text-center py-20">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto"></div>
+          <div className="text-center py-20 bg-white/40 backdrop-blur-md rounded-[3rem]">
+            <div className="animate-spin rounded-full h-14 w-14 border-t-4 border-brand-orange mx-auto"></div>
+            <p className="mt-4 font-bold text-brand-orange animate-pulse uppercase tracking-widest text-sm">
+              Loading children...
+            </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
             {children.map(child => (
-              <ChildCard
+              <div
                 key={child.id}
-                child={child}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-              />
+                className="hover:scale-[1.02] transition-transform"
+              >
+                <ChildCard
+                  child={child}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                />
+              </div>
             ))}
 
-            {/* Botón para añadir nuevo */}
             <button
               onClick={() => {
                 setEditingChild(null)
                 setIsFormOpen(true)
               }}
-              className="border-4 border-dashed border-gray-200 rounded-[3rem] p-10 flex flex-col items-center justify-center gap-4 hover:border-orange-300 hover:bg-orange-50/50 transition-all group min-h-[250px]"
+              className="border-4 border-dashed border-brand-orange/20 rounded-[3rem] p-10 flex flex-col items-center justify-center gap-4 hover:border-brand-orange/50 hover:bg-white/60 transition-all group min-h-[250px] bg-white/20 backdrop-blur-sm"
             >
-              <div className="p-5 bg-gray-100 rounded-full group-hover:bg-orange-500 group-hover:text-white transition-all shadow-inner">
+              <div className="p-5 bg-white rounded-full group-hover:bg-brand-orange group-hover:text-white transition-all shadow-xl group-hover:rotate-90 duration-500">
                 <Plus className="w-10 h-10" />
               </div>
-              <span className="font-black text-gray-400 group-hover:text-orange-500 uppercase tracking-widest text-sm">
-                Add Child
+              <span className="font-black text-brand-orange/40 group-hover:text-brand-orange uppercase tracking-widest text-xs">
+                Add New Profile
               </span>
             </button>
           </div>
         )}
 
-        {/* Modal del Formulario (se abre para Crear o Editar) */}
         {isFormOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200">
-            <div className="w-full max-w-xl shadow-2xl animate-in zoom-in-95 duration-300">
-              <ChildForm
-                child={editingChild}
-                onClose={() => setIsFormOpen(false)}
-                onSuccess={handleSuccess}
-              />
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div
+              className="absolute inset-0 bg-brand-dark/40 backdrop-blur-md animate-in fade-in duration-300"
+              onClick={() => setIsFormOpen(false)}
+            />
+            <div className="relative z-10 w-full max-w-xl animate-in zoom-in-95 duration-300">
+              <div className="bg-white rounded-[3rem] shadow-2xl border-t-8 border-brand-orange overflow-hidden">
+                <ChildForm
+                  child={editingChild}
+                  onClose={() => setIsFormOpen(false)}
+                  onSuccess={handleSuccess}
+                />
+              </div>
             </div>
           </div>
         )}
