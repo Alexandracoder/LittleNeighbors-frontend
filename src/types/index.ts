@@ -9,6 +9,7 @@ export interface AuthRequest {
 export interface AuthResponse {
   accessToken: string
   refreshToken: string
+  family: FamilyResponseDTO
 }
 
 export interface FamilyAuthResponseDTO {

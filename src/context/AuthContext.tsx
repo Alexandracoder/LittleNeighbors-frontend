@@ -11,7 +11,7 @@ import type { User, DecodedToken, AuthRequest, UserRole } from '../types'
 
 interface AuthContextType {
   user: User | null
-  familyEntity: any | null // Corregido el nombre a 'familyEntity'
+  familyEntity: any | null
   loading: boolean
   login: (credentials: AuthRequest) => Promise<User | null>
   logout: () => void
@@ -76,14 +76,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return userData
   }
 
-  const login = async (credentials: AuthRequest): Promise<User | null> => {
-    const response = await authApi.login(credentials)
-  
-    return updateSession(
-      response.accessToken,
-      response.refreshToken,
-    )
-  }
+const login = async (credentials: AuthRequest): Promise<User | null> => {
+  const response = await authApi.login(credentials)
+
+  // DEBUG: Si response.family es undefined, aquí veremos la estructura real
+  console.log('Respuesta cruda del backend:', response)
+
+  // Si tu backend devuelve la familia dentro de un objeto diferente,
+  // ajústalo aquí. Por ejemplo, si es response.data.family:
+  const familyData = response.family || (response as any).data?.family
+
+  return updateSession(response.accessToken, response.refreshToken, familyData)
+}
 
   const logout = () => {
     localStorage.removeItem('accessToken')

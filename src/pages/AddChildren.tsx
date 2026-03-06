@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { childApi } from '../services/api'
 import type { ChildResponseDTO } from '../types'
-import ChildForm from './ChildForm'
-import ChildCard from './ChildCard'
+import ChildForm from '../components/ChildForm'
+import ChildCard from '../components/ChildCard'
 import { Plus, ArrowRight, Baby, Sparkles } from 'lucide-react'
 
 export default function AddChildPage() {

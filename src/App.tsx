@@ -1,36 +1,56 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+} from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import Login from './components/Login'
 import CreateFamily from './components/CreateFamily'
 import Dashboard from './components/Dashboard'
 import ProtectedRoute from './components/ProtectedRoute'
 import Register from './components/Register'
-import AddChildPage from './components/AddChildPage'
+import AddChildPage from './pages/AddChildren'
 import ExplorePage from './pages/ExplorePage'
 
 function RoleBasedRedirect() {
-  const { user, loading } = useAuth()
+  const { user, familyEntity, loading } = useAuth()
+  const location = useLocation()
 
-  if (loading)
-    return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-orange"></div>
-      </div>
-    )
+  if (loading) return null
 
   if (!user) return <Navigate to="/login" replace />
 
   const roles = user.roles || []
-  // Cambiamos la lógica: si es FAMILY pero acaba de ser actualizado,
-  // permitimos que el flujo decida.
-  const hasAccess = roles.includes('FAMILY') || roles.includes('ADMIN')
 
-  if (hasAccess) {
-    return <Navigate to="/dashboard" replace />
+  // Verificamos si la familia tiene niños.
+  const hasChildren = familyEntity?.children && familyEntity.children.length > 0
+
+  if (roles.includes('ADMIN')) {
+    return location.pathname !== '/dashboard' ? (
+      <Navigate to="/dashboard" replace />
+    ) : null
   }
 
-  return <Navigate to="/create-family" replace />
-}
+  if (roles.includes('FAMILY')) {
+    if (!hasChildren && location.pathname !== '/add-child') {
+      return <Navigate to="/add-child" replace />
+    }
+    if (hasChildren && location.pathname !== '/dashboard') {
+      return <Navigate to="/dashboard" replace />
+    }
+    // Si el usuario ya está donde debe, salimos de la función aquí.
+    return null
+  }
+
+  // Ahora, este bloque solo afectará a los que NO son FAMILY ni ADMIN
+  if (location.pathname !== '/create-family') {
+    return <Navigate to="/create-family" replace />
+  }
+
+  return null
+} // <--- AÑADIDA: Esta llave cerraba mal la función
 
 function App() {
   return (
@@ -40,9 +60,6 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
-          {/* CAMBIO CLAVE: Permitimos 'FAMILY' en create-family para que 
-              no te eche de la página justo cuando el backend te cambia el rol 
-          */}
           <Route
             path="/create-family"
             element={
@@ -79,6 +96,7 @@ function App() {
             }
           />
 
+          {/* El redirect raíz decide a dónde ir según el estado del usuario */}
           <Route path="/" element={<RoleBasedRedirect />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

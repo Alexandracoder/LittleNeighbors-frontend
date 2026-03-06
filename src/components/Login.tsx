@@ -15,26 +15,20 @@ export default function Login() {
   const { login } = useAuth()
   const navigate = useNavigate()
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault()
-    setError('')
-    setLoading(true)
-    try {
-      const user = await login({ email, password })
-      if (user) {
-        const roles = user.roles || []
-        const isFamily = roles.some((r: any) =>
-          typeof r === 'string' ? r === 'FAMILY' : r.name === 'FAMILY',
-        )
-        // Navegación mágica: si ya tiene familia, al dashboard; si no, a crearla.
-        navigate(isFamily ? '/dashboard' : '/create-family', { replace: true })
-      }
-    } catch (err: any) {
-      setError('Invalid email or password')
-    } finally {
-      setLoading(false)
-    }
+const handleSubmit = async (e: FormEvent) => {
+  e.preventDefault()
+  setLoading(true)
+  try {
+    await login({ email, password })
+    // NO navegues manualmente aquí.
+    // Deja que el App.tsx (a través de /) detecte que ya estás logueado y te envíe al sitio correcto.
+    navigate('/', { replace: true })
+  } catch (err) {
+    setError('Invalid email or password')
+  } finally {
+    setLoading(false)
   }
+}
 
   return (
     <div className="relative min-h-screen w-full flex items-center justify-center p-4 overflow-hidden">
