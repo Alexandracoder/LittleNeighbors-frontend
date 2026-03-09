@@ -43,32 +43,32 @@ const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
   setError(null)
 
   try {
-    // 1. Llamada a la API
+    // 1. Crear la familia (asegúrate de que los campos coincidan con tu backend)
     const response = await familyApi.create({
       familyName,
       description,
       neighborhoodId,
-      representativeName: '',
+      // Nota: Si el backend requiere nombre, obténlo del AuthContext
+      representativeName: 'User',
       profilePictureUrl: '',
     })
 
-    const { accessToken, refreshToken, family } = response
+    // 2. Actualizar sesión global: Esto es vital para el ProtectedRoute
+    // El AuthContext debe reconocer ahora que el usuario tiene una familia activa.
+    updateSession(response.accessToken, response.refreshToken, response.family)
 
-    // 2. Actualizamos el AuthContext (esto refresca los permisos de usuario a FAMILY)
-    // Pasamos la familia creada para que el Dashboard no la pida de nuevo
-    updateSession(accessToken, refreshToken, family)
-
-    // 3. Navegación directa al perfil del niño
+    // 3. Flujo obligatorio: Redirección al siguiente nodo del diagrama (Añadir hijos)
+    // El { replace: true } evita que el usuario pueda volver al formulario de familia con 'atrás'
     navigate('/add-child', { replace: true })
   } catch (err: any) {
-    const errorMessage =
-      err.response?.data?.message || 'Error creating family profile'
-    setError(errorMessage)
+    console.error('Error in creation flow:', err)
+    setError(
+      err.response?.data?.message || 'Failed to initialize family profile',
+    )
   } finally {
     setLoading(false)
   }
 }
-
   return (
     <div className="relative min-h-screen w-full flex items-center justify-center p-6 overflow-hidden bg-brand-dark">
       {/* FONDO CONSTRUIDO PARA SER VISIBLE */}

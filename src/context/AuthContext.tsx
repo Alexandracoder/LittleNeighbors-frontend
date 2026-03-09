@@ -41,17 +41,39 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }
 
-  // Inicialización: Recuperamos usuario y familia del LocalStorage
+  const fetchFamilyFromApi = async () => {
+    try {
+      const profile = await authApi.getProfile()
+      if (profile && profile.family) {
+        localStorage.setItem('familyEntity', JSON.stringify(profile.family))
+        setFamilyEntity(profile.family)
+        return profile.family
+      }
+    } catch (e) {
+      console.warn('No se pudo sincronizar la familia desde la API.')
+    }
+    return null
+  }
+
   useEffect(() => {
-    const initAuth = () => {
+    const initAuth = async () => {
       const token = localStorage.getItem('accessToken')
       const savedFamily = localStorage.getItem('familyEntity')
 
       if (token) {
-        setUser(decodeToken(token))
-      }
-      if (savedFamily) {
-        setFamilyEntity(JSON.parse(savedFamily))
+        const decodedUser = decodeToken(token)
+        setUser(decodedUser)
+
+        if (savedFamily && savedFamily !== 'undefined') {
+          try {
+            setFamilyEntity(JSON.parse(savedFamily))
+          } catch (e) {
+            localStorage.removeItem('familyEntity')
+            await fetchFamilyFromApi()
+          }
+        } else {
+          await fetchFamilyFromApi()
+        }
       }
       setLoading(false)
     }
@@ -66,35 +88,77 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem('accessToken', accessToken)
     localStorage.setItem('refreshToken', refreshToken)
 
+    const userData = decodeToken(accessToken)
+
     if (familyData) {
       localStorage.setItem('familyEntity', JSON.stringify(familyData))
       setFamilyEntity(familyData)
+
+      setUser(prev => {
+        const baseUser = userData || prev
+        if (!baseUser) return null
+
+        // Forzamos a que los roles sean tratados como UserRole[]
+        const currentRoles = (baseUser.roles || []) as UserRole[]
+        const newRoles: UserRole[] = currentRoles.includes('FAMILY' as UserRole)
+          ? currentRoles
+          : [...currentRoles, 'FAMILY' as UserRole]
+
+        return {
+          ...baseUser,
+          roles: newRoles,
+          familyEntity: familyData, // Usamos el nombre exacto de tu interfaz
+        }
+      })
+    } else {
+      const savedFamily = localStorage.getItem('familyEntity')
+      if (savedFamily && savedFamily !== 'undefined') {
+        try {
+          const parsedFamily = JSON.parse(savedFamily)
+          setFamilyEntity(parsedFamily)
+          if (userData) setUser({ ...userData, familyEntity: parsedFamily })
+        } catch (e) {
+          if (userData) setUser(userData)
+        }
+      } else if (userData) {
+        setUser(userData)
+      }
     }
 
-    const userData = decodeToken(accessToken)
-    setUser(userData)
     return userData
   }
 
-const login = async (credentials: AuthRequest): Promise<User | null> => {
-  const response = await authApi.login(credentials)
+  const login = async (credentials: AuthRequest): Promise<User | null> => {
+    setLoading(true)
+    localStorage.removeItem('familyEntity')
 
-  // DEBUG: Si response.family es undefined, aquí veremos la estructura real
-  console.log('Respuesta cruda del backend:', response)
+    try {
+      const response = await authApi.login(credentials)
+      const user = updateSession(
+        response.accessToken,
+        response.refreshToken,
+        response.family,
+      )
 
-  // Si tu backend devuelve la familia dentro de un objeto diferente,
-  // ajústalo aquí. Por ejemplo, si es response.data.family:
-  const familyData = response.family || (response as any).data?.family
-
-  return updateSession(response.accessToken, response.refreshToken, familyData)
-}
+      setLoading(false)
+      return user
+    } catch (error) {
+      setLoading(false)
+      throw error
+    }
+  } // <--- AQUÍ TERMINA LOGIN
 
   const logout = () => {
-    localStorage.removeItem('accessToken')
-    localStorage.removeItem('refreshToken')
-    localStorage.removeItem('familyEntity')
+    // Limpiamos absolutamente todo
+    localStorage.clear()
+    sessionStorage.clear()
+
+    // Reseteamos el estado
     setUser(null)
     setFamilyEntity(null)
+
+    // Forzamos la navegación al login
+    window.location.href = '/login'
   }
 
   const hasRole = (role: UserRole) => user?.roles.includes(role) || false
@@ -107,7 +171,13 @@ const login = async (credentials: AuthRequest): Promise<User | null> => {
   const updateTokenAfterFamilyCreation = async (): Promise<User | null> => {
     try {
       const response = await authApi.refreshSession()
-      return updateSession(response.accessToken, response.refreshToken)
+      const freshFamily = await fetchFamilyFromApi()
+
+      return updateSession(
+        response.accessToken,
+        response.refreshToken,
+        freshFamily || familyEntity,
+      )
     } catch (error) {
       console.error('Error actualizando sesión:', error)
       return null
@@ -138,3 +208,4 @@ export const useAuth = () => {
   if (!context) throw new Error('useAuth must be used within an AuthProvider')
   return context
 }
+  

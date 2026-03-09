@@ -1,5 +1,3 @@
-import { ReactNode } from "react"
-
 // --- AUTH & USER ---
 export interface AuthRequest {
   email: string
@@ -12,26 +10,19 @@ export interface AuthResponse {
   family: FamilyResponseDTO
 }
 
-export interface FamilyAuthResponseDTO {
-  family: FamilyResponseDTO
-  accessToken: string
-  refreshToken: string
-  familyEntity: FamilyResponseDTO
-}
-
 export interface DecodedToken {
   sub: string
   roles: UserRole[]
   exp: number
 }
 
+export type UserRole = 'USER' | 'FAMILY' | 'ADMIN'
+
 export interface User {
   email: string
   roles: UserRole[]
-  familyEntidy?:
+  familyEntity?: FamilyResponseDTO
 }
-
-export type UserRole = 'USER' | 'FAMILY' | 'ADMIN'
 
 export interface RegisterRequest {
   firstName: string
@@ -50,62 +41,116 @@ export interface FamilyRequestDTO {
 }
 
 export interface FamilyResponseDTO {
-  neighborhood: any
-  data: { accessToken: any; refreshToken: any }
   id: number
   representativeName: string
   familyName: string
   description: string
   profilePictureUrl: string
   neighborhoodName: string
-  
-  streetName?: string
-  postalCode?: string
-  cityName?: string
-  children?: ChildSummaryDTO[]
+  streetName: string
+  postalCode: string
+  cityName: string
+  children: ChildSummaryDTO[];
 }
 
-
-export interface ChildSummaryDTO {
-  birthDate : string
-  interests: any
-  id: number
-  gender: 'BOY' | 'GIRL'
-  age: number
-}
-
+// --- CHILDREN & INTERESTS ---
 export interface ChildResponseDTO {
+  lifeStage: string
+  isPrenatal: any
+  dueDate: any
   id: number
   gender: 'BOY' | 'GIRL'
-  birthDate: string
+  birthDate?: string
   age: number
   interests: InterestResponseDTO[]
   familyId: number
 }
 
 export interface ChildRequestDTO {
-  gender: 'BOY' | 'GIRL'
-  birthDate: string
+  // Cambiamos a los estados que prefieras usar consistentemente
+  lifeStage: 'PREGNANCY' | 'BORN'
+
+
+  gender: 'BOY' | 'GIRL' | null
+
+  birthDate?: string | null
+  dueDate?: string | null
+
+  isPrenatal: boolean
+
   interestIds: number[]
 }
-
-
 export interface InterestResponseDTO {
   id: number
   name: string
   type: string
 }
 
+// --- NEIGHBORHOOD & EVENTS ---
 export interface NeighborhoodResponseDTO {
   id: number
   name: string
   cityName: string
 }
 
+export interface NeighborhoodEvent {
+  id: string
+  title: string
+  date: string
+  location: string
+  description: string
+  category: 'playground' | 'education' | 'park' | 'community_center' | 'other'
+}
+
+// --- UTILS ---
 export interface Page<T> {
   content: T[]
   totalElements: number
   totalPages: number
   size: number
   number: number
+}
+
+export interface ChildSummaryDTO {
+  id: number
+  gender: string
+  age: number
+}
+
+export interface FamilyAuthResponseDTO {
+  family: FamilyResponseDTO | null
+  accessToken: string
+  refreshToken: string
+}
+
+export interface UserProfileDTO {
+  email: string
+  roles: UserRole[]
+  family: FamilyResponseDTO | null
+}
+
+export interface Child {
+  id: number
+  lifeStage: 'PREGNANCY' | 'BORN'
+  birthDate: string
+  neighborhood: string
+  interests: string[]
+}
+
+export interface Match {
+  id: number
+  childA: Child
+  childB: Child
+  status: 'PENDING' | 'ACCEPTED' | 'REJECTED'
+  createdAt: string
+}
+
+export interface MatchRequest {
+  initiatorChildId: number
+  targetChildId: number
+}
+
+export interface MatchRequest {
+  initiatorChildId: number
+  targetChildId: number
 }

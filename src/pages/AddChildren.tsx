@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { childApi } from '../services/api'
 import type { ChildResponseDTO } from '../types'
+import type { InterestResponseDTO } from '../types'
 import ChildForm from '../components/ChildForm'
 import ChildCard from '../components/ChildCard'
 import { Plus, ArrowRight, Baby, Sparkles } from 'lucide-react'
@@ -12,6 +13,9 @@ export default function AddChildPage() {
   const [editingChild, setEditingChild] = useState<ChildResponseDTO | null>(
     null,
   )
+  const [availableInterests, setAvailableInterests] = useState<
+    InterestResponseDTO[]
+  >([])
   const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
 

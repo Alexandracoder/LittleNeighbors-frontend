@@ -36,13 +36,14 @@ export default function ProtectedRoute({
 
     if (!hasPermission) {
       // Redirección inteligente si es un usuario recién registrado (ROLE_USER)
-      if (
-        userRoles.includes('USER') &&
-        !userRoles.includes('FAMILY') &&
-        location.pathname !== '/create-family'
-      ) {
-        return <Navigate to="/create-family" replace />
-      }
+if (
+  userRoles.includes('USER') &&
+  !userRoles.includes('FAMILY') &&
+  location.pathname !== '/create-family' &&
+  location.pathname !== '/add-child'
+) {
+  return <Navigate to="/create-family" replace />
+}
       return <Navigate to="/dashboard" replace />
     }
   }

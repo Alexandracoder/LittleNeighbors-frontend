@@ -17,38 +17,41 @@ export default function Register() {
   const [loading, setLoading] = useState(false)
   const { login } = useAuth()
   const navigate = useNavigate()
+const handleSubmit = async (e: FormEvent) => {
+  e.preventDefault()
+  setError('')
+  setLoading(true)
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault()
-    setError('')
-    setLoading(true)
+  try {
+    await authApi.register(formData)
+    const loggedUser = await login({
+      email: formData.email,
+      password: formData.password,
+    })
 
-    try {
-      await authApi.register(formData)
-      const loggedUser = await login({
-        email: formData.email,
-        password: formData.password,
+    if (loggedUser) {
+      const roles = loggedUser.roles || []
+      const hasFamilyRole = roles.some((role: any) => {
+        if (typeof role === 'string') return role === 'FAMILY'
+        return role?.name === 'FAMILY'
       })
 
-      if (loggedUser) {
-        const roles = loggedUser.roles || []
-        const hasFamilyRole = roles.some((role: any) => {
-          if (typeof role === 'string') return role === 'FAMILY'
-          return role?.name === 'FAMILY'
-        })
-
-        if (hasFamilyRole) {
-          navigate('/dashboard', { replace: true })
-        } else {
-          navigate('/create-family', { replace: true })
-        }
+      // FLUJO MEJORADO:
+      if (hasFamilyRole) {
+        // Si ya tiene familia, va directo al dashboard
+        navigate('/dashboard', { replace: true })
+      } else {
+        // Si es nuevo, lo mandamos a crear su familia.
+        // Asegúrate de que CreateFamily.tsx luego redirija a /add-child
+        navigate('/create-family', { replace: true })
       }
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Registration failed.')
-    } finally {
-      setLoading(false)
     }
+  } catch (err: any) {
+    setError(err.response?.data?.message || 'Registration failed.')
+  } finally {
+    setLoading(false)
   }
+}
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })

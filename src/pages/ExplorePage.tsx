@@ -5,14 +5,7 @@ import type { FamilyResponseDTO, InterestResponseDTO } from '../types'
 import FamilyCard from '../components/FamilyCard'
 import Navbar from '../components/layout/Navbar'
 import bgImage from '../assets/littleneighbor_playing.png'
-import {
-  MapPin,
-  Heart,
-  Sparkles,
-  FilterX,
-  User,
-  ArrowRight,
-} from 'lucide-react'
+import { MapPin, Heart, FilterX } from 'lucide-react'
 
 export default function ExplorePage() {
   const navigate = useNavigate()
@@ -23,17 +16,33 @@ export default function ExplorePage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  // FILTROS: Ahora selectedInterestIds es un ARRAY para selección múltiple
+  // Estado para capturar el ID del hijo del usuario logueado
+  const [myChildId, setMyChildId] = useState<number | undefined>(undefined)
+
   const [selectedInterestIds, setSelectedInterestIds] = useState<number[]>([])
   const [ageRange, setAgeRange] = useState<{ min: number; max: number } | null>(
     null,
   )
 
+  // Carga inicial: Intereses y Perfil del usuario
   useEffect(() => {
-    interestApi
-      .getAll()
-      .then(setAvailableInterests)
-      .catch(err => console.error('Error loading interests:', err))
+    const initData = async () => {
+      try {
+        const [interests, myProfile] = await Promise.all([
+          interestApi.getAll(),
+          familyApi.getMyFamily(),
+        ])
+        setAvailableInterests(interests)
+
+        // Asumiendo que tu perfil contiene un array de 'children'
+        if (myProfile?.children && myProfile.children.length > 0) {
+          setMyChildId(myProfile.children[0].id)
+        }
+      } catch (err) {
+        console.error('Error al inicializar datos:', err)
+      }
+    }
+    initData()
   }, [])
 
   const loadFamilies = async () => {
@@ -41,7 +50,6 @@ export default function ExplorePage() {
     setError('')
     try {
       const filters = {
-        // Si hay varios intereses, los enviamos (dependiendo de cómo los acepte tu API)
         ...(selectedInterestIds.length > 0 && {
           interestIds: selectedInterestIds,
         }),
@@ -60,7 +68,6 @@ export default function ExplorePage() {
     loadFamilies()
   }, [selectedInterestIds, ageRange])
 
-  // Lógica para marcar/desmarcar múltiples intereses
   const toggleInterest = (id: number) => {
     setSelectedInterestIds(prev =>
       prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id],
@@ -75,8 +82,6 @@ export default function ExplorePage() {
 
   return (
     <div className="min-h-screen bg-stone-950 relative overflow-hidden text-white">
-      {/* ── IMAGEN DE FONDO (LittleNeighbors Style) ── */}
-      // 2. En tu JSX, usa esa constante dentro del objeto style
       <div
         className="fixed inset-0 bg-cover bg-center z-0"
         style={{
@@ -85,11 +90,12 @@ export default function ExplorePage() {
         }}
       />
       <div className="fixed inset-0 bg-gradient-to-b from-stone-950/60 via-transparent to-stone-950/90 z-0" />
+
       <div className="relative z-10">
         <Navbar />
 
         <main className="max-w-7xl mx-auto px-6 py-12">
-          {/* HEADER CON BOTÓN A PERFIL */}
+          {/* HEADER */}
           <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
             <div>
               <div className="flex items-center gap-3 mb-2">
@@ -99,25 +105,15 @@ export default function ExplorePage() {
                   <span className="text-orange-400">Playmates</span>
                 </h1>
               </div>
-              <p className="text-xl text-orange/70 font-medium">
+              <p className="text-xl text-white/70 font-medium">
                 Discover your community in the neighborhood.
               </p>
             </div>
-
-{/*            <button
-              onClick={() => navigate('/dashboard')}
-              className="group flex items-center gap-3 bg-white/10 hover:bg-orange-500 backdrop-blur-xl px-6 py-4 rounded-2xl border border-white/20 transition-all font-bold"
-            >
-              <User className="w-5 h-5" />
-              My Profile
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </button>*/}
           </div>
 
-          {/* FILTROS DINÁMICOS */}
+          {/* FILTROS */}
           <section className="mb-12 bg-white/5 backdrop-blur-2xl rounded-[2.5rem] p-8 border border-white/10">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {/* Edad */}
               <div className="space-y-4">
                 <label className="text-xs font-black text-orange-400 uppercase tracking-widest">
                   Age Groups
@@ -145,7 +141,6 @@ export default function ExplorePage() {
                 </div>
               </div>
 
-              {/* Intereses Múltiples */}
               <div className="space-y-4">
                 <label className="text-xs font-black text-orange-400 uppercase tracking-widest">
                   Shared Interests
@@ -157,7 +152,7 @@ export default function ExplorePage() {
                       onClick={() => toggleInterest(interest.id)}
                       className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all flex items-center gap-2 border ${
                         selectedInterestIds.includes(interest.id)
-                          ? 'bg-coral-500 border-coral-500 text-black shadow-lg shadow-orange-500/20'
+                          ? 'bg-orange-500 border-orange-500 text-white'
                           : 'border-white/10 bg-white/5 text-white/50 hover:border-orange-500'
                       }`}
                     >
@@ -195,22 +190,16 @@ export default function ExplorePage() {
             </div>
           ) : families.length === 0 ? (
             <div className="bg-white/5 backdrop-blur-md rounded-[3rem] p-16 text-center border border-white/10">
-              <h2 className="text-3xl font-black mb-4">
-                No playmates found yet!
-              </h2>
-              <p className="text-white/50 mb-8">
-                Try adjusting your filters to find more neighbors.
-              </p>
-              <img
-                src="/assets/littleneighbor_playing.png"
-                className="w-48 h-48 mx-auto rounded-full object-cover border-4 border-orange-500"
-                alt="No results"
-              />
+              <h2 className="text-3xl font-black mb-4">No playmates found!</h2>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {families.map(f => (
-                <FamilyCard key={f.id} family={f} />
+                <FamilyCard
+                  key={f.id}
+                  family={f}
+                  myChildId={myChildId}
+                />
               ))}
             </div>
           )}
