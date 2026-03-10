@@ -64,12 +64,27 @@ export default function AddChildPage() {
     setEditingChild(child)
     setIsFormOpen(true)
   }
+const handleSuccess = async () => {
+  setIsFormOpen(false)
+  setEditingChild(null)
 
-  const handleSuccess = () => {
-    setIsFormOpen(false)
-    setEditingChild(null)
-    loadChildren()
+  // 1. Recargamos la lista
+  await loadChildren()
+
+  // 2. Comprobamos cuántos hijos hay AHORA.
+  // Como loadChildren actualiza el estado 'children',
+  // podemos consultar el estado directamente.
+  // IMPORTANTE: Si es una edición, el length será el mismo de antes.
+  // Si acabamos de crear el PRIMERO, el length será 1.
+
+  // Obtenemos los hijos actuales de la API para estar seguros
+  // antes de navegar
+  const currentChildren = await childApi.getAll()
+
+  if (currentChildren.length === 1) {
+    navigate('/welcome')
   }
+}
 
   return (
     <div className="min-h-screen bg-brand-cream/30 p-6 md:p-12 relative overflow-hidden">

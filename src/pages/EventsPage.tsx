@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, MapPin } from 'lucide-react'
-import dashboardBg from '../assets/playing-together.png'
+import dashboardBg from '../assets/parent-meeting.png'
 
 export default function EventsPage() {
   const navigate = useNavigate()

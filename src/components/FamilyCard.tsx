@@ -13,7 +13,8 @@ import { childApi } from '../services/api'
 
 interface FamilyCardProps {
   family: FamilyResponseDTO
-  myChildId?: number // ID del hijo del usuario logueado para hacer el match
+  myChildId?: number
+  myInterestIds?: number[]
 }
 
 const calculateAge = (birthDate: string): number => {
@@ -26,7 +27,7 @@ const calculateAge = (birthDate: string): number => {
   return age < 0 ? 0 : age
 }
 
-export default function FamilyCard({ family, myChildId }: FamilyCardProps) {
+export default function FamilyCard({ family, myChildId, myInterestIds }: FamilyCardProps) {
   const [matchStatus, setMatchStatus] = useState<
     Record<number, 'idle' | 'loading' | 'success'>
   >({})

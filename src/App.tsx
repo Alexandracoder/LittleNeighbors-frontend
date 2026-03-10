@@ -9,8 +9,7 @@ import AddChildPage from './pages/AddChildren'
 import ExplorePage from './pages/ExplorePage'
 import EventsPage from './pages/EventsPage'
 import SchedulesPage from './pages/SchedulesPage'
-
-// Un componente de carga sencillo para evitar la pantalla "amarilla" en blanco
+import Welcome from './pages/Welcome'
 const LoadingScreen = () => (
   <div style={{ padding: '20px', color: 'white' }}>Cargando aplicación...</div>
 )
@@ -78,10 +77,19 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/welcome"
+            element={
+              <ProtectedRoute allowedRoles={['FAMILY', 'ADMIN']}>
+                <Welcome />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Redirección raíz segura */}
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/welcome" element={<Welcome />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>
