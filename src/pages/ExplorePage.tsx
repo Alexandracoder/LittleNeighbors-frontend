@@ -6,6 +6,7 @@ import FamilyCard from '../components/FamilyCard'
 import Navbar from '../components/layout/Navbar'
 import bgImage from '../assets/littleneighbor_playing.png'
 import { MapPin, Heart, FilterX } from 'lucide-react'
+import { EventList } from '../components/EventList'
 
 export default function ExplorePage() {
   const navigate = useNavigate()

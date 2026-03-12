@@ -1,13 +1,52 @@
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, MapPin } from 'lucide-react'
+import { ArrowLeft, Plus } from 'lucide-react'
 import dashboardBg from '../assets/parent-meeting.png'
+import { EventList } from '../components/EventList'
+import { EventMap } from '../components/EventMap'
+import { EventModal } from '../components/EventModal'
+import { CreateEventForm } from '../components/CreateEventForm'
 
 export default function EventsPage() {
   const navigate = useNavigate()
+  const [events, setEvents] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isMapVisible, setIsMapVisible] = useState(false) // Estado para el toggle
+
+  useEffect(() => {
+    fetchEvents()
+  }, [])
+
+  const fetchEvents = () => {
+    const token = localStorage.getItem('accessToken')
+    fetch(
+      'http://localhost:8080/api/events/map?minLat=-90&maxLat=90&minLon=-180&maxLon=180',
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      },
+    )
+      .then(res => {
+        if (!res.ok) throw new Error('Error al cargar eventos')
+        return res.json()
+      })
+      .then(data => {
+        setEvents(data)
+        setLoading(false)
+      })
+      .catch(err => {
+        console.error(err)
+        setError('No pudimos cargar los eventos.')
+        setLoading(false)
+      })
+  }
 
   return (
     <div className="relative min-h-screen w-full p-6 text-brand-dark font-sans">
-      {/* Fondo con imagen */}
       <div
         className="fixed inset-0 z-0"
         style={{
@@ -16,34 +55,55 @@ export default function EventsPage() {
           backgroundPosition: 'center',
         }}
       />
-      {/* Overlay BLANCO para dar brillo y claridad */}
-      <div className="fixed inset-0 z-10 bg-white/40" />
+      <div className="fixed inset-0 z-10 bg-white/40 pointer-events-none" />
 
-      <div className="relative z-20 max-w-4xl mx-auto">
+      {/* Botón flotante para abrir el modal */}
+      <button
+        onClick={() => setIsModalOpen(true)}
+        className="fixed bottom-8 right-8 z-40 bg-brand-coral text-white p-4 rounded-full shadow-2xl hover:scale-105 transition-all flex items-center gap-2 font-bold"
+      >
+        <Plus className="w-6 h-6" /> Crear Evento
+      </button>
+
+      {/* Modal de Creación */}
+      <EventModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        <CreateEventForm
+          onSuccess={() => {
+            setIsModalOpen(false)
+            fetchEvents()
+          }}
+        />
+      </EventModal>
+
+      <div className="relative z-20 max-w-4xl mx-auto space-y-8">
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-brand-dark/70 mb-8 font-black uppercase tracking-widest text-xs hover:text-brand-dark transition-all"
+          className="flex items-center gap-2 text-brand-dark hover:text-brand-coral transition-colors font-bold"
         >
-          <ArrowLeft className="w-4 h-4" /> Back to Dashboard
+          <ArrowLeft className="w-6 h-6" /> Back to Dashboard
         </button>
 
-        <h1 className="text-5xl font-black uppercase mb-10 text-brand-dark drop-shadow-sm">
+        <h1 className="text-5xl font-black uppercase text-brand-dark drop-shadow-sm">
           Neighborhood Events
         </h1>
 
-        {/* Card más clara para mantener la coherencia */}
-        <div className="bg-white/70 backdrop-blur-sm p-8 rounded-[2rem] border border-white/50 shadow-xl">
-          <div className="flex gap-4 items-center">
-            <div className="bg-brand-coral text-white p-4 rounded-2xl">
-              <MapPin className="w-6 h-6" />
-            </div>
-            <div>
-              <h3 className="text-xl font-bold">Upcoming Picnic at the Park</h3>
-              <p className="text-brand-orange text-sm font-bold uppercase tracking-wider">
-                March 15th, 2026
-              </p>
-            </div>
+        {/* Trigger del Mapa */}
+        <button
+          onClick={() => setIsMapVisible(!isMapVisible)}
+          className="text-brand-dark font-bold underline hover:text-brand-coral transition-colors"
+        >
+          {isMapVisible ? 'Ocultar mapa' : 'Ver eventos en el mapa'}
+        </button>
+
+        {/* Mapa Condicional - Solo se renderiza si isMapVisible es true */}
+        {isMapVisible && (
+          <div className="h-[300px] w-full overflow-hidden rounded-[2rem] border border-white/50 shadow-2xl transition-all duration-300">
+            <EventMap events={events} />
           </div>
+        )}
+
+        <div className="bg-white/70 backdrop-blur-sm p-8 rounded-[2rem] border border-white/50 shadow-xl">
+          <EventList events={events} loading={loading} error={error} />
         </div>
       </div>
     </div>

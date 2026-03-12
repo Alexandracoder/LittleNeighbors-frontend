@@ -1,15 +1,19 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { AuthProvider, useAuth } from './context/AuthContext'
+import { AuthProvider } from './context/AuthContext'
+import ProtectedRoute from './components/ProtectedRoute'
+
+// Páginas y Componentes
 import Login from './components/Login'
+import Register from './components/Register'
 import CreateFamily from './components/CreateFamily'
 import Dashboard from './components/Dashboard'
-import ProtectedRoute from './components/ProtectedRoute'
-import Register from './components/Register'
 import AddChildPage from './pages/AddChildren'
 import ExplorePage from './pages/ExplorePage'
 import EventsPage from './pages/EventsPage'
 import SchedulesPage from './pages/SchedulesPage'
 import Welcome from './pages/Welcome'
+import 'leaflet/dist/leaflet.css'
+
 const LoadingScreen = () => (
   <div style={{ padding: '20px', color: 'white' }}>Cargando aplicación...</div>
 )
@@ -32,7 +36,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-
           <Route
             path="/add-child"
             element={
@@ -41,7 +44,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-
           <Route
             path="/dashboard"
             element={
@@ -50,7 +52,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-
           <Route
             path="/explore"
             element={
@@ -59,7 +60,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-
           <Route
             path="/events"
             element={
@@ -68,7 +68,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-
           <Route
             path="/schedules"
             element={
@@ -86,10 +85,9 @@ function App() {
             }
           />
 
-          {/* Redirección raíz segura */}
+          {/* Redirecciones */}
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
-          <Route path="/welcome" element={<Welcome />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>
