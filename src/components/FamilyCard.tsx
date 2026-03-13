@@ -1,13 +1,12 @@
 import {
   User,
   Baby,
-  Heart,
   MessageCircle,
   Send,
   Loader2,
   CheckCircle2,
 } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import type { FamilyResponseDTO } from '../types'
 import { childApi } from '../services/api'
 
@@ -17,20 +16,20 @@ interface FamilyCardProps {
   myInterestIds?: number[]
 }
 
-const calculateAge = (birthDate: string): number => {
-  if (!birthDate) return 0
-  const today = new Date()
-  const birth = new Date(birthDate)
-  let age = today.getFullYear() - birth.getFullYear()
-  const m = today.getMonth() - birth.getMonth()
-  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--
-  return age < 0 ? 0 : age
-}
-
-export default function FamilyCard({ family, myChildId, myInterestIds }: FamilyCardProps) {
+export default function FamilyCard({
+  family,
+  myChildId,
+  myInterestIds,
+}: FamilyCardProps) {
   const [matchStatus, setMatchStatus] = useState<
     Record<number, 'idle' | 'loading' | 'success'>
   >({})
+
+  // El botón "Say Hello" se habilita solo si existe al menos un match exitoso con algún hijo
+  const hasActiveMatch = useMemo(
+    () => Object.values(matchStatus).includes('success'),
+    [matchStatus],
+  )
 
   const handleRequestMatch = async (targetChildId: number) => {
     if (!myChildId) return
@@ -40,7 +39,7 @@ export default function FamilyCard({ family, myChildId, myInterestIds }: FamilyC
       setMatchStatus(prev => ({ ...prev, [targetChildId]: 'success' }))
     } catch (err) {
       setMatchStatus(prev => ({ ...prev, [targetChildId]: 'idle' }))
-      alert('Error al enviar la solicitud.')
+      console.error('Error al enviar la solicitud:', err)
     }
   }
 
@@ -87,7 +86,6 @@ export default function FamilyCard({ family, myChildId, myInterestIds }: FamilyC
                   </div>
                 </div>
 
-                {/* Botón de Match por cada hijo */}
                 <button
                   onClick={() => handleRequestMatch(child.id)}
                   disabled={matchStatus[child.id] !== 'idle'}
@@ -97,13 +95,11 @@ export default function FamilyCard({ family, myChildId, myInterestIds }: FamilyC
                       : 'bg-white hover:bg-brand-orange hover:text-white'
                   }`}
                 >
-                  {matchStatus[child.id] === 'loading' && (
+                  {matchStatus[child.id] === 'loading' ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
-                  )}
-                  {matchStatus[child.id] === 'success' && (
+                  ) : matchStatus[child.id] === 'success' ? (
                     <CheckCircle2 className="w-4 h-4" />
-                  )}
-                  {matchStatus[child.id] === 'idle' && (
+                  ) : (
                     <Send className="w-4 h-4" />
                   )}
                 </button>
@@ -118,8 +114,16 @@ export default function FamilyCard({ family, myChildId, myInterestIds }: FamilyC
       </div>
 
       <div className="p-6 bg-gray-50/50 mt-auto border-t border-gray-100">
-        <button className="w-full py-4 bg-white text-brand-dark font-black rounded-2xl shadow-md hover:bg-brand-dark hover:text-white transition-all flex items-center justify-center gap-3 uppercase tracking-widest text-[10px]">
-          <MessageCircle className="w-4 h-4" /> Say Hello!
+        <button
+          disabled={!hasActiveMatch}
+          className={`w-full py-4 font-black rounded-2xl shadow-md transition-all flex items-center justify-center gap-3 uppercase tracking-widest text-[10px] ${
+            hasActiveMatch
+              ? 'bg-brand-dark text-white hover:bg-black cursor-pointer'
+              : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+          }`}
+        >
+          <MessageCircle className="w-4 h-4" />
+          {hasActiveMatch ? 'Say Hello!' : 'Match to chat'}
         </button>
       </div>
     </div>

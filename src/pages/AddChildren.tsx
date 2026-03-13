@@ -110,10 +110,10 @@ const handleSuccess = async () => {
           </div>
 
           <button
-            onClick={() => navigate('/dashboard')}
-            className="group flex items-center gap-3 px-8 py-4 bg-white text-brand-coral font-black rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all border-2 border-brand-orange/10"
+            onClick={() => navigate('/explore-matches')} // Cambiado de /dashboard a /explore-matches
+            className="group flex items-center gap-3 px-8 py-4 bg-brand-orange text-white font-black rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all"
           >
-            Go to Dashboard
+            Start Exploring
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </button>
         </header>
