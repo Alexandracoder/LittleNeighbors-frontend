@@ -14,6 +14,7 @@ import type {
   FamilyResponseDTO,
   FamilyAuthResponseDTO,
   UserProfileDTO,
+  UserStatusDTO,
 } from '../types'
 
 const API_BASE_URL = 'http://localhost:8080/api'
@@ -89,6 +90,33 @@ export const authApi = {
     const response = await api.get<UserProfileDTO>('/auth/profile')
     return response.data
   },
+}
+
+export const getUserStatus = async (): Promise<UserStatusDTO> => {
+  const response = await fetch('/api/users/me/status', {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+      'Content-Type': 'application/json',
+    },
+  })
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch user status')
+  }
+
+  // --- EL PASO QUE FALTA: Retornar los datos ---
+  const data = await response.json()
+  return data as UserStatusDTO
+}
+  
+export const userApi = {
+  // Este es el método que nos faltaba para el "semáforo"
+  getStatus: async (): Promise<UserStatusDTO> => {
+    const response = await api.get('/users/me/status') // Ajusta la ruta a tu GetMapping de Java
+    return response.data
+  },
+
+  // Puedes añadir otros métodos de usuario aquí más adelante
 }
 
 export const neighborhoodApi = {

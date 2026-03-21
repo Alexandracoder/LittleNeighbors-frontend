@@ -1,21 +1,19 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { childApi } from '../services/api'
+import { useAuth } from '../context/AuthContext'
 import type { ChildResponseDTO } from '../types'
-import type { InterestResponseDTO } from '../types'
 import ChildForm from '../components/ChildForm'
 import ChildCard from '../components/ChildCard'
 import { Plus, ArrowRight, Baby, Sparkles } from 'lucide-react'
 
 export default function AddChildPage() {
+  const { refreshStatus } = useAuth()
   const [children, setChildren] = useState<ChildResponseDTO[]>([])
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingChild, setEditingChild] = useState<ChildResponseDTO | null>(
     null,
   )
-  const [availableInterests, setAvailableInterests] = useState<
-    InterestResponseDTO[]
-  >([])
   const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
 
@@ -26,12 +24,6 @@ export default function AddChildPage() {
       setChildren(data)
     } catch (err: any) {
       console.error('Error loading children:', err)
-      // Si recibimos un 401 o 403 aquí, es que el token no se ha refrescado bien
-      if (err.response?.status === 403) {
-        console.warn(
-          'Acceso denegado: el token no tiene el rol FAMILY todavía.',
-        )
-      }
     } finally {
       setLoading(false)
     }
@@ -41,21 +33,21 @@ export default function AddChildPage() {
     loadChildren()
   }, [])
 
+  const handleSuccess = async () => {
+    setIsFormOpen(false)
+    setEditingChild(null)
+    await loadChildren()
+    await refreshStatus() // Actualiza el "semáforo" global
+  }
+
   const handleDelete = async (id: number) => {
     if (window.confirm('Are you sure you want to remove this profile?')) {
-      // Sincronización optimista: lo quitamos de la UI primero
-      const previousChildren = [...children]
-      setChildren(prev => prev.filter(c => c.id !== id))
-
       try {
         await childApi.delete(id)
-      } catch (err: any) {
-        console.error('Error al borrar:', err)
-        // Si el error NO es un 404 (porque el 404 significa que ya no existe), restauramos
-        if (err.response?.status !== 404) {
-          alert('Could not delete child profile. Please try again.')
-          setChildren(previousChildren)
-        }
+        await loadChildren()
+        await refreshStatus()
+      } catch (err) {
+        alert('Could not delete profile.')
       }
     }
   }
@@ -64,31 +56,9 @@ export default function AddChildPage() {
     setEditingChild(child)
     setIsFormOpen(true)
   }
-const handleSuccess = async () => {
-  setIsFormOpen(false)
-  setEditingChild(null)
-
-  // 1. Recargamos la lista
-  await loadChildren()
-
-  // 2. Comprobamos cuántos hijos hay AHORA.
-  // Como loadChildren actualiza el estado 'children',
-  // podemos consultar el estado directamente.
-  // IMPORTANTE: Si es una edición, el length será el mismo de antes.
-  // Si acabamos de crear el PRIMERO, el length será 1.
-
-  // Obtenemos los hijos actuales de la API para estar seguros
-  // antes de navegar
-  const currentChildren = await childApi.getAll()
-
-  if (currentChildren.length === 1) {
-    navigate('/welcome')
-  }
-}
 
   return (
     <div className="min-h-screen bg-brand-cream/30 p-6 md:p-12 relative overflow-hidden">
-      {/* Elemento decorativo sutil para mantener el "alma" visual */}
       <div className="absolute top-0 right-0 -z-10 opacity-10">
         <Sparkles className="w-96 h-96 text-brand-orange" />
       </div>
@@ -110,7 +80,7 @@ const handleSuccess = async () => {
           </div>
 
           <button
-            onClick={() => navigate('/explore-matches')} // Cambiado de /dashboard a /explore-matches
+            onClick={() => navigate('/explore')}
             className="group flex items-center gap-3 px-8 py-4 bg-brand-orange text-white font-black rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all"
           >
             Start Exploring
@@ -118,28 +88,23 @@ const handleSuccess = async () => {
           </button>
         </header>
 
-        {loading && children.length === 0 ? (
-          <div className="text-center py-20 bg-white/40 backdrop-blur-md rounded-[3rem]">
+        {loading ? (
+          <div className="text-center py-20">
             <div className="animate-spin rounded-full h-14 w-14 border-t-4 border-brand-orange mx-auto"></div>
-            <p className="mt-4 font-bold text-brand-orange animate-pulse uppercase tracking-widest text-sm">
-              Loading children...
-            </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* Tarjetas de los niños que ya existen */}
             {children.map(child => (
-              <div
+              <ChildCard
                 key={child.id}
-                className="hover:scale-[1.02] transition-transform"
-              >
-                <ChildCard
-                  child={child}
-                  onEdit={handleEdit}
-                  onDelete={handleDelete}
-                />
-              </div>
+                child={child}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+              />
             ))}
 
+            {/* Botón para abrir el formulario y añadir uno nuevo */}
             <button
               onClick={() => {
                 setEditingChild(null)
@@ -157,13 +122,14 @@ const handleSuccess = async () => {
           </div>
         )}
 
+        {/* Modal del Formulario: Solo aparece si isFormOpen es true */}
         {isFormOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div
-              className="absolute inset-0 bg-brand-dark/40 backdrop-blur-md animate-in fade-in duration-300"
+              className="absolute inset-0 bg-brand-dark/40 backdrop-blur-md"
               onClick={() => setIsFormOpen(false)}
             />
-            <div className="relative z-10 w-full max-w-xl animate-in zoom-in-95 duration-300">
+            <div className="relative z-10 w-full max-w-xl">
               <div className="bg-white rounded-[3rem] shadow-2xl border-t-8 border-brand-orange overflow-hidden">
                 <ChildForm
                   child={editingChild}

@@ -154,3 +154,9 @@ export interface MatchRequest {
   initiatorChildId: number
   targetChildId: number
 }
+
+export interface UserStatusDTO {
+  hasFamily: boolean
+  hasChildren: boolean
+  isRegistrationComplete: boolean
+}

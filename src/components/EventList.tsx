@@ -1,56 +1,71 @@
-import { useState, useEffect } from 'react'
-import { MapPin } from 'lucide-react'
-import { EventCard } from './EventCard'
+// EventList.tsx
 
-interface Event {
-  id: number
-  title: string
-  description: string
-  eventDate: string
-  neighborhoodName: string
-  lat: number
-  lon: number
-}
+import { EventCard } from "./EventCard"
 
 interface EventListProps {
-  events: Event[]
+  events: any[]
   loading: boolean
   error: string | null
+  onRefresh: () => void // Añadimos esto para recargar tras borrar
 }
 
-export const EventList = ({ events, loading, error }: EventListProps) => {
+export const EventList = ({
+  events,
+  loading,
+  error,
+  onRefresh,
+}: EventListProps) => {
+  const token = localStorage.getItem('accessToken')
+
+  // 1. Lógica Real de Borrado
+  const handleDelete = async (id: number) => {
+    if (!window.confirm('¿Estás seguro de que quieres eliminar este evento?'))
+      return
+
+    try {
+      const response = await fetch(`http://localhost:8080/api/events/${id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (response.ok) {
+        // Notificamos al padre (EventsPage) que los datos han cambiado
+        onRefresh()
+      } else {
+        const errorData = await response.json()
+        alert(`Error al eliminar: ${errorData.message || 'No autorizado'}`)
+      }
+    } catch (err) {
+      console.error('Error en la petición DELETE:', err)
+      alert('Error de conexión con el servidor.')
+    }
+  }
+
+  // 2. Lógica de Edición (Redirección o Apertura de Modal)
+  const handleOpenEdit = (event: any) => {
+    // Si tienes una ruta de edición, redirigimos:
+    // navigate(`/events/edit/${event.id}`);
+
+    // O si prefieres manejarlo con el modal que ya tienes:
+    console.log('Editando evento:', event)
+    // Aquí podrías setear un estado 'eventToEdit' y abrir el modal
+  }
+
   if (loading)
-    return (
-      <p className="text-center text-brand-dark/50 italic">
-        Buscando eventos en tu barrio...
-      </p>
-    )
-
-  if (error) return <p className="text-center text-red-500">{error}</p>
-
-  if (events.length === 0)
-    return (
-      <p className="text-center text-brand-dark/70">
-        No hay eventos en esta área por ahora.
-      </p>
-    )
-
-  function handleOpenEdit(event: any): void {
-    throw new Error('Function not implemented.')
-  }
-
-  function handleDelete(id: number): void {
-    throw new Error('Function not implemented.')
-  }
+    return <p className="text-center font-bold">Cargando eventos...</p>
+  if (error) return <p className="text-red-500 text-center">{error}</p>
 
   return (
-    <div className="flex flex-col p-4">
+    <div className="grid gap-4">
       {events.map(event => (
         <EventCard
           key={event.id}
           event={event}
-          onEdit={handleOpenEdit}
-          onDelete={handleDelete}
+          onDelete={() => handleDelete(event.id)} // Pasamos la función real
+          onEdit={() => handleOpenEdit(event)} // Pasamos la función real
         />
       ))}
     </div>

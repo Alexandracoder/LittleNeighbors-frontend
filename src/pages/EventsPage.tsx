@@ -3,9 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Plus } from 'lucide-react'
 import dashboardBg from '../assets/parent-meeting.png'
 import { EventList } from '../components/EventList'
-import { EventMap } from '../components/EventMap'
 import { EventModal } from '../components/EventModal'
 import { CreateEventForm } from '../components/CreateEventForm'
+import { MapComponent } from './Map.Component'
 
 export default function EventsPage() {
   const navigate = useNavigate()
@@ -97,14 +97,18 @@ export default function EventsPage() {
 
         {/* Mapa Condicional - Solo se renderiza si isMapVisible es true */}
         {isMapVisible && (
-          <div className="h-[300px] w-full overflow-hidden rounded-[2rem] border border-white/50 shadow-2xl transition-all duration-300">
-            <EventMap events={events} />
+          <div className="h-[400px] w-full relative overflow-hidden rounded-[2rem] border-4 border-white shadow-2xl transition-all">
+            <MapComponent events={events} />
           </div>
         )}
-
-        <div className="bg-white/70 backdrop-blur-sm p-8 rounded-[2rem] border border-white/50 shadow-xl">
-          <EventList events={events} loading={loading} error={error} />
-        </div>
+<div className="bg-white/70 backdrop-blur-sm p-8 rounded-[2rem] border border-white/50 shadow-xl">
+  <EventList 
+    events={events} 
+    loading={loading} 
+    error={error} 
+    onRefresh={fetchEvents} // <-- Pasamos la función de carga aquí
+  />
+        </div>                
       </div>
     </div>
   )
