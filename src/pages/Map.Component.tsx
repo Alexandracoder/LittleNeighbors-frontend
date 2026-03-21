@@ -1,15 +1,15 @@
 import { useEffect } from 'react'
-import { MapContainer, TileLayer, Marker, Tooltip, useMap } from 'react-leaflet'
+import { MapContainer, TileLayer, Marker, Tooltip, useMap, useMapEvents } from 'react-leaflet'
 import L from 'leaflet'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { MapPin } from 'lucide-react'
 import 'leaflet/dist/leaflet.css'
 
-// 1. Componente interno para forzar el renderizado correcto al abrir el mapa
+
 const ResizeMap = () => {
   const map = useMap()
   useEffect(() => {
-    // Pequeño delay para asegurar que el contenedor DOM ya tiene sus dimensiones finales
+  
     const timer = setTimeout(() => {
       map.invalidateSize()
     }, 200)
@@ -53,6 +53,19 @@ export const MapComponent = ({ events }: MapProps) => {
         {events.map(event => {
           // Verificación de seguridad para evitar errores si las coordenadas fallan
           if (!event.latitude || !event.longitude) return null
+
+          function LocationMarker({
+            setter,
+          }: {
+            setter: (lat: number, lng: number) => void
+          }) {
+            useMapEvents({
+              click(e) {
+                setter(e.latlng.lat, e.latlng.lng)
+              },
+            })
+            return null
+          }
 
           return (
             <Marker

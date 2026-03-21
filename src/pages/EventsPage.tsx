@@ -9,11 +9,14 @@ import { MapComponent } from './Map.Component'
 
 export default function EventsPage() {
   const navigate = useNavigate()
-  const [events, setEvents] = useState([])
+  const [events, setEvents] = useState<any[]>([]) // Tipamos como array de cualquier cosa para evitar 'never'
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [isMapVisible, setIsMapVisible] = useState(false) // Estado para el toggle
+  const [isMapVisible, setIsMapVisible] = useState(false)
+
+  // --- NUEVO ESTADO PARA LA EDICIÓN ---
+  const [eventToEdit, setEventToEdit] = useState<any>(null)
 
   useEffect(() => {
     fetchEvents()
@@ -45,6 +48,18 @@ export default function EventsPage() {
       })
   }
 
+  // --- FUNCIÓN PARA ABRIR EL MODAL EN MODO EDICIÓN ---
+  const handleEditClick = (event: any) => {
+    setEventToEdit(event)
+    setIsModalOpen(true)
+  }
+
+  // --- FUNCIÓN PARA CERRAR Y LIMPIAR EL ESTADO ---
+  const handleCloseModal = () => {
+    setIsModalOpen(false)
+    setEventToEdit(null) // Importante limpiar para que el próximo "Crear" no sea "Editar"
+  }
+
   return (
     <div className="relative min-h-screen w-full p-6 text-brand-dark font-sans">
       <div
@@ -57,19 +72,23 @@ export default function EventsPage() {
       />
       <div className="fixed inset-0 z-10 bg-white/40 pointer-events-none" />
 
-      {/* Botón flotante para abrir el modal */}
+      {/* Botón Crear */}
       <button
-        onClick={() => setIsModalOpen(true)}
+        onClick={() => {
+          setEventToEdit(null) // Aseguramos que es creación pura
+          setIsModalOpen(true)
+        }}
         className="fixed bottom-8 right-8 z-40 bg-brand-coral text-white p-4 rounded-full shadow-2xl hover:scale-105 transition-all flex items-center gap-2 font-bold"
       >
         <Plus className="w-6 h-6" /> Crear Evento
       </button>
 
-      {/* Modal de Creación */}
-      <EventModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+      {/* Modal - Ahora pasamos el evento a editar si existe */}
+      <EventModal isOpen={isModalOpen} onClose={handleCloseModal}>
         <CreateEventForm
+          eventToEdit={eventToEdit}
           onSuccess={() => {
-            setIsModalOpen(false)
+            handleCloseModal()
             fetchEvents()
           }}
         />
@@ -87,7 +106,6 @@ export default function EventsPage() {
           Neighborhood Events
         </h1>
 
-        {/* Trigger del Mapa */}
         <button
           onClick={() => setIsMapVisible(!isMapVisible)}
           className="text-brand-dark font-bold underline hover:text-brand-coral transition-colors"
@@ -95,20 +113,25 @@ export default function EventsPage() {
           {isMapVisible ? 'Ocultar mapa' : 'Ver eventos en el mapa'}
         </button>
 
-        {/* Mapa Condicional - Solo se renderiza si isMapVisible es true */}
         {isMapVisible && (
           <div className="h-[400px] w-full relative overflow-hidden rounded-[2rem] border-4 border-white shadow-2xl transition-all">
-            <MapComponent events={events} />
+            {/* El key fuerza el refresco del mapa cuando cambian los eventos */}
+            <MapComponent
+              key={events.length + (events[0]?.id || 0)}
+              events={events}
+            />
           </div>
         )}
-<div className="bg-white/70 backdrop-blur-sm p-8 rounded-[2rem] border border-white/50 shadow-xl">
-  <EventList 
-    events={events} 
-    loading={loading} 
-    error={error} 
-    onRefresh={fetchEvents} // <-- Pasamos la función de carga aquí
-  />
-        </div>                
+
+        <div className="bg-white/70 backdrop-blur-sm p-8 rounded-[2rem] border border-white/50 shadow-xl">
+          <EventList
+            events={events}
+            loading={loading}
+            error={error}
+            onRefresh={fetchEvents}
+            onEdit={handleEditClick} // <--- PASAMOS LA FUNCIÓN DE EDICIÓN
+          />
+        </div>
       </div>
     </div>
   )
