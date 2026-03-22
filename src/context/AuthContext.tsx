@@ -18,8 +18,9 @@ import type {
 interface AuthContextType {
   user: User | null
   familyEntity: any | null
-  status: UserStatusDTO | null // <-- NUEVO: El semáforo
+  status: UserStatusDTO | null
   loading: boolean
+  token: string | null
   login: (credentials: AuthRequest) => Promise<User | null>
   logout: () => void
   hasRole: (role: UserRole) => boolean
@@ -50,7 +51,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }
 
-  // --- NUEVA FUNCIÓN: Obtiene el status (Record) del backend ---
   const refreshStatus = async () => {
     try {
       const currentStatus = await userApi.getStatus() // Llama a /api/users/me/status
@@ -197,13 +197,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       value={{
         user,
         familyEntity,
-        status, // <-- EXPONEMOS EL STATUS
+        status,
         loading,
+        token: localStorage.getItem('accessToken'),
         login,
         logout,
         hasRole,
         refreshUser,
-        refreshStatus, // <-- EXPONEMOS EL MÉTODO
+        refreshStatus,
         updateSession,
         updateTokenAfterFamilyCreation,
       }}

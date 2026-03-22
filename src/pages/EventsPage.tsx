@@ -5,22 +5,37 @@ import dashboardBg from '../assets/parent-meeting.png'
 import { EventList } from '../components/EventList'
 import { EventModal } from '../components/EventModal'
 import { CreateEventForm } from '../components/CreateEventForm'
-import { MapComponent } from './Map.Component'
+import { MapComponent } from './MapComponent'
 
 export default function EventsPage() {
   const navigate = useNavigate()
-  const [events, setEvents] = useState<any[]>([]) // Tipamos como array de cualquier cosa para evitar 'never'
+  const [events, setEvents] = useState<any[]>([])
+  // --- NUEVO ESTADO PARA BARRIOS ---
+  const [neighborhoods, setNeighborhoods] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isMapVisible, setIsMapVisible] = useState(false)
-
-  // --- NUEVO ESTADO PARA LA EDICIÓN ---
   const [eventToEdit, setEventToEdit] = useState<any>(null)
 
   useEffect(() => {
     fetchEvents()
+    fetchNeighborhoods() // <--- Cargamos los barrios al iniciar
   }, [])
+
+  const fetchNeighborhoods = async () => {
+    const token = localStorage.getItem('accessToken')
+    try {
+      const res = await fetch('http://localhost:8080/api/neighborhoods', {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      const data = await res.json()
+      // Asumimos que la API devuelve un Page objeto con .content
+      setNeighborhoods(data.content || [])
+    } catch (err) {
+      console.error('Error cargando barrios:', err)
+    }
+  }
 
   const fetchEvents = () => {
     const token = localStorage.getItem('accessToken')
@@ -48,16 +63,14 @@ export default function EventsPage() {
       })
   }
 
-  // --- FUNCIÓN PARA ABRIR EL MODAL EN MODO EDICIÓN ---
   const handleEditClick = (event: any) => {
     setEventToEdit(event)
     setIsModalOpen(true)
   }
 
-  // --- FUNCIÓN PARA CERRAR Y LIMPIAR EL ESTADO ---
   const handleCloseModal = () => {
     setIsModalOpen(false)
-    setEventToEdit(null) // Importante limpiar para que el próximo "Crear" no sea "Editar"
+    setEventToEdit(null)
   }
 
   return (
@@ -75,7 +88,7 @@ export default function EventsPage() {
       {/* Botón Crear */}
       <button
         onClick={() => {
-          setEventToEdit(null) // Aseguramos que es creación pura
+          setEventToEdit(null)
           setIsModalOpen(true)
         }}
         className="fixed bottom-8 right-8 z-40 bg-brand-coral text-white p-4 rounded-full shadow-2xl hover:scale-105 transition-all flex items-center gap-2 font-bold"
@@ -83,7 +96,7 @@ export default function EventsPage() {
         <Plus className="w-6 h-6" /> Crear Evento
       </button>
 
-      {/* Modal - Ahora pasamos el evento a editar si existe */}
+      {/* Modal */}
       <EventModal isOpen={isModalOpen} onClose={handleCloseModal}>
         <CreateEventForm
           eventToEdit={eventToEdit}
@@ -115,7 +128,6 @@ export default function EventsPage() {
 
         {isMapVisible && (
           <div className="h-[400px] w-full relative overflow-hidden rounded-[2rem] border-4 border-white shadow-2xl transition-all">
-            {/* El key fuerza el refresco del mapa cuando cambian los eventos */}
             <MapComponent
               key={events.length + (events[0]?.id || 0)}
               events={events}
@@ -126,10 +138,11 @@ export default function EventsPage() {
         <div className="bg-white/70 backdrop-blur-sm p-8 rounded-[2rem] border border-white/50 shadow-xl">
           <EventList
             events={events}
+            neighborhoods={neighborhoods} // <--- PASAMOS LOS BARRIOS A LA LISTA
             loading={loading}
             error={error}
             onRefresh={fetchEvents}
-            onEdit={handleEditClick} // <--- PASAMOS LA FUNCIÓN DE EDICIÓN
+            onEdit={handleEditClick}
           />
         </div>
       </div>

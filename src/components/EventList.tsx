@@ -1,24 +1,24 @@
-// EventList.tsx
 import { EventCard } from './EventCard'
 
 interface EventListProps {
   events: any[]
+  neighborhoods: any[] // 👈 AÑADIDO: Recibimos la lista de barrios del padre
   loading: boolean
   error: string | null
   onRefresh: () => void
-  onEdit: (event: any) => void // <--- AÑADIDO: Ahora la lista acepta la orden de editar
+  onEdit: (event: any) => void
 }
 
 export const EventList = ({
   events,
+  neighborhoods, // 👈 RECIBIDO: Desestructuramos para usarlo
   loading,
   error,
   onRefresh,
-  onEdit, // <--- RECIBIDO: Recibimos la función del padre
+  onEdit,
 }: EventListProps) => {
   const token = localStorage.getItem('accessToken')
 
-  // 1. Lógica Real de Borrado (Se mantiene igual, ¡está muy bien!)
   const handleDelete = async (id: number) => {
     if (!window.confirm('¿Estás seguro de que quieres eliminar este evento?'))
       return
@@ -33,7 +33,7 @@ export const EventList = ({
       })
 
       if (response.ok) {
-        onRefresh() // Esto hará que el mapa y la lista se actualicen
+        onRefresh()
       } else {
         alert('Error al eliminar el evento.')
       }
@@ -57,6 +57,7 @@ export const EventList = ({
           <EventCard
             key={event.id}
             event={event}
+            neighborhoods={neighborhoods} // 👈 PASADO: Ahora la card tiene acceso a los nombres
             onDelete={() => handleDelete(event.id)}
             onEdit={() => onEdit(event)}
           />

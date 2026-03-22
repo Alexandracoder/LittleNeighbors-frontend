@@ -7,6 +7,7 @@ import {
   CheckCircle2,
 } from 'lucide-react'
 import { useState, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom' // Añadido para la navegación
 import type { FamilyResponseDTO } from '../types'
 import { childApi } from '../services/api'
 
@@ -21,6 +22,7 @@ export default function FamilyCard({
   myChildId,
   myInterestIds,
 }: FamilyCardProps) {
+  const navigate = useNavigate()
   const [matchStatus, setMatchStatus] = useState<
     Record<number, 'idle' | 'loading' | 'success'>
   >({})
@@ -43,8 +45,17 @@ export default function FamilyCard({
     }
   }
 
+  // Función para ir al chat una vez desbloqueado
+  const handleOpenChat = () => {
+    if (hasActiveMatch) {
+      // Navegamos al chat usando el ID de la familia
+      navigate(`/chat/${family.id}`)
+    }
+  }
+
   return (
     <div className="bg-white rounded-[2.5rem] shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border-2 border-transparent hover:border-brand-orange/20 flex flex-col h-full group">
+      {/* HEADER DE LA CARD */}
       <div className="p-8 pb-4">
         <div className="flex items-start justify-between mb-4">
           <div className="bg-brand-cream p-4 rounded-2xl group-hover:bg-brand-orange transition-colors duration-500">
@@ -62,6 +73,7 @@ export default function FamilyCard({
         </p>
       </div>
 
+      {/* SECCIÓN DE HIJOS (POTENTIAL PLAYMATES) */}
       <div className="px-8 py-4 flex-1">
         <div className="flex items-center gap-2 mb-4 border-b border-gray-50 pb-2">
           <Baby className="w-4 h-4 text-brand-coral" />
@@ -71,7 +83,7 @@ export default function FamilyCard({
         </div>
 
         <div className="space-y-4">
-          {family.children?.length > 0 ? (
+          {family.children && family.children.length > 0 ? (
             family.children.map(child => (
               <div
                 key={child.id}
@@ -92,7 +104,7 @@ export default function FamilyCard({
                   className={`p-3 rounded-xl transition-all ${
                     matchStatus[child.id] === 'success'
                       ? 'bg-green-100 text-green-600'
-                      : 'bg-white hover:bg-brand-orange hover:text-white'
+                      : 'bg-white shadow-sm hover:bg-brand-orange hover:text-white'
                   }`}
                 >
                   {matchStatus[child.id] === 'loading' ? (
@@ -106,24 +118,26 @@ export default function FamilyCard({
               </div>
             ))
           ) : (
-            <p className="text-xs italic text-gray-400">
+            <p className="text-xs italic text-gray-400 text-center py-2">
               No children profiles listed.
             </p>
           )}
         </div>
       </div>
 
+      {/* BOTÓN FINAL DE ACCIÓN AL CHAT */}
       <div className="p-6 bg-gray-50/50 mt-auto border-t border-gray-100">
         <button
+          onClick={handleOpenChat}
           disabled={!hasActiveMatch}
           className={`w-full py-4 font-black rounded-2xl shadow-md transition-all flex items-center justify-center gap-3 uppercase tracking-widest text-[10px] ${
             hasActiveMatch
-              ? 'bg-brand-dark text-white hover:bg-black cursor-pointer'
+              ? 'bg-brand-dark text-white hover:bg-black cursor-pointer transform active:scale-95'
               : 'bg-gray-200 text-gray-400 cursor-not-allowed'
           }`}
         >
           <MessageCircle className="w-4 h-4" />
-          {hasActiveMatch ? 'Say Hello!' : 'Match to chat'}
+          {hasActiveMatch ? 'Say Hello!' : 'Connect first to chat'}
         </button>
       </div>
     </div>

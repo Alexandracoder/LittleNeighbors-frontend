@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { AuthProvider, useAuth } from './context/AuthContext' // Asegúrate de exportar useAuth
+import { AuthProvider, useAuth } from './context/AuthContext'
 import ProtectedRoute from './components/ProtectedRoute'
+import ChatWindow from './components/Chat/ChatWindow'
 
 // Páginas y Componentes
 import Login from './components/Login'
@@ -30,7 +31,7 @@ const LoadingScreen = () => (
 )
 
 function AppContent() {
-  const { user, status, loading } = useAuth() // Extraemos el status del DTO
+  const { user, status, loading, token } = useAuth()
 
   if (loading) return <LoadingScreen />
 
@@ -60,8 +61,21 @@ function AppContent() {
         }
       />
 
-      {/* --- RUTAS DE COMUNIDAD (Solo si completó todo el registro) --- */}
-      {/* Si no ha completado el registro, cualquier intento de entrar aquí lo manda a /add-child */}
+      {/* --- RUTA DE CHAT (Nueva) --- */}
+      <Route
+        path="/chat/:matchId"
+        element={
+          <ProtectedRoute allowedRoles={['FAMILY', 'ADMIN']}>
+            {status?.isRegistrationComplete ? (
+              <ChatWindow currentUser={user} token={token} />
+            ) : (
+              <Navigate to="/add-child" replace />
+            )}
+          </ProtectedRoute>
+        }
+      />
+
+      {/* --- RUTAS DE COMUNIDAD --- */}
       <Route
         path="/dashboard"
         element={

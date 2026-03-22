@@ -2,6 +2,7 @@ import { useEffect, useState, MouseEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { childApi } from '../services/api'
+import MatchesList from './Matches/MatchesList' // Asegúrate de que la ruta y capitalización sean correctas
 import {
   Heart,
   MapPin,
@@ -9,12 +10,12 @@ import {
   LogOut,
   ArrowLeft,
   Search,
-} from 'lucide-react' // Añadí Search
+} from 'lucide-react'
 import dashboardBg from '../assets/neighborhood-picnic.png'
 
 export default function Dashboard() {
   const navigate = useNavigate()
-  const { familyEntity, loading, logout } = useAuth()
+  const { familyEntity, loading, logout, token } = useAuth() // Extraemos token aquí
   const [children, setChildren] = useState<any[]>([])
 
   useEffect(() => {
@@ -54,7 +55,7 @@ export default function Dashboard() {
 
   return (
     <div className="relative min-h-screen w-full overflow-x-hidden font-sans">
-      {/* ... (código de fondo y header igual) ... */}
+      {/* BACKGROUND & OVERLAY */}
       <div
         className="fixed inset-0 z-0"
         style={{
@@ -65,8 +66,8 @@ export default function Dashboard() {
       />
       <div className="fixed inset-0 z-10 bg-brand-dark/30 backdrop-blur-[2px]" />
 
+      {/* TOP BAR */}
       <div className="relative z-30 flex justify-between p-6">
-        {/* Botón Back */}
         <button
           onClick={() => navigate(-1)}
           className="flex items-center gap-2 px-4 py-2 bg-white/20 text-white rounded-full font-bold text-xs uppercase tracking-widest hover:bg-white/30 transition-all"
@@ -74,7 +75,6 @@ export default function Dashboard() {
           <ArrowLeft className="w-4 h-4" /> Back
         </button>
 
-        {/* Botón Log Out - AQUÍ ESTABA EL FALLO, asegurémonos de que esté presente */}
         <button
           onClick={handleLogout}
           className="flex items-center gap-2 px-4 py-2 bg-red-500/20 text-red-200 rounded-full font-bold text-xs uppercase tracking-widest hover:bg-red-500/30 transition-all"
@@ -83,6 +83,7 @@ export default function Dashboard() {
         </button>
       </div>
 
+      {/* MAIN CONTENT */}
       <div className="relative z-20 px-6 pb-12 mt-20">
         <div className="max-w-6xl mx-auto">
           <header className="mb-12 text-center md:text-left">
@@ -94,8 +95,8 @@ export default function Dashboard() {
             </h1>
           </header>
 
-          <div className="flex flex-wrap justify-center gap-6 mb-12">
-            {/* Events */}
+          {/* QUICK ACTIONS GRID */}
+          <div className="flex flex-wrap justify-center md:justify-start gap-6 mb-12">
             <button
               onClick={() => navigate('/events')}
               className="group flex items-center gap-3 px-8 py-4 bg-white/80 hover:bg-white text-brand-dark rounded-full shadow-lg transition-all border border-white/50 hover:scale-105"
@@ -106,7 +107,6 @@ export default function Dashboard() {
               </span>
             </button>
 
-            {/* Schedules */}
             <button
               onClick={() => navigate('/schedules')}
               className="group flex items-center gap-3 px-8 py-4 bg-white/80 hover:bg-white text-brand-dark rounded-full shadow-lg transition-all border border-white/50 hover:scale-105"
@@ -117,7 +117,6 @@ export default function Dashboard() {
               </span>
             </button>
 
-            {/* NUEVO: Explore */}
             <button
               onClick={() => navigate('/explore')}
               className="group flex items-center gap-3 px-8 py-4 bg-brand-orange text-white rounded-full shadow-lg transition-all border border-brand-orange/50 hover:scale-105 hover:bg-brand-orange/90"
@@ -128,7 +127,6 @@ export default function Dashboard() {
               </span>
             </button>
 
-            {/* My Children Section */}
             <div
               className="group relative flex items-center gap-3 px-8 py-4 bg-white/80 text-brand-dark rounded-full shadow-lg border border-white/50 transition-all duration-300 hover:rounded-3xl hover:px-12 cursor-pointer"
               onClick={() => navigate('/my-family')}
@@ -138,7 +136,6 @@ export default function Dashboard() {
                 My Children
               </span>
 
-              {/* Contenido desplegable al hacer hover */}
               <div className="hidden group-hover:flex gap-4 ml-4 pl-4 border-l border-brand-dark/20 animate-in fade-in duration-500">
                 {children?.length > 0 ? (
                   children.map((child: any) => (
@@ -163,6 +160,14 @@ export default function Dashboard() {
                 </button>
               </div>
             </div>
+          </div>
+
+          {/* --- SECCIÓN DE MATCHES (LISTA DE CHATS) --- */}
+          <div className="bg-white/10 backdrop-blur-md rounded-3xl p-8 border border-white/20 shadow-2xl">
+            <h2 className="text-2xl font-black text-white uppercase tracking-tighter mb-6">
+              Your Neighbor Connections
+            </h2>
+            <MatchesList token={token} />
           </div>
         </div>
       </div>
