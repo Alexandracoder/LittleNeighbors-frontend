@@ -6,7 +6,7 @@ const ChatWindow = ({ matchId, currentUser, token }) => {
   const [messages, setMessages] = useState([])
   const [text, setText] = useState('')
 
-  // Cargar mensajes al inicio y cada 5 segundos (Polling)
+  
   useEffect(() => {
     const load = async () => {
       const data = await messageService.getHistory(matchId, token)

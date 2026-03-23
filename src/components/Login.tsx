@@ -1,11 +1,12 @@
 import { useState, FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { LogIn, Mail, Lock, ArrowRight } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
-// ACTUALIZADO: Tu imagen específica de comunidad conectando
 import loginBg from '../assets/community-connecting.png'
 
 export default function Login() {
+  const { t } = useTranslation()
   const [showForm, setShowForm] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -15,31 +16,28 @@ export default function Login() {
   const { login } = useAuth()
   const navigate = useNavigate()
 
-const handleSubmit = async (e: FormEvent) => {
-  e.preventDefault()
-  setLoading(true)
-  try {
-    await login({ email, password })
-    // NO navegues manualmente aquí.
-    // Deja que el App.tsx (a través de /) detecte que ya estás logueado y te envíe al sitio correcto.
-    navigate('/', { replace: true })
-  } catch (err) {
-    setError('Invalid email or password')
-  } finally {
-    setLoading(false)
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    setError('')
+    try {
+      await login({ email, password })
+      navigate('/', { replace: true })
+    } catch (err) {
+      setError(t('auth.login.error'))
+    } finally {
+      setLoading(false)
+    }
   }
-}
 
   return (
     <div className="relative min-h-screen w-full flex items-center justify-center p-4 overflow-hidden">
-      {/* EL ALMA VISUAL: community-connecting.png */}
       <div
         className="absolute inset-0 z-0 transition-all duration-1000 ease-in-out"
         style={{
           backgroundImage: `url(${loginBg})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          // Empieza nítida y se difumina al pulsar el botón
           filter: showForm
             ? 'blur(8px) brightness(0.6)'
             : 'blur(0px) brightness(0.95)',
@@ -49,24 +47,22 @@ const handleSubmit = async (e: FormEvent) => {
 
       <div className="relative z-10 w-full max-w-md">
         {!showForm ? (
-          /* PANTALLA DE BIENVENIDA NÍTIDA */
           <div className="text-center animate-in fade-in zoom-in duration-700">
             <h1 className="text-6xl font-black text-white mb-4 drop-shadow-2xl italic">
-              Hello again!
+              {t('auth.login.title')}
             </h1>
             <p className="text-2xl text-white/90 mb-10 font-medium drop-shadow-lg text-balance">
-              Your neighbors missed you.
+              {t('auth.login.enterNeighborhood')}
             </p>
             <button
               onClick={() => setShowForm(true)}
               className="group flex items-center gap-4 mx-auto px-10 py-5 bg-white text-brand-orange font-black rounded-[2rem] hover:bg-brand-orange hover:text-white transition-all shadow-2xl active:scale-95"
             >
-              <span>ENTER THE HOOD</span>
+              <span>{t('auth.login.submitButton')}</span>
               <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
             </button>
           </div>
         ) : (
-          /* CARD MÁGICA (Aparece con animación) */
           <div className="bg-white/90 backdrop-blur-xl rounded-[3rem] shadow-2xl p-10 border-t-8 border-brand-orange animate-in slide-in-from-top-10 duration-500">
             <div className="flex justify-center mb-6">
               <div className="bg-brand-orange p-4 rounded-3xl shadow-lg">
@@ -75,7 +71,7 @@ const handleSubmit = async (e: FormEvent) => {
             </div>
 
             <h2 className="text-3xl font-black text-center text-brand-coral mb-8 uppercase tracking-tighter">
-              Welcome Back
+              {t('auth.login.title')}
             </h2>
 
             <form onSubmit={handleSubmit} className="space-y-5">
@@ -86,7 +82,7 @@ const handleSubmit = async (e: FormEvent) => {
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                   className="w-full pl-12 pr-4 py-4 border border-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-brand-orange bg-white/50"
-                  placeholder="Your email"
+                  placeholder={t('auth.login.emailPlaceholder')}
                   required
                 />
               </div>
@@ -98,7 +94,7 @@ const handleSubmit = async (e: FormEvent) => {
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   className="w-full pl-12 pr-4 py-4 border border-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-brand-orange bg-white/50"
-                  placeholder="Password"
+                  placeholder={t('auth.login.passwordPlaceholder')}
                   required
                 />
               </div>
@@ -114,7 +110,9 @@ const handleSubmit = async (e: FormEvent) => {
                 disabled={loading}
                 className="w-full bg-brand-orange text-white font-black py-5 rounded-2xl shadow-xl hover:bg-brand-coral transition-all transform hover:-translate-y-1"
               >
-                {loading ? 'OPENING DOORS...' : 'LOG IN'}
+                {loading
+                  ? t('auth.login.submittingButton')
+                  : t('auth.login.submitButton')}
               </button>
 
               <div className="flex flex-col gap-3 mt-6 text-center">
@@ -123,14 +121,14 @@ const handleSubmit = async (e: FormEvent) => {
                   onClick={() => navigate('/register')}
                   className="text-brand-orange font-bold text-sm hover:underline"
                 >
-                  I'm a new neighbor
+                  {t('auth.login.createAccount')}
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowForm(false)}
                   className="text-gray-400 font-medium text-xs uppercase tracking-widest mt-2"
                 >
-                  Go Back to view the soul
+                  {t('auth.login.backToImage')}
                 </button>
               </div>
             </form>

@@ -1,0 +1,105 @@
+{
+  "common": {
+    "loading": "Cargando...",
+    "saving": "Guardando...",
+    "cancel": "Cancelar",
+    "back": "← Volver",
+    "appName": "Little Neighbors"
+  },
+
+  "auth": {
+    "login": {
+      "enterNeighborhood": "Entrar al Barrio",
+      "title": "Little Neighbors",
+      "emailLabel": "Email",
+      "emailPlaceholder": "tu@email.com",
+      "passwordLabel": "Contraseña",
+      "passwordPlaceholder": "••••••••",
+      "submitButton": "Iniciar Sesión",
+      "submittingButton": "Entrando...",
+      "backToImage": "← Volver a la imagen",
+      "createAccount": "Crear una cuenta",
+      "error": "Email o contraseña incorrectos"
+    },
+    "register": {
+      "title": "Únete al Barrio",
+      "subtitle": "Crea tu cuenta para empezar a conectar",
+      "firstNameLabel": "Nombre",
+      "firstNamePlaceholder": "Juan",
+      "lastNameLabel": "Apellido",
+      "lastNamePlaceholder": "García",
+      "emailLabel": "Email",
+      "emailPlaceholder": "juan@ejemplo.com",
+      "passwordLabel": "Contraseña",
+      "passwordPlaceholder": "••••••••",
+      "submitButton": "Crear Cuenta",
+      "submittingButton": "Creando cuenta...",
+      "error": "El registro ha fallado. Por favor, inténtalo de nuevo.",
+      "alreadyHaveAccount": "¿Ya tienes una cuenta?",
+      "signIn": "Iniciar Sesión"
+    }
+  },
+
+  "onboarding": {
+    "createFamily": {
+      "title": "Crea tu Perfil Familiar",
+      "subtitle": "¡Únete a tus vecinos y empieza a conectar!",
+      "familyNameLabel": "Nombre de la Familia",
+      "familyNamePlaceholder": "La Familia Rodríguez",
+      "descriptionLabel": "Sobre Nosotros",
+      "descriptionPlaceholder": "Cuéntanos sobre tu familia...",
+      "submitButton": "Finalizar Perfil",
+      "submittingButton": "Guardando...",
+      "error": "Error al crear el perfil familiar"
+    }
+  },
+
+  "dashboard": {
+    "header": {
+      "userEmail": "{{email}}",
+      "logoutButton": "Cerrar Sesión"
+    },
+    "hero": {
+      "title": "Tu Familia",
+      "subtitle": "¡Bienvenido a tu panel de barrio!"
+    },
+    "actions": {
+      "findPlaymates": "BUSCAR COMPAÑEROS",
+      "findPlaymatesAlert": "Próximamente: ¡Explorador del barrio!"
+    },
+    "children": {
+      "loadingText": "Cargando vecinos...",
+      "emptyTitle": "¿Nido Vacío?",
+      "emptyDescription": "¡Añade a tus hijos para empezar a conectar con otras familias de tu barrio!",
+      "emptyButton": "Añadir Primer Hijo",
+      "addAnotherButton": "Añadir otro hijo",
+      "deleteConfirm": "¿Estás seguro de que quieres eliminar a este niño?",
+      "deleteError": "No se ha podido eliminar al niño"
+    },
+    "footer": "Little Neighbors • Perfil Familiar"
+  },
+
+  "child": {
+    "card": {
+      "yearsOld_one": "año",
+      "yearsOld_other": "años",
+      "interestsLabel": "Intereses",
+      "editTitle": "Editar",
+      "deleteTitle": "Eliminar"
+    },
+    "form": {
+      "titleCreate": "Nuevo Vecino",
+      "titleUpdate": "Actualizar Perfil",
+      "privacyBadge": "Registro Privado",
+      "genderLabel": "Elige el Género",
+      "genderBoy": "NIÑO",
+      "genderGirl": "NIÑA",
+      "birthDateLabel": "Fecha de Nacimiento",
+      "submitCreate": "Añadir Niño",
+      "submitUpdate": "Actualizar",
+      "validationError": "Por favor, rellena todos los campos",
+      "saveError": "No se ha podido guardar. Comprueba la información proporcionada.",
+      "footerLabel": "Little Neighbors • Perfil Familiar"
+    }
+  }
+}

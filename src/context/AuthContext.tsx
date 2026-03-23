@@ -3,10 +3,11 @@ import {
   useContext,
   useState,
   useEffect,
+  useMemo,
   ReactNode,
 } from 'react'
 import { jwtDecode } from 'jwt-decode'
-import { authApi, userApi } from '../services/api' // Asegúrate de tener userApi definido
+import { authApi, userApi } from '../services/api'
 import type {
   User,
   DecodedToken,
@@ -19,13 +20,14 @@ interface AuthContextType {
   user: User | null
   familyEntity: any | null
   status: UserStatusDTO | null
+  myFamilyId: number | null
   loading: boolean
   token: string | null
   login: (credentials: AuthRequest) => Promise<User | null>
   logout: () => void
   hasRole: (role: UserRole) => boolean
   refreshUser: () => Promise<void>
-  refreshStatus: () => Promise<void> // <-- NUEVO: Para actualizar hijos/familia
+  refreshStatus: () => Promise<void>
   updateSession: (
     accessToken: string,
     refreshToken: string,
@@ -39,12 +41,25 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null)
   const [familyEntity, setFamilyEntity] = useState<any | null>(null)
-  const [status, setStatus] = useState<UserStatusDTO | null>(null) // <-- NUEVO
+  const [status, setStatus] = useState<UserStatusDTO | null>(null)
   const [loading, setLoading] = useState(true)
+  const [token, setToken] = useState<string | null>(
+    localStorage.getItem('accessToken'),
+  )
+
+  // Memoizamos el ID para evitar re-renders innecesarios en el Chat
+  const myFamilyId = useMemo(() => {
+    return status?.familyId || familyEntity?.id || null
+  }, [status, familyEntity])
 
   const decodeToken = (token: string): User | null => {
     try {
       const decoded = jwtDecode<DecodedToken>(token)
+      const currentTime = Date.now() / 1000
+      if (decoded.exp && decoded.exp < currentTime) {
+        logout() // Si expiró, fuera
+        return null
+      }
       return { email: decoded.sub, roles: decoded.roles }
     } catch {
       return null
@@ -53,7 +68,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const refreshStatus = async () => {
     try {
-      const currentStatus = await userApi.getStatus() // Llama a /api/users/me/status
+      const currentStatus = await userApi.getStatus()
       setStatus(currentStatus)
     } catch (e) {
       console.error('Error sincronizando status:', e)
@@ -63,38 +78,43 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const fetchFamilyFromApi = async () => {
     try {
       const profile = await authApi.getProfile()
-      if (profile && profile.family) {
+      if (profile?.family) {
         localStorage.setItem('familyEntity', JSON.stringify(profile.family))
         setFamilyEntity(profile.family)
         return profile.family
       }
     } catch (e) {
-      console.warn('No se pudo sincronizar la familia.')
+      console.warn('Usuario logueado pero sin perfil de familia creado.')
     }
     return null
   }
 
   useEffect(() => {
     const initAuth = async () => {
-      const token = localStorage.getItem('accessToken')
+      const savedToken = localStorage.getItem('accessToken')
       const savedFamily = localStorage.getItem('familyEntity')
 
-      if (token) {
-        const decodedUser = decodeToken(token)
-        setUser(decodedUser)
+      if (savedToken) {
+        const decodedUser = decodeToken(savedToken)
+        if (decodedUser) {
+          setUser(decodedUser)
+          setToken(savedToken)
 
-        // 1. Cargamos el Status (Esto activará el isRegistrationComplete)
-        await refreshStatus()
-
-        // 2. Cargamos la familia
-        if (savedFamily && savedFamily !== 'undefined') {
-          try {
-            setFamilyEntity(JSON.parse(savedFamily))
-          } catch (e) {
-            await fetchFamilyFromApi()
-          }
-        } else {
-          await fetchFamilyFromApi()
+          // Cargamos status y familia en paralelo para optimizar el arranque
+          await Promise.all([
+            refreshStatus(),
+            (async () => {
+              if (savedFamily && savedFamily !== 'undefined') {
+                try {
+                  setFamilyEntity(JSON.parse(savedFamily))
+                } catch {
+                  await fetchFamilyFromApi()
+                }
+              } else {
+                await fetchFamilyFromApi()
+              }
+            })(),
+          ])
         }
       }
       setLoading(false)
@@ -109,33 +129,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   ): User | null => {
     localStorage.setItem('accessToken', accessToken)
     localStorage.setItem('refreshToken', refreshToken)
+    setToken(accessToken)
+
     const userData = decodeToken(accessToken)
 
     if (familyData) {
       localStorage.setItem('familyEntity', JSON.stringify(familyData))
       setFamilyEntity(familyData)
-      // Al actualizar sesión, refrescamos el status para asegurar que isRegistrationComplete sea correcto
-      refreshStatus()
-
-      setUser(prev => {
-        const baseUser = userData || prev
-        if (!baseUser) return null
-        const currentRoles = (baseUser.roles || []) as UserRole[]
-        const newRoles: UserRole[] = currentRoles.includes('FAMILY' as UserRole)
-          ? currentRoles
-          : [...currentRoles, 'FAMILY' as UserRole]
-        return { ...baseUser, roles: newRoles, familyEntity: familyData }
-      })
-    } else if (userData) {
-      setUser(userData)
-      refreshStatus()
     }
+
+    setUser(userData)
+    refreshStatus() // Vital para que las rutas protegidas se actualicen
     return userData
   }
 
   const login = async (credentials: AuthRequest): Promise<User | null> => {
     setLoading(true)
-    localStorage.removeItem('familyEntity')
     try {
       const response = await authApi.login(credentials)
       const loggedUser = updateSession(
@@ -143,13 +152,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         response.refreshToken,
         response.family,
       )
-      // IMPORTANTE: Esperamos a tener el status antes de quitar el loading
       await refreshStatus()
-      setLoading(false)
       return loggedUser
     } catch (error) {
-      setLoading(false)
       throw error
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -158,16 +166,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     sessionStorage.clear()
     setUser(null)
     setFamilyEntity(null)
-    setStatus(null) // Limpiamos status
+    setStatus(null)
+    setToken(null)
     window.location.href = '/login'
   }
 
-  const hasRole = (role: UserRole) => user?.roles.includes(role) || false
+  const hasRole = (role: UserRole) => user?.roles?.includes(role) || false
 
   const refreshUser = async () => {
-    const token = localStorage.getItem('accessToken')
-    if (token) {
-      setUser(decodeToken(token))
+    const currentToken = localStorage.getItem('accessToken')
+    if (currentToken) {
+      setUser(decodeToken(currentToken))
       await refreshStatus()
     }
   }
@@ -176,9 +185,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const response = await authApi.refreshSession()
       const freshFamily = await fetchFamilyFromApi()
-
-      // Al crear la familia, también refrescamos el status
-      // (aunque hasChildren seguirá siendo false hasta que añada el primer hijo)
       await refreshStatus()
 
       return updateSession(
@@ -198,8 +204,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         user,
         familyEntity,
         status,
+        myFamilyId,
         loading,
-        token: localStorage.getItem('accessToken'),
+        token,
         login,
         logout,
         hasRole,

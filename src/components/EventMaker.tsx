@@ -1,7 +1,6 @@
 import L from 'leaflet'
 import { Marker } from 'react-leaflet'
 
-// Esto crea el estilo circular con tu color de marca
 const createCustomIcon = (count: number) => {
   return L.divIcon({
     className: 'custom-marker',
@@ -14,9 +13,12 @@ const createCustomIcon = (count: number) => {
       display: flex; 
       align-items: center; 
       justify-content: center; 
-      font-weight: bold; 
-      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-      border: 2px solid white;
+      font-family: sans-serif;
+      font-weight: 900; 
+      font-size: 14px;
+      box-shadow: 0 10px 15px -3px rgba(255, 107, 107, 0.4);
+      border: 3px solid white;
+      transition: all 0.3s ease;
     ">${count}</div>`,
     iconSize: [40, 40],
     iconAnchor: [20, 20],

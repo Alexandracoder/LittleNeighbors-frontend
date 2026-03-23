@@ -7,9 +7,9 @@ import {
   Send,
   Loader2,
   CheckCircle2,
-  XCircle,
 } from 'lucide-react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { ChildResponseDTO } from '../types'
 import { childApi } from '../services/api'
 
@@ -28,31 +28,33 @@ export default function ChildCard({
   showMatchButton = false,
   myChildId,
 }: ChildCardProps) {
+  const { t } = useTranslation()
   const [status, setStatus] = useState<
     'idle' | 'loading' | 'success' | 'error'
   >('idle')
   const [errorMessage, setErrorMessage] = useState('')
 
-  const isPrenatal = child.lifeStage === 'PRENATAL'
+  const isPrenatal = child.lifeStage === 'PRENATAL' || child.isPrenatal
 
   const getDisplayAge = () => {
-    if (isPrenatal) return 'Coming soon'
-    if (child.age && child.age > 0)
-      return `${child.age} ${child.age === 1 ? 'year' : 'years'} old`
-    if (!child.birthDate) return 'Newborn'
-    const birth = new Date(child.birthDate)
-    const today = new Date()
-    let age = today.getFullYear() - birth.getFullYear()
-    const m = today.getMonth() - birth.getMonth()
-    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--
-    return `${age} ${age === 1 ? 'year' : 'years'} old`
+    if (isPrenatal) return t('child.form.lifeStagePrenatal', 'En camí')
+
+    if (child.age && child.age > 0) {
+      const unit =
+        child.age === 1
+          ? t('child.info.year', 'any')
+          : t('child.info.years', 'anys')
+      return `${child.age} ${unit}`
+    }
+
+    return t('child.info.baby', 'Nounat')
   }
 
   const getTitle = () => {
-    if (isPrenatal) return 'Expecting'
-    if (child.gender === 'BOY') return 'Little Boy'
-    if (child.gender === 'GIRL') return 'Little Girl'
-    return 'Little Neighbor'
+    if (isPrenatal) return t('child.form.lifeStagePrenatal', 'Embaràs')
+    if (child.gender === 'BOY') return t('child.form.genderBoy', 'Xiquet')
+    if (child.gender === 'GIRL') return t('child.form.genderGirl', 'Xiqueta')
+    return t('child.info.baby', 'Infant')
   }
 
   const handleMatchRequest = async () => {
@@ -62,7 +64,7 @@ export default function ChildCard({
       await childApi.requestMatch(myChildId, child.id)
       setStatus('success')
     } catch (err: any) {
-      setErrorMessage(err.message)
+      setErrorMessage(err.message || t('common.error'))
       setStatus('error')
       setTimeout(() => setStatus('idle'), 3000)
     }
@@ -70,23 +72,24 @@ export default function ChildCard({
 
   return (
     <div
-      className={`bg-white rounded-[2.5rem] shadow-xl p-8 transition-all border-b-8 ${
-        isPrenatal ? 'border-purple-400' : 'border-orange-400'
+      className={`bg-white rounded-[3rem] shadow-xl p-8 transition-all border-b-[12px] hover:-translate-y-1 ${
+        isPrenatal ? 'border-purple-400' : 'border-brand-orange'
       }`}
     >
-      {/* CABECERA RESTAURADA */}
       <div className="flex items-start justify-between mb-6">
         <div className="flex-1">
-          <h3 className="text-2xl font-black text-gray-900 mb-1">
+          <h3 className="text-2xl font-black text-brand-dark mb-1 uppercase tracking-tighter">
             {getTitle()}
           </h3>
-          <div className="flex items-center gap-2 text-gray-500">
+          <div className="flex items-center gap-2 text-gray-400">
             {isPrenatal ? (
               <Baby className="w-5 h-5 text-purple-400" />
             ) : (
-              <Cake className="w-5 h-5 text-orange-400" />
+              <Cake className="w-5 h-5 text-brand-orange" />
             )}
-            <span className="text-lg font-bold">{getDisplayAge()}</span>
+            <span className="text-sm font-black uppercase tracking-widest">
+              {getDisplayAge()}
+            </span>
           </div>
         </div>
 
@@ -94,36 +97,35 @@ export default function ChildCard({
           <div className="flex gap-2">
             <button
               onClick={() => onEdit(child)}
-              className="p-3 bg-gray-50 text-gray-400 rounded-2xl hover:bg-orange-500 hover:text-white transition-all shadow-sm"
+              className="p-3 bg-gray-50 text-gray-400 rounded-2xl hover:bg-brand-dark hover:text-white transition-all"
             >
-              <Edit className="w-5 h-5" />
+              <Edit className="w-4 h-4" />
             </button>
             <button
               onClick={() => onDelete(child.id)}
-              className="p-3 bg-red-50 text-red-500 rounded-2xl hover:bg-red-500 hover:text-white transition-all shadow-sm"
+              className="p-3 bg-red-50 text-red-400 rounded-2xl hover:bg-red-500 hover:text-white transition-all"
             >
-              <Trash2 className="w-5 h-5" />
+              <Trash2 className="w-4 h-4" />
             </button>
           </div>
         )}
       </div>
 
-      {/* INTERESES RESTAURADOS */}
       {child.interests && child.interests.length > 0 && (
         <div className="space-y-3 mb-6">
-          <div className="flex items-center gap-2 text-gray-400 text-[10px] font-black uppercase tracking-widest">
+          <div className="flex items-center gap-2 text-gray-300 text-[9px] font-black uppercase tracking-[0.2em]">
             <Tag
-              className={`w-4 h-4 ${
-                isPrenatal ? 'text-purple-300' : 'text-orange-300'
+              className={`w-3 h-3 ${
+                isPrenatal ? 'text-purple-300' : 'text-brand-orange/40'
               }`}
             />
-            <span>Interests</span>
+            <span>{t('interestsLabel', 'Interessos')}</span>
           </div>
           <div className="flex flex-wrap gap-2">
             {child.interests.map((interest: any, index: number) => (
               <span
                 key={index}
-                className="px-4 py-1.5 bg-gray-50 text-gray-600 text-[11px] font-bold rounded-full border border-gray-100"
+                className="px-4 py-1.5 bg-gray-50 text-brand-dark text-[10px] font-black rounded-full border border-gray-100 uppercase tracking-tight"
               >
                 {typeof interest === 'string' ? interest : interest.name}
               </span>
@@ -132,29 +134,30 @@ export default function ChildCard({
         </div>
       )}
 
-      {/* BOTÓN DE MATCH */}
       {showMatchButton && (
         <div className="mt-8 pt-6 border-t border-gray-100">
           {status === 'idle' && (
             <button
               onClick={handleMatchRequest}
-              className="w-full py-4 bg-gray-900 text-white font-black rounded-2xl hover:bg-gray-800 transition-all flex items-center justify-center gap-2"
+              className="w-full py-5 bg-brand-dark text-white font-black rounded-[2rem] hover:bg-brand-orange transition-all flex items-center justify-center gap-3 uppercase tracking-widest text-xs shadow-lg"
             >
-              <Send className="w-5 h-5" /> REQUEST PLAYDATE
+              <Send className="w-4 h-4" />{' '}
+              {t('matchRequest', 'Connectar')}
             </button>
           )}
           {status === 'loading' && (
-            <div className="text-center text-gray-400 font-bold flex items-center justify-center gap-2">
-              <Loader2 className="animate-spin" /> SENDING...
+            <div className="py-4 text-center text-gray-400 font-black flex items-center justify-center gap-2 text-xs uppercase tracking-widest">
+              <Loader2 className="w-4 h-4 animate-spin text-brand-orange" />{' '}
+              {t('loading')}
             </div>
           )}
           {status === 'success' && (
-            <div className="text-center text-green-500 font-black flex items-center justify-center gap-2">
-              <CheckCircle2 /> REQUEST SENT
+            <div className="py-4 text-center text-green-500 font-black flex items-center justify-center gap-2 text-xs uppercase tracking-widest animate-in zoom-in">
+              <CheckCircle2 className="w-4 h-4" /> {t('save')}
             </div>
           )}
           {status === 'error' && (
-            <div className="text-center text-red-500 font-bold text-xs">
+            <div className="py-4 text-center text-red-500 font-black text-[10px] uppercase tracking-widest">
               {errorMessage}
             </div>
           )}

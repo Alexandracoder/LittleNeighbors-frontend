@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, Plus } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
+import { ArrowLeft, Plus, Map as MapIcon, List as ListIcon } from 'lucide-react'
 import dashboardBg from '../assets/parent-meeting.png'
 import { EventList } from '../components/EventList'
 import { EventModal } from '../components/EventModal'
@@ -8,9 +9,9 @@ import { CreateEventForm } from '../components/CreateEventForm'
 import { MapComponent } from './MapComponent'
 
 export default function EventsPage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [events, setEvents] = useState<any[]>([])
-  // --- NUEVO ESTADO PARA BARRIOS ---
   const [neighborhoods, setNeighborhoods] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -20,7 +21,7 @@ export default function EventsPage() {
 
   useEffect(() => {
     fetchEvents()
-    fetchNeighborhoods() // <--- Cargamos los barrios al iniciar
+    fetchNeighborhoods()
   }, [])
 
   const fetchNeighborhoods = async () => {
@@ -30,15 +31,15 @@ export default function EventsPage() {
         headers: { Authorization: `Bearer ${token}` },
       })
       const data = await res.json()
-      // Asumimos que la API devuelve un Page objeto con .content
       setNeighborhoods(data.content || [])
     } catch (err) {
-      console.error('Error cargando barrios:', err)
+      console.error('Error loading neighborhoods:', err)
     }
   }
 
   const fetchEvents = () => {
     const token = localStorage.getItem('accessToken')
+    setLoading(true)
     fetch(
       'http://localhost:8080/api/events/map?minLat=-90&maxLat=90&minLon=-180&maxLon=180',
       {
@@ -49,7 +50,7 @@ export default function EventsPage() {
       },
     )
       .then(res => {
-        if (!res.ok) throw new Error('Error al cargar eventos')
+        if (!res.ok) throw new Error('Error loading events')
         return res.json()
       })
       .then(data => {
@@ -58,7 +59,7 @@ export default function EventsPage() {
       })
       .catch(err => {
         console.error(err)
-        setError('No pudimos cargar los eventos.')
+        setError(t('auth.login.error'))
         setLoading(false)
       })
   }
@@ -74,7 +75,8 @@ export default function EventsPage() {
   }
 
   return (
-    <div className="relative min-h-screen w-full p-6 text-brand-dark font-sans">
+    <div className="relative min-h-screen w-full p-6 text-brand-dark font-sans overflow-x-hidden">
+      {/* Background with subtle overlay */}
       <div
         className="fixed inset-0 z-0"
         style={{
@@ -83,67 +85,89 @@ export default function EventsPage() {
           backgroundPosition: 'center',
         }}
       />
-      <div className="fixed inset-0 z-10 bg-white/40 pointer-events-none" />
+      <div className="fixed inset-0 z-10 bg-white/60 backdrop-blur-[2px] pointer-events-none" />
 
-      {/* Botón Crear */}
+      {/* Floating Action Button */}
       <button
         onClick={() => {
           setEventToEdit(null)
           setIsModalOpen(true)
         }}
-        className="fixed bottom-8 right-8 z-40 bg-brand-coral text-white p-4 rounded-full shadow-2xl hover:scale-105 transition-all flex items-center gap-2 font-bold"
+        className="fixed bottom-10 right-10 z-50 bg-brand-coral text-white px-8 py-5 rounded-[2rem] shadow-[0_20px_50px_rgba(255,111,97,0.3)] hover:scale-105 active:scale-95 transition-all flex items-center gap-3 font-black uppercase tracking-widest text-xs"
       >
-        <Plus className="w-6 h-6" /> Crear Evento
+        <Plus className="w-5 h-5" /> {t('onboarding.addChild.submitButton')}
       </button>
 
-      {/* Modal */}
+      {/* Modal for Creating/Editing */}
       <EventModal isOpen={isModalOpen} onClose={handleCloseModal}>
-        <CreateEventForm
-          eventToEdit={eventToEdit}
-          onSuccess={() => {
-            handleCloseModal()
-            fetchEvents()
-          }}
-        />
+        <div className="p-2">
+          <CreateEventForm
+            eventToEdit={eventToEdit}
+            onSuccess={() => {
+              handleCloseModal()
+              fetchEvents()
+            }}
+          />
+        </div>
       </EventModal>
 
-      <div className="relative z-20 max-w-4xl mx-auto space-y-8">
+      <div className="relative z-20 max-w-5xl mx-auto space-y-10 pb-24">
+        {/* Navigation */}
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-brand-dark hover:text-brand-coral transition-colors font-bold"
+          className="group flex items-center gap-2 text-brand-dark/60 hover:text-brand-dark transition-all font-black uppercase tracking-widest text-[10px]"
         >
-          <ArrowLeft className="w-6 h-6" /> Back to Dashboard
+          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+          {t('back')}
         </button>
 
-        <h1 className="text-5xl font-black uppercase text-brand-dark drop-shadow-sm">
-          Neighborhood Events
-        </h1>
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div>
+            <h1 className="text-6xl font-black uppercase text-brand-dark tracking-tighter leading-none">
+              {t('events')}
+            </h1>
+            <div className="h-2 w-20 bg-brand-orange mt-4 rounded-full" />
+          </div>
 
-        <button
-          onClick={() => setIsMapVisible(!isMapVisible)}
-          className="text-brand-dark font-bold underline hover:text-brand-coral transition-colors"
-        >
-          {isMapVisible ? 'Ocultar mapa' : 'Ver eventos en el mapa'}
-        </button>
+          <button
+            onClick={() => setIsMapVisible(!isMapVisible)}
+            className="flex items-center gap-3 px-6 py-3 bg-white rounded-2xl shadow-sm border border-brand-dark/5 font-black uppercase tracking-widest text-[10px] hover:bg-brand-dark hover:text-white transition-all"
+          >
+            {isMapVisible ? (
+              <>
+                <ListIcon className="w-4 h-4" /> {t('edit')}
+              </>
+            ) : (
+              <>
+                <MapIcon className="w-4 h-4" />{' '}
+                {t('see On Map')}
+              </>
+            )}
+          </button>
+        </div>
 
-        {isMapVisible && (
-          <div className="h-[400px] w-full relative overflow-hidden rounded-[2rem] border-4 border-white shadow-2xl transition-all">
-            <MapComponent
-              key={events.length + (events[0]?.id || 0)}
+        {/* Dynamic Content Area */}
+        <div className="space-y-8">
+          {isMapVisible && (
+            <div className="h-[500px] w-full relative overflow-hidden rounded-[3rem] border-8 border-white shadow-2xl animate-in zoom-in duration-500">
+              <MapComponent
+                key={events.length + (events[0]?.id || 0)}
+                events={events}
+              />
+            </div>
+          )}
+
+          <div className="bg-white/80 backdrop-blur-md p-10 rounded-[3.5rem] border border-white shadow-2xl">
+            <EventList
               events={events}
+              neighborhoods={neighborhoods}
+              loading={loading}
+              error={error}
+              onRefresh={fetchEvents}
+              onEdit={handleEditClick}
             />
           </div>
-        )}
-
-        <div className="bg-white/70 backdrop-blur-sm p-8 rounded-[2rem] border border-white/50 shadow-xl">
-          <EventList
-            events={events}
-            neighborhoods={neighborhoods} // <--- PASAMOS LOS BARRIOS A LA LISTA
-            loading={loading}
-            error={error}
-            onRefresh={fetchEvents}
-            onEdit={handleEditClick}
-          />
         </div>
       </div>
     </div>

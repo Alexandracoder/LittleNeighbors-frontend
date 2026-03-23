@@ -1,8 +1,9 @@
 import { EventCard } from './EventCard'
+import { useTranslation } from 'react-i18next'
 
 interface EventListProps {
   events: any[]
-  neighborhoods: any[] // 👈 AÑADIDO: Recibimos la lista de barrios del padre
+  neighborhoods: any[]
   loading: boolean
   error: string | null
   onRefresh: () => void
@@ -11,17 +12,17 @@ interface EventListProps {
 
 export const EventList = ({
   events,
-  neighborhoods, // 👈 RECIBIDO: Desestructuramos para usarlo
+  neighborhoods,
   loading,
   error,
   onRefresh,
   onEdit,
 }: EventListProps) => {
+  const { t } = useTranslation()
   const token = localStorage.getItem('accessToken')
 
   const handleDelete = async (id: number) => {
-    if (!window.confirm('¿Estás seguro de que quieres eliminar este evento?'))
-      return
+    if (!window.confirm(t('common.back'))) return
 
     try {
       const response = await fetch(`http://localhost:8080/api/events/${id}`, {
@@ -35,29 +36,45 @@ export const EventList = ({
       if (response.ok) {
         onRefresh()
       } else {
-        alert('Error al eliminar el evento.')
+        alert(t('auth.login.error'))
       }
     } catch (err) {
-      console.error('Error en la petición DELETE:', err)
+      console.error('Error:', err)
     }
   }
 
-  if (loading)
-    return <p className="text-center font-bold p-10">Cargando eventos...</p>
-  if (error) return <p className="text-red-500 text-center p-10">{error}</p>
+  if (loading) {
+    return (
+      <div className="flex justify-center p-20">
+        <p className="font-black uppercase tracking-widest text-xs animate-pulse text-brand-orange">
+          {t('loading')}
+        </p>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="p-10 text-center">
+        <p className="text-red-500 font-bold">{t('error')}</p>
+      </div>
+    )
+  }
 
   return (
-    <div className="grid gap-4">
+    <div className="grid gap-6">
       {events.length === 0 ? (
-        <p className="text-center text-gray-500 py-10">
-          No hay eventos próximos en Valencia. ¡Crea el primero!
-        </p>
+        <div className="text-center py-20 bg-white/5 rounded-[2rem] border-2 border-dashed border-white/10">
+          <p className="text-white/40 font-bold italic text-lg px-6">
+            {t('Description')}
+          </p>
+        </div>
       ) : (
         events.map(event => (
           <EventCard
             key={event.id}
             event={event}
-            neighborhoods={neighborhoods} // 👈 PASADO: Ahora la card tiene acceso a los nombres
+            neighborhoods={neighborhoods}
             onDelete={() => handleDelete(event.id)}
             onEdit={() => onEdit(event)}
           />

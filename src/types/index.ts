@@ -1,4 +1,6 @@
 // --- AUTH & USER ---
+export type UserRole = 'USER' | 'FAMILY' | 'ADMIN'
+
 export interface AuthRequest {
   email: string
   password: string
@@ -16,8 +18,6 @@ export interface DecodedToken {
   exp: number
 }
 
-export type UserRole = 'USER' | 'FAMILY' | 'ADMIN'
-
 export interface User {
   email: string
   roles: UserRole[]
@@ -29,6 +29,19 @@ export interface RegisterRequest {
   lastName: string
   email: string
   password?: string
+}
+
+export interface UserStatusDTO {
+  hasFamily: boolean
+  hasChildren: boolean
+  isRegistrationComplete: boolean
+  familyId: number | null
+}
+
+export interface UserProfileDTO {
+  email: string
+  roles: UserRole[]
+  family: FamilyResponseDTO | null
 }
 
 // --- FAMILY ---
@@ -50,15 +63,42 @@ export interface FamilyResponseDTO {
   streetName: string
   postalCode: string
   cityName: string
-  children: ChildSummaryDTO[];
+  children: ChildSummaryDTO[]
+}
+
+export interface FamilyAuthResponseDTO {
+  family: FamilyResponseDTO | null
+  accessToken: string
+  refreshToken: string
 }
 
 // --- CHILDREN & INTERESTS ---
-export interface ChildResponseDTO {
-  lifeStage: string
-  isPrenatal: any
-  dueDate: any
+export interface InterestResponseDTO {
   id: number
+  name: string
+  type: string
+}
+
+export interface Child {
+  id: number
+  lifeStage: 'PREGNANCY' | 'BORN'
+  birthDate?: string
+  gender?: 'BOY' | 'GIRL'
+  neighborhood?: string
+  interests?: string[]
+}
+
+export interface ChildSummaryDTO {
+  id: number
+  gender: string
+  age: number
+}
+
+export interface ChildResponseDTO {
+  id: number
+  lifeStage: string
+  isPrenatal: boolean
+  dueDate?: string | null
   gender: 'BOY' | 'GIRL'
   birthDate?: string
   age: number
@@ -67,23 +107,34 @@ export interface ChildResponseDTO {
 }
 
 export interface ChildRequestDTO {
-  // Cambiamos a los estados que prefieras usar consistentemente
   lifeStage: 'PREGNANCY' | 'BORN'
-
-
   gender: 'BOY' | 'GIRL' | null
-
   birthDate?: string | null
   dueDate?: string | null
-
   isPrenatal: boolean
-
   interestIds: number[]
 }
-export interface InterestResponseDTO {
+
+// --- CHAT & MATCHES ---
+export interface Match {
   id: number
-  name: string
-  type: string
+  childA: Child
+  childB: Child
+  status: 'PENDING' | 'ACCEPTED' | 'REJECTED'
+  createdAt: string
+}
+
+export interface MatchRequest {
+  initiatorChildId: number
+  targetChildId: number
+}
+
+export interface MessageDTO {
+  id?: number
+  senderId: number
+  receiverId: number
+  text: string
+  timestamp: string
 }
 
 // --- NEIGHBORHOOD & EVENTS ---
@@ -109,54 +160,4 @@ export interface Page<T> {
   totalPages: number
   size: number
   number: number
-}
-
-export interface ChildSummaryDTO {
-  id: number
-  gender: string
-  age: number
-}
-
-export interface FamilyAuthResponseDTO {
-  family: FamilyResponseDTO | null
-  accessToken: string
-  refreshToken: string
-}
-
-export interface UserProfileDTO {
-  email: string
-  roles: UserRole[]
-  family: FamilyResponseDTO | null
-}
-
-export interface Child {
-  id: number
-  lifeStage: 'PREGNANCY' | 'BORN'
-  birthDate: string
-  neighborhood: string
-  interests: string[]
-}
-
-export interface Match {
-  id: number
-  childA: Child
-  childB: Child
-  status: 'PENDING' | 'ACCEPTED' | 'REJECTED'
-  createdAt: string
-}
-
-export interface MatchRequest {
-  initiatorChildId: number
-  targetChildId: number
-}
-
-export interface MatchRequest {
-  initiatorChildId: number
-  targetChildId: number
-}
-
-export interface UserStatusDTO {
-  hasFamily: boolean
-  hasChildren: boolean
-  isRegistrationComplete: boolean
 }

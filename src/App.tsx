@@ -1,7 +1,9 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import ProtectedRoute from './components/ProtectedRoute'
-import ChatWindow from './components/Chat/ChatWindow'
+
+// Estilos globales y librerías
+import 'leaflet/dist/leaflet.css'
 
 // Páginas y Componentes
 import Login from './components/Login'
@@ -13,27 +15,31 @@ import ExplorePage from './pages/ExplorePage'
 import EventsPage from './pages/EventsPage'
 import SchedulesPage from './pages/SchedulesPage'
 import Welcome from './pages/Welcome'
-import 'leaflet/dist/leaflet.css'
+import ChatPage from './pages/ChatPage'
 
+// Pantalla de carga con estilo de marca
 const LoadingScreen = () => (
-  <div
-    style={{
-      height: '100vh',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      background: '#1a1a1a',
-      color: 'white',
-    }}
-  >
-    Cargando Vecinitos...
+  <div className="h-screen w-full flex flex-col justify-center items-center bg-brand-dark text-white space-y-4">
+    <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-brand-orange"></div>
+    <p className="font-black uppercase tracking-[0.3em] text-xs animate-pulse">
+      Cargando Vecinitos...
+    </p>
   </div>
 )
 
 function AppContent() {
-  const { user, status, loading, token } = useAuth()
+  const { user, status, loading } = useAuth()
 
   if (loading) return <LoadingScreen />
+
+  // Función auxiliar para proteger rutas que requieren registro completo
+  const requireFullProfile = (element: JSX.Element) => {
+    return status?.isRegistrationComplete ? (
+      element
+    ) : (
+      <Navigate to="/add-child" replace />
+    )
+  }
 
   return (
     <Routes>
@@ -41,7 +47,7 @@ function AppContent() {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
 
-      {/* --- RUTA DE CREACIÓN DE FAMILIA (Paso 1) --- */}
+      {/* --- ONBOARDING (Flujo de registro) --- */}
       <Route
         path="/create-family"
         element={
@@ -51,7 +57,6 @@ function AppContent() {
         }
       />
 
-      {/* --- RUTA DE REGISTRO DE HIJOS (Paso 2) --- */}
       <Route
         path="/add-child"
         element={
@@ -61,69 +66,52 @@ function AppContent() {
         }
       />
 
-      {/* --- RUTA DE CHAT (Nueva) --- */}
-      <Route
-        path="/chat/:matchId"
-        element={
-          <ProtectedRoute allowedRoles={['FAMILY', 'ADMIN']}>
-            {status?.isRegistrationComplete ? (
-              <ChatWindow currentUser={user} token={token} />
-            ) : (
-              <Navigate to="/add-child" replace />
-            )}
-          </ProtectedRoute>
-        }
-      />
-
-      {/* --- RUTAS DE COMUNIDAD --- */}
+      {/* --- APP CORE (Protegidas y con Perfil Completo) --- */}
       <Route
         path="/dashboard"
         element={
           <ProtectedRoute allowedRoles={['FAMILY', 'ADMIN']}>
-            {status?.isRegistrationComplete ? (
-              <Dashboard />
-            ) : (
-              <Navigate to="/add-child" replace />
-            )}
+            {requireFullProfile(<Dashboard />)}
           </ProtectedRoute>
         }
       />
+
       <Route
         path="/explore"
         element={
           <ProtectedRoute allowedRoles={['FAMILY', 'ADMIN']}>
-            {status?.isRegistrationComplete ? (
-              <ExplorePage />
-            ) : (
-              <Navigate to="/add-child" replace />
-            )}
+            {requireFullProfile(<ExplorePage />)}
           </ProtectedRoute>
         }
       />
+
       <Route
         path="/events"
         element={
           <ProtectedRoute allowedRoles={['FAMILY', 'ADMIN']}>
-            {status?.isRegistrationComplete ? (
-              <EventsPage />
-            ) : (
-              <Navigate to="/add-child" replace />
-            )}
+            {requireFullProfile(<EventsPage />)}
           </ProtectedRoute>
         }
       />
+
       <Route
         path="/schedules"
         element={
           <ProtectedRoute allowedRoles={['FAMILY', 'ADMIN']}>
-            {status?.isRegistrationComplete ? (
-              <SchedulesPage />
-            ) : (
-              <Navigate to="/add-child" replace />
-            )}
+            {requireFullProfile(<SchedulesPage />)}
           </ProtectedRoute>
         }
       />
+
+      <Route
+        path="/chat/:familyId"
+        element={
+          <ProtectedRoute allowedRoles={['FAMILY', 'ADMIN']}>
+            {requireFullProfile(<ChatPage />)}
+          </ProtectedRoute>
+        }
+      />
+
       <Route
         path="/welcome"
         element={
@@ -148,6 +136,8 @@ function AppContent() {
           )
         }
       />
+
+      {/* Catch-all: Redirige cualquier error de tipeo al Dashboard */}
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
   )

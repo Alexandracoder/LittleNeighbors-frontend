@@ -1,0 +1,105 @@
+{
+  "common": {
+    "loading": "Carregant...",
+    "saving": "Guardant...",
+    "cancel": "Cancel·lar",
+    "back": "← Tornar",
+    "appName": "Xiquets del Barri"
+  },
+
+  "auth": {
+    "login": {
+      "enterNeighborhood": "Entra al Barri",
+      "title": "Xiquets del Barri",
+      "emailLabel": "Correu electrònic",
+      "emailPlaceholder": "tu@correu.com",
+      "passwordLabel": "Contrasenya",
+      "passwordPlaceholder": "••••••••",
+      "submitButton": "Iniciar Sessió",
+      "submittingButton": "Entrant...",
+      "backToImage": "← Tornar a la imatge",
+      "createAccount": "Crea un compte",
+      "error": "Correu electrònic o contrasenya incorrectes"
+    },
+    "register": {
+      "title": "Benvinguda al Barri",
+      "subtitle": "Crea el teu compte per a connectar amb els veïns",
+      "firstNameLabel": "Nom",
+      "firstNamePlaceholder": "Joan",
+      "lastNameLabel": "Cognoms",
+      "lastNamePlaceholder": "García",
+      "emailLabel": "Correu electrònic",
+      "emailPlaceholder": "joan@exemple.com",
+      "passwordLabel": "Contrasenya",
+      "passwordPlaceholder": "••••••••",
+      "submitButton": "Crear Compte",
+      "submittingButton": "Creant el compte...",
+      "error": "El registre ha fallat. Si us plau, torna-ho a intentar.",
+      "alreadyHaveAccount": "Ja tens un compte?",
+      "signIn": "Iniciar Sessió"
+    }
+  },
+
+  "onboarding": {
+    "createFamily": {
+      "title": "Crea el teu Perfil Familiar",
+      "subtitle": "Uneix-te als veïns i comença a connectar!",
+      "familyNameLabel": "Nom de la Família",
+      "familyNamePlaceholder": "La Família Rodríguez",
+      "descriptionLabel": "Sobre Nosaltres",
+      "descriptionPlaceholder": "Conta'ns coses de la teua família...",
+      "submitButton": "Finalitzar Perfil",
+      "submittingButton": "Guardant...",
+      "error": "Error en crear el perfil familiar"
+    }
+  },
+
+  "dashboard": {
+    "header": {
+      "userEmail": "{{email}}",
+      "logoutButton": "Tancar Sessió"
+    },
+    "hero": {
+      "title": "La Teua Família",
+      "subtitle": "Benvinguda al teu tauler de barri!"
+    },
+    "actions": {
+      "findPlaymates": "TROBAR COMPANYS DE JOC",
+      "findPlaymatesAlert": "Prompte: Explorador del barri!"
+    },
+    "children": {
+      "loadingText": "Carregant veïns...",
+      "emptyTitle": "Niu Buit?",
+      "emptyDescription": "Afig els teus xiquets per a connectar amb altres famílies del barri!",
+      "emptyButton": "Afegir el Primer Xiquet",
+      "addAnotherButton": "Afegir un altre xiquet",
+      "deleteConfirm": "Estàs segur que vols eliminar aquest xiquet?",
+      "deleteError": "No s'ha pogut eliminar el xiquet"
+    },
+    "footer": "Xiquets del Barri • Perfil Familiar"
+  },
+
+  "child": {
+    "card": {
+      "yearsOld_one": "any",
+      "yearsOld_other": "anys",
+      "interestsLabel": "Interessos",
+      "editTitle": "Editar",
+      "deleteTitle": "Eliminar"
+    },
+    "form": {
+      "titleCreate": "Nou Veïnet",
+      "titleUpdate": "Actualitzar Perfil",
+      "privacyBadge": "Registre amb Privacitat",
+      "genderLabel": "Tria el Gènere",
+      "genderBoy": "NEN",
+      "genderGirl": "XIQUETA",
+      "birthDateLabel": "Data de Naixement",
+      "submitCreate": "Afegir Xiquet",
+      "submitUpdate": "Actualitzar",
+      "validationError": "Si us plau, omple tots els camps",
+      "saveError": "No s'ha pogut guardar. Comprova la informació introduïda.",
+      "footerLabel": "Xiquets del Barri • Perfil Familiar"
+    }
+  }
+}

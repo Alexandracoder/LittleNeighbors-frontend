@@ -1,0 +1,105 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "saving": "Saving...",
+    "cancel": "Cancel",
+    "back": "← Back",
+    "appName": "Little Neighbors"
+  },
+
+  "auth": {
+    "login": {
+      "enterNeighborhood": "Enter the Neighborhood",
+      "title": "Little Neighbors",
+      "emailLabel": "Email",
+      "emailPlaceholder": "your@email.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "••••••••",
+      "submitButton": "Sign In",
+      "submittingButton": "Entering...",
+      "backToImage": "← Back to view image",
+      "createAccount": "Create an account",
+      "error": "Invalid email or password"
+    },
+    "register": {
+      "title": "Join the Neighborhood",
+      "subtitle": "Create your account to start connecting",
+      "firstNameLabel": "First Name",
+      "firstNamePlaceholder": "John",
+      "lastNameLabel": "Last Name",
+      "lastNamePlaceholder": "Doe",
+      "emailLabel": "Email",
+      "emailPlaceholder": "john@example.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "••••••••",
+      "submitButton": "Create Account",
+      "submittingButton": "Creating account...",
+      "error": "Registration failed. Please try again.",
+      "alreadyHaveAccount": "Already have an account?",
+      "signIn": "Sign In"
+    }
+  },
+
+  "onboarding": {
+    "createFamily": {
+      "title": "Create Your Family Profile",
+      "subtitle": "Join your neighbors and start connecting!",
+      "familyNameLabel": "Family Name",
+      "familyNamePlaceholder": "The Rodriguez Family",
+      "descriptionLabel": "About Us",
+      "descriptionPlaceholder": "Tell us about your family...",
+      "submitButton": "Finish Profile",
+      "submittingButton": "Saving...",
+      "error": "Error creating family profile"
+    }
+  },
+
+  "dashboard": {
+    "header": {
+      "userEmail": "{{email}}",
+      "logoutButton": "Logout"
+    },
+    "hero": {
+      "title": "Your Family",
+      "subtitle": "Welcome to your neighborhood dashboard!"
+    },
+    "actions": {
+      "findPlaymates": "FIND PLAYMATES",
+      "findPlaymatesAlert": "Coming soon: Neighborhood explorer!"
+    },
+    "children": {
+      "loadingText": "Loading neighbors...",
+      "emptyTitle": "Empty Nest?",
+      "emptyDescription": "Add your children to start connecting with other families in your neighborhood!",
+      "emptyButton": "Add First Child",
+      "addAnotherButton": "Add another child",
+      "deleteConfirm": "Are you sure you want to delete this child?",
+      "deleteError": "Failed to delete child"
+    },
+    "footer": "Little Neighbors • Family Profile"
+  },
+
+  "child": {
+    "card": {
+      "yearsOld_one": "year",
+      "yearsOld_other": "years",
+      "interestsLabel": "Interests",
+      "editTitle": "Edit",
+      "deleteTitle": "Delete"
+    },
+    "form": {
+      "titleCreate": "New Neighbor",
+      "titleUpdate": "Update Profile",
+      "privacyBadge": "Privacy-First Registration",
+      "genderLabel": "Choose Gender",
+      "genderBoy": "BOY",
+      "genderGirl": "GIRL",
+      "birthDateLabel": "Birth Date",
+      "submitCreate": "Add Child",
+      "submitUpdate": "Update",
+      "validationError": "Please fill in all fields",
+      "saveError": "Failed to save child. Check the information provided.",
+      "footerLabel": "Little Neighbors • Family Profile"
+    }
+  }
+}
