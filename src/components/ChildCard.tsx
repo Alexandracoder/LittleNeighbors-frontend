@@ -7,7 +7,6 @@ import {
   Send,
   Loader2,
   CheckCircle2,
-  XCircle,
 } from 'lucide-react'
 import { useState } from 'react'
 import type { ChildResponseDTO } from '../types'
@@ -33,19 +32,19 @@ export default function ChildCard({
   >('idle')
   const [errorMessage, setErrorMessage] = useState('')
 
-  const isPrenatal = child.lifeStage === 'PRENATAL'
+  // Sincronizado con el nuevo Enum de LifeStage
+  const isPrenatal = child.lifeStage === 'PREGNANCY'
 
   const getDisplayAge = () => {
     if (isPrenatal) return 'Coming soon'
-    if (child.age && child.age > 0)
+
+    // Priorizamos el campo 'age' que viene del Backend (es más fiable)
+    if (child.age !== undefined && child.age !== null) {
+      if (child.age === 0) return 'Newborn'
       return `${child.age} ${child.age === 1 ? 'year' : 'years'} old`
-    if (!child.birthDate) return 'Newborn'
-    const birth = new Date(child.birthDate)
-    const today = new Date()
-    let age = today.getFullYear() - birth.getFullYear()
-    const m = today.getMonth() - birth.getMonth()
-    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--
-    return `${age} ${age === 1 ? 'year' : 'years'} old`
+    }
+
+    return 'New Neighbor'
   }
 
   const getTitle = () => {
@@ -59,10 +58,12 @@ export default function ChildCard({
     if (!myChildId) return
     setStatus('loading')
     try {
+      // Usamos los IDs para la petición de match
       await childApi.requestMatch(myChildId, child.id)
       setStatus('success')
     } catch (err: any) {
-      setErrorMessage(err.message)
+      // Capturamos el mensaje de error de tu GlobalExceptionHandler
+      setErrorMessage(err.response?.data?.message || 'Error sending request')
       setStatus('error')
       setTimeout(() => setStatus('idle'), 3000)
     }
@@ -74,7 +75,6 @@ export default function ChildCard({
         isPrenatal ? 'border-purple-400' : 'border-orange-400'
       }`}
     >
-      {/* CABECERA RESTAURADA */}
       <div className="flex items-start justify-between mb-6">
         <div className="flex-1">
           <h3 className="text-2xl font-black text-gray-900 mb-1">
@@ -108,7 +108,6 @@ export default function ChildCard({
         )}
       </div>
 
-      {/* INTERESES RESTAURADOS */}
       {child.interests && child.interests.length > 0 && (
         <div className="space-y-3 mb-6">
           <div className="flex items-center gap-2 text-gray-400 text-[10px] font-black uppercase tracking-widest">
@@ -120,19 +119,19 @@ export default function ChildCard({
             <span>Interests</span>
           </div>
           <div className="flex flex-wrap gap-2">
-            {child.interests.map((interest: any, index: number) => (
+            {child.interests.map((interest, index) => (
               <span
                 key={index}
                 className="px-4 py-1.5 bg-gray-50 text-gray-600 text-[11px] font-bold rounded-full border border-gray-100"
               >
-                {typeof interest === 'string' ? interest : interest.name}
+                {/* Ahora interest es un InterestResponseDTO según types.ts */}
+                {interest.name}
               </span>
             ))}
           </div>
         </div>
       )}
 
-      {/* BOTÓN DE MATCH */}
       {showMatchButton && (
         <div className="mt-8 pt-6 border-t border-gray-100">
           {status === 'idle' && (

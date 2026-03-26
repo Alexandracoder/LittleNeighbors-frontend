@@ -1,5 +1,4 @@
 import axios from 'axios'
-import { MatchRequest } from '../types'
 import type {
   AuthRequest,
   AuthResponse,
@@ -9,17 +8,16 @@ import type {
   NeighborhoodResponseDTO,
   RegisterRequest,
   Page,
-  ChildSummaryDTO,
   InterestResponseDTO,
   FamilyResponseDTO,
-  FamilyAuthResponseDTO,
   UserProfileDTO,
   UserStatusDTO,
+  SendMessageDTO,
+  MessageResponseDTO,
 } from '../types'
 
 const API_BASE_URL = 'http://localhost:8080/api'
 
-// 1. Instancia base de Axios
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
@@ -27,7 +25,7 @@ const api = axios.create({
   },
 })
 
-// 2. Interceptor para inyectar el token
+// --- INTERCEPTORES (Seguridad) ---
 api.interceptors.request.use(
   config => {
     const token = localStorage.getItem('accessToken')
@@ -39,7 +37,6 @@ api.interceptors.request.use(
   error => Promise.reject(error),
 )
 
-// 3. Interceptor para refresco automático
 api.interceptors.response.use(
   response => response,
   async error => {
@@ -69,100 +66,68 @@ api.interceptors.response.use(
   },
 )
 
-// --- EXPORTACIONES ---
-
+// --- AUTH API ---
 export const authApi = {
-  login: async (data: AuthRequest): Promise<FamilyAuthResponseDTO> => {
-    const response = await api.post<FamilyAuthResponseDTO>('/auth/login', data)
+  login: async (data: AuthRequest): Promise<AuthResponse> => {
+    const response = await api.post<AuthResponse>('/auth/login', data)
     return response.data
   },
   register: async (userData: RegisterRequest): Promise<void> => {
     await api.post('/auth/register', userData)
   },
-  refreshSession: async (): Promise<AuthResponse> => {
-    const refreshToken = localStorage.getItem('refreshToken')
-    const response = await api.post<AuthResponse>('/auth/refresh', {
-      refreshToken,
-    })
+
+  refresh: async (refreshToken: string): Promise<AuthResponse> => {
+    const response = await api.post<AuthResponse>('/auth/refresh', { refreshToken })
     return response.data
   },
+}
+
+
+// --- NUEVO: PROFILE API ---
+export const profileApi = {
   getProfile: async (): Promise<UserProfileDTO> => {
-    const response = await api.get<UserProfileDTO>('/auth/profile')
+   
+    const response = await api.get<UserProfileDTO>('/profile/me')
     return response.data
   },
 }
 
-export const getUserStatus = async (): Promise<UserStatusDTO> => {
-  const response = await fetch('/api/users/me/status', {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-      'Content-Type': 'application/json',
-    },
-  })
-
-  if (!response.ok) {
-    throw new Error('Failed to fetch user status')
-  }
-
-  // --- EL PASO QUE FALTA: Retornar los datos ---
-  const data = await response.json()
-  return data as UserStatusDTO
-}
-  
+// --- USER & FAMILY API ---
 export const userApi = {
-  // Este es el método que nos faltaba para el "semáforo"
   getStatus: async (): Promise<UserStatusDTO> => {
-    const response = await api.get('/users/me/status') // Ajusta la ruta a tu GetMapping de Java
+    const response = await api.get<UserStatusDTO>('/users/me/status')
     return response.data
   },
 
-  // Puedes añadir otros métodos de usuario aquí más adelante
+  
 }
-
-export const neighborhoodApi = {
-  getAll: async (): Promise<NeighborhoodResponseDTO[]> => {
-    const response = await api.get<Page<NeighborhoodResponseDTO>>(
-      '/neighborhoods',
-    )
-    return response.data.content
-  },
-}
-
 export const familyApi = {
-  create: async (data: FamilyRequestDTO): Promise<FamilyAuthResponseDTO> => {
-    const response = await api.post<FamilyAuthResponseDTO>('/families', data)
-    return response.data
-  },
-  explore: async (params?: {
-    interestId?: number
-    minAge?: number
-    maxAge?: number
-  }): Promise<FamilyResponseDTO[]> => {
-    const response = await api.get<FamilyResponseDTO[]>('/families/explore', {
-      params,
-    })
+  create: async (data: FamilyRequestDTO): Promise<FamilyResponseDTO> => {
+    const response = await api.post<FamilyResponseDTO>('/families', data)
     return response.data
   },
   getMyFamily: async (): Promise<FamilyResponseDTO> => {
     const response = await api.get<FamilyResponseDTO>('/families/my-family')
     return response.data
   },
-}
-
-export const interestApi = {
-  getAll: async (): Promise<InterestResponseDTO[]> => {
-    const response = await api.get<InterestResponseDTO[]>('/interests')
+  explore: async (params?: {
+    interestIds?: number[]
+    minAge?: number
+    maxAge?: number
+  }): Promise<FamilyResponseDTO[]> => {
+    const response = await api.get<FamilyResponseDTO[]>(
+      '/matches/find-families',
+      { params },
+    )
     return response.data
   },
 }
 
+// --- CHILD & INTERESTS API ---
 export const childApi = {
+  // CORRECCIÓN: Ruta sincronizada con el Backend
   getAll: async (): Promise<ChildResponseDTO[]> => {
     const response = await api.get<ChildResponseDTO[]>('/children/my-children')
-    return response.data
-  },
-  getAdminSummaries: async (): Promise<ChildSummaryDTO[]> => {
-    const response = await api.get<ChildSummaryDTO[]>('/children/summaries')
     return response.data
   },
   create: async (data: ChildRequestDTO): Promise<ChildResponseDTO> => {
@@ -179,20 +144,53 @@ export const childApi = {
   delete: async (id: number): Promise<void> => {
     await api.delete(`/children/${id}`)
   },
-  getById: async (id: number): Promise<ChildResponseDTO> => {
-    const response = await api.get<ChildResponseDTO>(`/children/${id}`)
+
+  requestMatch: async (initiatorChildId: number, targetChildId: number) => {
+    const response = await api.post('/matches/request', {
+      initiatorChildId,
+      targetChildId,
+    })
     return response.data
   },
-  requestMatch: async (initiatorId: number, targetId: number) => {
-    try {
-      const response = await api.post('/matches/request', {
-        initiatorChildId: initiatorId,
-        targetChildId: targetId,
-      })
-      return response.data
-    } catch (error: any) {
-      throw new Error(error.response?.data || 'Error al solicitar el match')
-    }
+}
+
+export const interestApi = {
+  getAll: async (): Promise<InterestResponseDTO[]> => {
+    const response = await api.get<InterestResponseDTO[]>('/interests')
+    return response.data
+  },
+}
+
+// --- MATCH & MESSAGES API (Nuevos) ---
+export const messageApi = {
+  sendMessage: async (data: SendMessageDTO): Promise<MessageResponseDTO> => {
+    const response = await api.post<MessageResponseDTO>('/messages/send', data)
+    return response.data
+  },
+  getHistory: async (matchId: number): Promise<MessageResponseDTO[]> => {
+    const response = await api.get<MessageResponseDTO[]>(
+      `/messages/history/${matchId}`,
+    )
+    return response.data
+  },
+}
+
+export const neighborhoodApi = {
+  getAll: async (): Promise<NeighborhoodResponseDTO[]> => {
+    // El backend devuelve una Page, por eso extraemos .content
+    const response = await api.get<Page<NeighborhoodResponseDTO>>(
+      '/neighborhoods',
+    )
+    return response.data.content
+  },
+}
+
+export const matchApi = {
+  requestMatch: async (childAId: number, childBId: number) => {
+    const response = await api.post('/matches/request', null, {
+      params: { childAId, childBId },
+    })
+    return response.data
   },
 }
 

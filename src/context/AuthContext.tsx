@@ -6,150 +6,110 @@ import {
   ReactNode,
 } from 'react'
 import { jwtDecode } from 'jwt-decode'
-import { authApi, userApi } from '../services/api' // Asegúrate de tener userApi definido
+import { authApi, userApi, profileApi } from '../services/api'
 import type {
   User,
   DecodedToken,
   AuthRequest,
   UserRole,
   UserStatusDTO,
+  FamilyResponseDTO,
+  AuthResponse,
 } from '../types'
 
 interface AuthContextType {
   user: User | null
-  familyEntity: any | null
+  familyEntity: FamilyResponseDTO | null
   status: UserStatusDTO | null
   loading: boolean
   token: string | null
   login: (credentials: AuthRequest) => Promise<User | null>
   logout: () => void
   hasRole: (role: UserRole) => boolean
-  refreshUser: () => Promise<void>
-  refreshStatus: () => Promise<void> // <-- NUEVO: Para actualizar hijos/familia
-  updateSession: (
-    accessToken: string,
-    refreshToken: string,
-    familyData?: any,
-  ) => User | null
-  updateTokenAfterFamilyCreation: () => Promise<User | null>
+  refreshProfile: () => Promise<FamilyResponseDTO | null>
+  refreshStatus: () => Promise<UserStatusDTO | null>
+  updateSession: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null)
-  const [familyEntity, setFamilyEntity] = useState<any | null>(null)
-  const [status, setStatus] = useState<UserStatusDTO | null>(null) // <-- NUEVO
+  const [familyEntity, setFamilyEntity] = useState<FamilyResponseDTO | null>(
+    null,
+  )
+  const [status, setStatus] = useState<UserStatusDTO | null>(null)
+  const [token, setToken] = useState<string | null>(
+    localStorage.getItem('accessToken'),
+  )
   const [loading, setLoading] = useState(true)
 
-  const decodeToken = (token: string): User | null => {
+  const decodeToken = (t: string): User | null => {
     try {
-      const decoded = jwtDecode<DecodedToken>(token)
+      const decoded = jwtDecode<DecodedToken>(t)
+      const currentTime = Date.now() / 1000
+      if (decoded.exp && decoded.exp < currentTime) return null
       return { email: decoded.sub, roles: decoded.roles }
     } catch {
       return null
     }
   }
 
-  const refreshStatus = async () => {
+  const refreshStatus = async (): Promise<UserStatusDTO | null> => {
     try {
-      const currentStatus = await userApi.getStatus() // Llama a /api/users/me/status
+      const currentStatus = await userApi.getStatus()
       setStatus(currentStatus)
+      return currentStatus
     } catch (e) {
-      console.error('Error sincronizando status:', e)
+      console.warn('[Auth] Status sync failed')
+      return null
     }
   }
 
-  const fetchFamilyFromApi = async () => {
+  const fetchFamilyFromApi = async (): Promise<FamilyResponseDTO | null> => {
     try {
-      const profile = await authApi.getProfile()
-      if (profile && profile.family) {
-        localStorage.setItem('familyEntity', JSON.stringify(profile.family))
+      const profile = await profileApi.getProfile()
+      if (profile?.family) {
         setFamilyEntity(profile.family)
         return profile.family
       }
     } catch (e) {
-      console.warn('No se pudo sincronizar la familia.')
+      console.error('[Auth] Profile fetch failed.')
+      setFamilyEntity(null)
     }
     return null
   }
 
-  useEffect(() => {
-    const initAuth = async () => {
-      const token = localStorage.getItem('accessToken')
-      const savedFamily = localStorage.getItem('familyEntity')
-
-      if (token) {
-        const decodedUser = decodeToken(token)
-        setUser(decodedUser)
-
-        // 1. Cargamos el Status (Esto activará el isRegistrationComplete)
-        await refreshStatus()
-
-        // 2. Cargamos la familia
-        if (savedFamily && savedFamily !== 'undefined') {
-          try {
-            setFamilyEntity(JSON.parse(savedFamily))
-          } catch (e) {
-            await fetchFamilyFromApi()
-          }
-        } else {
-          await fetchFamilyFromApi()
-        }
-      }
+  // Sincroniza la sesión tras cambios importantes (como crear una familia)
+  const updateSession = async () => {
+    setLoading(true)
+    try {
+      // Calidad: Refrescamos datos de perfil y estado sin forzar nuevo login
+      await Promise.allSettled([refreshStatus(), fetchFamilyFromApi()])
+    } catch (e) {
+      console.error('[Auth] Session update failed', e)
+    } finally {
       setLoading(false)
     }
-    initAuth()
-  }, [])
-
-  const updateSession = (
-    accessToken: string,
-    refreshToken: string,
-    familyData?: any,
-  ): User | null => {
-    localStorage.setItem('accessToken', accessToken)
-    localStorage.setItem('refreshToken', refreshToken)
-    const userData = decodeToken(accessToken)
-
-    if (familyData) {
-      localStorage.setItem('familyEntity', JSON.stringify(familyData))
-      setFamilyEntity(familyData)
-      // Al actualizar sesión, refrescamos el status para asegurar que isRegistrationComplete sea correcto
-      refreshStatus()
-
-      setUser(prev => {
-        const baseUser = userData || prev
-        if (!baseUser) return null
-        const currentRoles = (baseUser.roles || []) as UserRole[]
-        const newRoles: UserRole[] = currentRoles.includes('FAMILY' as UserRole)
-          ? currentRoles
-          : [...currentRoles, 'FAMILY' as UserRole]
-        return { ...baseUser, roles: newRoles, familyEntity: familyData }
-      })
-    } else if (userData) {
-      setUser(userData)
-      refreshStatus()
-    }
-    return userData
   }
 
   const login = async (credentials: AuthRequest): Promise<User | null> => {
     setLoading(true)
-    localStorage.removeItem('familyEntity')
     try {
-      const response = await authApi.login(credentials)
-      const loggedUser = updateSession(
-        response.accessToken,
-        response.refreshToken,
-        response.family,
-      )
-      // IMPORTANTE: Esperamos a tener el status antes de quitar el loading
-      await refreshStatus()
-      setLoading(false)
-      return loggedUser
+      const response: AuthResponse = await authApi.login(credentials)
+      localStorage.setItem('accessToken', response.accessToken)
+      localStorage.setItem('refreshToken', response.refreshToken)
+      setToken(response.accessToken)
+
+      const decodedUser = decodeToken(response.accessToken)
+      setUser(decodedUser)
+
+      await Promise.allSettled([refreshStatus(), fetchFamilyFromApi()])
+      return decodedUser
     } catch (error) {
-      setLoading(false)
       throw error
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -158,39 +118,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     sessionStorage.clear()
     setUser(null)
     setFamilyEntity(null)
-    setStatus(null) // Limpiamos status
+    setStatus(null)
+    setToken(null)
     window.location.href = '/login'
   }
 
+  const initAuth = async () => {
+    const savedToken = localStorage.getItem('accessToken')
+    if (savedToken) {
+      const decodedUser = decodeToken(savedToken)
+      if (decodedUser) {
+        setUser(decodedUser)
+        setToken(savedToken)
+        await Promise.allSettled([refreshStatus(), fetchFamilyFromApi()])
+      } else {
+        logout()
+      }
+    }
+    setLoading(false)
+  }
+
+  useEffect(() => {
+    initAuth()
+  }, [])
+
   const hasRole = (role: UserRole) => user?.roles.includes(role) || false
-
-  const refreshUser = async () => {
-    const token = localStorage.getItem('accessToken')
-    if (token) {
-      setUser(decodeToken(token))
-      await refreshStatus()
-    }
-  }
-
-  const updateTokenAfterFamilyCreation = async (): Promise<User | null> => {
-    try {
-      const response = await authApi.refreshSession()
-      const freshFamily = await fetchFamilyFromApi()
-
-      // Al crear la familia, también refrescamos el status
-      // (aunque hasChildren seguirá siendo false hasta que añada el primer hijo)
-      await refreshStatus()
-
-      return updateSession(
-        response.accessToken,
-        response.refreshToken,
-        freshFamily || familyEntity,
-      )
-    } catch (error) {
-      console.error('Error actualizando sesión:', error)
-      return null
-    }
-  }
 
   return (
     <AuthContext.Provider
@@ -199,14 +151,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         familyEntity,
         status,
         loading,
-        token: localStorage.getItem('accessToken'),
+        token,
         login,
         logout,
         hasRole,
-        refreshUser,
+        refreshProfile: fetchFamilyFromApi,
         refreshStatus,
         updateSession,
-        updateTokenAfterFamilyCreation,
       }}
     >
       {children}

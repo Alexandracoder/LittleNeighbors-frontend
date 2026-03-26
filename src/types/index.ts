@@ -1,4 +1,6 @@
 // --- AUTH & USER ---
+export type UserRole = 'ROLE_USER' | 'ROLE_FAMILY' | 'ROLE_ADMIN'
+
 export interface AuthRequest {
   email: string
   password: string
@@ -7,7 +9,7 @@ export interface AuthRequest {
 export interface AuthResponse {
   accessToken: string
   refreshToken: string
-  family: FamilyResponseDTO
+  user: UserProfileDTO
 }
 
 export interface DecodedToken {
@@ -16,12 +18,21 @@ export interface DecodedToken {
   exp: number
 }
 
-export type UserRole = 'USER' | 'FAMILY' | 'ADMIN'
-
 export interface User {
   email: string
   roles: UserRole[]
-  familyEntity?: FamilyResponseDTO
+}
+
+export interface UserProfileDTO {
+  email: string
+  roles: UserRole[]
+  family: FamilyResponseDTO | null
+}
+
+export interface UserStatusDTO {
+  hasFamily: boolean
+  hasChildren: boolean
+  isRegistrationComplete: boolean
 }
 
 export interface RegisterRequest {
@@ -41,65 +52,100 @@ export interface FamilyRequestDTO {
 }
 
 export interface FamilyResponseDTO {
+  accessToken(accessToken: any, refreshToken: any, family: any): unknown
+  refreshToken(accessToken: any, refreshToken: any, family: any): unknown
+  family(accessToken: any, refreshToken: any, family: any): unknown
   id: number
   representativeName: string
   familyName: string
   description: string
   profilePictureUrl: string
+  neighborhoodId: number
   neighborhoodName: string
   streetName: string
   postalCode: string
   cityName: string
-  children: ChildSummaryDTO[];
+  children: ChildResponseDTO[]
 }
 
 // --- CHILDREN & INTERESTS ---
+// CORRECCIÓN CRÍTICA: Los Enums deben coincidir con Java
+export type LifeStage =
+  | 'PREGNANCY'
+  | 'BABY'
+  | 'TODDLER'
+  | 'PRE_SCHOOLER'
+  | 'SCHOOL_AGE'
+  | 'ADOLESCENT'
+  | 'BORN'
+export type Gender = 'BOY' | 'GIRL'
+
 export interface ChildResponseDTO {
-  lifeStage: string
-  isPrenatal: any
-  dueDate: any
   id: number
-  gender: 'BOY' | 'GIRL'
+  lifeStage: LifeStage
+  isPrenatal: boolean
+  gender: Gender | null
   birthDate?: string
+  dueDate?: string
   age: number
   interests: InterestResponseDTO[]
   familyId: number
 }
 
 export interface ChildRequestDTO {
-  // Cambiamos a los estados que prefieras usar consistentemente
-  lifeStage: 'PREGNANCY' | 'BORN'
-
-
-  gender: 'BOY' | 'GIRL' | null
-
-  birthDate?: string | null
-  dueDate?: string | null
-
-  isPrenatal: boolean
-
+  lifeStage: LifeStage
+  gender: Gender | null
+  birthDate: string | null
+  dueDate: string | null
   interestIds: number[]
+  isPrenatal?: boolean
 }
+
 export interface InterestResponseDTO {
   id: number
   name: string
   type: string
+  icon?: string
+}
+
+export interface SendMessageDTO {
+  matchId: number
+  content: string
+}
+
+export interface MessageResponseDTO {
+  id: number
+  content: string
+  senderEmail: string
+  sentAt: string
 }
 
 // --- NEIGHBORHOOD & EVENTS ---
 export interface NeighborhoodResponseDTO {
   id: number
   name: string
+  streetName: string
+  postalCode: string
   cityName: string
 }
 
-export interface NeighborhoodEvent {
-  id: string
+export interface EventResponseDTO {
+  id: number
   title: string
-  date: string
-  location: string
   description: string
-  category: 'playground' | 'education' | 'park' | 'community_center' | 'other'
+  eventDate: string
+  latitude: number
+  longitude: number
+  neighborhoodId: number
+}
+
+// --- MATCHES ---
+export interface Match {
+  id: number
+  childA: ChildResponseDTO
+  childB: ChildResponseDTO
+  status: 'PENDING' | 'ACCEPTED' | 'REJECTED'
+  createdAt: string
 }
 
 // --- UTILS ---
@@ -109,54 +155,4 @@ export interface Page<T> {
   totalPages: number
   size: number
   number: number
-}
-
-export interface ChildSummaryDTO {
-  id: number
-  gender: string
-  age: number
-}
-
-export interface FamilyAuthResponseDTO {
-  family: FamilyResponseDTO | null
-  accessToken: string
-  refreshToken: string
-}
-
-export interface UserProfileDTO {
-  email: string
-  roles: UserRole[]
-  family: FamilyResponseDTO | null
-}
-
-export interface Child {
-  id: number
-  lifeStage: 'PREGNANCY' | 'BORN'
-  birthDate: string
-  neighborhood: string
-  interests: string[]
-}
-
-export interface Match {
-  id: number
-  childA: Child
-  childB: Child
-  status: 'PENDING' | 'ACCEPTED' | 'REJECTED'
-  createdAt: string
-}
-
-export interface MatchRequest {
-  initiatorChildId: number
-  targetChildId: number
-}
-
-export interface MatchRequest {
-  initiatorChildId: number
-  targetChildId: number
-}
-
-export interface UserStatusDTO {
-  hasFamily: boolean
-  hasChildren: boolean
-  isRegistrationComplete: boolean
 }

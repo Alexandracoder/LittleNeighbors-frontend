@@ -18,13 +18,21 @@ export default function Login() {
 const handleSubmit = async (e: FormEvent) => {
   e.preventDefault()
   setLoading(true)
+  setError('') // 1. Limpiamos errores previos para dar feedback visual al usuario
+
   try {
+
     await login({ email, password })
-    // NO navegues manualmente aquí.
-    // Deja que el App.tsx (a través de /) detecte que ya estás logueado y te envíe al sitio correcto.
+
+
     navigate('/', { replace: true })
-  } catch (err) {
-    setError('Invalid email or password')
+  } catch (err: any) {
+    // 4. Manejo de errores específico
+    if (err.response?.status === 401) {
+      setError('Invalid email or password. Please try again.')
+    } else {
+      setError('Connection error. Is the server running?')
+    }
   } finally {
     setLoading(false)
   }

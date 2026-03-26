@@ -3,7 +3,7 @@ import { AuthProvider, useAuth } from './context/AuthContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import ChatWindow from './components/Chat/ChatWindow'
 
-// Páginas y Componentes
+// Pages & Components
 import Login from './components/Login'
 import Register from './components/Register'
 import CreateFamily from './components/CreateFamily'
@@ -16,139 +16,115 @@ import Welcome from './pages/Welcome'
 import 'leaflet/dist/leaflet.css'
 
 const LoadingScreen = () => (
-  <div
-    style={{
-      height: '100vh',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      background: '#1a1a1a',
-      color: 'white',
-    }}
-  >
-    Cargando Vecinitos...
+  <div className="min-h-screen flex flex-col items-center justify-center bg-[#1a1a1a] text-white">
+    <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+    <p className="text-lg font-medium animate-pulse uppercase tracking-widest text-xs">
+      Loading Neighborhood...
+    </p>
   </div>
 )
 
 function AppContent() {
-  const { user, status, loading, token } = useAuth()
+  const { user, loading } = useAuth()
 
   if (loading) return <LoadingScreen />
 
   return (
     <Routes>
       {/* --- RUTAS PÚBLICAS --- */}
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
+      <Route
+        path="/login"
+        element={!user ? <Login /> : <Navigate to="/" replace />}
+      />
+      <Route
+        path="/register"
+        element={!user ? <Register /> : <Navigate to="/" replace />}
+      />
 
-      {/* --- RUTA DE CREACIÓN DE FAMILIA (Paso 1) --- */}
+      {/* --- ONBOARDING Y COMUNIDAD (Todo bajo ProtectedRoute) --- */}
+
+      {/* Paso 1: Crear Familia */}
       <Route
         path="/create-family"
         element={
-          <ProtectedRoute allowedRoles={['USER', 'FAMILY']}>
+          <ProtectedRoute>
             <CreateFamily />
           </ProtectedRoute>
         }
       />
 
-      {/* --- RUTA DE REGISTRO DE HIJOS (Paso 2) --- */}
+      {/* Paso 2: Añadir Hijos */}
       <Route
         path="/add-child"
         element={
-          <ProtectedRoute allowedRoles={['FAMILY', 'ADMIN']}>
+          <ProtectedRoute allowedRoles={['ROLE_FAMILY']}>
             <AddChildPage />
           </ProtectedRoute>
         }
       />
 
-      {/* --- RUTA DE CHAT (Nueva) --- */}
+      {/* Dashboard y resto de la App */}
       <Route
-        path="/chat/:matchId"
+        path="/dashboard"
         element={
-          <ProtectedRoute allowedRoles={['FAMILY', 'ADMIN']}>
-            {status?.isRegistrationComplete ? (
-              <ChatWindow currentUser={user} token={token} />
-            ) : (
-              <Navigate to="/add-child" replace />
-            )}
+          <ProtectedRoute allowedRoles={['ROLE_FAMILY']}>
+            <Dashboard />
           </ProtectedRoute>
         }
       />
 
-      {/* --- RUTAS DE COMUNIDAD --- */}
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute allowedRoles={['FAMILY', 'ADMIN']}>
-            {status?.isRegistrationComplete ? (
-              <Dashboard />
-            ) : (
-              <Navigate to="/add-child" replace />
-            )}
-          </ProtectedRoute>
-        }
-      />
       <Route
         path="/explore"
         element={
-          <ProtectedRoute allowedRoles={['FAMILY', 'ADMIN']}>
-            {status?.isRegistrationComplete ? (
-              <ExplorePage />
-            ) : (
-              <Navigate to="/add-child" replace />
-            )}
+          <ProtectedRoute allowedRoles={['ROLE_FAMILY']}>
+            <ExplorePage />
           </ProtectedRoute>
         }
       />
+
       <Route
         path="/events"
         element={
-          <ProtectedRoute allowedRoles={['FAMILY', 'ADMIN']}>
-            {status?.isRegistrationComplete ? (
-              <EventsPage />
-            ) : (
-              <Navigate to="/add-child" replace />
-            )}
+          <ProtectedRoute allowedRoles={['ROLE_FAMILY']}>
+            <EventsPage />
           </ProtectedRoute>
         }
       />
+
+      <Route
+        path="/chat/:matchId"
+        element={
+          <ProtectedRoute allowedRoles={['ROLE_FAMILY']}>
+            <ChatWindow />
+          </ProtectedRoute>
+        }
+      />
+
       <Route
         path="/schedules"
         element={
-          <ProtectedRoute allowedRoles={['FAMILY', 'ADMIN']}>
-            {status?.isRegistrationComplete ? (
-              <SchedulesPage />
-            ) : (
-              <Navigate to="/add-child" replace />
-            )}
+          <ProtectedRoute allowedRoles={['ROLE_FAMILY']}>
+            <SchedulesPage />
           </ProtectedRoute>
         }
       />
+
       <Route
         path="/welcome"
         element={
-          <ProtectedRoute allowedRoles={['FAMILY', 'ADMIN']}>
+          <ProtectedRoute allowedRoles={['ROLE_FAMILY']}>
             <Welcome />
           </ProtectedRoute>
         }
       />
 
-      {/* --- REDIRECCIONES ESTRATÉGICAS --- */}
-      <Route
-        path="/"
-        element={
-          user ? (
-            status?.isRegistrationComplete ? (
-              <Navigate to="/dashboard" replace />
-            ) : (
-              <Navigate to="/add-child" replace />
-            )
-          ) : (
-            <Navigate to="/login" replace />
-          )
-        }
-      />
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      {/* --- REDIRECCIÓN INICIAL --- */}
+      {/* Simplemente mandamos a /dashboard. 
+          El ProtectedRoute se encargará de interceptar y mandar a 
+          /create-family o /add-child si el perfil no está listo.
+      */}
+      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
 }
