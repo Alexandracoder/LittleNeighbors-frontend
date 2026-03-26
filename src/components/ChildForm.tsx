@@ -87,15 +87,14 @@ export default function ChildForm({
     setLoading(true)
 
     try {
-      // Sincronizado con ChildRequestDTO.java
-      const data: ChildRequestDTO = {
-        lifeStage: isPrenatal ? 'PREGNANCY' : calculateLifeStage(birthDate),
-        gender: isPrenatal ? null : (gender as Gender),
-        birthDate: isPrenatal ? null : birthDate || null,
-        dueDate: isPrenatal ? dueDate || null : null,
-        interestIds: selectedInterestIds,
-        isPrenatal: isPrenatal,
-      }
+const data: ChildRequestDTO = {
+  lifeStage: isPrenatal ? 'PREGNANCY' : 'BORN',
+  gender: isPrenatal ? null : (gender as Gender),
+  birthDate: isPrenatal ? null : birthDate || null,
+  dueDate: isPrenatal ? dueDate || null : null,
+  interestIds: selectedInterestIds,
+  isPrenatal: isPrenatal,
+}
 
       if (child?.id) {
         await childApi.update(child.id, data)

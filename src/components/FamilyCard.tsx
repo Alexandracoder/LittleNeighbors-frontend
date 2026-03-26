@@ -7,13 +7,13 @@ import {
   CheckCircle2,
 } from 'lucide-react'
 import { useState, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom' // Añadido para la navegación
+import { useNavigate } from 'react-router-dom'
 import type { FamilyResponseDTO } from '../types'
 import { childApi } from '../services/api'
 
 interface FamilyCardProps {
   family: FamilyResponseDTO
-  myChildId?: number
+  myChildId: number | undefined
   myInterestIds?: number[]
 }
 
@@ -27,35 +27,32 @@ export default function FamilyCard({
     Record<number, 'idle' | 'loading' | 'success'>
   >({})
 
-  // El botón "Say Hello" se habilita solo si existe al menos un match exitoso con algún hijo
   const hasActiveMatch = useMemo(
     () => Object.values(matchStatus).includes('success'),
     [matchStatus],
   )
 
   const handleRequestMatch = async (targetChildId: number) => {
-    if (!myChildId) return
+    if (typeof myChildId !== 'number') return
+
     setMatchStatus(prev => ({ ...prev, [targetChildId]: 'loading' }))
     try {
       await childApi.requestMatch(myChildId, targetChildId)
       setMatchStatus(prev => ({ ...prev, [targetChildId]: 'success' }))
     } catch (err) {
       setMatchStatus(prev => ({ ...prev, [targetChildId]: 'idle' }))
-      console.error('Error al enviar la solicitud:', err)
+      console.error(err)
     }
   }
 
-  // Función para ir al chat una vez desbloqueado
   const handleOpenChat = () => {
     if (hasActiveMatch) {
-      // Navegamos al chat usando el ID de la familia
       navigate(`/chat/${family.id}`)
     }
   }
 
   return (
     <div className="bg-white rounded-[2.5rem] shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border-2 border-transparent hover:border-brand-orange/20 flex flex-col h-full group">
-      {/* HEADER DE LA CARD */}
       <div className="p-8 pb-4">
         <div className="flex items-start justify-between mb-4">
           <div className="bg-brand-cream p-4 rounded-2xl group-hover:bg-brand-orange transition-colors duration-500">
@@ -73,7 +70,6 @@ export default function FamilyCard({
         </p>
       </div>
 
-      {/* SECCIÓN DE HIJOS (POTENTIAL PLAYMATES) */}
       <div className="px-8 py-4 flex-1">
         <div className="flex items-center gap-2 mb-4 border-b border-gray-50 pb-2">
           <Baby className="w-4 h-4 text-brand-coral" />
@@ -100,11 +96,11 @@ export default function FamilyCard({
 
                 <button
                   onClick={() => handleRequestMatch(child.id)}
-                  disabled={matchStatus[child.id] !== 'idle'}
+                  disabled={matchStatus[child.id] !== 'idle' || !myChildId}
                   className={`p-3 rounded-xl transition-all ${
                     matchStatus[child.id] === 'success'
                       ? 'bg-green-100 text-green-600'
-                      : 'bg-white shadow-sm hover:bg-brand-orange hover:text-white'
+                      : 'bg-white shadow-sm hover:bg-brand-orange hover:text-white disabled:opacity-50'
                   }`}
                 >
                   {matchStatus[child.id] === 'loading' ? (
@@ -125,7 +121,6 @@ export default function FamilyCard({
         </div>
       </div>
 
-      {/* BOTÓN FINAL DE ACCIÓN AL CHAT */}
       <div className="p-6 bg-gray-50/50 mt-auto border-t border-gray-100">
         <button
           onClick={handleOpenChat}

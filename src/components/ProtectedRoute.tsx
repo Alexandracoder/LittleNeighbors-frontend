@@ -18,7 +18,7 @@ export default function ProtectedRoute({
     return (
       <div className="min-h-screen bg-[#1a1a1a] flex flex-col items-center justify-center text-white">
         <div className="animate-spin rounded-full h-12 w-12 border-4 border-orange-500 border-t-transparent mb-4"></div>
-        <p className="font-medium animate-pulse uppercase tracking-widest text-xs tracking-tighter">
+        <p className="font-medium animate-pulse uppercase tracking-widest text-xs">
           Verificando vecindario...
         </p>
       </div>
@@ -29,11 +29,13 @@ export default function ProtectedRoute({
     return <Navigate to="/login" state={{ from: location }} replace />
   }
 
+  // 1. Si no hay familia, solo permitimos estar en /create-family
   if (!familyEntity) {
     if (location.pathname === '/create-family') return <>{children}</>
     return <Navigate to="/create-family" replace />
   }
 
+  // 2. Si no hay hijos, solo permitimos /add-child o /create-family
   const hasChildren = familyEntity.children && familyEntity.children.length > 0
   if (!hasChildren) {
     if (
@@ -45,12 +47,16 @@ export default function ProtectedRoute({
     return <Navigate to="/add-child" replace />
   }
 
-  // --- FLUJO DE USUARIO ACTIVO ---
-
- 
+  
   if (allowedRoles && allowedRoles.length > 0) {
     const userRoles = user.roles || []
-    const hasPermission = allowedRoles.some(role => userRoles.includes(role))
+
+    const hasPermission = allowedRoles.some(allowed =>
+      userRoles.some(
+        userRole =>
+          userRole.replace('ROLE_', '') === allowed.replace('ROLE_', ''),
+      ),
+    )
 
     if (!hasPermission) {
       return <Navigate to="/dashboard" replace />

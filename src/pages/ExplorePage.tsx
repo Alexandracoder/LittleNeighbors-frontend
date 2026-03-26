@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { familyApi, interestApi } from '../services/api'
 import type { FamilyResponseDTO, InterestResponseDTO } from '../types'
@@ -6,7 +6,6 @@ import FamilyCard from '../components/FamilyCard'
 import Navbar from '../components/layout/Navbar'
 import bgImage from '../assets/littleneighbor_playing.png'
 import { MapPin, Heart, FilterX } from 'lucide-react'
-import { EventList } from '../components/EventList'
 
 export default function ExplorePage() {
   const navigate = useNavigate()
@@ -17,15 +16,18 @@ export default function ExplorePage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  // Estado para capturar el ID del hijo del usuario logueado
+  // Necesitamos tanto el ID del niño como el del barrio para el Backend
   const [myChildId, setMyChildId] = useState<number | undefined>(undefined)
+  const [myNeighborhoodId, setMyNeighborhoodId] = useState<number | undefined>(
+    undefined,
+  )
 
   const [selectedInterestIds, setSelectedInterestIds] = useState<number[]>([])
   const [ageRange, setAgeRange] = useState<{ min: number; max: number } | null>(
     null,
   )
 
-  // Carga inicial: Intereses y Perfil del usuario
+  // 1. Carga inicial: Datos del usuario y catálogo de intereses
   useEffect(() => {
     const initData = async () => {
       try {
@@ -35,27 +37,39 @@ export default function ExplorePage() {
         ])
         setAvailableInterests(interests)
 
-        // Asumiendo que tu perfil contiene un array de 'children'
+        if (myProfile?.neighborhoodId) {
+          setMyNeighborhoodId(myProfile.neighborhoodId.id)
+        }
+
         if (myProfile?.children && myProfile.children.length > 0) {
+          // Tomamos el primer hijo como referencia para la búsqueda
           setMyChildId(myProfile.children[0].id)
         }
       } catch (err) {
-        console.error('Error al inicializar datos:', err)
+        console.error('Error initialization data:', err)
       }
     }
     initData()
   }, [])
 
-  const loadFamilies = async () => {
+  // 2. Función de carga de familias con los parámetros requeridos por el Controller
+  const loadFamilies = useCallback(async () => {
+    // Si no tenemos los IDs obligatorios, abortamos para evitar el Error 500
+    if (myNeighborhoodId === undefined || myChildId === undefined) return
+
     setLoading(true)
     setError('')
     try {
       const filters = {
+        neighborhoodId: myNeighborhoodId,
+        currentChildId: myChildId,
+        minAge: ageRange ? ageRange.min : 0,
+        maxAge: ageRange ? ageRange.max : 18,
         ...(selectedInterestIds.length > 0 && {
           interestIds: selectedInterestIds,
         }),
-        ...(ageRange && { minAge: ageRange.min, maxAge: ageRange.max }),
       }
+
       const data = await familyApi.explore(filters)
       setFamilies(data)
     } catch (err: any) {
@@ -63,11 +77,12 @@ export default function ExplorePage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [myNeighborhoodId, myChildId, ageRange, selectedInterestIds])
 
+  // 3. Efecto para recargar cuando cambien filtros o datos de sesión
   useEffect(() => {
     loadFamilies()
-  }, [selectedInterestIds, ageRange])
+  }, [loadFamilies])
 
   const toggleInterest = (id: number) => {
     setSelectedInterestIds(prev =>
@@ -83,11 +98,12 @@ export default function ExplorePage() {
 
   return (
     <div className="min-h-screen bg-stone-950 relative overflow-hidden text-white">
+      {/* BACKGROUND & OVERLAYS */}
       <div
         className="fixed inset-0 bg-cover bg-center z-0"
         style={{
           backgroundImage: `url(${bgImage})`,
-          filter: 'brightness(1.3) blur(0px)',
+          filter: 'brightness(0.7)',
         }}
       />
       <div className="fixed inset-0 bg-gradient-to-b from-stone-950/60 via-transparent to-stone-950/90 z-0" />
@@ -97,19 +113,17 @@ export default function ExplorePage() {
 
         <main className="max-w-7xl mx-auto px-6 py-12">
           {/* HEADER */}
-          <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <MapPin className="text-orange-400 w-8 h-8" />
-                <h1 className="text-5xl font-black tracking-tighter">
-                  Explore Neighbor{' '}
-                  <span className="text-orange-400">Playmates</span>
-                </h1>
-              </div>
-              <p className="text-xl text-white/70 font-medium">
-                Discover your community in the neighborhood.
-              </p>
+          <div className="mb-12">
+            <div className="flex items-center gap-3 mb-2">
+              <MapPin className="text-orange-400 w-8 h-8" />
+              <h1 className="text-5xl font-black tracking-tighter">
+                Explore Neighbor{' '}
+                <span className="text-orange-400">Playmates</span>
+              </h1>
             </div>
+            <p className="text-xl text-white/70 font-medium">
+              Discover your community in the neighborhood.
+            </p>
           </div>
 
           {/* FILTROS */}
@@ -149,7 +163,7 @@ export default function ExplorePage() {
                 <div className="flex flex-wrap gap-2">
                   {availableInterests.map(interest => (
                     <button
-                      key={interest.id}
+                      key={interest.id} // Aquí interest es el objeto, interest.id es correcto
                       onClick={() => toggleInterest(interest.id)}
                       className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all flex items-center gap-2 border ${
                         selectedInterestIds.includes(interest.id)
@@ -185,6 +199,10 @@ export default function ExplorePage() {
           </section>
 
           {/* RESULTADOS */}
+          {error && (
+            <div className="text-red-400 mb-6 text-center">{error}</div>
+          )}
+
           {loading ? (
             <div className="text-center py-20">
               <div className="animate-spin h-10 w-10 border-t-2 border-orange-500 mx-auto rounded-full" />
@@ -192,6 +210,9 @@ export default function ExplorePage() {
           ) : families.length === 0 ? (
             <div className="bg-white/5 backdrop-blur-md rounded-[3rem] p-16 text-center border border-white/10">
               <h2 className="text-3xl font-black mb-4">No playmates found!</h2>
+              <p className="text-white/50">
+                Try adjusting your filters or neighborhood.
+              </p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -199,7 +220,7 @@ export default function ExplorePage() {
                 <FamilyCard
                   key={f.id}
                   family={f}
-                  myChildId={myChildId}
+                  myChildId={myChildId} // Aquí myChildId es un number, pásalo tal cual
                 />
               ))}
             </div>

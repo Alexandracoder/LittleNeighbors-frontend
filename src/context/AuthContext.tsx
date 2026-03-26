@@ -60,8 +60,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const currentStatus = await userApi.getStatus()
       setStatus(currentStatus)
       return currentStatus
-    } catch (e) {
-      console.warn('[Auth] Status sync failed')
+    } catch {
       return null
     }
   }
@@ -73,21 +72,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setFamilyEntity(profile.family)
         return profile.family
       }
-    } catch (e) {
-      console.error('[Auth] Profile fetch failed.')
+    } catch {
       setFamilyEntity(null)
     }
     return null
   }
 
-  // Sincroniza la sesión tras cambios importantes (como crear una familia)
   const updateSession = async () => {
     setLoading(true)
     try {
-      // Calidad: Refrescamos datos de perfil y estado sin forzar nuevo login
       await Promise.allSettled([refreshStatus(), fetchFamilyFromApi()])
-    } catch (e) {
-      console.error('[Auth] Session update failed', e)
     } finally {
       setLoading(false)
     }
@@ -106,8 +100,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       await Promise.allSettled([refreshStatus(), fetchFamilyFromApi()])
       return decodedUser
-    } catch (error) {
-      throw error
     } finally {
       setLoading(false)
     }
@@ -123,22 +115,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     window.location.href = '/login'
   }
 
-  const initAuth = async () => {
-    const savedToken = localStorage.getItem('accessToken')
-    if (savedToken) {
-      const decodedUser = decodeToken(savedToken)
-      if (decodedUser) {
-        setUser(decodedUser)
-        setToken(savedToken)
-        await Promise.allSettled([refreshStatus(), fetchFamilyFromApi()])
-      } else {
-        logout()
-      }
-    }
-    setLoading(false)
-  }
-
   useEffect(() => {
+    const initAuth = async () => {
+      const savedToken = localStorage.getItem('accessToken')
+      if (savedToken) {
+        const decodedUser = decodeToken(savedToken)
+        if (decodedUser) {
+          setUser(decodedUser)
+          setToken(savedToken)
+          await Promise.allSettled([refreshStatus(), fetchFamilyFromApi()])
+        } else {
+          logout()
+        }
+      }
+      setLoading(false)
+    }
     initAuth()
   }, [])
 
@@ -167,6 +158,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
 export const useAuth = () => {
   const context = useContext(AuthContext)
-  if (!context) throw new Error('useAuth must be used within an AuthProvider')
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider')
+  }
   return context
 }
