@@ -1,33 +1,36 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { familyApi, interestApi } from '../services/api'
-import type { FamilyResponseDTO, InterestResponseDTO } from '../types'
+import type {
+  FamilyResponseDTO,
+  InterestResponseDTO,
+  ChildResponseDTO,
+} from '../types'
 import FamilyCard from '../components/FamilyCard'
 import Navbar from '../components/layout/Navbar'
 import bgImage from '../assets/littleneighbor_playing.png'
-import { MapPin, Heart, FilterX } from 'lucide-react'
+import { MapPin, Heart, FilterX, Baby } from 'lucide-react'
 
 export default function ExplorePage() {
-  const navigate = useNavigate()
   const [families, setFamilies] = useState<FamilyResponseDTO[]>([])
   const [availableInterests, setAvailableInterests] = useState<
     InterestResponseDTO[]
   >([])
+  const [myChildren, setMyChildren] = useState<ChildResponseDTO[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  // Necesitamos tanto el ID del niño como el del barrio para el Backend
+  // Estados de Filtro
   const [myChildId, setMyChildId] = useState<number | undefined>(undefined)
   const [myNeighborhoodId, setMyNeighborhoodId] = useState<number | undefined>(
     undefined,
   )
-
   const [selectedInterestIds, setSelectedInterestIds] = useState<number[]>([])
   const [ageRange, setAgeRange] = useState<{ min: number; max: number } | null>(
     null,
   )
 
-  // 1. Carga inicial: Datos del usuario y catálogo de intereses
+  // 1. Cargar contexto inicial (Tus hijos e intereses globales)
   useEffect(() => {
     const initData = async () => {
       try {
@@ -37,37 +40,40 @@ export default function ExplorePage() {
         ])
         setAvailableInterests(interests)
 
-        if (myProfile?.neighborhoodId) {
-          setMyNeighborhoodId(myProfile.neighborhoodId.id)
-        }
+        if (myProfile) {
+          
+          const nId =
+            typeof myProfile.neighborhoodId === 'object'
+              ? (myProfile.neighborhoodId as any).id
+              : myProfile.neighborhoodId
+          if (nId) setMyNeighborhoodId(Number(nId))
 
-        if (myProfile?.children && myProfile.children.length > 0) {
-          // Tomamos el primer hijo como referencia para la búsqueda
-          setMyChildId(myProfile.children[0].id)
+          if (myProfile.children && myProfile.children.length > 0) {
+            setMyChildren(myProfile.children)
+            setMyChildId(myProfile.children[0].id)
+          }
         }
       } catch (err) {
         console.error('Error initialization data:', err)
+        setError('Please complete your family profile first.')
       }
     }
     initData()
   }, [])
 
-  // 2. Función de carga de familias con los parámetros requeridos por el Controller
+
   const loadFamilies = useCallback(async () => {
-    // Si no tenemos los IDs obligatorios, abortamos para evitar el Error 500
-    if (myNeighborhoodId === undefined || myChildId === undefined) return
+    if (!myChildId) return
 
     setLoading(true)
     setError('')
     try {
       const filters = {
-        neighborhoodId: myNeighborhoodId,
         currentChildId: myChildId,
         minAge: ageRange ? ageRange.min : 0,
-        maxAge: ageRange ? ageRange.max : 18,
-        ...(selectedInterestIds.length > 0 && {
-          interestIds: selectedInterestIds,
-        }),
+        maxAge: ageRange ? ageRange.max : 12,
+        interestIds:
+          selectedInterestIds.length > 0 ? selectedInterestIds : undefined,
       }
 
       const data = await familyApi.explore(filters)
@@ -77,9 +83,8 @@ export default function ExplorePage() {
     } finally {
       setLoading(false)
     }
-  }, [myNeighborhoodId, myChildId, ageRange, selectedInterestIds])
+  }, [myChildId, ageRange, selectedInterestIds])
 
-  // 3. Efecto para recargar cuando cambien filtros o datos de sesión
   useEffect(() => {
     loadFamilies()
   }, [loadFamilies])
@@ -90,51 +95,78 @@ export default function ExplorePage() {
     )
   }
 
-  const ageFilters = [
-    { label: 'Toddlers (0-2)', min: 0, max: 2 },
-    { label: 'Preschoolers (3-5)', min: 3, max: 5 },
-    { label: 'School Age (6+)', min: 6, max: 12 },
-  ]
-
   return (
-    <div className="min-h-screen bg-stone-950 relative overflow-hidden text-white">
-      {/* BACKGROUND & OVERLAYS */}
+    <div className="min-h-screen bg-stone-950 relative overflow-hidden text-white font-sans">
       <div
         className="fixed inset-0 bg-cover bg-center z-0"
         style={{
           backgroundImage: `url(${bgImage})`,
-          filter: 'brightness(0.7)',
+          filter: 'brightness(0.6)',
         }}
       />
-      <div className="fixed inset-0 bg-gradient-to-b from-stone-950/60 via-transparent to-stone-950/90 z-0" />
+      <div className="fixed inset-0 bg-gradient-to-b from-stone-950/80 via-transparent to-stone-950/90 z-0" />
 
       <div className="relative z-10">
         <Navbar />
 
         <main className="max-w-7xl mx-auto px-6 py-12">
-          {/* HEADER */}
-          <div className="mb-12">
-            <div className="flex items-center gap-3 mb-2">
-              <MapPin className="text-orange-400 w-8 h-8" />
-              <h1 className="text-5xl font-black tracking-tighter">
-                Explore Neighbor{' '}
-                <span className="text-orange-400">Playmates</span>
-              </h1>
+          {/* Header con Selector de Perfil Activo */}
+          <div className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <MapPin className="text-orange-400 w-8 h-8" />
+                <h1 className="text-5xl font-black tracking-tighter uppercase italic">
+                  Explore <span className="text-orange-400">Playmates</span>
+                </h1>
+              </div>
+              <p className="text-xl text-white/70 font-medium">
+                Find families with similar interests.
+              </p>
             </div>
-            <p className="text-xl text-white/70 font-medium">
-              Discover your community in the neighborhood.
-            </p>
+
+            {/* Selector de Hijo: Así el usuario sabe con quién está buscando */}
+            {myChildren.length > 0 && (
+              <div className="bg-white/10 p-2 rounded-[2rem] border border-white/20 flex gap-2">
+                {myChildren.map(child => (
+                  <button
+                    key={child.id}
+                    onClick={() => setMyChildId(child.id)}
+                    className={`flex items-center gap-3 px-6 py-3 rounded-[1.5rem] transition-all ${
+                      myChildId === child.id
+                        ? 'bg-orange-500 text-white shadow-lg'
+                        : 'hover:bg-white/5 text-white/60'
+                    }`}
+                  >
+                    <span className="text-xl">
+                      {child.gender === 'BOY' ? '👦' : '👧'}
+                    </span>
+                    <div className="text-left">
+                      <div className="text-[10px] font-black uppercase leading-none">
+                        Active Profile
+                      </div>
+                      <div className="text-xs font-bold italic">
+                        {child.age} yrs
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* FILTROS */}
-          <section className="mb-12 bg-white/5 backdrop-blur-2xl rounded-[2.5rem] p-8 border border-white/10">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Filtros */}
+          <section className="mb-12 bg-white/10 backdrop-blur-3xl rounded-[2.5rem] p-8 border border-white/20 shadow-2xl">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
               <div className="space-y-4">
-                <label className="text-xs font-black text-orange-400 uppercase tracking-widest">
+                <label className="text-[10px] font-black text-orange-400 uppercase tracking-[0.2em]">
                   Age Groups
                 </label>
                 <div className="flex flex-wrap gap-3">
-                  {ageFilters.map(f => (
+                  {[
+                    { label: 'Toddlers (0-2)', min: 0, max: 2 },
+                    { label: 'Preschoolers (3-5)', min: 3, max: 5 },
+                    { label: 'School Age (6+)', min: 6, max: 12 },
+                  ].map(f => (
                     <button
                       key={f.label}
                       onClick={() =>
@@ -144,10 +176,10 @@ export default function ExplorePage() {
                             : { min: f.min, max: f.max },
                         )
                       }
-                      className={`px-5 py-3 rounded-full text-xs font-bold transition-all border-2 ${
+                      className={`px-6 py-3 rounded-2xl text-xs font-black uppercase transition-all border-2 ${
                         ageRange?.min === f.min
                           ? 'bg-orange-500 border-orange-500'
-                          : 'bg-transparent border-white/10 hover:border-orange-400'
+                          : 'bg-white/5 border-white/10'
                       }`}
                     >
                       {f.label}
@@ -157,24 +189,24 @@ export default function ExplorePage() {
               </div>
 
               <div className="space-y-4">
-                <label className="text-xs font-black text-orange-400 uppercase tracking-widest">
-                  Shared Interests
+                <label className="text-[10px] font-black text-orange-400 uppercase tracking-[0.2em]">
+                  Interests
                 </label>
                 <div className="flex flex-wrap gap-2">
                   {availableInterests.map(interest => (
                     <button
-                      key={interest.id} // Aquí interest es el objeto, interest.id es correcto
+                      key={interest.id}
                       onClick={() => toggleInterest(interest.id)}
-                      className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all flex items-center gap-2 border ${
+                      className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all flex items-center gap-2 border-2 ${
                         selectedInterestIds.includes(interest.id)
-                          ? 'bg-orange-500 border-orange-500 text-white'
-                          : 'border-white/10 bg-white/5 text-white/50 hover:border-orange-500'
+                          ? 'bg-white text-stone-950 border-white'
+                          : 'border-white/10 bg-white/5 text-white/50'
                       }`}
                     >
                       <Heart
                         className={`w-3 h-3 ${
                           selectedInterestIds.includes(interest.id)
-                            ? 'fill-current'
+                            ? 'fill-orange-500 text-orange-500'
                             : ''
                         }`}
                       />
@@ -183,35 +215,41 @@ export default function ExplorePage() {
                   ))}
                 </div>
               </div>
+              {(ageRange || selectedInterestIds.length > 0) && (
+                <div className="mt-8 pt-6 border-t border-white/10 flex justify-center md:justify-start">
+                  <button
+                    onClick={() => {
+                      setAgeRange(null)
+                      setSelectedInterestIds([])
+                    }}
+                    className="group flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-orange-400 hover:text-white transition-all duration-300"
+                  >
+                    <div className="p-2 rounded-lg bg-orange-500/10 group-hover:bg-orange-500 transition-colors">
+                      <FilterX className="w-4 h-4" />
+                    </div>
+                    <span>Clear all filters</span>
+                  </button>
+                </div>
+              )}
             </div>
-
-            {(ageRange || selectedInterestIds.length > 0) && (
-              <button
-                onClick={() => {
-                  setAgeRange(null)
-                  setSelectedInterestIds([])
-                }}
-                className="mt-6 flex items-center gap-2 text-xs text-orange-400 hover:text-white transition-colors"
-              >
-                <FilterX className="w-4 h-4" /> Reset Filters
-              </button>
-            )}
           </section>
 
-          {/* RESULTADOS */}
-          {error && (
-            <div className="text-red-400 mb-6 text-center">{error}</div>
-          )}
-
+          {/* Listado de Familias */}
           {loading ? (
-            <div className="text-center py-20">
-              <div className="animate-spin h-10 w-10 border-t-2 border-orange-500 mx-auto rounded-full" />
+            <div className="flex flex-col items-center py-20 gap-4">
+              <div className="animate-spin h-12 w-12 border-4 border-orange-500 border-t-transparent rounded-full" />
+              <span className="text-orange-400 font-black uppercase text-xs">
+                Finding neighbors...
+              </span>
             </div>
           ) : families.length === 0 ? (
-            <div className="bg-white/5 backdrop-blur-md rounded-[3rem] p-16 text-center border border-white/10">
-              <h2 className="text-3xl font-black mb-4">No playmates found!</h2>
-              <p className="text-white/50">
-                Try adjusting your filters or neighborhood.
+            <div className="bg-white/5 backdrop-blur-md rounded-[3rem] p-20 text-center border border-white/10">
+              <h2 className="text-4xl font-black mb-4 uppercase italic">
+                Lonely neighborhood?
+              </h2>
+              <p className="text-white/40 max-w-md mx-auto">
+                No families match your current filters. Try changing the active
+                profile or expanding the age range.
               </p>
             </div>
           ) : (
@@ -220,7 +258,13 @@ export default function ExplorePage() {
                 <FamilyCard
                   key={f.id}
                   family={f}
-                  myChildId={myChildId} // Aquí myChildId es un number, pásalo tal cual
+                  myChildId={myChildId}
+                  // Pasamos los intereses del hijo activo para iluminar los matches en la card
+                  myInterestIds={
+                    myChildren
+                      .find(c => c.id === myChildId)
+                      ?.interests.map(i => i.id) || []
+                  }
                 />
               ))}
             </div>

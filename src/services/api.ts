@@ -1,4 +1,5 @@
 import axios from 'axios'
+import QueryString from 'qs'
 import type {
   AuthRequest,
   AuthResponse,
@@ -15,8 +16,13 @@ import type {
   SendMessageDTO,
   MessageResponseDTO,
 } from '../types'
+import qs from 'qs'
 
 const API_BASE_URL = 'http://localhost:8080/api'
+paramsSerializer: (params: any) => {
+    // Esto quita los corchetes [] de la URL
+    return qs.stringify(params, { arrayFormat: 'repeat' });
+  }
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -111,12 +117,13 @@ export const familyApi = {
     return response.data
   },
   explore: async (params?: {
+    currentChildId: number
     interestIds?: number[]
     minAge?: number
     maxAge?: number
   }): Promise<FamilyResponseDTO[]> => {
     const response = await api.get<FamilyResponseDTO[]>(
-      '/matches/find-families',
+      '/matches/explorer',
       { params },
     )
     return response.data

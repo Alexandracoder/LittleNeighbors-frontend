@@ -52,12 +52,9 @@ export interface FamilyRequestDTO {
 }
 
 export interface FamilyResponseDTO {
-  accessToken(accessToken: any, refreshToken: any, family: any): unknown
-  refreshToken(accessToken: any, refreshToken: any, family: any): unknown
-  family(accessToken: any, refreshToken: any, family: any): unknown
   id: number
-  representativeName: string
   familyName: string
+  representativeName: string
   description: string
   profilePictureUrl: string
   neighborhoodId: number
@@ -65,11 +62,14 @@ export interface FamilyResponseDTO {
   streetName: string
   postalCode: string
   cityName: string
+  // En el Explorer, solemos recibir los intereses ya como strings
+  interests: string[]
   children: ChildResponseDTO[]
 }
 
 // --- CHILDREN & INTERESTS ---
-// CORRECCIÓN CRÍTICA: Los Enums deben coincidir con Java
+export type Gender = 'BOY' | 'GIRL'
+
 export type LifeStage =
   | 'PREGNANCY'
   | 'BABY'
@@ -78,28 +78,6 @@ export type LifeStage =
   | 'SCHOOL_AGE'
   | 'ADOLESCENT'
   | 'BORN'
-export type Gender = 'BOY' | 'GIRL'
-
-export interface ChildResponseDTO {
-  id: number
-  lifeStage: LifeStage
-  isPrenatal: boolean
-  gender: Gender | null
-  birthDate?: string
-  dueDate?: string
-  age: number
-  interests: InterestResponseDTO[]
-  familyId: number
-}
-
-export interface ChildRequestDTO {
-  lifeStage: LifeStage
-  gender: Gender | null
-  birthDate: string | null
-  dueDate: string | null
-  interestIds: number[]
-  isPrenatal?: boolean
-}
 
 export interface InterestResponseDTO {
   id: number
@@ -108,6 +86,23 @@ export interface InterestResponseDTO {
   icon?: string
 }
 
+export interface ChildRequestDTO {
+  birthDate: string
+  gender: Gender
+  interestIds: number[]
+  lifeStage: 'PREGNANCY' | 'BORN'
+}
+
+export interface ChildResponseDTO {
+  id: number
+  age: number
+  gender: Gender
+  birthDate: string
+  lifeStage?: LifeStage
+  interests: InterestResponseDTO[]
+}
+
+// --- CHAT & MESSAGES ---
 export interface SendMessageDTO {
   matchId: number
   content: string
