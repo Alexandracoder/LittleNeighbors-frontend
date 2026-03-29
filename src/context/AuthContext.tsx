@@ -6,7 +6,7 @@ import {
   ReactNode,
 } from 'react'
 import { jwtDecode } from 'jwt-decode'
-import { authApi, userApi, profileApi } from '../services/api'
+import { authApi, userApi, familyApi } from '../services/api'
 import type {
   User,
   DecodedToken,
@@ -65,18 +65,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }
 
-  const fetchFamilyFromApi = async (): Promise<FamilyResponseDTO | null> => {
-    try {
-      const profile = await profileApi.getProfile()
-      if (profile?.family) {
-        setFamilyEntity(profile.family)
-        return profile.family
-      }
-    } catch {
-      setFamilyEntity(null)
-    }
+const fetchFamilyFromApi = async (): Promise<FamilyResponseDTO | null> => {
+  try {
+    const family = await familyApi.getMyFamily()
+    setFamilyEntity(family)
+    return family
+  } catch {
+    setFamilyEntity(null)
     return null
   }
+}
 
   const updateSession = async () => {
     setLoading(true)
