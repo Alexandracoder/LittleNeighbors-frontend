@@ -23,7 +23,7 @@ export default function AddChildPage() {
       const data = await childApi.getAll()
       setChildren(data)
     } catch (err: any) {
-      console.error('Error loading children:', err)
+      console.error(err)
     } finally {
       setLoading(false)
     }
@@ -124,14 +124,20 @@ export default function AddChildPage() {
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div
               className="absolute inset-0 bg-[#2D2D2D]/40 backdrop-blur-md"
-              onClick={() => setIsFormOpen(false)}
+              onClick={() => {
+                setIsFormOpen(false)
+                setEditingChild(null)
+              }}
             />
             <div className="relative z-10 w-full max-w-xl max-h-[90vh] overflow-y-auto">
-              <div className="bg-white rounded-[3rem] shadow-2xl border-t-8 border-[#FF8A5C] overflow-hidden">
+              <div className="bg-white rounded-[3rem] shadow-2xl border-t-8 border-[#FF8A5C] p-8">
                 <ChildForm
-                  child={editingChild}
-                  onClose={() => setIsFormOpen(false)}
+                  initialData={editingChild}
                   onSuccess={handleSuccess}
+                  onCancel={() => {
+                    setIsFormOpen(false)
+                    setEditingChild(null)
+                  }}
                 />
               </div>
             </div>

@@ -1,5 +1,16 @@
-// --- AUTH & USER ---
 export type UserRole = 'ROLE_USER' | 'ROLE_FAMILY' | 'ROLE_ADMIN'
+
+export interface UserStatusDTO {
+  hasFamily: boolean
+  hasChildren: boolean
+  isRegistrationComplete: boolean
+}
+
+export interface UserProfileDTO {
+  email: string
+  roles: UserRole[]
+  family: FamilyResponseDTO | null
+}
 
 export interface AuthRequest {
   email: string
@@ -9,7 +20,6 @@ export interface AuthRequest {
 export interface AuthResponse {
   accessToken: string
   refreshToken: string
-  user: UserProfileDTO
 }
 
 export interface DecodedToken {
@@ -23,26 +33,41 @@ export interface User {
   roles: UserRole[]
 }
 
-export interface UserProfileDTO {
-  email: string
-  roles: UserRole[]
-  family: FamilyResponseDTO | null
-}
-
-export interface UserStatusDTO {
-  hasFamily: boolean
-  hasChildren: boolean
-  isRegistrationComplete: boolean
-}
-
 export interface RegisterRequest {
   firstName: string
   lastName: string
   email: string
-  password?: string
+  password: string
 }
 
-// --- FAMILY ---
+export interface InterestResponseDTO {
+  id: number
+  name: string
+  type: string
+  icon: string
+}
+
+export interface ChildSummaryDTO {
+  interests: never[]
+  id: number
+  gender: 'BOY' | 'GIRL' | null
+  age: number
+  lifeStage: 'PREGNANCY' | 'BORN'
+}
+
+export interface FamilyResponseDTO {
+  id: number
+  representativeName: string
+  familyName: string
+  description: string
+  profilePictureUrl: string
+  neighborhoodId: number
+  streetName: string
+  postalCode: string
+  cityName: string
+  children: ChildSummaryDTO[]
+}
+
 export interface FamilyRequestDTO {
   representativeName: string
   familyName: string
@@ -51,58 +76,33 @@ export interface FamilyRequestDTO {
   neighborhoodId: number
 }
 
-export interface FamilyResponseDTO {
-  id: number
-  familyName: string
-  representativeName: string
-  description: string
-  profilePictureUrl: string
-  neighborhoodId: number
-  neighborhoodName: string
-  streetName: string
-  postalCode: string
-  cityName: string
-  // En el Explorer, solemos recibir los intereses ya como strings
-  interests: string[]
-  children: ChildResponseDTO[]
-}
-
-// --- CHILDREN & INTERESTS ---
-export type Gender = 'BOY' | 'GIRL'
-
-export type LifeStage =
-  | 'PREGNANCY'
-  | 'BABY'
-  | 'TODDLER'
-  | 'PRE_SCHOOLER'
-  | 'SCHOOL_AGE'
-  | 'ADOLESCENT'
-  | 'BORN'
-
-export interface InterestResponseDTO {
-  id: number
-  name: string
-  type: string
-  icon?: string
-}
-
 export interface ChildRequestDTO {
+  age: string | number | readonly string[] | undefined
   birthDate: string
-  gender: Gender
-  interestIds: number[]
   lifeStage: 'PREGNANCY' | 'BORN'
+  gender: 'BOY' | 'GIRL' | null | 'OTHER'
+  interestIds: number[]
 }
 
 export interface ChildResponseDTO {
+  lifeStage: any
   id: number
+  gender: 'BOY' | 'GIRL' | null | 'OTHER'
+  birthDate: string | null
   age: number
-  gender: Gender
-  birthDate: string
-  lifeStage?: LifeStage
   interests: InterestResponseDTO[]
+  familyId: number
 }
 
-// --- CHAT & MESSAGES ---
+export interface NeighborhoodResponseDTO {
+  id: number
+  name: string
+  streetName: string
+  postalCode: string
+  cityId: number
+  cityName: string
+}
+
 export interface SendMessageDTO {
   matchId: number
   content: string
@@ -115,26 +115,6 @@ export interface MessageResponseDTO {
   sentAt: string
 }
 
-// --- NEIGHBORHOOD & EVENTS ---
-export interface NeighborhoodResponseDTO {
-  id: number
-  name: string
-  streetName: string
-  postalCode: string
-  cityName: string
-}
-
-export interface EventResponseDTO {
-  id: number
-  title: string
-  description: string
-  eventDate: string
-  latitude: number
-  longitude: number
-  neighborhoodId: number
-}
-
-// --- MATCHES ---
 export interface Match {
   id: number
   childA: ChildResponseDTO
@@ -143,7 +123,6 @@ export interface Match {
   createdAt: string
 }
 
-// --- UTILS ---
 export interface Page<T> {
   content: T[]
   totalElements: number

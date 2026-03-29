@@ -13,7 +13,8 @@ import type { ChildResponseDTO } from '../types'
 import { childApi } from '../services/api'
 
 interface ChildCardProps {
-  child: ChildResponseDTO
+  // Cambiamos a 'child: ChildResponseDTO | null' para dar flexibilidad al padre
+  child: ChildResponseDTO | null
   onEdit: (child: ChildResponseDTO) => void
   onDelete: (id: number) => void
   showMatchButton?: boolean
@@ -32,18 +33,18 @@ export default function ChildCard({
   >('idle')
   const [errorMessage, setErrorMessage] = useState('')
 
-  // Sincronizado con el nuevo Enum de LifeStage
+  // Cláusula de guarda: Si no hay child, no renderizamos nada.
+  // Esto evita errores de "cannot read property of null" y satisface a TS.
+  if (!child) return null
+
   const isPrenatal = child.lifeStage === 'PREGNANCY'
 
   const getDisplayAge = () => {
     if (isPrenatal) return 'Coming soon'
-
-    // Priorizamos el campo 'age' que viene del Backend (es más fiable)
     if (child.age !== undefined && child.age !== null) {
       if (child.age === 0) return 'Newborn'
       return `${child.age} ${child.age === 1 ? 'year' : 'years'} old`
     }
-
     return 'New Neighbor'
   }
 
@@ -58,11 +59,9 @@ export default function ChildCard({
     if (!myChildId) return
     setStatus('loading')
     try {
-      // Usamos los IDs para la petición de match
       await childApi.requestMatch(myChildId, child.id)
       setStatus('success')
     } catch (err: any) {
-      // Capturamos el mensaje de error de tu GlobalExceptionHandler
       setErrorMessage(err.response?.data?.message || 'Error sending request')
       setStatus('error')
       setTimeout(() => setStatus('idle'), 3000)
@@ -124,7 +123,6 @@ export default function ChildCard({
                 key={index}
                 className="px-4 py-1.5 bg-gray-50 text-gray-600 text-[11px] font-bold rounded-full border border-gray-100"
               >
-                {/* Ahora interest es un InterestResponseDTO según types.ts */}
                 {interest.name}
               </span>
             ))}

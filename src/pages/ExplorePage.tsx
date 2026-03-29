@@ -1,36 +1,31 @@
 import { useState, useEffect, useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { familyApi, interestApi } from '../services/api'
 import type {
   FamilyResponseDTO,
   InterestResponseDTO,
-  ChildResponseDTO,
+  ChildSummaryDTO,
 } from '../types'
 import FamilyCard from '../components/FamilyCard'
 import Navbar from '../components/layout/Navbar'
 import bgImage from '../assets/littleneighbor_playing.png'
-import { MapPin, Heart, FilterX, Baby } from 'lucide-react'
+import { MapPin, Heart, FilterX } from 'lucide-react'
 
 export default function ExplorePage() {
   const [families, setFamilies] = useState<FamilyResponseDTO[]>([])
   const [availableInterests, setAvailableInterests] = useState<
     InterestResponseDTO[]
   >([])
-  const [myChildren, setMyChildren] = useState<ChildResponseDTO[]>([])
+  const [myChildren, setMyChildren] = useState<ChildSummaryDTO[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  // Estados de Filtro
   const [myChildId, setMyChildId] = useState<number | undefined>(undefined)
-  const [myNeighborhoodId, setMyNeighborhoodId] = useState<number | undefined>(
-    undefined,
-  )
+  const [myChildInterests, setMyChildInterests] = useState<number[]>([])
   const [selectedInterestIds, setSelectedInterestIds] = useState<number[]>([])
   const [ageRange, setAgeRange] = useState<{ min: number; max: number } | null>(
     null,
   )
 
-  // 1. Cargar contexto inicial (Tus hijos e intereses globales)
   useEffect(() => {
     const initData = async () => {
       try {
@@ -40,18 +35,9 @@ export default function ExplorePage() {
         ])
         setAvailableInterests(interests)
 
-        if (myProfile) {
-          
-          const nId =
-            typeof myProfile.neighborhoodId === 'object'
-              ? (myProfile.neighborhoodId as any).id
-              : myProfile.neighborhoodId
-          if (nId) setMyNeighborhoodId(Number(nId))
-
-          if (myProfile.children && myProfile.children.length > 0) {
-            setMyChildren(myProfile.children)
-            setMyChildId(myProfile.children[0].id)
-          }
+        if (myProfile && myProfile.children && myProfile.children.length > 0) {
+          setMyChildren(myProfile.children)
+          setMyChildId(myProfile.children[0].id)
         }
       } catch (err) {
         console.error('Error initialization data:', err)
@@ -60,6 +46,15 @@ export default function ExplorePage() {
     }
     initData()
   }, [])
+
+useEffect(() => {
+  const activeChild = myChildren.find(c => c.id === myChildId)
+  if (activeChild) {
+    const ids =
+      activeChild.interests?.map((i: InterestResponseDTO) => i.id) || []
+    setMyChildInterests(ids)
+  }
+}, [myChildId, myChildren])
 
 
   const loadFamilies = useCallback(async () => {
@@ -85,6 +80,7 @@ export default function ExplorePage() {
     }
   }, [myChildId, ageRange, selectedInterestIds])
 
+  // 4. Efecto para recargar cuando cambian los filtros
   useEffect(() => {
     loadFamilies()
   }, [loadFamilies])
@@ -97,11 +93,12 @@ export default function ExplorePage() {
 
   return (
     <div className="min-h-screen bg-stone-950 relative overflow-hidden text-white font-sans">
+      {/* Background Layer */}
       <div
         className="fixed inset-0 bg-cover bg-center z-0"
         style={{
           backgroundImage: `url(${bgImage})`,
-          filter: 'brightness(0.6)',
+          filter: 'brightness(0.4)',
         }}
       />
       <div className="fixed inset-0 bg-gradient-to-b from-stone-950/80 via-transparent to-stone-950/90 z-0" />
@@ -110,7 +107,7 @@ export default function ExplorePage() {
         <Navbar />
 
         <main className="max-w-7xl mx-auto px-6 py-12">
-          {/* Header con Selector de Perfil Activo */}
+          {/* Header & Profile Selector */}
           <div className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
               <div className="flex items-center gap-3 mb-2">
@@ -124,12 +121,11 @@ export default function ExplorePage() {
               </p>
             </div>
 
-            {/* Selector de Hijo: Así el usuario sabe con quién está buscando */}
             {myChildren.length > 0 && (
               <div className="bg-white/10 p-2 rounded-[2rem] border border-white/20 flex gap-2">
                 {myChildren.map(child => (
                   <button
-                    key={child.id}
+                    key={`child-${child.id}`}
                     onClick={() => setMyChildId(child.id)}
                     className={`flex items-center gap-3 px-6 py-3 rounded-[1.5rem] transition-all ${
                       myChildId === child.id
@@ -154,7 +150,7 @@ export default function ExplorePage() {
             )}
           </div>
 
-          {/* Filtros */}
+          {/* Filters Section */}
           <section className="mb-12 bg-white/10 backdrop-blur-3xl rounded-[2.5rem] p-8 border border-white/20 shadow-2xl">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
               <div className="space-y-4">
@@ -195,7 +191,7 @@ export default function ExplorePage() {
                 <div className="flex flex-wrap gap-2">
                   {availableInterests.map(interest => (
                     <button
-                      key={interest.id}
+                      key={`interest-${interest.id}`}
                       onClick={() => toggleInterest(interest.id)}
                       className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all flex items-center gap-2 border-2 ${
                         selectedInterestIds.includes(interest.id)
@@ -215,26 +211,24 @@ export default function ExplorePage() {
                   ))}
                 </div>
               </div>
-              {(ageRange || selectedInterestIds.length > 0) && (
-                <div className="mt-8 pt-6 border-t border-white/10 flex justify-center md:justify-start">
-                  <button
-                    onClick={() => {
-                      setAgeRange(null)
-                      setSelectedInterestIds([])
-                    }}
-                    className="group flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-orange-400 hover:text-white transition-all duration-300"
-                  >
-                    <div className="p-2 rounded-lg bg-orange-500/10 group-hover:bg-orange-500 transition-colors">
-                      <FilterX className="w-4 h-4" />
-                    </div>
-                    <span>Clear all filters</span>
-                  </button>
-                </div>
-              )}
             </div>
+            {(ageRange || selectedInterestIds.length > 0) && (
+              <div className="mt-8 pt-6 border-t border-white/10 flex justify-center md:justify-start">
+                <button
+                  onClick={() => {
+                    setAgeRange(null)
+                    setSelectedInterestIds([])
+                  }}
+                  className="group flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-orange-400 hover:text-white transition-all duration-300"
+                >
+                  <FilterX className="w-4 h-4" />
+                  <span>Clear all filters</span>
+                </button>
+              </div>
+            )}
           </section>
 
-          {/* Listado de Familias */}
+          {/* Families Grid */}
           {loading ? (
             <div className="flex flex-col items-center py-20 gap-4">
               <div className="animate-spin h-12 w-12 border-4 border-orange-500 border-t-transparent rounded-full" />
@@ -242,14 +236,19 @@ export default function ExplorePage() {
                 Finding neighbors...
               </span>
             </div>
+          ) : error ? (
+            <div className="text-center py-20 bg-red-500/10 rounded-[3rem] border border-red-500/20">
+              <p className="text-red-400 font-bold uppercase tracking-widest text-sm">
+                {error}
+              </p>
+            </div>
           ) : families.length === 0 ? (
             <div className="bg-white/5 backdrop-blur-md rounded-[3rem] p-20 text-center border border-white/10">
               <h2 className="text-4xl font-black mb-4 uppercase italic">
                 Lonely neighborhood?
               </h2>
               <p className="text-white/40 max-w-md mx-auto">
-                No families match your current filters. Try changing the active
-                profile or expanding the age range.
+                No families match your current filters.
               </p>
             </div>
           ) : (
@@ -259,12 +258,7 @@ export default function ExplorePage() {
                   key={f.id}
                   family={f}
                   myChildId={myChildId}
-                  // Pasamos los intereses del hijo activo para iluminar los matches en la card
-                  myInterestIds={
-                    myChildren
-                      .find(c => c.id === myChildId)
-                      ?.interests.map(i => i.id) || []
-                  }
+                  myInterestIds={myChildInterests}
                 />
               ))}
             </div>

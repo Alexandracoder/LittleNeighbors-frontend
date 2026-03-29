@@ -7,8 +7,8 @@ import MatchesList from './Matches/MatchesList'
 import {
   Heart,
   MapPin,
-  Calendar,
   LogOut,
+  Calendar,
   ArrowLeft,
   Search,
   Plus,
@@ -179,8 +179,11 @@ export default function Dashboard() {
                   Active chats & playdates
                 </p>
               </div>
+              <div className="flex items-center gap-2">
+                <Calendar className="w-5 h-5 text-orange-500" />
+                <span>Próximas Playdates</span>
+              </div>
               <div className="bg-orange-500 text-white text-[10px] font-black px-4 py-2 rounded-full">
-                {/* Aquí podrías poner el número de mensajes nuevos */}
                 LIVE
               </div>
             </div>
