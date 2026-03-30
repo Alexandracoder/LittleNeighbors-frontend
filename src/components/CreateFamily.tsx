@@ -1,21 +1,25 @@
-import familyBg from '../assets/create-family.png'
-import React, { useState, useEffect } from 'react'
-import { Home, User, FileText, Image, MapPin } from 'lucide-react'
-
+import { useState, useEffect, FormEvent } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { familyApi, neighborhoodApi } from '../services/api'
-import type { NeighborhoodResponseDTO } from '../types'
+import type { NeighborhoodResponseDTO, FamilyRequestDTO } from '../types'
+import { Users, MapPin, ArrowRight, Sparkles, User } from 'lucide-react'
+import { useAuth } from '../context/AuthContext'
+import familyBg from '../assets/create-family.png'
 
-export default function CreateFamilyProfile() {
+export default function CreateFamily() {
   const [representativeName, setRepresentativeName] = useState('')
   const [familyName, setFamilyName] = useState('')
   const [description, setDescription] = useState('')
-  const [profilePictureUrl, setProfilePictureUrl] = useState('')
   const [neighborhoodId, setNeighborhoodId] = useState<number>(0)
   const [neighborhoods, setNeighborhoods] = useState<NeighborhoodResponseDTO[]>(
     [],
   )
+  const [showForm, setShowForm] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  const navigate = useNavigate()
+  const { updateSession } = useAuth()
 
   useEffect(() => {
     const fetchNeighborhoods = async () => {
@@ -24,104 +28,171 @@ export default function CreateFamilyProfile() {
         setNeighborhoods(data)
       } catch (err) {
         console.error('Error fetching neighborhoods:', err)
+        setError('Could not load neighborhoods. Please try again later.')
       }
     }
     fetchNeighborhoods()
   }, [])
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+
+    if (neighborhoodId === 0) {
+      setError('Please select a neighborhood before continuing.')
+      return
+    }
+
     setLoading(true)
     setError(null)
 
-    try {
-      await familyApi.create({
-        representativeName,
-        familyName,
-        description,
-        profilePictureUrl,
-        neighborhoodId,
-      })
-      // Reset form after successful creation
-      setRepresentativeName('')
-      setFamilyName('')
-      setDescription('')
-      setProfilePictureUrl('')
-      setNeighborhoodId(0)
-      alert('Family profile created successfully!')
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Error creating family profile')
-    } finally {
-      setLoading(false)
-    }
+try {
+  const familyRequest: FamilyRequestDTO = {
+    representativeName,
+    familyName,
+    description,
+    neighborhoodId,
+    profilePictureUrl: '',
+    status: 'SURPRISE',
+    familyInterests: [],
+  }
+
+  await familyApi.create(familyRequest)
+
+  await updateSession()
+
+  navigate('/add-child', { replace: true })
+} catch (err: any) {
+  console.error('Error in creation flow:', err)
+  setError(err.response?.data?.message || 'Failed to initialize family profile')
+} finally {
+  setLoading(false)
+}
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-slate-50">
-      <div className="relative w-full max-w-4xl bg-white rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col md:flex-row">
-        {/* Lado Izquierdo: Imagen */}
-        <div className="hidden md:block md:w-1/3 relative">
-          <img
-            src={familyBg}
-            alt="Neighborhood"
-            className="h-full w-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-orange-400/40 to-transparent" />
-        </div>
+    <div className="relative min-h-screen w-full flex items-center justify-center p-6 overflow-hidden bg-gray-900">
+      <div
+        className="absolute inset-0 z-0 transition-all duration-1000 ease-in-out"
+        style={{
+          backgroundImage: `url(${familyBg})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          filter: showForm ? 'blur(8px) brightness(0.5)' : 'brightness(0.8)',
+          transform: showForm ? 'scale(1.1)' : 'scale(1)',
+        }}
+      />
 
-        {/* Lado Derecho: Formulario */}
-        <div
-          className="flex-1 p-8 md:p-12 bg-cover bg-center"
-          style={{
-            backgroundImage: `linear-gradient(rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.95)), url(${familyBg})`,
-          }}
-        >
-          <div className="max-w-md mx-auto">
-            <header className="mb-8">
-              <h1 className="text-3xl font-bold text-gray-800 mb-2">
-                Create Your Family Profile
-              </h1>
-              <p className="text-gray-600">
-                Join your neighbors and start connecting!
-              </p>
-            </header>
+      <div className="relative z-20 w-full max-w-2xl">
+        {!showForm ? (
+          <div className="text-center animate-in fade-in zoom-in duration-700 flex flex-col items-center">
+            <div className="bg-white/20 backdrop-blur-xl p-6 rounded-full mb-8 shadow-2xl border border-white/30">
+              <Sparkles className="w-16 h-16 text-orange-500 animate-pulse" />
+            </div>
+            <h1 className="text-5xl md:text-7xl font-black text-white mb-6 drop-shadow-[0_5px_15px_rgba(0,0,0,0.5)] italic uppercase tracking-tighter">
+              Almost there...
+            </h1>
+            <p className="text-xl md:text-2xl text-white font-bold mb-10 drop-shadow-md max-w-md">
+              Let's set up your family profile to start meeting neighbors.
+            </p>
+            <button
+              onClick={() => setShowForm(true)}
+              className="group flex items-center gap-4 px-12 py-6 bg-orange-600 text-white font-black rounded-full text-2xl shadow-xl hover:bg-white hover:text-orange-600 transition-all transform hover:-translate-y-2"
+            >
+              <span>GET STARTED</span>
+              <ArrowRight className="group-hover:translate-x-2 transition-transform w-8 h-8" />
+            </button>
+          </div>
+        ) : (
+          <div className="bg-white/95 backdrop-blur-2xl rounded-[3rem] p-8 md:p-12 shadow-2xl border-t-[12px] border-orange-500 animate-in slide-in-from-bottom-20 duration-500">
+            <div className="mb-10 text-center">
+              <div className="bg-orange-500/10 w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-4">
+                <Users className="text-orange-500 w-10 h-10" />
+              </div>
+              <h2 className="text-4xl font-black text-gray-900 uppercase tracking-tighter">
+                Family Details
+              </h2>
+            </div>
 
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-2">
+                <label className="text-xs font-black uppercase tracking-widest text-gray-500 ml-2">
+                  Representative Name
+                </label>
+                <div className="relative">
+                  <User className="absolute left-5 top-1/2 -translate-y-1/2 text-orange-500 w-5 h-5" />
+                  <input
+                    value={representativeName}
+                    onChange={e => setRepresentativeName(e.target.value)}
+                    className="w-full pl-14 pr-6 py-5 bg-gray-100 border-2 border-transparent focus:border-orange-500 focus:bg-white rounded-3xl outline-none transition-all font-medium"
+                    placeholder="e.g. Jane Doe"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-black uppercase tracking-widest text-gray-500 ml-2">
                   Family Name
                 </label>
                 <input
-                  type="text"
                   value={familyName}
                   onChange={e => setFamilyName(e.target.value)}
-                  className="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:ring-2 focus:ring-orange-300 outline-none transition-all bg-white/80"
-                  placeholder="The Rodriguez Family"
+                  className="w-full p-5 bg-gray-100 border-2 border-transparent focus:border-orange-500 focus:bg-white rounded-3xl outline-none transition-all font-medium"
+                  placeholder="e.g. The Smith Family"
                   required
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">
-                  About Us
+              <div className="space-y-2">
+                <label className="text-xs font-black uppercase tracking-widest text-gray-500 ml-2">
+                  Your Neighborhood
+                </label>
+                <div className="relative">
+                  <MapPin className="absolute left-5 top-1/2 -translate-y-1/2 text-orange-500 w-6 h-6" />
+                  <select
+                    value={neighborhoodId}
+                    onChange={e => setNeighborhoodId(Number(e.target.value))}
+                    className="w-full pl-14 pr-6 py-5 bg-gray-100 border-2 border-transparent focus:border-orange-500 focus:bg-white rounded-3xl outline-none transition-all font-medium appearance-none"
+                    required
+                  >
+                    <option value={0}>Choose where you live...</option>
+                    {neighborhoods.map(n => (
+                      <option key={n.id} value={n.id}>
+                        {n.name} - {n.cityName}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-black uppercase tracking-widest text-gray-500 ml-2">
+                  Bio / Description
                 </label>
                 <textarea
                   value={description}
                   onChange={e => setDescription(e.target.value)}
-                  className="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:ring-2 focus:ring-orange-300 outline-none transition-all bg-white/80 h-32"
-                  placeholder="Tell us about your family..."
+                  className="w-full p-5 bg-gray-100 border-2 border-transparent focus:border-orange-500 focus:bg-white rounded-3xl h-32 outline-none transition-all font-medium resize-none"
+                  placeholder="Tell neighbors about your family..."
                 />
               </div>
 
+              {error && (
+                <div className="bg-red-50 border-2 border-red-100 text-red-600 p-4 rounded-2xl text-sm font-black text-center animate-bounce">
+                  {error}
+                </div>
+              )}
+
               <button
                 type="submit"
-                className="w-full py-4 bg-gradient-to-r from-orange-400 to-amber-500 text-white font-bold rounded-2xl shadow-lg hover:shadow-orange-200 hover:-translate-y-0.5 transition-all"
+                disabled={loading}
+                className="w-full bg-gray-900 text-white font-black py-6 rounded-3xl shadow-xl hover:bg-orange-600 transition-all transform hover:-translate-y-1 uppercase tracking-[0.2em] text-sm disabled:opacity-50"
               >
-                Finish Profile
+                {loading ? 'Processing...' : 'Complete Profile'}
               </button>
             </form>
           </div>
-        </div>
+        )}
       </div>
     </div>
   )

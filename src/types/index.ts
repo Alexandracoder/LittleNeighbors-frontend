@@ -1,68 +1,100 @@
 export interface AuthRequest {
-  email: string;
-  password: string;
+  email: string
+  password: string
 }
 
 export interface AuthResponse {
-  accessToken: string;
-  refreshToken: string;
+  accessToken: string
+  refreshToken: string
 }
 
 export interface FamilyRequestDTO {
-  representativeName: string;
-  familyName: string;
-  description: string;
-  profilePictureUrl: string;
-  neighborhoodId: number;
+  status: "PREGNANT" | "NEW_PARENTS" | "ESTABLISHED_FAMILY" | "SURPRISE"
+  familyInterests: string[]
+  representativeName: string
+  familyName: string
+  description: string
+  profilePictureUrl: string
+  neighborhoodId: number
+}
+
+export interface ChildSummaryDTO {
+  id: number
+  gender: string
+  age: number
+  lifeStage: string
+  interests?: InterestResponseDTO[]
 }
 
 export interface FamilyResponseDTO {
-  id: number;
-  representativeName: string;
-  familyName: string;
-  description: string;
-  profilePictureUrl: string;
-  neighborhoodName: string;
+  status: "PREGNANT" | "NEW_PARENTS" | "ESTABLISHED_FAMILY" | "SURPRISE"
+  neighborhood: any
+  familyInterests: string[]
+  id: number
+  representativeName: string
+  familyName: string
+  description: string
+  profilePictureUrl: string
+  neighborhoodId: number
+  streetName: string
+  postalCode: string
+  cityName: string
+  children: ChildSummaryDTO[]
 }
 
 export interface ChildRequestDTO {
-  birthDate: string;
-  gender: 'BOY' | 'GIRL';
-  interests: number[];
+  birthDate: string
+  lifeStage: string
+  gender: 'BOY' | 'GIRL'
+  interestIds: number[]
+  age: number
 }
 
 export interface ChildResponseDTO {
-  id: number;
-  firstName: string;
-  age: number;
-  interests: string[];
+  lifeStage: string
+  id: number
+  gender: 'BOY' | 'GIRL'
+  birthDate: string
+  age: number
+  interests: InterestResponseDTO[]
+  familyId: number
+}
+
+export interface InterestResponseDTO {
+  id: number
+  name: string
+  type: string
+  icon: string
 }
 
 export interface NeighborhoodResponseDTO {
-  id: number;
-  name: string;
-  cityName: string;
+  id: number
+  name: string
+  streetName: string
+  postalCode: string
+  cityId: number
+  cityName: string
 }
 
 export interface Page<T> {
-  content: T[];
-  totalElements: number;
-  totalPages: number;
-  size: number;
-  number: number;
+  content: T[]
+  totalElements: number
+  totalPages: number
+  size: number
+  number: number
 }
 
-export type UserRole = 'ROLE_USER' | 'ROLE_FAMILY' | 'ROLE_ADMIN';
+export type UserRole = 'ROLE_USER' | 'ROLE_FAMILY' | 'ROLE_ADMIN'
 
 export interface DecodedToken {
-  sub: string;
-  roles: UserRole[];
-  exp: number;
+  sub: string
+  roles: UserRole[]
+  exp: number
 }
 
 export interface User {
-  email: string;
-  roles: UserRole[];
+  email: string
+  roles: UserRole[]
 }
 
 export interface RegisterRequest {
@@ -70,4 +102,16 @@ export interface RegisterRequest {
   lastName: string
   email: string
   password?: string
+}
+
+export interface UserStatusDTO {
+  hasFamily: boolean
+  hasChildren: boolean
+  isRegistrationComplete: boolean
+}
+
+export interface UserProfileDTO {
+  email: string
+  roles: string[]
+  family: FamilyResponseDTO | null
 }

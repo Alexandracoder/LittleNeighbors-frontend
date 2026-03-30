@@ -1,8 +1,9 @@
-import welcomeBg from '../assets/community-connecting.png'
 import { useState, FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Users, Mail, Lock } from 'lucide-react'
+import { LogIn, Mail, Lock, ArrowRight } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
+// ACTUALIZADO: Tu imagen específica de comunidad conectando
+import loginBg from '../assets/community-connecting.png'
 
 export default function Login() {
   const [showForm, setShowForm] = useState(false)
@@ -10,106 +11,108 @@ export default function Login() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const { login, hasRole } = useAuth()
+
+  const { login } = useAuth()
   const navigate = useNavigate()
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault()
-    setError('')
-    setLoading(true)
+const handleSubmit = async (e: FormEvent) => {
+  e.preventDefault()
+  setLoading(true)
+  setError('') // 1. Limpiamos errores previos para dar feedback visual al usuario
 
-    try {
-      await login({ email, password })
+  try {
 
-      if (hasRole('ROLE_USER')) {
-        navigate('/create-family')
-      } else if (hasRole('ROLE_FAMILY') || hasRole('ROLE_ADMIN')) {
-        navigate('/dashboard')
-      }
-    } catch (err) {
-      setError('Invalid email or password')
-    } finally {
-      setLoading(false)
+    await login({ email, password })
+
+
+    navigate('/', { replace: true })
+  } catch (err: any) {
+    // 4. Manejo de errores específico
+    if (err.response?.status === 401) {
+      setError('Invalid email or password. Please try again.')
+    } else {
+      setError('Connection error. Is the server running?')
     }
+  } finally {
+    setLoading(false)
   }
+}
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center p-4 relative overflow-hidden bg-gray-900">
-      
-      {/* --- CAPA 1: LA IMAGEN (Fondo completo) --- */}
+    <div className="relative min-h-screen w-full flex items-center justify-center p-4 overflow-hidden">
+      {/* EL ALMA VISUAL: community-connecting.png */}
       <div
-        className={`absolute inset-0 bg-cover bg-center transition-all duration-1000 ease-in-out ${showForm ? 'scale-105 blur-[1px]' : 'scale-100 blur-0'}`}
+        className="absolute inset-0 z-0 transition-all duration-1000 ease-in-out"
         style={{
-          backgroundImage: `url(${welcomeBg})`,
+          backgroundImage: `url(${loginBg})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          // Empieza nítida y se difumina al pulsar el botón
+          filter: showForm
+            ? 'blur(8px) brightness(0.6)'
+            : 'blur(0px) brightness(0.95)',
+          transform: showForm ? 'scale(1.1)' : 'scale(1)',
         }}
       />
 
-      {/* --- CAPA 2: OVERLAY (Filtro suave) --- */}
-      <div className={`absolute inset-0 transition-opacity duration-700 ${showForm ? 'bg-brand-cream/40' : 'bg-black/10'}`} />
-
-      {/* --- CAPA 3: CONTENIDO POSICIONADO ABAJO (z-20) --- */}
-      <div className="relative z-20 w-full max-w-md flex flex-col items-center justify-end min-h-screen pb-12 md:pb-20">
-        
+      <div className="relative z-10 w-full max-w-md">
         {!showForm ? (
-          /* ESCENARIO A: SOLO BOTÓN (Imagen libre) */
-          <button
-            type="button"
-            onClick={() => setShowForm(true)}
-            className="group flex flex-col items-center space-y-4 animate-bounce"
-          >
-            <div className="bg-brand-orange p-5 rounded-full shadow-2xl group-hover:scale-110 transition-transform border-4 border-white/20">
-              <Users className="w-8 h-8 text-white" />
-            </div>
-            <span className="bg-white/90 backdrop-blur-md px-8 py-3 rounded-full text-brand-dark font-bold shadow-xl border border-white/50 group-hover:bg-brand-orange group-hover:text-white transition-all">
-              Enter the Neighborhood
-            </span>
-          </button>
+          /* PANTALLA DE BIENVENIDA NÍTIDA */
+          <div className="text-center animate-in fade-in zoom-in duration-700">
+            <h1 className="text-6xl font-black text-white mb-4 drop-shadow-2xl italic">
+              Hello again!
+            </h1>
+            <p className="text-2xl text-white/90 mb-10 font-medium drop-shadow-lg text-balance">
+              Your neighbors missed you.
+            </p>
+            <button
+              onClick={() => setShowForm(true)}
+              className="group flex items-center gap-4 mx-auto px-10 py-5 bg-white text-brand-orange font-black rounded-[2rem] hover:bg-brand-orange hover:text-white transition-all shadow-2xl active:scale-95"
+            >
+              <span>ENTER THE HOOD</span>
+              <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
+            </button>
+          </div>
         ) : (
-          /* ESCENARIO B: FORMULARIO (Aparece al pulsar) */
-          <div className="w-full bg-white/95 backdrop-blur-md rounded-[3rem] shadow-2xl p-8 md:p-10 border-t-8 border-brand-orange animate-in fade-in slide-in-from-bottom-12 duration-700">
-            <div className="flex justify-center mb-4">
-              <div className="bg-brand-orange p-2 rounded-xl">
-                <Users className="w-6 h-6 text-white" />
+          /* CARD MÁGICA (Aparece con animación) */
+          <div className="bg-white/90 backdrop-blur-xl rounded-[3rem] shadow-2xl p-10 border-t-8 border-brand-orange animate-in slide-in-from-top-10 duration-500">
+            <div className="flex justify-center mb-6">
+              <div className="bg-brand-orange p-4 rounded-3xl shadow-lg">
+                <LogIn className="w-8 h-8 text-white" />
               </div>
             </div>
-            
-            <h1 className="text-3xl font-bold text-center text-brand-coral mb-6">
-              Little Neighbors
-            </h1>
-            
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-bold text-brand-dark mb-1">Email</label>
-                <div className="relative">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-brand-orange" />
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={e => setEmail(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 border border-brand-yellow/30 rounded-2xl focus:ring-2 focus:ring-brand-orange outline-none bg-brand-cream/10"
-                    placeholder="your@email.com"
-                    required
-                  />
-                </div>
+
+            <h2 className="text-3xl font-black text-center text-brand-coral mb-8 uppercase tracking-tighter">
+              Welcome Back
+            </h2>
+
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div className="relative">
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-orange w-5 h-5" />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  className="w-full pl-12 pr-4 py-4 border border-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-brand-orange bg-white/50"
+                  placeholder="Your email"
+                  required
+                />
               </div>
 
-              <div>
-                <label className="block text-sm font-bold text-brand-dark mb-1">Password</label>
-                <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-brand-orange" />
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 border border-brand-yellow/30 rounded-2xl focus:ring-2 focus:ring-brand-orange outline-none bg-brand-cream/10"
-                    placeholder="••••••••"
-                    required
-                  />
-                </div>
+              <div className="relative">
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-orange w-5 h-5" />
+                <input
+                  type="password"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  className="w-full pl-12 pr-4 py-4 border border-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-brand-orange bg-white/50"
+                  placeholder="Password"
+                  required
+                />
               </div>
 
               {error && (
-                <div className="bg-red-50 text-red-700 px-4 py-2 rounded-xl text-xs font-medium">
+                <div className="bg-red-50 text-red-600 p-3 rounded-xl text-sm text-center font-bold">
                   {error}
                 </div>
               )}
@@ -117,25 +120,25 @@ export default function Login() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-brand-orange text-white font-bold py-4 rounded-2xl hover:bg-brand-coral transition-all shadow-lg text-lg disabled:opacity-50"
+                className="w-full bg-brand-orange text-white font-black py-5 rounded-2xl shadow-xl hover:bg-brand-coral transition-all transform hover:-translate-y-1"
               >
-                {loading ? 'Entering...' : 'Sign In'}
+                {loading ? 'OPENING DOORS...' : 'LOG IN'}
               </button>
 
-              <div className="flex flex-col space-y-2 mt-4">
-                <button
-                  type="button"
-                  onClick={() => setShowForm(false)}
-                  className="text-xs text-brand-dark/40 hover:text-brand-orange transition-colors"
-                >
-                  ← Back to view image
-                </button>
+              <div className="flex flex-col gap-3 mt-6 text-center">
                 <button
                   type="button"
                   onClick={() => navigate('/register')}
-                  className="text-sm text-brand-orange font-bold hover:underline"
+                  className="text-brand-orange font-bold text-sm hover:underline"
                 >
-                  Create an account
+                  I'm a new neighbor
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowForm(false)}
+                  className="text-gray-400 font-medium text-xs uppercase tracking-widest mt-2"
+                >
+                  Go Back to view the soul
                 </button>
               </div>
             </form>
@@ -143,5 +146,5 @@ export default function Login() {
         )}
       </div>
     </div>
-  );
+  )
 }
