@@ -2,9 +2,9 @@ name: Frontend CI (React + TS)
 
 on:
   push:
-    branches: [ "main", "dev", "feature/*" ]
+    branches: [ "main", "master", "dev", "feature/*" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "master" ]
 
 jobs:
   build-and-test:
@@ -18,16 +18,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          
 
       - name: Install Dependencies
-        working-directory: ./project
         run: npm install
 
       - name: TypeScript Check
-        working-directory: ./project
         run: npx tsc --noEmit
 
       - name: Build Project
-        working-directory: ./project
         run: npm run build
