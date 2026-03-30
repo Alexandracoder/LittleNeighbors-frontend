@@ -9,6 +9,8 @@ export interface AuthResponse {
 }
 
 export interface FamilyRequestDTO {
+  status: "PREGNANT" | "NEW_PARENTS" | "ESTABLISHED_FAMILY" | "SURPRISE"
+  familyInterests: string[]
   representativeName: string
   familyName: string
   description: string
@@ -25,6 +27,9 @@ export interface ChildSummaryDTO {
 }
 
 export interface FamilyResponseDTO {
+  status: "PREGNANT" | "NEW_PARENTS" | "ESTABLISHED_FAMILY" | "SURPRISE"
+  neighborhood: any
+  familyInterests: string[]
   id: number
   representativeName: string
   familyName: string
@@ -42,9 +47,11 @@ export interface ChildRequestDTO {
   lifeStage: string
   gender: 'BOY' | 'GIRL'
   interestIds: number[]
+  age: number
 }
 
 export interface ChildResponseDTO {
+  lifeStage: string
   id: number
   gender: 'BOY' | 'GIRL'
   birthDate: string

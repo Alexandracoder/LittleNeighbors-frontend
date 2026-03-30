@@ -45,28 +45,28 @@ export default function CreateFamily() {
     setLoading(true)
     setError(null)
 
-    try {
-      const familyRequest: FamilyRequestDTO = {
-        representativeName,
-        familyName,
-        description,
-        neighborhoodId,
-        profilePictureUrl: '',
-      }
+try {
+  const familyRequest: FamilyRequestDTO = {
+    representativeName,
+    familyName,
+    description,
+    neighborhoodId,
+    profilePictureUrl: '',
+    status: 'SURPRISE',
+    familyInterests: [],
+  }
 
-      await familyApi.create(familyRequest)
+  await familyApi.create(familyRequest)
 
-      await updateSession()
+  await updateSession()
 
-      navigate('/add-child', { replace: true })
-    } catch (err: any) {
-      console.error('Error in creation flow:', err)
-      setError(
-        err.response?.data?.message || 'Failed to initialize family profile',
-      )
-    } finally {
-      setLoading(false)
-    }
+  navigate('/add-child', { replace: true })
+} catch (err: any) {
+  console.error('Error in creation flow:', err)
+  setError(err.response?.data?.message || 'Failed to initialize family profile')
+} finally {
+  setLoading(false)
+}
   }
 
   return (

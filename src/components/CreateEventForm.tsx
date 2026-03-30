@@ -13,9 +13,7 @@ const NEIGHBORHOOD_LOCATIONS: Record<string, { lat: number; lng: number }> = {
   Eixample: { lat: 39.465, lng: -0.37 },
   Extramurs: { lat: 39.47, lng: -0.385 },
   'La Saidia': { lat: 39.488, lng: -0.375 },
-  // L Olivereta: Lo movemos un poco más al este, hacia el centro del barrio real
   'L Olivereta': { lat: 39.471, lng: -0.398 },
-  // Mislata: Lo alejamos un poco más al oeste (fuera de Valencia capital)
   Mislata: { lat: 39.475, lng: -0.418 },
   'El Pla del Real': { lat: 39.478, lng: -0.358 },
   Algiros: { lat: 39.475, lng: -0.34 },
@@ -54,8 +52,7 @@ useEffect(() => {
       setNeighborhoods(list)
 
       if (!eventToEdit && list.length > 0) {
-        const firstNB = list[0] // El primer barrio de la DB
-        // BUSCAMOS POR NOMBRE, NO POR ID
+        const firstNB = list[0]
         const coords = NEIGHBORHOOD_LOCATIONS[firstNB.name] || {
           lat: 39.4699,
           lng: -0.3763,

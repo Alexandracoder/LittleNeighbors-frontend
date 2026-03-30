@@ -33,8 +33,6 @@ export default function ChildCard({
   >('idle')
   const [errorMessage, setErrorMessage] = useState('')
 
-  // Cláusula de guarda: Si no hay child, no renderizamos nada.
-  // Esto evita errores de "cannot read property of null" y satisface a TS.
   if (!child) return null
 
   const isPrenatal = child.lifeStage === 'PREGNANCY'

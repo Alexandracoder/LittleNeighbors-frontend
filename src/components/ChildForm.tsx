@@ -5,7 +5,7 @@ import type {
   ChildResponseDTO,
   InterestResponseDTO,
 } from '../types'
-import { X, Save, Loader2, Heart } from 'lucide-react'
+import { X, Save, Loader2, Heart, Calendar } from 'lucide-react'
 
 interface ChildFormProps {
   initialData?: ChildResponseDTO | null
@@ -21,7 +21,7 @@ export default function ChildForm({
   const [loading, setLoading] = useState(false)
   const [allInterests, setAllInterests] = useState<InterestResponseDTO[]>([])
   const [formData, setFormData] = useState<ChildRequestDTO>({
-    gender: 'OTHER',
+    gender: 'BOY',
     lifeStage: 'PREGNANCY',
     age: 0,
     birthDate: '',
@@ -34,7 +34,7 @@ export default function ChildForm({
         const data = await interestApi.getAll()
         setAllInterests(data)
       } catch (err) {
-        console.error('Error loading interests:', err)
+        console.error(err)
       }
     }
     loadInterests()
@@ -43,8 +43,8 @@ export default function ChildForm({
       setFormData({
         gender: initialData.gender,
         lifeStage: initialData.lifeStage,
-        age: initialData.age || 0,
-        birthDate: '',
+        age: initialData.age ?? 0,
+        birthDate: initialData.birthDate || '',
         interestIds: initialData.interests?.map(i => i.id) || [],
       })
     }
@@ -53,15 +53,22 @@ export default function ChildForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
+
+    const payload: ChildRequestDTO = {
+      ...formData,
+      birthDate: formData.lifeStage === 'BORN' ? formData.birthDate : '',
+      age: formData.lifeStage === 'PREGNANCY' ? 0 : formData.age,
+    }
+
     try {
       if (initialData?.id) {
-        await childApi.update(initialData.id, formData)
+        await childApi.update(initialData.id, payload)
       } else {
-        await childApi.create(formData)
+        await childApi.create(payload)
       }
       onSuccess()
     } catch (err) {
-      console.error('Error saving child:', err)
+      console.error(err)
       alert('Failed to save profile. Please try again.')
     } finally {
       setLoading(false)
@@ -77,10 +84,12 @@ export default function ChildForm({
     }))
   }
 
+  const today = new Date().toISOString().split('T')[0]
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-8">
+    <form onSubmit={handleSubmit} className="space-y-8 bg-white p-2">
       <div className="flex justify-between items-center mb-2">
-        <h2 className="text-3xl font-black text-gray-900">
+        <h2 className="text-3xl font-black text-[#2D2D2D] uppercase italic tracking-tight">
           {initialData ? 'Edit Profile' : 'New Little Neighbor'}
         </h2>
         <button
@@ -94,56 +103,66 @@ export default function ChildForm({
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <label className="text-xs font-black uppercase tracking-widest text-gray-400 ml-1">
+          <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">
             Life Stage
           </label>
           <select
             value={formData.lifeStage}
-            onChange={e =>
-              setFormData({ ...formData, lifeStage: e.target.value as any })
-            }
-            className="w-full p-4 bg-gray-50 border-2 border-transparent focus:border-orange-400 rounded-2xl font-bold transition-all outline-none"
+            onChange={e => {
+              const newStage = e.target.value as ChildRequestDTO['lifeStage']
+              setFormData({
+                ...formData,
+                lifeStage: newStage,
+                birthDate: newStage === 'PREGNANCY' ? '' : formData.birthDate,
+              })
+            }}
+            className="w-full p-4 bg-gray-50 border-2 border-transparent focus:border-[#FF8A5C] rounded-2xl font-bold transition-all outline-none appearance-none cursor-pointer"
           >
-            <option value="PREGNANCY">Pregnancy / Expecting</option>
-            <option value="BORN">Already Born</option>
+            <option value="PREGNANCY">Pregnancy / Expecting 🤰</option>
+            <option value="BORN">Already Born 👶</option>
           </select>
         </div>
 
         <div className="space-y-3">
-          <label className="text-xs font-black uppercase tracking-widest text-gray-400 ml-1">
+          <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">
             Gender
           </label>
           <select
-        
             value={formData.gender || ''}
             onChange={e =>
-              setFormData({ ...formData, gender: e.target.value as any })
+              setFormData({
+                ...formData,
+                gender: e.target.value as ChildRequestDTO['gender'],
+              })
             }
-            className="w-full p-4 bg-gray-50 border-2 border-transparent focus:border-orange-400 rounded-2xl font-bold transition-all outline-none"
+            className="w-full p-4 bg-gray-50 border-2 border-transparent focus:border-[#FF8A5C] rounded-2xl font-bold transition-all outline-none appearance-none cursor-pointer"
           >
             <option value="" disabled>
               Select Gender
             </option>
-            <option value="BOY">Boy</option>
-            <option value="GIRL">Girl</option>
-            <option value="OTHER">Other / Surprise</option>
+            <option value="BOY">Boy 👦</option>
+            <option value="GIRL">Girl 👧</option>
+            <option value="SURPRISE">Surprise ✨</option>
           </select>
         </div>
 
         {formData.lifeStage === 'BORN' && (
-          <div className="space-y-3 md:col-span-2">
-            <label className="text-xs font-black uppercase tracking-widest text-gray-400 ml-1">
-              Age (Years)
-            </label>
+          <div className="space-y-3 md:col-span-2 animate-in fade-in slide-in-from-top-2">
+            <div className="flex items-center gap-2 ml-1">
+              <Calendar className="w-4 h-4 text-[#FF8A5C]" />
+              <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">
+                Birth Date
+              </label>
+            </div>
             <input
-              type="number"
-              min="0"
-              max="18"
-              value={formData.age}
+              type="date"
+              max={today}
+              required={formData.lifeStage === 'BORN'}
+              value={formData.birthDate}
               onChange={e =>
-                setFormData({ ...formData, age: parseInt(e.target.value) || 0 })
+                setFormData({ ...formData, birthDate: e.target.value })
               }
-              className="w-full p-4 bg-gray-50 border-2 border-transparent focus:border-orange-400 rounded-2xl font-bold transition-all outline-none"
+              className="w-full p-4 bg-gray-50 border-2 border-transparent focus:border-[#FF8A5C] rounded-2xl font-bold transition-all outline-none"
             />
           </div>
         )}
@@ -151,8 +170,8 @@ export default function ChildForm({
 
       <div className="space-y-4">
         <div className="flex items-center gap-2">
-          <Heart className="w-5 h-5 text-orange-400" />
-          <span className="text-xs font-black uppercase tracking-widest text-gray-400">
+          <Heart className="w-5 h-5 text-[#FF8A5C]" />
+          <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">
             Interests & Hobbies
           </span>
         </div>
@@ -162,9 +181,9 @@ export default function ChildForm({
               key={interest.id}
               type="button"
               onClick={() => toggleInterest(interest.id)}
-              className={`px-4 py-2 rounded-xl font-bold text-sm transition-all border-2 ${
+              className={`px-5 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all border-2 ${
                 formData.interestIds.includes(interest.id)
-                  ? 'bg-orange-500 border-orange-500 text-white shadow-lg shadow-orange-200'
+                  ? 'bg-[#FF8A5C] border-[#FF8A5C] text-white shadow-lg shadow-orange-100'
                   : 'bg-white border-gray-100 text-gray-400 hover:border-orange-200'
               }`}
             >
@@ -174,17 +193,17 @@ export default function ChildForm({
         </div>
       </div>
 
-      <div className="pt-4">
+      <div className="pt-6">
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-4 bg-gray-900 text-white font-black rounded-2xl hover:bg-gray-800 transition-all shadow-xl flex items-center justify-center gap-3 disabled:opacity-50"
+          className="w-full py-5 bg-[#2D2D2D] text-white font-black rounded-[1.5rem] hover:bg-black transition-all shadow-xl flex items-center justify-center gap-3 disabled:opacity-50 uppercase tracking-[0.2em] text-xs"
         >
           {loading ? (
             <Loader2 className="w-6 h-6 animate-spin" />
           ) : (
             <>
-              <Save className="w-6 h-6" />
+              <Save className="w-5 h-5" />
               {initialData ? 'UPDATE PROFILE' : 'CREATE PROFILE'}
             </>
           )}
