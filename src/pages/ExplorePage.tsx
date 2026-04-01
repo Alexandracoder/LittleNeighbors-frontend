@@ -80,7 +80,6 @@ useEffect(() => {
     }
   }, [myChildId, ageRange, selectedInterestIds])
 
-  // 4. Efecto para recargar cuando cambian los filtros
   useEffect(() => {
     loadFamilies()
   }, [loadFamilies])

@@ -8,10 +8,10 @@ import {
   Sparkles,
   MapPin,
 } from 'lucide-react'
-import { useState, useMemo, JSXElementConstructor, Key, ReactElement, ReactNode, ReactPortal } from 'react'
+import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import type { FamilyResponseDTO, InterestResponseDTO } from '../types'
-import { childApi } from '../services/api'
+import matchService from '../services/matchService'
 
 interface FamilyCardProps {
   family: FamilyResponseDTO
@@ -52,6 +52,7 @@ export default function FamilyCard({
   myInterestIds = [],
 }: FamilyCardProps) {
   const navigate = useNavigate()
+  const [isConnecting, setIsConnecting] = useState(false)
   const [matchStatus, setMatchStatus] = useState<
     Record<number, 'idle' | 'loading' | 'success'>
   >({})
@@ -75,14 +76,26 @@ export default function FamilyCard({
     return Array.from(interestMap.values())
   }, [family.children])
 
-  const handleRequestMatch = async (targetChildId: number) => {
-    if (typeof myChildId !== 'number') return
-    setMatchStatus(prev => ({ ...prev, [targetChildId]: 'loading' }))
+  // Función principal: Romper el hielo
+  const handleBreakTheIce = async (targetChildId: number) => {
+    if (typeof myChildId !== 'number') {
+      console.warn('No tienes un childId seleccionado (emisor)')
+      return
+    }
+
     try {
-      await childApi.requestMatch(myChildId, targetChildId)
-      setMatchStatus(prev => ({ ...prev, [targetChildId]: 'success' }))
-    } catch (err) {
-      setMatchStatus(prev => ({ ...prev, [targetChildId]: 'idle' }))
+      setIsConnecting(true)
+      // Pasamos emisor y receptor
+      const newMatch = await matchService.requestMatch(myChildId, targetChildId)
+
+      if (newMatch && newMatch.id) {
+        setMatchStatus(prev => ({ ...prev, [targetChildId]: 'success' }))
+        navigate(`/chat/${newMatch.id}`)
+      }
+    } catch (error) {
+      console.error('Error breaking the ice:', error)
+    } finally {
+      setIsConnecting(false)
     }
   }
 
@@ -90,7 +103,7 @@ export default function FamilyCard({
     <div
       className={`bg-white rounded-[2.5rem] shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden border-2 border-transparent ${statusInfo.border} flex flex-col h-full group`}
     >
-      {/* Header con Status dinámico */}
+      {/* Header */}
       <div className="p-8 pb-4">
         <div className="flex items-start justify-between mb-4">
           <div
@@ -162,24 +175,13 @@ export default function FamilyCard({
                       </div>
                     </div>
                   </div>
+                  {/* Botón individual de envío rápido */}
                   <button
-                    onClick={() => handleRequestMatch(child.id)}
-                    disabled={
-                      (matchStatus[child.id] ?? 'idle') !== 'idle' || !myChildId
-                    }
-                    className={`p-3 rounded-xl transition-all ${
-                      matchStatus[child.id] === 'success'
-                        ? 'bg-green-500 text-white'
-                        : 'bg-white shadow-sm hover:bg-[#FF8A5C] hover:text-white disabled:opacity-30'
-                    }`}
+                    onClick={() => handleBreakTheIce(child.id)}
+                    disabled={isConnecting || !myChildId}
+                    className="p-3 rounded-xl bg-white shadow-sm hover:bg-[#FF8A5C] hover:text-white disabled:opacity-30 transition-all"
                   >
-                    {matchStatus[child.id] === 'loading' ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : matchStatus[child.id] === 'success' ? (
-                      <CheckCircle2 className="w-4 h-4" />
-                    ) : (
-                      <Send className="w-4 h-4" />
-                    )}
+                    <Send className="w-4 h-4" />
                   </button>
                 </div>
               ))}
@@ -187,53 +189,54 @@ export default function FamilyCard({
           </>
         )}
       </div>
-      {Array.isArray(family.familyInterests) &&
-        family.familyInterests.length > 0 && (
-          <div className="px-8 py-2 flex flex-wrap gap-1.5">
-            {family.familyInterests.map((interest, idx) => (
-              <span
-                key={`fam-int-${idx}`}
-                className="text-[8px] font-bold bg-white border border-gray-100 text-gray-500 px-2 py-1 rounded-md uppercase tracking-tighter italic"
-              >
-                #{interest}
-              </span>
-            ))}
-          </div>
-        )}
-      {/* Intereses de Niños (Match visual) */}
-      {childrenInterests.length > 0 && (
-        <div className="px-8 py-4 flex flex-wrap gap-2">
-          {childrenInterests.map((interest: InterestResponseDTO) => {
-            const isMatch = myInterestIds.includes(interest.id)
-            return (
-              <span
-                key={`interest-${interest.id}`}
-                className={`text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg transition-all ${
-                  isMatch
-                    ? 'bg-[#FF8A5C] text-white'
-                    : 'bg-gray-100 text-gray-400'
-                }`}
-              >
-                {interest.name}
-              </span>
-            )
-          })}
-        </div>
-      )}
 
-      {/* Footer / Chat */}
+      {/* Intereses */}
+      <div className="px-8 py-4 flex flex-wrap gap-2">
+        {childrenInterests.map((interest: InterestResponseDTO) => {
+          const isMatch = myInterestIds.includes(interest.id)
+          return (
+            <span
+              key={`interest-${interest.id}`}
+              className={`text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg transition-all ${
+                isMatch
+                  ? 'bg-[#FF8A5C] text-white'
+                  : 'bg-gray-100 text-gray-400'
+              }`}
+            >
+              {interest.name}
+            </span>
+          )
+        })}
+      </div>
+
+      {/* Footer / Botón Principal de Romper el Hielo */}
       <div className="p-6 bg-gray-50/50 border-t border-gray-100">
         <button
-          onClick={() => navigate(`/chat/${family.id}`)}
-          disabled={!hasActiveMatch}
+          onClick={() => {
+            const firstChildId = family.children[0]?.id
+            if (hasActiveMatch) {
+              navigate(`/chat/active`) // O la ruta que maneje tus chats activos
+            } else if (firstChildId) {
+              handleBreakTheIce(firstChildId)
+            }
+          }}
+          disabled={isConnecting}
           className={`w-full py-4 font-black rounded-2xl shadow-md transition-all flex items-center justify-center gap-3 uppercase tracking-widest text-[10px] ${
-            hasActiveMatch
-              ? 'bg-[#2D2D2D] text-white hover:bg-black'
-              : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+            isConnecting
+              ? 'bg-gray-400 cursor-not-allowed'
+              : 'bg-[#2D2D2D] text-white hover:bg-black active:scale-95'
           }`}
         >
-          <MessageCircle className="w-4 h-4" />
-          {hasActiveMatch ? 'Start Conversation' : 'Connect to Chat'}
+          {isConnecting ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <MessageCircle className="w-4 h-4" />
+          )}
+          {isConnecting
+            ? 'Connecting...'
+            : hasActiveMatch
+            ? 'Go to Chat'
+            : 'Say Hi! 👋 Break the ice'}
         </button>
       </div>
     </div>
