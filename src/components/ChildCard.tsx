@@ -14,7 +14,8 @@ import type { ChildResponseDTO } from '../types'
 import { childApi } from '../services/api'
 
 interface ChildCardProps {
-  child: ChildResponseDTO
+  // Cambiamos a 'child: ChildResponseDTO | null' para dar flexibilidad al padre
+  child: ChildResponseDTO | null
   onEdit: (child: ChildResponseDTO) => void
   onDelete: (id: number) => void
   showMatchButton?: boolean
@@ -34,20 +35,17 @@ export default function ChildCard({
   >('idle')
   const [errorMessage, setErrorMessage] = useState('')
 
-  const isPrenatal = child.lifeStage === 'PRENATAL' || child.isPrenatal
+  if (!child) return null
+
+  const isPrenatal = child.lifeStage === 'PREGNANCY'
 
   const getDisplayAge = () => {
-    if (isPrenatal) return t('child.form.lifeStagePrenatal', 'En camí')
-
-    if (child.age && child.age > 0) {
-      const unit =
-        child.age === 1
-          ? t('child.info.year', 'any')
-          : t('child.info.years', 'anys')
-      return `${child.age} ${unit}`
+    if (isPrenatal) return 'Coming soon'
+    if (child.age !== undefined && child.age !== null) {
+      if (child.age === 0) return 'Newborn'
+      return `${child.age} ${child.age === 1 ? 'year' : 'years'} old`
     }
-
-    return t('child.info.baby', 'Nounat')
+    return 'New Neighbor'
   }
 
   const getTitle = () => {
@@ -64,7 +62,7 @@ export default function ChildCard({
       await childApi.requestMatch(myChildId, child.id)
       setStatus('success')
     } catch (err: any) {
-      setErrorMessage(err.message || t('common.error'))
+      setErrorMessage(err.response?.data?.message || 'Error sending request')
       setStatus('error')
       setTimeout(() => setStatus('idle'), 3000)
     }
@@ -122,12 +120,12 @@ export default function ChildCard({
             <span>{t('interestsLabel', 'Interessos')}</span>
           </div>
           <div className="flex flex-wrap gap-2">
-            {child.interests.map((interest: any, index: number) => (
+            {child.interests.map((interest, index) => (
               <span
                 key={index}
                 className="px-4 py-1.5 bg-gray-50 text-brand-dark text-[10px] font-black rounded-full border border-gray-100 uppercase tracking-tight"
               >
-                {typeof interest === 'string' ? interest : interest.name}
+                {interest.name}
               </span>
             ))}
           </div>

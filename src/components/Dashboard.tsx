@@ -3,34 +3,41 @@ import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../context/AuthContext'
 import { childApi } from '../services/api'
-import MatchesList from './Matches/MatchesList'
 import type { ChildResponseDTO } from '../types'
-import {
-  Heart,
-  MapPin,
-  Calendar,
-  LogOut,
-  ArrowLeft,
-  Search,
-} from 'lucide-react'
+import MatchesList from './Matches/MatchesList'
+import { Heart, MapPin, LogOut, ArrowLeft, Search, Plus } from 'lucide-react'
 import dashboardBg from '../assets/neighborhood-picnic.png'
 
 export default function Dashboard() {
   const navigate = useNavigate()
-  const { t, i18n } = useTranslation()
-  const { familyEntity, loading, logout } = useAuth()
+  const { familyEntity, loading, logout, token } = useAuth()
   const [children, setChildren] = useState<ChildResponseDTO[]>([])
+  const [fetching, setFetching] = useState(false)
 
   useEffect(() => {
-    if (familyEntity) {
+    if (!loading && !familyEntity) {
+      navigate('/create-family', { replace: true })
+      return
+    }
+    if (
+      !loading &&
+      familyEntity &&
+      (!familyEntity.children || familyEntity.children.length === 0)
+    ) {
+      navigate('/add-child', { replace: true })
+    }
+  }, [loading, familyEntity, navigate])
+
+  useEffect(() => {
+    if (familyEntity && token) {
+      setFetching(true)
       childApi
         .getAll()
-        .then(data => {
-          setChildren(Array.isArray(data) ? data : [])
-        })
+        .then(data => setChildren(Array.isArray(data) ? data : []))
         .catch(err => console.error('Error loading children:', err))
+        .finally(() => setFetching(false))
     }
-  }, [familyEntity])
+  }, [familyEntity, token])
 
   const handleLogout = (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
@@ -41,15 +48,10 @@ export default function Dashboard() {
     i18n.changeLanguage(lng)
   }
 
-  if (loading) {
+  if (loading || fetching) {
     return (
-      <div className="flex h-screen w-full items-center justify-center text-white bg-brand-dark">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-brand-orange border-t-transparent rounded-full animate-spin" />
-          <p className="font-black uppercase tracking-widest text-xs animate-pulse">
-            {t('loading')}
-          </p>
-        </div>
+      <div className="flex h-screen w-full items-center justify-center bg-white">
+        <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
       </div>
     )
   }
@@ -57,8 +59,8 @@ export default function Dashboard() {
   if (!familyEntity) return null
 
   return (
-    <div className="relative min-h-screen w-full overflow-x-hidden font-sans">
-      {/* Background Layer */}
+    <div className="relative min-h-screen w-full overflow-x-hidden font-sans bg-[#F8F9FA]">
+      {/* BACKGROUND con Blur más suave */}
       <div
         className="fixed inset-0 z-0"
         style={{
@@ -67,15 +69,15 @@ export default function Dashboard() {
           backgroundPosition: 'center',
         }}
       />
-      <div className="fixed inset-0 z-10 bg-brand-dark/40 backdrop-blur-[2px]" />
+      <div className="fixed inset-0 z-10 bg-white/30 backdrop-blur-[3px]" />
 
-      {/* TOP BAR / NAVBAR */}
-      <div className="relative z-30 flex justify-between items-center p-6 max-w-7xl mx-auto">
+      {/* TOP BAR - Más Minimal */}
+      <div className="relative z-30 flex justify-between p-8">
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md text-white rounded-full font-black text-[10px] uppercase tracking-widest hover:bg-white/20 transition-all border border-white/10"
+          className="flex items-center gap-2 px-4 py-2 bg-white/40 backdrop-blur-md text-gray-800 rounded-full font-bold text-[10px] uppercase tracking-widest hover:bg-white/60 transition-all border border-white/20"
         >
-          <ArrowLeft className="w-4 h-4" /> {t('back')}
+          <ArrowLeft className="w-3 h-3" /> Back
         </button>
 
         {/* Language Selector */}
@@ -97,128 +99,94 @@ export default function Dashboard() {
 
         <button
           onClick={handleLogout}
-          className="flex items-center gap-2 px-4 py-2 bg-red-500/20 backdrop-blur-md text-red-200 rounded-full font-black text-[10px] uppercase tracking-widest hover:bg-red-500/40 transition-all border border-red-500/20"
+          className="px-4 py-2 bg-gray-900/5 backdrop-blur-md text-gray-500 rounded-full font-bold text-[10px] uppercase tracking-widest hover:bg-red-50 hover:text-red-500 transition-all border border-gray-900/5"
         >
-          <LogOut className="w-4 h-4" /> {t('logout')}
+          <LogOut className="w-3 h-3 inline mr-1" /> Log Out
         </button>
       </div>
 
-      <div className="relative z-20 px-6 pb-12 mt-10">
-        <div className="max-w-6xl mx-auto">
-          <header className="mb-12 text-center md:text-left">
-            <span className="text-brand-orange font-black uppercase tracking-[0.3em] text-[10px]">
-              {t('Your community hub')}
+      {/* MAIN CONTENT */}
+      <div className="relative z-20 px-8 max-w-5xl mx-auto mt-4">
+        <header className="mb-12 animate-in fade-in slide-in-from-top-4 duration-1000">
+          <h1 className="text-4xl md:text-5xl font-light text-gray-900 tracking-tight leading-none">
+            Hola,{' '}
+            <span className="font-black italic text-orange-500">
+              {familyEntity?.familyName}
             </span>
-            <h1 className="text-5xl md:text-7xl font-black text-white tracking-tighter uppercase leading-none mt-2">
-              {t('welcome')} <br className="md:hidden" />
-              <span className="text-brand-orange italic drop-shadow-lg ml-2">
-                {familyEntity?.familyName || 'Family'}!
-              </span>
-            </h1>
-          </header>
+          </h1>
+          <p className="text-gray-500/80 font-medium tracking-[0.1em] text-[10px] uppercase mt-3">
+            Your neighborhood, simplified.
+          </p>
+        </header>
 
-          {/* Quick Actions */}
-          <div className="flex flex-wrap justify-center md:justify-start gap-4 mb-16">
-            <ActionButton
-              icon={<MapPin className="w-5 h-5" />}
-              label={t('events')}
-              onClick={() => navigate('/events')}
-            />
-            <ActionButton
-              icon={<Calendar className="w-5 h-5" />}
-              label={t('schedules')}
-              onClick={() => navigate('/schedules')}
-            />
-            <ActionButton
-              icon={<Search className="w-5 h-5" />}
-              label={t('explore')}
-              onClick={() => navigate('/explore')}
-              primary
-            />
+        {/* QUICK ACTIONS - Pills más pequeñas y elegantes */}
+        <div className="flex flex-wrap gap-3 mb-12">
+          <button
+            onClick={() => navigate('/explore')}
+            className="flex items-center gap-2 px-6 py-3 bg-orange-500 text-white rounded-full shadow-lg shadow-orange-500/20 transition-all hover:scale-105 active:scale-95"
+          >
+            <Search className="w-4 h-4" />
+            <span className="font-black uppercase tracking-widest text-[10px]">
+              Find Neighbors
+            </span>
+          </button>
 
-            <div
-              className="group relative flex items-center gap-3 px-8 py-4 bg-white/90 text-brand-dark rounded-full shadow-xl border border-white/50 transition-all duration-500 hover:rounded-3xl hover:px-10 cursor-pointer"
-              onClick={() => navigate('/my-family')}
-            >
-              <Heart className="w-5 h-5 text-brand-coral fill-brand-coral" />
-              <span className="font-black uppercase tracking-widest text-[11px] whitespace-nowrap">
-                {t('my children')}
-              </span>
+          <button
+            onClick={() => navigate('/events')}
+            className="flex items-center gap-2 px-6 py-3 bg-white text-gray-800 rounded-full border border-gray-100 shadow-sm transition-all hover:bg-gray-50"
+          >
+            <MapPin className="w-4 h-4 text-orange-500" />
+            <span className="font-black uppercase tracking-widest text-[10px]">
+              Events
+            </span>
+          </button>
 
-              <div className="hidden group-hover:flex items-center gap-3 ml-4 pl-4 border-l border-brand-dark/10 animate-in slide-in-from-left-2 duration-300">
-                {children.length > 0 ? (
-                  children.map((child, idx) => (
-                    <div
-                      key={child.id || idx}
-                      className="text-[9px] font-black bg-brand-dark text-white px-2 py-1 rounded-full uppercase tracking-tighter"
-                    >
-                      {child.lifeStage === 'PREGNANCY'
-                        ? 'PRE'
-                        : child.gender === 'BOY'
-                        ? 'BOY'
-                        : 'GIRL'}
-                    </div>
-                  ))
-                ) : (
-                  <span className="text-[10px] font-bold opacity-40 italic lowercase">
-                    {t('empty')}
-                  </span>
-                )}
-                <button
-                  onClick={e => {
-                    e.stopPropagation()
-                    navigate('/add-child')
-                  }}
-                  className="w-6 h-6 flex items-center justify-center bg-brand-orange text-white rounded-full hover:rotate-90 transition-transform font-bold"
-                >
-                  +
-                </button>
+          <div
+            onClick={() => navigate('/my-family')}
+            className="group flex items-center gap-2 px-6 py-3 bg-white/60 backdrop-blur-md text-gray-800 rounded-full border border-white/40 cursor-pointer transition-all hover:bg-white"
+          >
+            <Heart className="w-4 h-4 text-orange-500" />
+            <span className="font-black uppercase tracking-widest text-[10px]">
+              Children ({children.length})
+            </span>
+            {/* Pills pequeñas dentro del botón */}
+            <div className="flex gap-1 ml-2">
+              {children.slice(0, 2).map(child => (
+                <span
+                  key={child.id}
+                  className="w-1.5 h-1.5 bg-orange-500 rounded-full"
+                  title={child.lifeStage}
+                />
+              ))}
+              <Plus className="w-3 h-3 text-gray-400" />
+            </div>
+          </div>
+        </div>
+
+        {/* SECCIÓN DE MATCHES - Estética Cristal Minimalista */}
+        <div className="bg-white/40 backdrop-blur-3xl rounded-[2.5rem] p-8 border border-white/60 shadow-xl shadow-gray-200/50 animate-in fade-in slide-in-from-bottom-8 duration-1000">
+          <div className="flex items-center justify-between mb-8 px-2">
+            <div>
+              <h2 className="text-xl font-black text-gray-900 uppercase tracking-tighter italic">
+                Connections
+              </h2>
+              <div className="h-1 w-8 bg-orange-500 mt-1 rounded-full" />
+            </div>
+
+            <div className="flex items-center gap-3">
+              <div className="flex -space-x-2">
+                <div className="w-6 h-6 rounded-full border-2 border-white bg-gray-200" />
+                <div className="w-6 h-6 rounded-full border-2 border-white bg-gray-300" />
               </div>
+              <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                Active now
+              </span>
             </div>
           </div>
 
-          {/* Connections Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 bg-brand-dark/60 backdrop-blur-xl rounded-[2.5rem] p-8 border border-white/10 shadow-2xl">
-              <div className="flex items-center justify-between mb-8">
-                <div>
-                  <h2 className="text-3xl font-black text-white uppercase tracking-tighter">
-                    {t('connections')}
-                  </h2>
-                  <p className="text-white/50 text-xs font-bold uppercase tracking-widest mt-1">
-                    {t('connected neighbors')}
-                  </p>
-                </div>
-                <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-ping" />
-                </div>
-              </div>
-
-              <MatchesList
-                onSelectMatch={(match: { id: any }) =>
-                  navigate(`/chat/${match.id}`)
-                }
-              />
-            </div>
-
-            {/* Neighborhood Card */}
-            <div className="bg-brand-orange rounded-[2.5rem] p-8 text-brand-dark flex flex-col justify-between overflow-hidden relative min-h-[300px]">
-              <div className="relative z-10">
-                <h3 className="font-black uppercase text-4xl tracking-tighter leading-none mb-4">
-                  {t('neighborhood')}
-                </h3>
-                <p className="font-bold text-sm opacity-80">
-                  {t('families in your area')}
-                </p>
-              </div>
-              <button
-                onClick={() => navigate('/explore')}
-                className="relative z-10 w-full py-4 bg-brand-dark text-white rounded-2xl font-black uppercase tracking-widest text-[10px] mt-8 hover:bg-black transition-all hover:scale-[1.02] shadow-xl"
-              >
-                {t('explore')}
-              </button>
-              <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-white/20 rounded-full blur-3xl" />
-            </div>
+          {/* LISTA DE CHATS */}
+          <div className="min-h-[200px]">
+            <MatchesList token={token || ''} />
           </div>
         </div>
       </div>

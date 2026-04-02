@@ -25,7 +25,7 @@ export default function AddChildPage() {
       const data = await childApi.getAll()
       setChildren(data)
     } catch (err: any) {
-      console.error('Error loading children:', err)
+      console.error(err)
     } finally {
       setLoading(false)
     }
@@ -67,21 +67,21 @@ export default function AddChildPage() {
   }
 
   return (
-    <div className="min-h-screen bg-brand-cream/20 p-6 md:p-12 relative overflow-hidden font-sans">
-      <div className="absolute top-0 right-0 -z-10 opacity-5 pointer-events-none">
-        <Sparkles className="w-[500px] h-[500px] text-brand-orange" />
+    <div className="min-h-screen bg-[#FDF8F3] p-6 md:p-12 relative overflow-hidden">
+      <div className="absolute top-0 right-0 -z-10 opacity-10">
+        <Sparkles className="w-96 h-96 text-[#FF8A5C]" />
       </div>
       <div className="absolute -bottom-24 -left-24 -z-10 opacity-5 pointer-events-none bg-brand-orange w-96 h-96 rounded-full blur-[120px]" />
 
-      <div className="max-w-6xl mx-auto relative z-10">
-        <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-16">
-          <div className="animate-in fade-in slide-in-from-left duration-700">
-            <div className="flex items-center gap-4 mb-3">
-              <div className="bg-brand-orange p-3 rounded-2xl shadow-[0_10px_30px_rgba(255,145,77,0.3)]">
-                <Baby className="text-white w-10 h-10" />
+      <div className="max-w-5xl mx-auto relative z-10">
+        <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="bg-[#FF8A5C] p-2 rounded-xl shadow-lg">
+                <Baby className="text-white w-8 h-8" />
               </div>
-              <h1 className="text-5xl font-black text-brand-dark tracking-tighter uppercase">
-                Xiquets <span className="text-brand-orange">del Barri</span>
+              <h1 className="text-4xl font-black text-[#2D2D2D] tracking-tight">
+                Little Neighbors
               </h1>
             </div>
             <p className="text-brand-dark/40 font-black ml-1 uppercase tracking-[0.3em] text-[10px]">
@@ -91,7 +91,7 @@ export default function AddChildPage() {
 
           <button
             onClick={() => navigate('/explore')}
-            className="group flex items-center gap-4 px-10 py-5 bg-brand-dark text-white font-black uppercase tracking-widest text-xs rounded-2xl shadow-2xl hover:bg-brand-orange hover:-translate-y-1 transition-all duration-300 active:scale-95"
+            className="group flex items-center gap-3 px-8 py-4 bg-[#FF8A5C] text-white font-black rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all"
           >
             {t('dashboard.actions.findPlaymates')}
             <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
@@ -99,14 +99,11 @@ export default function AddChildPage() {
         </header>
 
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-32 space-y-4">
-            <Loader2 className="animate-spin h-12 w-12 text-brand-orange" />
-            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-brand-dark/20">
-              {t('common.loading')}
-            </p>
+          <div className="text-center py-20">
+            <div className="animate-spin rounded-full h-14 w-14 border-t-4 border-[#FF8A5C] mx-auto"></div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 animate-in fade-in slide-in-from-bottom-8 duration-700">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {children.map(child => (
               <ChildCard
                 key={child.id}
@@ -121,22 +118,14 @@ export default function AddChildPage() {
                 setEditingChild(null)
                 setIsFormOpen(true)
               }}
-              className="group relative border-4 border-dashed border-brand-orange/20 rounded-[3.5rem] p-12 flex flex-col items-center justify-center gap-6 hover:border-brand-orange/50 hover:bg-white transition-all min-h-[320px] bg-white/30 backdrop-blur-sm overflow-hidden"
+              className="border-4 border-dashed border-[#FF8A5C]/20 rounded-[3rem] p-10 flex flex-col items-center justify-center gap-4 hover:border-[#FF8A5C]/50 hover:bg-white/60 transition-all group min-h-[250px] bg-white/20 backdrop-blur-sm"
             >
-              <div className="absolute inset-0 bg-brand-orange/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-
-              <div className="p-6 bg-white rounded-[2rem] text-brand-orange shadow-xl group-hover:bg-brand-orange group-hover:text-white transition-all duration-500 group-hover:scale-110 z-10">
-                <Plus className="w-12 h-12" />
+              <div className="p-5 bg-white rounded-full group-hover:bg-[#FF8A5C] group-hover:text-white transition-all shadow-xl group-hover:rotate-90 duration-500">
+                <Plus className="w-10 h-10" />
               </div>
-
-              <div className="text-center z-10">
-                <span className="block font-black text-brand-orange uppercase tracking-[0.2em] text-[11px] mb-1">
-                  {t('dashboard.children.addAnotherButton')}
-                </span>
-                <span className="text-[10px] font-bold text-brand-dark/30 uppercase tracking-widest">
-                  {t('child.form.titleCreate')}
-                </span>
-              </div>
+              <span className="font-black text-[#FF8A5C]/40 group-hover:text-[#FF8A5C] uppercase tracking-widest text-xs">
+                Add New Profile
+              </span>
             </button>
           </div>
         )}
@@ -144,18 +133,22 @@ export default function AddChildPage() {
         {isFormOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
             <div
-              className="absolute inset-0 bg-brand-dark/60 backdrop-blur-xl animate-in fade-in duration-300"
-              onClick={() => setIsFormOpen(false)}
+              className="absolute inset-0 bg-[#2D2D2D]/40 backdrop-blur-md"
+              onClick={() => {
+                setIsFormOpen(false)
+                setEditingChild(null)
+              }}
             />
-            <div className="relative z-10 w-full max-w-xl animate-in zoom-in-95 duration-300">
-              <div className="bg-white rounded-[4rem] shadow-[0_40px_100px_rgba(0,0,0,0.3)] border-t-[12px] border-brand-orange overflow-hidden">
-                <div className="p-2">
-                  <ChildForm
-                    child={editingChild}
-                    onClose={() => setIsFormOpen(false)}
-                    onSuccess={handleSuccess}
-                  />
-                </div>
+            <div className="relative z-10 w-full max-w-xl max-h-[90vh] overflow-y-auto">
+              <div className="bg-white rounded-[3rem] shadow-2xl border-t-8 border-[#FF8A5C] p-8">
+                <ChildForm
+                  initialData={editingChild}
+                  onSuccess={handleSuccess}
+                  onCancel={() => {
+                    setIsFormOpen(false)
+                    setEditingChild(null)
+                  }}
+                />
               </div>
             </div>
           </div>

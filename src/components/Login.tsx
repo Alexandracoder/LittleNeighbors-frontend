@@ -16,18 +16,26 @@ export default function Login() {
   const { login } = useAuth()
   const navigate = useNavigate()
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
-    try {
-      await login({ email, password })
-      navigate('/', { replace: true })
-    } catch (err) {
-      setError(t('auth.login.error'))
-    } finally {
-      setLoading(false)
+const handleSubmit = async (e: FormEvent) => {
+  e.preventDefault()
+  setLoading(true)
+  setError('')
+
+  try {
+
+    await login({ email, password })
+
+
+    navigate('/', { replace: true })
+  } catch (err: any) {
+    // 4. Manejo de errores específico
+    if (err.response?.status === 401) {
+      setError('Invalid email or password. Please try again.')
+    } else {
+      setError('Connection error. Is the server running?')
     }
+  } finally {
+    setLoading(false)
   }
 
   return (

@@ -56,12 +56,12 @@ export const CreateEventForm = ({
         const list = data.content || []
         setNeighborhoods(list)
 
-        if (!eventToEdit && list.length > 0) {
-          const firstNB = list[0]
-          const coords = NEIGHBORHOOD_LOCATIONS[firstNB.name] || {
-            lat: 39.4699,
-            lng: -0.3763,
-          }
+      if (!eventToEdit && list.length > 0) {
+        const firstNB = list[0]
+        const coords = NEIGHBORHOOD_LOCATIONS[firstNB.name] || {
+          lat: 39.4699,
+          lng: -0.3763,
+        }
 
           setFormData(prev => ({
             ...prev,

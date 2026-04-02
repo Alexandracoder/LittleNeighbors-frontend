@@ -5,7 +5,7 @@ import ProtectedRoute from './components/ProtectedRoute'
 // Estilos globales y librerías
 import 'leaflet/dist/leaflet.css'
 
-// Páginas y Componentes
+// Pages & Components
 import Login from './components/Login'
 import Register from './components/Register'
 import CreateFamily from './components/CreateFamily'
@@ -19,16 +19,16 @@ import ChatPage from './pages/ChatPage'
 
 // Pantalla de carga con estilo de marca
 const LoadingScreen = () => (
-  <div className="h-screen w-full flex flex-col justify-center items-center bg-brand-dark text-white space-y-4">
-    <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-brand-orange"></div>
-    <p className="font-black uppercase tracking-[0.3em] text-xs animate-pulse">
-      Cargando Vecinitos...
+  <div className="min-h-screen flex flex-col items-center justify-center bg-[#1a1a1a] text-white">
+    <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+    <p className="text-lg font-medium animate-pulse uppercase tracking-widest text-xs">
+      Loading Neighborhood...
     </p>
   </div>
 )
 
 function AppContent() {
-  const { user, status, loading } = useAuth()
+  const { user, loading } = useAuth()
 
   if (loading) return <LoadingScreen />
 
@@ -44,34 +44,43 @@ function AppContent() {
   return (
     <Routes>
       {/* --- RUTAS PÚBLICAS --- */}
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
+      <Route
+        path="/login"
+        element={!user ? <Login /> : <Navigate to="/" replace />}
+      />
+      <Route
+        path="/register"
+        element={!user ? <Register /> : <Navigate to="/" replace />}
+      />
 
-      {/* --- ONBOARDING (Flujo de registro) --- */}
+      {/* --- ONBOARDING Y COMUNIDAD (Todo bajo ProtectedRoute) --- */}
+
+      {/* Paso 1: Crear Familia */}
       <Route
         path="/create-family"
         element={
-          <ProtectedRoute allowedRoles={['USER', 'FAMILY']}>
+          <ProtectedRoute>
             <CreateFamily />
           </ProtectedRoute>
         }
       />
 
+      {/* Paso 2: Añadir Hijos */}
       <Route
         path="/add-child"
         element={
-          <ProtectedRoute allowedRoles={['FAMILY', 'ADMIN']}>
+          <ProtectedRoute allowedRoles={['ROLE_FAMILY']}>
             <AddChildPage />
           </ProtectedRoute>
         }
       />
 
-      {/* --- APP CORE (Protegidas y con Perfil Completo) --- */}
+      {/* Dashboard y resto de la App */}
       <Route
         path="/dashboard"
         element={
-          <ProtectedRoute allowedRoles={['FAMILY', 'ADMIN']}>
-            {requireFullProfile(<Dashboard />)}
+          <ProtectedRoute allowedRoles={['ROLE_FAMILY']}>
+            <Dashboard />
           </ProtectedRoute>
         }
       />
@@ -79,8 +88,8 @@ function AppContent() {
       <Route
         path="/explore"
         element={
-          <ProtectedRoute allowedRoles={['FAMILY', 'ADMIN']}>
-            {requireFullProfile(<ExplorePage />)}
+          <ProtectedRoute allowedRoles={['ROLE_FAMILY']}>
+            <ExplorePage />
           </ProtectedRoute>
         }
       />
@@ -88,17 +97,17 @@ function AppContent() {
       <Route
         path="/events"
         element={
-          <ProtectedRoute allowedRoles={['FAMILY', 'ADMIN']}>
-            {requireFullProfile(<EventsPage />)}
+          <ProtectedRoute allowedRoles={['ROLE_FAMILY']}>
+            <EventsPage />
           </ProtectedRoute>
         }
       />
 
       <Route
-        path="/schedules"
+        path="/chat/:matchId"
         element={
-          <ProtectedRoute allowedRoles={['FAMILY', 'ADMIN']}>
-            {requireFullProfile(<SchedulesPage />)}
+          <ProtectedRoute allowedRoles={['ROLE_FAMILY']}>
+            <ChatWindow />
           </ProtectedRoute>
         }
       />
@@ -106,8 +115,8 @@ function AppContent() {
       <Route
         path="/chat/:familyId"
         element={
-          <ProtectedRoute allowedRoles={['FAMILY', 'ADMIN']}>
-            {requireFullProfile(<ChatPage />)}
+          <ProtectedRoute allowedRoles={['ROLE_FAMILY']}>
+            <SchedulesPage />
           </ProtectedRoute>
         }
       />
@@ -115,30 +124,19 @@ function AppContent() {
       <Route
         path="/welcome"
         element={
-          <ProtectedRoute allowedRoles={['FAMILY', 'ADMIN']}>
+          <ProtectedRoute allowedRoles={['ROLE_FAMILY']}>
             <Welcome />
           </ProtectedRoute>
         }
       />
 
-      {/* --- REDIRECCIONES ESTRATÉGICAS --- */}
-      <Route
-        path="/"
-        element={
-          user ? (
-            status?.isRegistrationComplete ? (
-              <Navigate to="/dashboard" replace />
-            ) : (
-              <Navigate to="/add-child" replace />
-            )
-          ) : (
-            <Navigate to="/login" replace />
-          )
-        }
-      />
-
-      {/* Catch-all: Redirige cualquier error de tipeo al Dashboard */}
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      {/* --- REDIRECCIÓN INICIAL --- */}
+      {/* Simplemente mandamos a /dashboard. 
+          El ProtectedRoute se encargará de interceptar y mandar a 
+          /create-family o /add-child si el perfil no está listo.
+      */}
+      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
 }

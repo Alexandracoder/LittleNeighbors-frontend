@@ -13,29 +13,49 @@ export default function ProtectedRoute({
   children,
   allowedRoles,
 }: ProtectedRouteProps) {
-  const { t } = useTranslation()
-  const { user, loading } = useAuth()
+  const { user, familyEntity, loading } = useAuth()
   const location = useLocation()
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-brand-dark flex flex-col items-center justify-center p-6">
-        <div className="relative">
-          <div className="absolute inset-0 bg-brand-orange/20 blur-3xl rounded-full animate-pulse" />
-          <Loader2 className="w-16 h-16 text-brand-orange animate-spin relative z-10" />
-        </div>
-        <p className="text-white mt-8 font-black uppercase tracking-[0.3em] text-xs animate-pulse">
-          {t('common.loading')}
+      <div className="min-h-screen bg-[#1a1a1a] flex flex-col items-center justify-center text-white">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-orange-500 border-t-transparent mb-4"></div>
+        <p className="font-medium animate-pulse uppercase tracking-widest text-xs">
+          Verificando vecindario...
         </p>
       </div>
     )
   }
 
+
   if (!user) {
     return <Navigate to="/login" state={{ from: location }} replace />
   }
 
-  const userRoles = user.roles || []
+  const hasFamily = !!familyEntity
+  const hasChildren = familyEntity?.children && familyEntity.children.length > 0
+  const path = location.pathname
+
+
+  if (!hasFamily) {
+    if (path !== '/create-family') {
+      return <Navigate to="/create-family" replace />
+    }
+    return <>{children}</>
+  }
+
+  if (!hasChildren) {
+
+    if (path !== '/add-child' && path !== '/create-family') {
+      return <Navigate to="/add-child" replace />
+    }
+    return <>{children}</>
+  }
+
+
+if (hasFamily && hasChildren) {
+  return <>{children}</>
+}
 
   // LÓGICA DE FLUJO DE ONBOARDING:
   // Si el usuario es nuevo (USER) pero no tiene familia (FAMILY),
@@ -51,10 +71,14 @@ export default function ProtectedRoute({
 
   // VALIDACIÓN DE ROLES ESPECÍFICOS (Admin, etc.)
   if (allowedRoles && allowedRoles.length > 0) {
-    const hasPermission = allowedRoles.some(role => userRoles.includes(role))
+    const userRoles = user.roles || []
+    const hasPermission = allowedRoles.some(allowed =>
+      userRoles.some(
+        ur => ur.replace('ROLE_', '') === allowed.replace('ROLE_', ''),
+      ),
+    )
 
     if (!hasPermission) {
-      // Si no tiene permiso pero es un usuario normal, al Dashboard.
       return <Navigate to="/dashboard" replace />
     }
   }
