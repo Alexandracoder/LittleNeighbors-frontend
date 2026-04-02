@@ -4,15 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import { childApi } from '../services/api'
 import type { ChildResponseDTO } from '../types'
 import MatchesList from './Matches/MatchesList'
-import {
-  Heart,
-  MapPin,
-  LogOut,
-  Calendar,
-  ArrowLeft,
-  Search,
-  Plus,
-} from 'lucide-react'
+import { Heart, MapPin, LogOut, ArrowLeft, Search, Plus } from 'lucide-react'
 import dashboardBg from '../assets/neighborhood-picnic.png'
 
 export default function Dashboard() {
@@ -26,7 +18,6 @@ export default function Dashboard() {
       navigate('/create-family', { replace: true })
       return
     }
-
     if (
       !loading &&
       familyEntity &&
@@ -36,7 +27,6 @@ export default function Dashboard() {
     }
   }, [loading, familyEntity, navigate])
 
-  // 2. Carga de niños con manejo de estado
   useEffect(() => {
     if (familyEntity && token) {
       setFetching(true)
@@ -56,13 +46,8 @@ export default function Dashboard() {
 
   if (loading || fetching) {
     return (
-      <div className="flex h-screen w-full items-center justify-center text-white bg-gray-900">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
-          <p className="font-black uppercase tracking-widest text-xs animate-pulse">
-            Loading dashboard...
-          </p>
-        </div>
+      <div className="flex h-screen w-full items-center justify-center bg-white">
+        <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
       </div>
     )
   }
@@ -70,8 +55,8 @@ export default function Dashboard() {
   if (!familyEntity) return null
 
   return (
-    <div className="relative min-h-screen w-full overflow-x-hidden font-sans">
-      {/* BACKGROUND & OVERLAY */}
+    <div className="relative min-h-screen w-full overflow-x-hidden font-sans bg-[#F8F9FA]">
+      {/* BACKGROUND con Blur más suave */}
       <div
         className="fixed inset-0 z-0"
         style={{
@@ -80,114 +65,106 @@ export default function Dashboard() {
           backgroundPosition: 'center',
         }}
       />
-      <div className="fixed inset-0 z-10 bg-gray-900/40 backdrop-blur-[2px]" />
+      <div className="fixed inset-0 z-10 bg-white/30 backdrop-blur-[3px]" />
 
-      {/* TOP BAR */}
-      <div className="relative z-30 flex justify-between p-6">
+      {/* TOP BAR - Más Minimal */}
+      <div className="relative z-30 flex justify-between p-8">
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2 px-6 py-3 bg-white/10 backdrop-blur-md text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-white/20 transition-all border border-white/10"
+          className="flex items-center gap-2 px-4 py-2 bg-white/40 backdrop-blur-md text-gray-800 rounded-full font-bold text-[10px] uppercase tracking-widest hover:bg-white/60 transition-all border border-white/20"
         >
-          <ArrowLeft className="w-4 h-4" /> Back
+          <ArrowLeft className="w-3 h-3" /> Back
         </button>
 
         <button
           onClick={handleLogout}
-          className="flex items-center gap-2 px-6 py-3 bg-red-500/20 backdrop-blur-md text-red-200 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-red-500/40 transition-all border border-red-500/20"
+          className="px-4 py-2 bg-gray-900/5 backdrop-blur-md text-gray-500 rounded-full font-bold text-[10px] uppercase tracking-widest hover:bg-red-50 hover:text-red-500 transition-all border border-gray-900/5"
         >
-          <LogOut className="w-4 h-4" /> Log Out
+          <LogOut className="w-3 h-3 inline mr-1" /> Log Out
         </button>
       </div>
 
       {/* MAIN CONTENT */}
-      <div className="relative z-20 px-6 pb-12 mt-12">
-        <div className="max-w-6xl mx-auto">
-          <header className="mb-12 text-center md:text-left animate-in fade-in slide-in-from-left-10 duration-700">
-            <h1 className="text-6xl md:text-8xl font-black text-white tracking-tighter uppercase leading-none">
-              Hi,{' '}
-              <span className="text-orange-500 italic">
-                {familyEntity?.familyName || 'Family'}
-              </span>
-            </h1>
-            <p className="text-white/60 font-bold uppercase tracking-[0.3em] text-sm mt-4 ml-2">
-              Welcome to your community hub
-            </p>
-          </header>
+      <div className="relative z-20 px-8 max-w-5xl mx-auto mt-4">
+        <header className="mb-12 animate-in fade-in slide-in-from-top-4 duration-1000">
+          <h1 className="text-4xl md:text-5xl font-light text-gray-900 tracking-tight leading-none">
+            Hola,{' '}
+            <span className="font-black italic text-orange-500">
+              {familyEntity?.familyName}
+            </span>
+          </h1>
+          <p className="text-gray-500/80 font-medium tracking-[0.1em] text-[10px] uppercase mt-3">
+            Your neighborhood, simplified.
+          </p>
+        </header>
 
-          {/* QUICK ACTIONS GRID */}
-          <div className="flex flex-wrap justify-center md:justify-start gap-4 mb-16">
-            <button
-              onClick={() => navigate('/events')}
-              className="group flex items-center gap-4 px-10 py-6 bg-white hover:bg-orange-500 hover:text-white text-gray-900 rounded-[2rem] shadow-2xl transition-all transform hover:-translate-y-2"
-            >
-              <MapPin className="w-6 h-6" />
-              <span className="font-black uppercase tracking-widest text-sm">
-                Events
-              </span>
-            </button>
+        {/* QUICK ACTIONS - Pills más pequeñas y elegantes */}
+        <div className="flex flex-wrap gap-3 mb-12">
+          <button
+            onClick={() => navigate('/explore')}
+            className="flex items-center gap-2 px-6 py-3 bg-orange-500 text-white rounded-full shadow-lg shadow-orange-500/20 transition-all hover:scale-105 active:scale-95"
+          >
+            <Search className="w-4 h-4" />
+            <span className="font-black uppercase tracking-widest text-[10px]">
+              Find Neighbors
+            </span>
+          </button>
 
-            <button
-              onClick={() => navigate('/explore')}
-              className="group flex items-center gap-4 px-10 py-6 bg-orange-600 text-white rounded-[2rem] shadow-2xl transition-all transform hover:-translate-y-2 hover:bg-orange-500"
-            >
-              <Search className="w-6 h-6" />
-              <span className="font-black uppercase tracking-widest text-sm">
-                Find Neighbors
-              </span>
-            </button>
+          <button
+            onClick={() => navigate('/events')}
+            className="flex items-center gap-2 px-6 py-3 bg-white text-gray-800 rounded-full border border-gray-100 shadow-sm transition-all hover:bg-gray-50"
+          >
+            <MapPin className="w-4 h-4 text-orange-500" />
+            <span className="font-black uppercase tracking-widest text-[10px]">
+              Events
+            </span>
+          </button>
 
-            <div
-              className="group relative flex items-center gap-4 px-10 py-6 bg-white/90 backdrop-blur-xl text-gray-900 rounded-[2rem] shadow-2xl border border-white/50 transition-all duration-500 hover:rounded-[1.5rem] cursor-pointer overflow-hidden"
-              onClick={() => navigate('/my-family')}
-            >
-              <Heart className="w-6 h-6 text-orange-500" />
-              <span className="font-black uppercase tracking-widest text-sm whitespace-nowrap">
-                My Children ({children.length})
-              </span>
+          <div
+            onClick={() => navigate('/my-family')}
+            className="group flex items-center gap-2 px-6 py-3 bg-white/60 backdrop-blur-md text-gray-800 rounded-full border border-white/40 cursor-pointer transition-all hover:bg-white"
+          >
+            <Heart className="w-4 h-4 text-orange-500" />
+            <span className="font-black uppercase tracking-widest text-[10px]">
+              Children ({children.length})
+            </span>
+            {/* Pills pequeñas dentro del botón */}
+            <div className="flex gap-1 ml-2">
+              {children.slice(0, 2).map(child => (
+                <span
+                  key={child.id}
+                  className="w-1.5 h-1.5 bg-orange-500 rounded-full"
+                  title={child.lifeStage}
+                />
+              ))}
+              <Plus className="w-3 h-3 text-gray-400" />
+            </div>
+          </div>
+        </div>
 
-              {/* Hover effect to show children tags */}
-              <div className="hidden group-hover:flex items-center gap-2 ml-4 pl-4 border-l border-gray-300 animate-in fade-in zoom-in duration-300">
-                {children.map(child => (
-                  <span
-                    key={child.id}
-                    className="text-[10px] font-black bg-orange-500 text-white px-3 py-1 rounded-full uppercase"
-                  >
-                    {child.lifeStage?.split('_')[0]}
-                  </span>
-                ))}
-                <button
-                  onClick={e => {
-                    e.stopPropagation()
-                    navigate('/add-child')
-                  }}
-                  className="p-1 bg-gray-900 text-white rounded-full hover:scale-110 transition-transform"
-                >
-                  <Plus className="w-3 h-3" />
-                </button>
+        {/* SECCIÓN DE MATCHES - Estética Cristal Minimalista */}
+        <div className="bg-white/40 backdrop-blur-3xl rounded-[2.5rem] p-8 border border-white/60 shadow-xl shadow-gray-200/50 animate-in fade-in slide-in-from-bottom-8 duration-1000">
+          <div className="flex items-center justify-between mb-8 px-2">
+            <div>
+              <h2 className="text-xl font-black text-gray-900 uppercase tracking-tighter italic">
+                Connections
+              </h2>
+              <div className="h-1 w-8 bg-orange-500 mt-1 rounded-full" />
+            </div>
+
+            <div className="flex items-center gap-3">
+              <div className="flex -space-x-2">
+                <div className="w-6 h-6 rounded-full border-2 border-white bg-gray-200" />
+                <div className="w-6 h-6 rounded-full border-2 border-white bg-gray-300" />
               </div>
+              <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                Active now
+              </span>
             </div>
           </div>
 
-          {/* SECCIÓN DE MATCHES (LISTA DE CHATS) */}
-          <div className="bg-gray-900/60 backdrop-blur-2xl rounded-[3rem] p-10 border border-white/10 shadow-3xl animate-in fade-in slide-in-from-bottom-10 duration-1000">
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <h2 className="text-3xl font-black text-white uppercase tracking-tighter">
-                  Neighbor Connections
-                </h2>
-                <p className="text-orange-500/80 font-bold text-xs uppercase tracking-widest mt-1">
-                  Active chats & playdates
-                </p>
-              </div>
-              <div className="flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-orange-500" />
-                <span>Próximas Playdates</span>
-              </div>
-              <div className="bg-orange-500 text-white text-[10px] font-black px-4 py-2 rounded-full">
-                LIVE
-              </div>
-            </div>
-
+          {/* LISTA DE CHATS */}
+          <div className="min-h-[200px]">
             <MatchesList token={token || ''} />
           </div>
         </div>

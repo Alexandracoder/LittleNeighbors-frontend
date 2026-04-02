@@ -18,7 +18,7 @@ export default function Login() {
 const handleSubmit = async (e: FormEvent) => {
   e.preventDefault()
   setLoading(true)
-  setError('') // 1. Limpiamos errores previos para dar feedback visual al usuario
+  setError('')
 
   try {
 
