@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { familyApi, interestApi } from '../services/api'
 import type {
   FamilyResponseDTO,
@@ -6,11 +7,19 @@ import type {
   ChildSummaryDTO,
 } from '../types'
 import FamilyCard from '../components/FamilyCard'
-import Navbar from '../components/layout/Navbar'
+import MainLayout from '../components/layout/MainLayout'
 import bgImage from '../assets/littleneighbor_playing.png'
-import { MapPin, Heart, FilterX } from 'lucide-react'
+import {
+  Heart,
+  FilterX,
+  ChevronDown,
+  ArrowLeft,
+  LayoutDashboard,
+  User,
+} from 'lucide-react'
 
 export default function ExplorePage() {
+  const navigate = useNavigate()
   const [families, setFamilies] = useState<FamilyResponseDTO[]>([])
   const [availableInterests, setAvailableInterests] = useState<
     InterestResponseDTO[]
@@ -26,6 +35,7 @@ export default function ExplorePage() {
     null,
   )
 
+  // 1. Cargar datos iniciales
   useEffect(() => {
     const initData = async () => {
       try {
@@ -35,9 +45,13 @@ export default function ExplorePage() {
         ])
         setAvailableInterests(interests)
 
-        if (myProfile && myProfile.children && myProfile.children.length > 0) {
+        if (myProfile?.children?.length > 0) {
           setMyChildren(myProfile.children)
           setMyChildId(myProfile.children[0].id)
+          // Opcional: guardar los intereses del hijo actual para resaltar comunes
+          setMyChildInterests(
+            myProfile.children[0].interests?.map((i: any) => i.id) || [],
+          )
         }
       } catch (err) {
         console.error('Error initialization data:', err)
@@ -47,21 +61,10 @@ export default function ExplorePage() {
     initData()
   }, [])
 
-useEffect(() => {
-  const activeChild = myChildren.find(c => c.id === myChildId)
-  if (activeChild) {
-    const ids =
-      activeChild.interests?.map((i: InterestResponseDTO) => i.id) || []
-    setMyChildInterests(ids)
-  }
-}, [myChildId, myChildren])
-
-
+  // 2. Cargar familias según filtros
   const loadFamilies = useCallback(async () => {
     if (!myChildId) return
-
     setLoading(true)
-    setError('')
     try {
       const filters = {
         currentChildId: myChildId,
@@ -70,11 +73,10 @@ useEffect(() => {
         interestIds:
           selectedInterestIds.length > 0 ? selectedInterestIds : undefined,
       }
-
       const data = await familyApi.explore(filters)
       setFamilies(data)
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Could not find families.')
+      setError('Could not find families.')
     } finally {
       setLoading(false)
     }
@@ -91,179 +93,177 @@ useEffect(() => {
   }
 
   return (
-    <div className="min-h-screen bg-stone-950 relative overflow-hidden text-white font-sans">
-      {/* Background Layer */}
-      <div
-        className="fixed inset-0 bg-cover bg-center z-0"
-        style={{
-          backgroundImage: `url(${bgImage})`,
-          filter: 'brightness(0.4)',
-        }}
-      />
-      <div className="fixed inset-0 bg-gradient-to-b from-stone-950/80 via-transparent to-stone-950/90 z-0" />
+    <MainLayout
+      backgroundImage={bgImage}
+      title="Explore"
+      subtitle="Find your community playmates"
+      showGlassCard={false}
+    >
+      <div className="flex flex-col gap-8">
+        {/* --- NAVEGACIÓN SUPERIOR --- */}
+        <div className="flex items-center justify-between mb-2">
+          {/* Botón Back */}
+          <button
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-white/70 hover:bg-white/20 hover:text-white transition-all group"
+          >
+            <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+            <span className="text-[10px] font-black uppercase tracking-widest">
+              Back
+            </span>
+          </button>
 
-      <div className="relative z-10">
-        <Navbar />
+          {/* Accesos Rápidos: Dashboard y Perfil */}
+          <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md p-1.5 rounded-full border border-white/20">
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="p-2.5 hover:bg-[#F28749] rounded-full text-white transition-all hover:scale-110"
+              title="Dashboard"
+            >
+              <LayoutDashboard className="w-4 h-4" />
+            </button>
+            <div className="w-px h-4 bg-white/20" />
+            <button
+              onClick={() => navigate('/add-child')}
+              className="p-2.5 hover:bg-[#F28749] rounded-full text-white transition-all hover:scale-110"
+              title="My Profile"
+            >
+              <User className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
 
-        <main className="max-w-7xl mx-auto px-6 py-12">
-          {/* Header & Profile Selector */}
-          <div className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+        {/* 1. SELECTOR DE HIJOS */}
+        <div className="flex flex-wrap gap-3 items-center bg-white/10 backdrop-blur-md p-3 rounded-full border border-white/20 w-fit shadow-xl">
+          <span className="text-[10px] font-black uppercase tracking-widest text-white/60 ml-4 mr-2">
+            Active Profile:
+          </span>
+          {myChildren.map(child => (
+            <button
+              key={child.id}
+              onClick={() => {
+                setMyChildId(child.id)
+                setMyChildInterests(child.interests?.map(i => i.id) || [])
+              }}
+              className={`px-5 py-2 rounded-full text-xs font-black transition-all ${
+                myChildId === child.id
+                  ? 'bg-[#F28749] text-white shadow-lg'
+                  : 'bg-white/10 text-white/70 hover:bg-white/20 hover:text-white'
+              }`}
+            >
+              {child.gender === 'BOY' ? '👦' : '👧'} {child.age} yrs
+            </button>
+          ))}
+        </div>
+
+        {/* 2. PANEL DE FILTROS */}
+        <section className="flex flex-col md:flex-row gap-6 items-stretch">
+          {/* IZQUIERDA: Edad */}
+          <div className="w-full md:w-1/3 bg-white/10 backdrop-blur-xl rounded-[2.5rem] p-7 border border-white/20 shadow-xl flex flex-col justify-between">
             <div>
-              <div className="flex items-center gap-3 mb-2">
-                <MapPin className="text-orange-400 w-8 h-8" />
-                <h1 className="text-5xl font-black tracking-tighter uppercase italic">
-                  Explore <span className="text-orange-400">Playmates</span>
-                </h1>
+              <label className="text-[10px] font-black text-[#F28749] uppercase tracking-[0.2em] mb-4 block">
+                Age Range
+              </label>
+              <div className="relative">
+                <select
+                  value={ageRange ? `${ageRange.min}-${ageRange.max}` : ''}
+                  onChange={e => {
+                    if (!e.target.value) setAgeRange(null)
+                    else {
+                      const [min, max] = e.target.value.split('-').map(Number)
+                      setAgeRange({ min, max })
+                    }
+                  }}
+                  className="w-full bg-white/10 border border-white/20 rounded-2xl px-4 py-3 text-sm font-bold text-white appearance-none cursor-pointer focus:bg-white/20 outline-none transition-all"
+                >
+                  <option value="" className="text-gray-900">
+                    All Ages
+                  </option>
+                  <option value="0-2" className="text-gray-900">
+                    Toddlers (0-2)
+                  </option>
+                  <option value="3-5" className="text-gray-900">
+                    Preschoolers (3-5)
+                  </option>
+                  <option value="6-12" className="text-gray-900">
+                    School Age (6+)
+                  </option>
+                </select>
+                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#F28749] pointer-events-none" />
               </div>
-              <p className="text-xl text-white/70 font-medium">
-                Find families with similar interests.
-              </p>
             </div>
 
-            {myChildren.length > 0 && (
-              <div className="bg-white/10 p-2 rounded-[2rem] border border-white/20 flex gap-2">
-                {myChildren.map(child => (
-                  <button
-                    key={`child-${child.id}`}
-                    onClick={() => setMyChildId(child.id)}
-                    className={`flex items-center gap-3 px-6 py-3 rounded-[1.5rem] transition-all ${
-                      myChildId === child.id
-                        ? 'bg-orange-500 text-white shadow-lg'
-                        : 'hover:bg-white/5 text-white/60'
-                    }`}
-                  >
-                    <span className="text-xl">
-                      {child.gender === 'BOY' ? '👦' : '👧'}
-                    </span>
-                    <div className="text-left">
-                      <div className="text-[10px] font-black uppercase leading-none">
-                        Active Profile
-                      </div>
-                      <div className="text-xs font-bold italic">
-                        {child.age} yrs
-                      </div>
-                    </div>
-                  </button>
-                ))}
-              </div>
+            {(ageRange || selectedInterestIds.length > 0) && (
+              <button
+                onClick={() => {
+                  setAgeRange(null)
+                  setSelectedInterestIds([])
+                }}
+                className="mt-6 flex items-center gap-2 text-[9px] font-black uppercase text-[#F28749] hover:text-white transition-colors"
+              >
+                <FilterX className="w-4 h-4" />
+                Clear all filters
+              </button>
             )}
           </div>
 
-          {/* Filters Section */}
-          <section className="mb-12 bg-white/10 backdrop-blur-3xl rounded-[2.5rem] p-8 border border-white/20 shadow-2xl">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-              <div className="space-y-4">
-                <label className="text-[10px] font-black text-orange-400 uppercase tracking-[0.2em]">
-                  Age Groups
-                </label>
-                <div className="flex flex-wrap gap-3">
-                  {[
-                    { label: 'Toddlers (0-2)', min: 0, max: 2 },
-                    { label: 'Preschoolers (3-5)', min: 3, max: 5 },
-                    { label: 'School Age (6+)', min: 6, max: 12 },
-                  ].map(f => (
-                    <button
-                      key={f.label}
-                      onClick={() =>
-                        setAgeRange(
-                          ageRange?.min === f.min
-                            ? null
-                            : { min: f.min, max: f.max },
-                        )
-                      }
-                      className={`px-6 py-3 rounded-2xl text-xs font-black uppercase transition-all border-2 ${
-                        ageRange?.min === f.min
-                          ? 'bg-orange-500 border-orange-500'
-                          : 'bg-white/5 border-white/10'
+          {/* DERECHA: Intereses */}
+          <div className="w-full md:w-2/3 bg-white/10 backdrop-blur-xl rounded-[3rem] p-7 border border-white/20 shadow-xl text-white">
+            <label className="text-[10px] font-black text-[#F28749] uppercase tracking-[0.2em] mb-4 block">
+              Interests
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {availableInterests.map(interest => {
+                const isSelected = selectedInterestIds.includes(interest.id)
+                return (
+                  <button
+                    key={interest.id}
+                    onClick={() => toggleInterest(interest.id)}
+                    className={`px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase transition-all flex items-center gap-2 border ${
+                      isSelected
+                        ? 'bg-white text-[#333D47] border-white shadow-lg scale-105'
+                        : 'border-white/10 bg-white/5 text-white/60 hover:bg-white/10 hover:text-white'
+                    }`}
+                  >
+                    <Heart
+                      className={`w-3.5 h-3.5 transition-colors ${
+                        isSelected
+                          ? 'fill-red-500 text-red-500'
+                          : 'text-white/20'
                       }`}
-                    >
-                      {f.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <label className="text-[10px] font-black text-orange-400 uppercase tracking-[0.2em]">
-                  Interests
-                </label>
-                <div className="flex flex-wrap gap-2">
-                  {availableInterests.map(interest => (
-                    <button
-                      key={`interest-${interest.id}`}
-                      onClick={() => toggleInterest(interest.id)}
-                      className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all flex items-center gap-2 border-2 ${
-                        selectedInterestIds.includes(interest.id)
-                          ? 'bg-white text-stone-950 border-white'
-                          : 'border-white/10 bg-white/5 text-white/50'
-                      }`}
-                    >
-                      <Heart
-                        className={`w-3 h-3 ${
-                          selectedInterestIds.includes(interest.id)
-                            ? 'fill-orange-500 text-orange-500'
-                            : ''
-                        }`}
-                      />
-                      {interest.name}
-                    </button>
-                  ))}
-                </div>
-              </div>
+                    />
+                    {interest.name}
+                  </button>
+                )
+              })}
             </div>
-            {(ageRange || selectedInterestIds.length > 0) && (
-              <div className="mt-8 pt-6 border-t border-white/10 flex justify-center md:justify-start">
-                <button
-                  onClick={() => {
-                    setAgeRange(null)
-                    setSelectedInterestIds([])
-                  }}
-                  className="group flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-orange-400 hover:text-white transition-all duration-300"
-                >
-                  <FilterX className="w-4 h-4" />
-                  <span>Clear all filters</span>
-                </button>
-              </div>
-            )}
-          </section>
+          </div>
+        </section>
 
-          {/* Families Grid */}
+        {/* 3. RESULTADOS */}
+        <div className="mt-4">
           {loading ? (
-            <div className="flex flex-col items-center py-20 gap-4">
-              <div className="animate-spin h-12 w-12 border-4 border-orange-500 border-t-transparent rounded-full" />
-              <span className="text-orange-400 font-black uppercase text-xs">
-                Finding neighbors...
-              </span>
-            </div>
-          ) : error ? (
-            <div className="text-center py-20 bg-red-500/10 rounded-[3rem] border border-red-500/20">
-              <p className="text-red-400 font-bold uppercase tracking-widest text-sm">
-                {error}
-              </p>
-            </div>
-          ) : families.length === 0 ? (
-            <div className="bg-white/5 backdrop-blur-md rounded-[3rem] p-20 text-center border border-white/10">
-              <h2 className="text-4xl font-black mb-4 uppercase italic">
-                Lonely neighborhood?
-              </h2>
-              <p className="text-white/40 max-w-md mx-auto">
-                No families match your current filters.
-              </p>
+            <div className="text-center py-20">
+              <div className="animate-spin h-12 w-12 border-4 border-[#F28749] border-t-transparent rounded-full mx-auto mb-4" />
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
               {families.map(f => (
-                <FamilyCard
+                <div
                   key={f.id}
-                  family={f}
-                  myChildId={myChildId}
-                  myInterestIds={myChildInterests}
-                />
+                  className="transform hover:-translate-y-2 transition-transform duration-300"
+                >
+                  <FamilyCard
+                    family={f}
+                    myChildId={myChildId}
+                    myInterestIds={myChildInterests}
+                  />
+                </div>
               ))}
             </div>
           )}
-        </main>
+        </div>
       </div>
-    </div>
+    </MainLayout>
   )
 }

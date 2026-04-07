@@ -1,4 +1,10 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  useParams,
+} from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import ChatWindow from './components/Chat/ChatWindow'
@@ -24,6 +30,21 @@ const LoadingScreen = () => (
   </div>
 )
 
+function ChatWrapper() {
+  const { matchId } = useParams()
+  const { user, token } = useAuth()
+
+  if (!user || !token || !matchId) {
+    return <Navigate to="/dashboard" replace />
+  }
+
+  return (
+    <div className="h-screen w-full bg-[#1a1a1a]">
+      <ChatWindow matchId={matchId} currentUser={user} token={token} />
+    </div>
+  )
+}
+
 function AppContent() {
   const { user, loading } = useAuth()
 
@@ -41,9 +62,7 @@ function AppContent() {
         element={!user ? <Register /> : <Navigate to="/" replace />}
       />
 
-      {/* --- ONBOARDING Y COMUNIDAD (Todo bajo ProtectedRoute) --- */}
-
-      {/* Paso 1: Crear Familia */}
+      {/* --- ONBOARDING Y COMUNIDAD --- */}
       <Route
         path="/create-family"
         element={
@@ -53,7 +72,6 @@ function AppContent() {
         }
       />
 
-      {/* Paso 2: Añadir Hijos */}
       <Route
         path="/add-child"
         element={
@@ -63,7 +81,6 @@ function AppContent() {
         }
       />
 
-      {/* Dashboard y resto de la App */}
       <Route
         path="/dashboard"
         element={
@@ -95,7 +112,7 @@ function AppContent() {
         path="/chat/:matchId"
         element={
           <ProtectedRoute allowedRoles={['ROLE_FAMILY']}>
-            <ChatWindow />
+            <ChatWrapper />
           </ProtectedRoute>
         }
       />
@@ -118,11 +135,6 @@ function AppContent() {
         }
       />
 
-      {/* --- REDIRECCIÓN INICIAL --- */}
-      {/* Simplemente mandamos a /dashboard. 
-          El ProtectedRoute se encargará de interceptar y mandar a 
-          /create-family o /add-child si el perfil no está listo.
-      */}
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
