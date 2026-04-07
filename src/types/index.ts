@@ -40,6 +40,7 @@ export interface FamilyResponseDTO {
   postalCode: string
   cityName: string
   children: ChildSummaryDTO[]
+  displayName: string
 }
 
 export interface ChildRequestDTO {
@@ -93,6 +94,8 @@ export interface DecodedToken {
 }
 
 export interface User {
+  id: string
+  family: null
   email: string
   roles: UserRole[]
 }
@@ -111,7 +114,27 @@ export interface UserStatusDTO {
 }
 
 export interface UserProfileDTO {
+  id: any
   email: string
   roles: string[]
   family: FamilyResponseDTO | null
+}
+
+export interface MessageDTO {
+  id: number
+  matchId: number
+  senderId: number
+  senderFirstName: string
+  content: string
+  timestamp: string
+}
+
+export interface MessageService {
+  getHistory: (matchId: string | number, token: string) => Promise<MessageDTO[]>
+  sendMessage: (
+    matchId: string | number,
+    senderId: number,
+    content: string,
+    token: string,
+  ) => Promise<MessageDTO>
 }
