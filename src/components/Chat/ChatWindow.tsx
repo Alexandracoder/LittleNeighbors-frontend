@@ -7,6 +7,7 @@ import React, {
 } from 'react'
 import { Send, UserCircle, Save, HelpCircle, ChevronLeft } from 'lucide-react'
 import { messageService } from '../../services/messageService'
+import { userService } from '../../services/userService'
 import { UserProfileDTO } from '../../types'
 
 interface ChatWindowProps {
@@ -22,27 +23,62 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
 }) => {
   const [messages, setMessages] = useState<any[]>([])
   const [text, setText] = useState<string>('')
+  const [activeMatchId, setActiveMatchId] = useState<number | null>(null)
+  const [myFamily, setMyFamily] = useState<any>(currentUser?.family)
   const scrollRef = useRef<HTMLDivElement>(null)
 
-  // Usamos el ID del usuario directamente para la lógica "isMe"
-  const myUserId = currentUser?.id
+  useEffect(() => {
+    const fetchLatestProfile = async () => {
+      if (!myFamily && token) {
+        try {
+          const profile = await userService.getProfile(token)
+          if (profile?.family) {
+            setMyFamily(profile.family)
+          }
+        } catch (err) {
+          console.error('Error fetching latest profile:', err)
+        }
+      }
+    }
+    fetchLatestProfile()
+  }, [currentUser, token, myFamily])
 
   useEffect(() => {
+    const myFamilyId = myFamily?.id
+
+    if (!myFamilyId || !matchId || matchId === 'undefined') {
+      return
+    }
+
     const loadHistory = async () => {
-      if (!matchId || !token) return
       try {
-        const data = await messageService.getHistory(matchId, token)
-        // Evitamos el [] vacío si el backend falla en la serialización
-        setMessages(Array.isArray(data) ? data : [])
+        const data = await messageService.getHistory(
+          Number(myFamilyId),
+          Number(matchId),
+          token,
+        )
+        if (Array.isArray(data)) {
+          setMessages(data)
+
+          const lastMsgWithMatch = [...data]
+            .reverse()
+            .find((m: any) => m.matchId || m.match?.id)
+
+          if (lastMsgWithMatch) {
+            setActiveMatchId(
+              lastMsgWithMatch.matchId || lastMsgWithMatch.match?.id,
+            )
+          }
+        }
       } catch (err) {
         console.error('Error loading history:', err)
       }
     }
 
     loadHistory()
-    const interval = setInterval(loadHistory, 4000)
+    const interval = setInterval(loadHistory, 5000)
     return () => clearInterval(interval)
-  }, [matchId, token])
+  }, [matchId, token, myFamily])
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -52,60 +88,58 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
 
   const handleSend = async (e: FormEvent) => {
     e.preventDefault()
-    if (!text.trim() || !myUserId || !matchId) return
+
+    const myFamilyId = myFamily?.id
+    if (!text.trim() || !myFamilyId || !matchId) return
 
     const messageContent = text.trim()
     setText('')
 
     try {
       const response = await messageService.sendMessage(
-        matchId,
-        myUserId,
+        Number(matchId),
         messageContent,
         token,
+        activeMatchId,
       )
 
-      // Si el backend devuelve [] o null pero el status es 200, creamos el objeto local
-      const newMessage =
-        !response || Array.isArray(response) || !response.content
-          ? {
-              id: Date.now(),
-              content: messageContent,
-              senderId: myUserId,
-              sentAt: new Date().toISOString(),
-            }
-          : response
-
-      setMessages(prev => [...prev, newMessage])
+      if (response) {
+        setMessages(prev => [...prev, response])
+      }
     } catch (err) {
-      console.error('Error sending:', err)
+      console.error('Error al enviar mensaje:', err)
       setText(messageContent)
     }
   }
 
   return (
-    /* CONTENEDOR PRINCIPAL: Blanco, con bordes muy redondeados y sin bordes negros */
-    <div className="flex flex-col h-full bg-white rounded-[2.5rem] shadow-xl overflow-hidden border-none font-sans">
-      {/* HEADER: Siguiendo la foto con el botón de volver y título en negrita */}
+    <div className="flex flex-col h-full bg-white rounded-[2.5rem] shadow-xl overflow-hidden font-sans">
       <div className="px-8 py-6 flex items-center justify-between border-b border-gray-50 bg-white">
         <div className="flex items-center gap-4">
           <ChevronLeft className="text-gray-400 w-6 h-6 cursor-pointer" />
           <h2 className="text-xl font-black text-gray-900 uppercase tracking-tighter italic">
-            Chat
+            Chat {activeMatchId ? '✓' : ''}
           </h2>
         </div>
         <div className="w-10 h-10 rounded-full bg-[#F28749] flex items-center justify-center text-white font-bold text-sm">
-          {currentUser.family?.displayName?.charAt(0) || 'U'}
+          {myFamily?.displayName?.charAt(0) || 'U'}
         </div>
       </div>
 
-      {/* ÁREA DE MENSAJES: Fondo blanco y burbujas con mucho aire */}
       <div
         ref={scrollRef}
         className="flex-1 overflow-y-auto p-8 space-y-6 bg-white scrollbar-hide"
       >
+        {messages.length === 0 && (
+          <p className="text-center text-gray-300 text-xs italic py-10">
+            No hay mensajes aún. ¡Escribe a tu vecino!
+          </p>
+        )}
+
         {messages.map((msg, index) => {
-          const isMe = String(msg.senderId) === String(myUserId)
+          const msgSenderFamilyId = msg.sender?.family?.id || msg.senderFamilyId
+          const isMe = String(msgSenderFamilyId) === String(myFamily?.id)
+
           return (
             <div
               key={msg.id || index}
@@ -125,35 +159,35 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
         })}
       </div>
 
-      {/* BOTONES DE ACCIÓN RÁPIDA: Los botones naranjas pequeños de la foto */}
       <div className="px-6 py-2 flex gap-3 bg-white">
         <button className="flex-1 bg-[#F28749] text-white py-3 rounded-[1.2rem] flex flex-col items-center justify-center gap-1 hover:bg-[#e0763a] transition-all active:scale-95 shadow-lg shadow-orange-100">
           <UserCircle size={18} strokeWidth={2.5} />
-          <span className="text-[9px] font-black uppercase tracking-widest leading-none text-center">
-            View
-            <br />
+          <span className="text-[9px] font-black uppercase tracking-widest text-center">
             Profile
           </span>
         </button>
-        <button className="flex-1 bg-[#F28749] text-white py-3 rounded-[1.2rem] flex flex-col items-center justify-center gap-1 hover:bg-[#e0763a] transition-all active:scale-95 shadow-lg shadow-orange-100">
+
+        <button
+          className={`flex-1 py-3 rounded-[1.2rem] flex flex-col items-center justify-center gap-1 transition-all active:scale-95 shadow-lg ${
+            activeMatchId
+              ? 'bg-green-500 text-white'
+              : 'bg-[#F28749] text-white'
+          }`}
+        >
           <Save size={18} strokeWidth={2.5} />
-          <span className="text-[9px] font-black uppercase tracking-widest leading-none text-center">
-            Save
-            <br />
-            Match
+          <span className="text-[9px] font-black uppercase tracking-widest text-center">
+            {activeMatchId ? 'Matched' : 'Save Match'}
           </span>
         </button>
+
         <button className="flex-1 bg-[#F28749] text-white py-3 rounded-[1.2rem] flex flex-col items-center justify-center gap-1 hover:bg-[#e0763a] transition-all active:scale-95 shadow-lg shadow-orange-100">
           <HelpCircle size={18} strokeWidth={2.5} />
-          <span className="text-[9px] font-black uppercase tracking-widest leading-none text-center">
-            Break
-            <br />
-            The Ice
+          <span className="text-[9px] font-black uppercase tracking-widest text-center">
+            Icebreaker
           </span>
         </button>
       </div>
 
-      {/* INPUT: Cápsula gris claro con botón SEND integrado */}
       <div className="p-6 bg-white">
         <form
           onSubmit={handleSend}
@@ -170,7 +204,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
           <button
             type="submit"
             disabled={!text.trim()}
-            className="bg-[#F28749] text-white px-8 py-3.5 rounded-full text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-2 hover:bg-[#d97336] transition-colors disabled:opacity-20"
+            className="bg-[#F28749] text-white px-8 py-3.5 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-[#d97336] disabled:opacity-20"
           >
             Send <Send size={14} className="fill-current" />
           </button>

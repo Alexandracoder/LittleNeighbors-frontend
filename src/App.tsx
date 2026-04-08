@@ -32,14 +32,30 @@ const LoadingScreen = () => (
 
 function ChatWrapper() {
   const { matchId } = useParams()
-  const { user, token } = useAuth()
+  const { user, token, loading } = useAuth()
+
+
+  if (loading) return <LoadingScreen />
+
+
+  console.log('ChatWrapper Check:', {
+    matchId,
+    hasUser: !!user,
+    hasToken: !!token,
+  })
 
   if (!user || !token || !matchId) {
+
+    console.error('Redirigiendo a dashboard porque falta:', {
+      user,
+      token,
+      matchId,
+    })
     return <Navigate to="/dashboard" replace />
   }
 
   return (
-    <div className="h-screen w-full bg-[#1a1a1a]">
+    <div className="h-screen w-full bg-[#1a1a1a] p-4">
       <ChatWindow matchId={matchId} currentUser={user} token={token} />
     </div>
   )
