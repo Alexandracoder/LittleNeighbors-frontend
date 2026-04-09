@@ -2,7 +2,7 @@ import { useState, FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { LogIn, Mail, Lock, ArrowRight } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
-// ACTUALIZADO: Tu imagen específica de comunidad conectando
+
 import loginBg from '../assets/community-connecting.png'
 
 export default function Login() {
@@ -27,7 +27,6 @@ const handleSubmit = async (e: FormEvent) => {
 
     navigate('/', { replace: true })
   } catch (err: any) {
-    // 4. Manejo de errores específico
     if (err.response?.status === 401) {
       setError('Invalid email or password. Please try again.')
     } else {
@@ -47,7 +46,6 @@ const handleSubmit = async (e: FormEvent) => {
           backgroundImage: `url(${loginBg})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          // Empieza nítida y se difumina al pulsar el botón
           filter: showForm
             ? 'blur(8px) brightness(0.6)'
             : 'blur(0px) brightness(0.95)',

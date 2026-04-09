@@ -2,7 +2,7 @@ import { EventCard } from './EventCard'
 
 interface EventListProps {
   events: any[]
-  neighborhoods: any[] // 👈 AÑADIDO: Recibimos la lista de barrios del padre
+  neighborhoods: any[]
   loading: boolean
   error: string | null
   onRefresh: () => void
@@ -11,7 +11,7 @@ interface EventListProps {
 
 export const EventList = ({
   events,
-  neighborhoods, // 👈 RECIBIDO: Desestructuramos para usarlo
+  neighborhoods,
   loading,
   error,
   onRefresh,
@@ -57,7 +57,7 @@ export const EventList = ({
           <EventCard
             key={event.id}
             event={event}
-            neighborhoods={neighborhoods} // 👈 PASADO: Ahora la card tiene acceso a los nombres
+            neighborhoods={neighborhoods}
             onDelete={() => handleDelete(event.id)}
             onEdit={() => onEdit(event)}
           />

@@ -7,13 +7,14 @@ import {
   Send,
   Loader2,
   CheckCircle2,
+  MessageCircle,
 } from 'lucide-react'
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import type { ChildResponseDTO } from '../types'
 import { childApi } from '../services/api'
 
 interface ChildCardProps {
-  // Cambiamos a 'child: ChildResponseDTO | null' para dar flexibilidad al padre
   child: ChildResponseDTO | null
   onEdit: (child: ChildResponseDTO) => void
   onDelete: (id: number) => void
@@ -28,6 +29,7 @@ export default function ChildCard({
   showMatchButton = false,
   myChildId,
 }: ChildCardProps) {
+  const navigate = useNavigate()
   const [status, setStatus] = useState<
     'idle' | 'loading' | 'success' | 'error'
   >('idle')
@@ -36,6 +38,15 @@ export default function ChildCard({
   if (!child) return null
 
   const isPrenatal = child.lifeStage === 'PREGNANCY'
+
+  const handleGoToChat = () => {
+
+    if (child.familyId) {
+      navigate(`/messages?with=${child.familyId}`)
+    } else {
+      console.error('No se encontró el ID de usuario de la familia')
+    }
+  }
 
   const getDisplayAge = () => {
     if (isPrenatal) return 'Coming soon'
@@ -87,7 +98,7 @@ export default function ChildCard({
           </div>
         </div>
 
-        {!showMatchButton && (
+        {!showMatchButton ? (
           <div className="flex gap-2">
             <button
               onClick={() => onEdit(child)}
@@ -102,6 +113,14 @@ export default function ChildCard({
               <Trash2 className="w-5 h-5" />
             </button>
           </div>
+        ) : (
+          /* Botón de Chat rápido para usuarios ajenos */
+          <button
+            onClick={handleGoToChat}
+            className="p-4 bg-orange-100 text-orange-600 rounded-2xl hover:bg-[#F28749] hover:text-white transition-all shadow-sm group"
+          >
+            <MessageCircle className="w-6 h-6 group-hover:scale-110 transition-transform" />
+          </button>
         )}
       </div>
 
@@ -129,7 +148,7 @@ export default function ChildCard({
       )}
 
       {showMatchButton && (
-        <div className="mt-8 pt-6 border-t border-gray-100">
+        <div className="mt-8 pt-6 border-t border-gray-100 flex flex-col gap-3">
           {status === 'idle' && (
             <button
               onClick={handleMatchRequest}
