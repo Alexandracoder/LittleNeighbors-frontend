@@ -88,6 +88,7 @@ export interface Page<T> {
 export type UserRole = 'ROLE_USER' | 'ROLE_FAMILY' | 'ROLE_ADMIN'
 
 export interface DecodedToken {
+  id: number
   sub: string
   roles: UserRole[]
   exp: number

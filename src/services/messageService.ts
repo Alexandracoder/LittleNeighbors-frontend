@@ -1,26 +1,38 @@
 const API_URL = 'http://localhost:8080/api'
 
 export const messageService = {
+  getHistory: async (familyId: number, matchId: number, token: string) => {
+    if (isNaN(familyId) || isNaN(matchId)) {
+      throw new Error('Invalid IDs provided for history')
+    }
 
-  getHistory: async (matchId: string | number, token: string) => {
-    const response = await fetch(`${API_URL}/messages/history/${matchId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
+    const response = await fetch(
+      `${API_URL}/messages/history/${familyId}/${matchId}`,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
       },
-    })
+    )
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}))
-      throw new Error(errorData.message || 'Error fetching history')
+      const errorText = await response.text()
+      console.error('Error detallado del servidor:', errorText)
+      throw new Error(
+        `Error ${response.status}: ${errorText || 'Error fetching history'}`,
+      )
     }
 
     return response.json()
   },
 
-  // Enviar mensaje
   sendMessage: async (
-matchId: string | number, myFamilyId: number, content: string, token: string,
+    receiverId: number,
+    content: string,
+    token: string,
+    matchId?: number | null,
   ) => {
     const response = await fetch(`${API_URL}/messages/send`, {
       method: 'POST',
@@ -29,13 +41,14 @@ matchId: string | number, myFamilyId: number, content: string, token: string,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        matchId: Number(matchId),
+        receiverId: Number(receiverId),
         content: content.trim(),
+        matchId: matchId ? Number(matchId) : null,
       }),
     })
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
+      const errorData = await response.json().catch(() => ({}))
       throw new Error(errorData.message || 'Error sending message')
     }
 
