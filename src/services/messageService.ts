@@ -1,16 +1,13 @@
 const API_URL = 'http://localhost:8080/api'
 
 export const messageService = {
-  getHistory: async (user1Id: number, user2Id: number, token: string) => {
-    const u1 = Number(user1Id)
-    const u2 = Number(user2Id)
-
-    if (isNaN(u1) || isNaN(u2)) {
-      throw new Error('Invalid user IDs provided for history')
+  getHistory: async (familyId: number, matchId: number, token: string) => {
+    if (isNaN(familyId) || isNaN(matchId)) {
+      throw new Error('Invalid IDs provided for history')
     }
 
     const response = await fetch(
-      `${API_URL}/messages/history?user1Id=${u1}&user2Id=${u2}`,
+      `${API_URL}/messages/history/${familyId}/${matchId}`,
       {
         method: 'GET',
         headers: {
@@ -21,8 +18,11 @@ export const messageService = {
     )
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}))
-      throw new Error(errorData.message || 'Error fetching history')
+      const errorText = await response.text()
+      console.error('Error detallado del servidor:', errorText)
+      throw new Error(
+        `Error ${response.status}: ${errorText || 'Error fetching history'}`,
+      )
     }
 
     return response.json()

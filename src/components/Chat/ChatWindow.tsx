@@ -86,31 +86,41 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     }
   }, [messages])
 
-  const handleSend = async (e: FormEvent) => {
-    e.preventDefault()
+ const handleSend = async (e: FormEvent) => {
+   e.preventDefault()
 
-    const myFamilyId = myFamily?.id
-    if (!text.trim() || !myFamilyId || !matchId) return
+   const myFamilyId = myFamily?.id
 
-    const messageContent = text.trim()
-    setText('')
+   const currentMatchId =
+     activeMatchId || (matchId !== 'undefined' ? Number(matchId) : null)
 
-    try {
-      const response = await messageService.sendMessage(
-        Number(matchId),
-        messageContent,
-        token,
-        activeMatchId,
-      )
+   if (!text.trim() || !myFamilyId || !currentMatchId) {
+     console.warn('Faltan datos para enviar:', { myFamilyId, currentMatchId })
+     return
+   }
 
-      if (response) {
-        setMessages(prev => [...prev, response])
-      }
-    } catch (err) {
-      console.error('Error al enviar mensaje:', err)
-      setText(messageContent)
-    }
-  }
+   const messageContent = text.trim()
+   setText('')
+
+   try {
+     const response = await messageService.sendMessage(
+       Number(matchId),
+       messageContent,
+       token,
+       currentMatchId,)
+
+     if (response) {
+       setMessages(prev => [...prev, response])
+
+       if (!activeMatchId && response.matchId) {
+         setActiveMatchId(response.matchId)
+       }
+     }
+   } catch (err) {
+     console.error('Error al enviar mensaje:', err)
+     setText(messageContent)
+   }
+ }
 
   return (
     <div className="flex flex-col h-full bg-white rounded-[2.5rem] shadow-xl overflow-hidden font-sans">
