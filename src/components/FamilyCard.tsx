@@ -20,7 +20,6 @@ export default function FamilyCard({
     null,
   )
 
-  // Extraemos intereses únicos de todos los hijos de esta familia
   const allFamilyInterests = useMemo(() => {
     const all: InterestResponseDTO[] = family.children.flatMap(
       c => c.interests || [],
@@ -39,7 +38,7 @@ export default function FamilyCard({
       const newMatch = await matchService.requestMatch(myChildId, targetChildId)
 
       if (newMatch && newMatch.id) {
-        navigate(`/chat/${newMatch.id}`)
+        navigate(`/chat/${newMatch.id}`, { replace: true })
       }
     } catch (error) {
       console.error('Error breaking the ice:', error)
@@ -50,7 +49,6 @@ export default function FamilyCard({
 
   return (
     <div className="group bg-white/10 backdrop-blur-xl rounded-[3rem] border border-white/20 shadow-2xl transition-all duration-500 hover:bg-white/15 flex flex-col h-full overflow-hidden">
-      {/* HEADER */}
       <div className="p-8 pb-4">
         <div className="flex justify-between items-start mb-4">
           <div className="flex flex-col gap-1">
@@ -70,7 +68,6 @@ export default function FamilyCard({
         </p>
       </div>
 
-      {/* LISTA DE HIJOS SELECCIONABLES */}
       <div className="px-6 py-4 flex flex-col gap-3">
         <span className="text-[9px] font-black text-[#F28749] uppercase tracking-[0.2em] px-2 mb-1">
           Select a playmate to chat:
@@ -130,7 +127,6 @@ export default function FamilyCard({
         })}
       </div>
 
-      {/* INTERESES COMPARTIDOS (Únicos) */}
       <div className="px-8 py-6 mt-auto border-t border-white/5">
         <div className="flex flex-wrap gap-2">
           {allFamilyInterests.map(interest => {
