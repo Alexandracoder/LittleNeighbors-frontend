@@ -4,6 +4,7 @@ import matchService from '../services/matchService'
 
 // Definimos la interfaz exacta del DTO que creamos en Java
 export interface MatchResponseDetailDTO {
+  searcherUserId: any
   matchId: number
   status: 'PENDING' | 'ACCEPTED' | 'REJECTED'
   myChildId: number

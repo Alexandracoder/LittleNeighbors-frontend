@@ -1,13 +1,13 @@
 const API_URL = 'http://localhost:8080/api'
 
 export const messageService = {
-  getHistory: async (familyId: number, matchId: number, token: string) => {
-    if (isNaN(familyId) || isNaN(matchId)) {
-      throw new Error('Invalid IDs provided for history')
+  getHistory: async (matchId: number, token: string) => {
+    if (!matchId || isNaN(matchId)) {
+      throw new Error('Invalid Match ID provided for history')
     }
 
     const response = await fetch(
-      `${API_URL}/messages/history/${familyId}/${matchId}`,
+      `${API_URL}/messages/history/match/${matchId}`,
       {
         method: 'GET',
         headers: {
@@ -28,12 +28,7 @@ export const messageService = {
     return response.json()
   },
 
-  sendMessage: async (
-    receiverId: number,
-    content: string,
-    token: string,
-    matchId?: number | null,
-  ) => {
+  sendMessage: async (matchId: number, content: string, token: string) => {
     const response = await fetch(`${API_URL}/messages/send`, {
       method: 'POST',
       headers: {
@@ -41,9 +36,8 @@ export const messageService = {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        receiverId: Number(receiverId),
+        matchId: Number(matchId),
         content: content.trim(),
-        matchId: matchId ? Number(matchId) : null,
       }),
     })
 

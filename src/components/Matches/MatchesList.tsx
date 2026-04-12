@@ -11,7 +11,6 @@ const MatchesList: React.FC<MatchesListProps> = ({ token }) => {
   const { matches, loading, error, handleResponse } = useMatches()
   const navigate = useNavigate()
 
-
   const getInitial = (name: any): string => {
     if (typeof name !== 'string' || name.length === 0) return '?'
     return name.charAt(0).toUpperCase()
@@ -68,13 +67,11 @@ const MatchesList: React.FC<MatchesListProps> = ({ token }) => {
                   navigate(`/chat/${match.matchId}`)
                 }
               >
-                {/* Avatar con inicial segura */}
                 <div className="relative">
                   <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-orange-400 to-rose-500 text-white flex items-center justify-center font-black text-2xl shadow-lg transform group-hover:rotate-6 transition-transform">
                     {getInitial(match.theirFamilyName)}
                   </div>
 
-                  {/* Check de Vecino Confirmado */}
                   {match.status === 'ACCEPTED' && (
                     <div className="absolute -bottom-2 -right-2 bg-green-500 p-1.5 rounded-full border-4 border-[#1a1a1a]">
                       <svg
@@ -140,7 +137,6 @@ const MatchesList: React.FC<MatchesListProps> = ({ token }) => {
                 )}
               </div>
 
-              {/* Botones de acción para solicitudes PENDING */}
               {match.status === 'PENDING' && (
                 <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 flex gap-2 z-20">
                   <button
