@@ -23,7 +23,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
 }) => {
   const [messages, setMessages] = useState<any[]>([])
   const [text, setText] = useState<string>('')
-  const [activeMatchId, setActiveMatchId] = useState<number | null>(null)
   const [myFamily, setMyFamily] = useState<any>(currentUser?.family)
   const scrollRef = useRef<HTMLDivElement>(null)
 
@@ -36,7 +35,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
             setMyFamily(profile.family)
           }
         } catch (err) {
-          console.error('Error fetching latest profile:', err)
+          console.error(err)
         }
       }
     }
@@ -44,41 +43,23 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   }, [currentUser, token, myFamily])
 
   useEffect(() => {
-    const myFamilyId = myFamily?.id
-
-    if (!myFamilyId || !matchId || matchId === 'undefined') {
-      return
-    }
+    if (!matchId || matchId === 'undefined') return
 
     const loadHistory = async () => {
       try {
-        const data = await messageService.getHistory(
-          Number(myFamilyId),
-          Number(matchId),
-          token,
-        )
+        const data = await messageService.getHistory(Number(matchId), token)
         if (Array.isArray(data)) {
           setMessages(data)
-
-          const lastMsgWithMatch = [...data]
-            .reverse()
-            .find((m: any) => m.matchId || m.match?.id)
-
-          if (lastMsgWithMatch) {
-            setActiveMatchId(
-              lastMsgWithMatch.matchId || lastMsgWithMatch.match?.id,
-            )
-          }
         }
       } catch (err) {
-        console.error('Error loading history:', err)
+        console.error(err)
       }
     }
 
     loadHistory()
     const interval = setInterval(loadHistory, 5000)
     return () => clearInterval(interval)
-  }, [matchId, token, myFamily])
+  }, [matchId, token])
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -86,41 +67,29 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     }
   }, [messages])
 
- const handleSend = async (e: FormEvent) => {
-   e.preventDefault()
+  const handleSend = async (e: FormEvent) => {
+    e.preventDefault()
 
-   const myFamilyId = myFamily?.id
+    if (!text.trim() || !matchId || matchId === 'undefined') return
 
-   const currentMatchId =
-     activeMatchId || (matchId !== 'undefined' ? Number(matchId) : null)
+    const messageContent = text.trim()
+    setText('')
 
-   if (!text.trim() || !myFamilyId || !currentMatchId) {
-     console.warn('Faltan datos para enviar:', { myFamilyId, currentMatchId })
-     return
-   }
+    try {
+      const response = await messageService.sendMessage(
+        Number(matchId),
+        messageContent,
+        token,
+      )
 
-   const messageContent = text.trim()
-   setText('')
-
-   try {
-     const response = await messageService.sendMessage(
-       Number(matchId),
-       messageContent,
-       token,
-       currentMatchId,)
-
-     if (response) {
-       setMessages(prev => [...prev, response])
-
-       if (!activeMatchId && response.matchId) {
-         setActiveMatchId(response.matchId)
-       }
-     }
-   } catch (err) {
-     console.error('Error al enviar mensaje:', err)
-     setText(messageContent)
-   }
- }
+      if (response) {
+        setMessages(prev => [...prev, response])
+      }
+    } catch (err) {
+      console.error(err)
+      setText(messageContent)
+    }
+  }
 
   return (
     <div className="flex flex-col h-full bg-white rounded-[2.5rem] shadow-xl overflow-hidden font-sans">
@@ -128,7 +97,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
         <div className="flex items-center gap-4">
           <ChevronLeft className="text-gray-400 w-6 h-6 cursor-pointer" />
           <h2 className="text-xl font-black text-gray-900 uppercase tracking-tighter italic">
-            Chat {activeMatchId ? '✓' : ''}
+            Chat {matchId ? '✓' : ''}
           </h2>
         </div>
         <div className="w-10 h-10 rounded-full bg-[#F28749] flex items-center justify-center text-white font-bold text-sm">
@@ -147,8 +116,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
         )}
 
         {messages.map((msg, index) => {
-          const msgSenderFamilyId = msg.sender?.family?.id || msg.senderFamilyId
-          const isMe = String(msgSenderFamilyId) === String(myFamily?.id)
+          const isMe = String(msg.senderId) === String(currentUser?.id)
 
           return (
             <div
@@ -177,16 +145,10 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
           </span>
         </button>
 
-        <button
-          className={`flex-1 py-3 rounded-[1.2rem] flex flex-col items-center justify-center gap-1 transition-all active:scale-95 shadow-lg ${
-            activeMatchId
-              ? 'bg-green-500 text-white'
-              : 'bg-[#F28749] text-white'
-          }`}
-        >
+        <button className="flex-1 py-3 rounded-[1.2rem] flex flex-col items-center justify-center gap-1 transition-all active:scale-95 shadow-lg bg-green-500 text-white">
           <Save size={18} strokeWidth={2.5} />
           <span className="text-[9px] font-black uppercase tracking-widest text-center">
-            {activeMatchId ? 'Matched' : 'Save Match'}
+            Connected
           </span>
         </button>
 
