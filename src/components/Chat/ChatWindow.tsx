@@ -5,7 +5,14 @@ import React, {
   FormEvent,
   ChangeEvent,
 } from 'react'
-import { Send, UserCircle, Save, HelpCircle, ChevronLeft } from 'lucide-react'
+import {
+  Send,
+  UserCircle,
+  Calendar,
+  HelpCircle,
+  ChevronLeft,
+} from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { messageService } from '../../services/messageService'
 import { userService } from '../../services/userService'
 import { UserProfileDTO } from '../../types'
@@ -21,6 +28,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   currentUser,
   token,
 }) => {
+  const navigate = useNavigate()
   const [messages, setMessages] = useState<any[]>([])
   const [text, setText] = useState<string>('')
   const [myFamily, setMyFamily] = useState<any>(currentUser?.family)
@@ -69,7 +77,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
 
   const handleSend = async (e: FormEvent) => {
     e.preventDefault()
-
     if (!text.trim() || !matchId || matchId === 'undefined') return
 
     const messageContent = text.trim()
@@ -81,7 +88,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
         messageContent,
         token,
       )
-
       if (response) {
         setMessages(prev => [...prev, response])
       }
@@ -91,16 +97,29 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     }
   }
 
+  const handleIcebreaker = () => {
+    const icebreakers = [
+      "Hey! What are your kids' favorite games?",
+      'Hi neighbor! Would you like to meet at the park this weekend?',
+      'Hello! How old are your little ones?',
+    ]
+    const random = icebreakers[Math.floor(Math.random() * icebreakers.length)]
+    setText(random)
+  }
+
   return (
     <div className="flex flex-col h-full bg-white rounded-[2.5rem] shadow-xl overflow-hidden font-sans">
       <div className="px-8 py-6 flex items-center justify-between border-b border-gray-50 bg-white">
         <div className="flex items-center gap-4">
-          <ChevronLeft className="text-gray-400 w-6 h-6 cursor-pointer" />
+          <ChevronLeft
+            className="text-gray-400 w-6 h-6 cursor-pointer hover:text-gray-600 transition-colors"
+            onClick={() => navigate(-1)}
+          />
           <h2 className="text-xl font-black text-gray-900 uppercase tracking-tighter italic">
             Chat {matchId ? '✓' : ''}
           </h2>
         </div>
-        <div className="w-10 h-10 rounded-full bg-[#F28749] flex items-center justify-center text-white font-bold text-sm">
+        <div className="w-10 h-10 rounded-full bg-[#F28749] flex items-center justify-center text-white font-bold text-sm shadow-inner">
           {myFamily?.displayName?.charAt(0) || 'U'}
         </div>
       </div>
@@ -116,7 +135,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
         )}
 
         {messages.map((msg, index) => {
-          const isMe = String(msg.senderId) === String(currentUser?.id)
+          const isMe = Number(msg.senderId) === Number(currentUser?.id)
 
           return (
             <div
@@ -138,21 +157,30 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
       </div>
 
       <div className="px-6 py-2 flex gap-3 bg-white">
-        <button className="flex-1 bg-[#F28749] text-white py-3 rounded-[1.2rem] flex flex-col items-center justify-center gap-1 hover:bg-[#e0763a] transition-all active:scale-95 shadow-lg shadow-orange-100">
+        <button
+          onClick={() => navigate('/profile')}
+          className="flex-1 bg-[#F28749] text-white py-3 rounded-[1.2rem] flex flex-col items-center justify-center gap-1 hover:bg-[#e0763a] transition-all active:scale-95 shadow-lg shadow-orange-100"
+        >
           <UserCircle size={18} strokeWidth={2.5} />
           <span className="text-[9px] font-black uppercase tracking-widest text-center">
             Profile
           </span>
         </button>
 
-        <button className="flex-1 py-3 rounded-[1.2rem] flex flex-col items-center justify-center gap-1 transition-all active:scale-95 shadow-lg bg-green-500 text-white">
-          <Save size={18} strokeWidth={2.5} />
+        <button
+          onClick={() => navigate('/add-playdate', { state: { matchId } })}
+          className="flex-1 py-3 rounded-[1.2rem] flex flex-col items-center justify-center gap-1 transition-all active:scale-95 shadow-lg bg-green-500 text-white hover:bg-green-600"
+        >
+          <Calendar size={18} strokeWidth={2.5} />
           <span className="text-[9px] font-black uppercase tracking-widest text-center">
-            Connected
+            Schedule
           </span>
         </button>
 
-        <button className="flex-1 bg-[#F28749] text-white py-3 rounded-[1.2rem] flex flex-col items-center justify-center gap-1 hover:bg-[#e0763a] transition-all active:scale-95 shadow-lg shadow-orange-100">
+        <button
+          onClick={handleIcebreaker}
+          className="flex-1 bg-[#F28749] text-white py-3 rounded-[1.2rem] flex flex-col items-center justify-center gap-1 hover:bg-[#e0763a] transition-all active:scale-95 shadow-lg shadow-orange-100"
+        >
           <HelpCircle size={18} strokeWidth={2.5} />
           <span className="text-[9px] font-black uppercase tracking-widest text-center">
             Icebreaker
@@ -176,7 +204,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
           <button
             type="submit"
             disabled={!text.trim()}
-            className="bg-[#F28749] text-white px-8 py-3.5 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-[#d97336] disabled:opacity-20"
+            className="bg-[#F28749] text-white px-8 py-3.5 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-[#d97336] disabled:opacity-20 transition-all"
           >
             Send <Send size={14} className="fill-current" />
           </button>

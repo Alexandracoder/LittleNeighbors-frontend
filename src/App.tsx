@@ -8,6 +8,7 @@ import {
 import { AuthProvider, useAuth } from './context/AuthContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import ChatWindow from './components/Chat/ChatWindow'
+import AddPlaydatePage from './pages/AddPlaydatePage'
 
 // Pages & Components
 import Login from './components/Login'
@@ -141,6 +142,7 @@ function AppContent() {
           </ProtectedRoute>
         }
       />
+      <Route path="/add-playdate" element={<AddPlaydatePage />} />
 
       <Route
         path="/welcome"
