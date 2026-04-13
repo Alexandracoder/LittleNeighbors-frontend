@@ -139,3 +139,24 @@ export interface MessageService {
     token: string,
   ) => Promise<MessageDTO>
 }
+
+export interface Playdate {
+  date: any
+  time: ReactNode
+  neighborName: ReactNode
+  id: number
+  title: string
+  startTime: string
+  description?: string
+  status: PlaydateStatus
+  matchId: number
+  createdAt: string
+  updatedAt?: string
+}
+
+export interface PlaydateRequest {
+  title: string
+  startTime: string
+  description?: string
+  matchId: number
+}

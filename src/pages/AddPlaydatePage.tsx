@@ -1,140 +1,134 @@
-import React, { useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Send, Loader2 } from 'lucide-react'
+import { useState } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
+import {
+  ArrowLeft,
+  Send,
+  Calendar as CalendarIcon,
+  AlignLeft,
+} from 'lucide-react'
 import { playdateService } from '../services/playdateService'
+import dashboardBg from '../assets/neighborhood-picnic1.png'
 
 export default function AddPlaydatePage() {
   const navigate = useNavigate()
   const location = useLocation()
   const { matchId } = location.state || {}
 
-  // Recuperamos el token (ajusta según dónde lo guardes, ej. localStorage)
-  const token = localStorage.getItem('token') || ''
+  const [title, setTitle] = useState('')
+  const [startTime, setStartTime] = useState('')
+  const [description, setDescription] = useState('')
+  const [loading, setLoading] = useState(false)
 
-  const [isLoading, setIsLoading] = useState(false)
-  const [formData, setFormData] = useState({
-    title: '',
-    date: '',
-    time: '',
-    description: '',
-  })
+  const token = localStorage.getItem('token') || ''
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!matchId || !title || !startTime) return
 
-    // Validación básica
-    if (!formData.title || !formData.date || !formData.time) {
-      alert('Please fill in all fields')
-      return
-    }
-
-    setIsLoading(true)
-
+    setLoading(true)
     try {
-      const payload = {
-        title: formData.title,
-        startTime: `${formData.date}T${formData.time}:00`, // Formato ISO para Java LocalDateTime
-        matchId: Number(matchId),
-        status: 'PENDING',
-      }
-
-      await playdateService.create(payload, token)
-
-      // Si todo sale bien, volvemos a la lista de citas
+      await playdateService.create(
+        {
+          title,
+          startTime: new Date(startTime).toISOString(),
+          description,
+          matchId: Number(matchId),
+        },
+        token,
+      )
       navigate('/my-schedules')
-    } catch (err) {
-      console.error('Error creating playdate:', err)
-      alert('Failed to send proposal. Make sure the backend is running!')
+    } catch (error) {
+      console.error(error)
     } finally {
-      setIsLoading(false)
+      setLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen bg-[#F7F7F7] p-6 font-sans">
-      <button
-        onClick={() => navigate(-1)}
-        className="flex items-center gap-2 text-gray-400 mb-8 font-black uppercase tracking-widest text-[10px] hover:text-brand-dark transition-colors"
-      >
-        <ArrowLeft className="w-4 h-4" /> Cancel
-      </button>
+    <div className="relative min-h-screen w-full p-6 text-white font-sans flex flex-col">
+      <div
+        className="fixed inset-0 z-0"
+        style={{
+          backgroundImage: `url(${dashboardBg})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      />
 
-      <div className="max-w-md mx-auto">
-        <h1 className="text-4xl font-black uppercase italic text-brand-dark mb-8 tracking-tighter">
+      <div className="fixed inset-0 z-10 bg-black/60 backdrop-blur-sm" />
+
+      <div className="relative z-20 max-w-2xl mx-auto w-full flex flex-col flex-grow">
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 text-brand-dark mb-8 font-black uppercase tracking-widest text-[10px] hover:scale-105 transition-all bg-white w-fit px-5 py-2.5 rounded-full shadow-xl"
+        >
+          <ArrowLeft className="w-3 h-3" /> Cancel
+        </button>
+
+        <h1 className="text-4xl font-black uppercase text-white mb-2 italic tracking-tighter">
           Suggest a <span className="text-[#F28749]">Playdate</span>
         </h1>
+        <p className="text-[10px] font-bold text-gray-300 uppercase tracking-[0.3em] mb-10">
+          Pick a time to meet your neighbor
+        </p>
 
-        <form
-          onSubmit={handleSubmit}
-          className="bg-white rounded-[2.5rem] p-8 shadow-xl space-y-6 border border-gray-50"
-        >
-          <div>
-            <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 ml-2">
-              What's the plan?
-            </label>
-            <input
-              required
-              type="text"
-              placeholder="e.g. Park & Picnic"
-              value={formData.title}
-              className="w-full bg-gray-50 border-none rounded-2xl px-6 py-4 font-bold text-sm focus:ring-2 focus:ring-[#F28749] outline-none transition-all"
-              onChange={e =>
-                setFormData({ ...formData, title: e.target.value })
-              }
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 ml-2">
-                Day
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="bg-white/95 rounded-[2.5rem] p-8 shadow-2xl space-y-6">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase text-gray-400 ml-4 tracking-widest flex items-center gap-2">
+                <CalendarIcon size={12} className="text-[#F28749]" /> What's the
+                plan?
               </label>
               <input
+                type="text"
+                value={title}
+                onChange={e => setTitle(e.target.value)}
+                placeholder="Ex: Park Afternoon / Coffee & Toys"
+                className="w-full bg-gray-50 border-none rounded-2xl px-6 py-4 text-brand-dark font-bold placeholder-gray-300 focus:ring-2 focus:ring-[#F28749] transition-all"
                 required
-                type="date"
-                value={formData.date}
-                className="w-full bg-gray-50 border-none rounded-2xl px-6 py-4 font-bold text-sm outline-none focus:ring-2 focus:ring-[#F28749] transition-all"
-                onChange={e =>
-                  setFormData({ ...formData, date: e.target.value })
-                }
               />
             </div>
-            <div>
-              <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 ml-2">
-                Time
+
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase text-gray-400 ml-4 tracking-widest flex items-center gap-2">
+                <CalendarIcon size={12} className="text-[#F28749]" /> When?
               </label>
               <input
+                type="datetime-local"
+                value={startTime}
+                onChange={e => setStartTime(e.target.value)}
+                className="w-full bg-gray-50 border-none rounded-2xl px-6 py-4 text-brand-dark font-bold focus:ring-2 focus:ring-[#F28749] transition-all"
                 required
-                type="time"
-                value={formData.time}
-                className="w-full bg-gray-50 border-none rounded-2xl px-6 py-4 font-bold text-sm outline-none focus:ring-2 focus:ring-[#F28749] transition-all"
-                onChange={e =>
-                  setFormData({ ...formData, time: e.target.value })
-                }
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase text-gray-400 ml-4 tracking-widest flex items-center gap-2">
+                <AlignLeft size={12} className="text-[#F28749]" /> Extra Details
+              </label>
+              <textarea
+                value={description}
+                onChange={e => setDescription(e.target.value)}
+                placeholder="Anything else your neighbor should know?"
+                className="w-full bg-gray-50 border-none rounded-2xl px-6 py-4 text-brand-dark font-bold placeholder-gray-300 focus:ring-2 focus:ring-[#F28749] transition-all min-h-[120px] resize-none"
               />
             </div>
           </div>
 
           <button
             type="submit"
-            disabled={isLoading}
-            className="w-full bg-[#F28749] text-white py-5 rounded-[1.5rem] font-black uppercase tracking-widest text-xs shadow-lg shadow-orange-100 flex items-center justify-center gap-2 hover:scale-[1.02] transition-all active:scale-95 disabled:opacity-50 disabled:hover:scale-100"
+            disabled={loading}
+            className="w-full bg-[#F28749] text-white py-6 rounded-[2rem] font-black uppercase tracking-[0.2em] shadow-xl hover:bg-[#d97336] active:scale-[0.98] transition-all flex items-center justify-center gap-3 disabled:opacity-50"
           >
-            {isLoading ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
+            {loading ? (
+              'Sending...'
             ) : (
               <>
-                <Send size={16} /> Send Proposal
+                Send Proposal <Send size={18} />
               </>
             )}
           </button>
         </form>
-
-        <div className="mt-8 p-4 bg-orange-50 rounded-2xl border border-orange-100">
-          <p className="text-center text-[9px] text-[#F28749] font-black uppercase tracking-[0.2em]">
-            Target Match ID: {matchId || 'General'}
-          </p>
-        </div>
       </div>
     </div>
   )
