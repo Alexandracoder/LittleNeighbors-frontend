@@ -6,12 +6,14 @@ import {
   Calendar as CalendarIcon,
   AlignLeft,
 } from 'lucide-react'
-import { playdateService } from '../services/playdateService'
+import playdateService from '../services/playdateService'
 import dashboardBg from '../assets/neighborhood-picnic1.png'
 
 export default function AddPlaydatePage() {
   const navigate = useNavigate()
   const location = useLocation()
+
+
   const { matchId } = location.state || {}
 
   const [title, setTitle] = useState('')
@@ -19,33 +21,32 @@ export default function AddPlaydatePage() {
   const [description, setDescription] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const token = localStorage.getItem('token') || ''
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault()
+  if (!matchId || !title || !startTime) return
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!matchId || !title || !startTime) return
+  setLoading(true)
+  try {
+    const formattedDate = startTime.replace('T', ' ') + ':00'
 
-    setLoading(true)
-    try {
-      await playdateService.create(
-        {
-          title,
-          startTime: new Date(startTime).toISOString(),
-          description,
-          matchId: Number(matchId),
-        },
-        token,
-      )
-      navigate('/my-schedules')
-    } catch (error) {
-      console.error(error)
-    } finally {
-      setLoading(false)
-    }
+    await playdateService.create({
+      title,
+      startTime: formattedDate,
+      description,
+      matchId: Number(matchId),
+    })
+
+    navigate(`/schedules/${matchId}`)
+  } catch (error) {
+    console.error('Error:', error)
+  } finally {
+    setLoading(false)
   }
+}
 
   return (
     <div className="relative min-h-screen w-full p-6 text-white font-sans flex flex-col">
+      {/* FONDO */}
       <div
         className="fixed inset-0 z-0"
         style={{
@@ -60,7 +61,7 @@ export default function AddPlaydatePage() {
       <div className="relative z-20 max-w-2xl mx-auto w-full flex flex-col flex-grow">
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-brand-dark mb-8 font-black uppercase tracking-widest text-[10px] hover:scale-105 transition-all bg-white w-fit px-5 py-2.5 rounded-full shadow-xl"
+          className="flex items-center gap-2 text-gray-800 mb-8 font-black uppercase tracking-widest text-[10px] hover:scale-105 transition-all bg-white w-fit px-5 py-2.5 rounded-full shadow-xl"
         >
           <ArrowLeft className="w-3 h-3" /> Cancel
         </button>
@@ -69,11 +70,11 @@ export default function AddPlaydatePage() {
           Suggest a <span className="text-[#F28749]">Playdate</span>
         </h1>
         <p className="text-[10px] font-bold text-gray-300 uppercase tracking-[0.3em] mb-10">
-          Pick a time to meet your neighbor
+          Pick a time to meet your neighbor (Match #{matchId})
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="bg-white/95 rounded-[2.5rem] p-8 shadow-2xl space-y-6">
+          <div className="bg-white/95 rounded-[2.5rem] p-8 shadow-2xl space-y-6 text-gray-900">
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase text-gray-400 ml-4 tracking-widest flex items-center gap-2">
                 <CalendarIcon size={12} className="text-[#F28749]" /> What's the
@@ -84,7 +85,7 @@ export default function AddPlaydatePage() {
                 value={title}
                 onChange={e => setTitle(e.target.value)}
                 placeholder="Ex: Park Afternoon / Coffee & Toys"
-                className="w-full bg-gray-50 border-none rounded-2xl px-6 py-4 text-brand-dark font-bold placeholder-gray-300 focus:ring-2 focus:ring-[#F28749] transition-all"
+                className="w-full bg-gray-50 border-none rounded-2xl px-6 py-4 text-gray-900 font-bold placeholder-gray-300 focus:ring-2 focus:ring-[#F28749] transition-all"
                 required
               />
             </div>
@@ -97,7 +98,7 @@ export default function AddPlaydatePage() {
                 type="datetime-local"
                 value={startTime}
                 onChange={e => setStartTime(e.target.value)}
-                className="w-full bg-gray-50 border-none rounded-2xl px-6 py-4 text-brand-dark font-bold focus:ring-2 focus:ring-[#F28749] transition-all"
+                className="w-full bg-gray-50 border-none rounded-2xl px-6 py-4 text-gray-900 font-bold focus:ring-2 focus:ring-[#F28749] transition-all"
                 required
               />
             </div>
@@ -110,7 +111,7 @@ export default function AddPlaydatePage() {
                 value={description}
                 onChange={e => setDescription(e.target.value)}
                 placeholder="Anything else your neighbor should know?"
-                className="w-full bg-gray-50 border-none rounded-2xl px-6 py-4 text-brand-dark font-bold placeholder-gray-300 focus:ring-2 focus:ring-[#F28749] transition-all min-h-[120px] resize-none"
+                className="w-full bg-gray-50 border-none rounded-2xl px-6 py-4 text-gray-900 font-bold placeholder-gray-300 focus:ring-2 focus:ring-[#F28749] transition-all min-h-[120px] resize-none"
               />
             </div>
           </div>

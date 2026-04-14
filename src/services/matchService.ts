@@ -48,7 +48,7 @@ const matchService = {
   /**
    * @param matchId
    */
-  confirmMatch: async (matchId: number, _token: string) => {
+  confirmMatch: async (matchId: number) => {
     try {
       const response = await api.post(`/matches/${matchId}/confirm`)
       return response.data

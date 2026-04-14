@@ -1,3 +1,5 @@
+import { ReactNode } from "react"
+
 export interface AuthRequest {
   email: string
   password: string
@@ -148,7 +150,7 @@ export interface Playdate {
   title: string
   startTime: string
   description?: string
-  status: PlaydateStatus
+  status: 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'CANCELLED'
   matchId: number
   createdAt: string
   updatedAt?: string

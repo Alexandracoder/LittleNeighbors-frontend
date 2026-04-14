@@ -21,6 +21,7 @@ import EventsPage from './pages/EventsPage'
 import SchedulesPage from './pages/SchedulesPage'
 import Welcome from './pages/Welcome'
 import 'leaflet/dist/leaflet.css'
+import MySchedulesPage from './pages/MySchedulesPage'
 
 const LoadingScreen = () => (
   <div className="min-h-screen flex flex-col items-center justify-center bg-[#1a1a1a] text-white">
@@ -78,7 +79,6 @@ function AppContent() {
         path="/register"
         element={!user ? <Register /> : <Navigate to="/" replace />}
       />
-
       {/* --- ONBOARDING Y COMUNIDAD --- */}
       <Route
         path="/create-family"
@@ -88,7 +88,6 @@ function AppContent() {
           </ProtectedRoute>
         }
       />
-
       <Route
         path="/add-child"
         element={
@@ -97,7 +96,6 @@ function AppContent() {
           </ProtectedRoute>
         }
       />
-
       <Route
         path="/dashboard"
         element={
@@ -106,7 +104,6 @@ function AppContent() {
           </ProtectedRoute>
         }
       />
-
       <Route
         path="/explore"
         element={
@@ -115,7 +112,6 @@ function AppContent() {
           </ProtectedRoute>
         }
       />
-
       <Route
         path="/events"
         element={
@@ -124,7 +120,6 @@ function AppContent() {
           </ProtectedRoute>
         }
       />
-
       <Route
         path="/chat/:matchId"
         element={
@@ -133,17 +128,15 @@ function AppContent() {
           </ProtectedRoute>
         }
       />
-
       <Route
-        path="/schedules"
+        path="/schedules/:matchId"
         element={
-          <ProtectedRoute allowedRoles={['ROLE_FAMILY']}>
+          <ProtectedRoute>
             <SchedulesPage />
           </ProtectedRoute>
         }
       />
       <Route path="/add-playdate" element={<AddPlaydatePage />} />
-
       <Route
         path="/welcome"
         element={
@@ -152,9 +145,9 @@ function AppContent() {
           </ProtectedRoute>
         }
       />
-
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
       <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="/my-schedules" element={<MySchedulesPage />} />
     </Routes>
   )
 }
