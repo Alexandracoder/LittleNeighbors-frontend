@@ -135,9 +135,9 @@ function AppContent() {
       />
 
       <Route
-        path="/schedules"
+        path="/schedules/:matchId"
         element={
-          <ProtectedRoute allowedRoles={['ROLE_FAMILY']}>
+          <ProtectedRoute>
             <SchedulesPage />
           </ProtectedRoute>
         }

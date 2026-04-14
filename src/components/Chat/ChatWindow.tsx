@@ -1,10 +1,4 @@
-import React, {
-  useState,
-  useEffect,
-  useRef,
-  FormEvent,
-  ChangeEvent,
-} from 'react'
+import React, { useState, useEffect, useRef, FormEvent } from 'react'
 import {
   Send,
   UserCircle,
@@ -38,44 +32,39 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   const [neighborAccepted, setNeighborAccepted] = useState(false)
 
   const scrollRef = useRef<HTMLDivElement>(null)
-
   const isFullMatch = iAccepted && neighborAccepted
+
 
   useEffect(() => {
     const fetchLatestProfile = async () => {
       if (!myFamily && token) {
         try {
           const profile = await userService.getProfile(token)
-          if (profile?.family) {
-            setMyFamily(profile.family)
-          }
+          if (profile?.family) setMyFamily(profile.family)
         } catch (err) {
-          console.error(err)
+          console.error('Error fetching profile:', err)
         }
       }
     }
     fetchLatestProfile()
-  }, [token, myFamily])
+  }, [myFamily, token])
 
   useEffect(() => {
     if (!matchId || matchId === 'undefined') return
 
- const loadHistory = async () => {
-   try {
+    const loadHistory = async () => {
+      try {
+        const data = await messageService.getHistory(Number(matchId), token)
+        if (data) {
+          setMessages(data.messages || [])
+          setIAccepted(data.userAccepted)
+          setNeighborAccepted(data.neighborAccepted)
+        }
+      } catch (err) {
+        console.error('Error loading chat data:', err)
+      }
+    }
 
-     const data = await messageService.getHistory(Number(matchId), token)
-
-     if (data) {
-
-       setMessages(data.messages || [])
-
-       setIAccepted(data.userAccepted)
-       setNeighborAccepted(data.neighborAccepted)
-     }
-   } catch (err) {
-     console.error('Error loading chat data:', err)
-   }
- }
     loadHistory()
     const interval = setInterval(loadHistory, 5000)
     return () => clearInterval(interval)
@@ -104,38 +93,29 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
         setMessages(prev => [...prev, response])
       }
     } catch (err) {
-      console.error(err)
+      console.error('Error sending message:', err)
       setText(messageContent)
     }
   }
 
-const handleMatchAction = async () => {
-  if (!matchId || !token) return
-
-  try {
-  
-    await matchService.confirmMatch(Number(matchId), token)
-  
-    setIAccepted(true)
-    console.log('Match confirmed successfully')
-  } catch (err) {
-    console.error('Error confirming match:', err)
-    alert('Could not confirm match. Please try again.')
+  const handleMatchAction = async () => {
+    if (!matchId) return
+    try {
+      await matchService.confirmMatch(Number(matchId))
+      setIAccepted(true)
+    } catch (err) {
+      console.error('Error confirming match:', err)
+    }
   }
+
+const handleGoToSchedules = () => {
+  if (!matchId) return
+  navigate(`/schedules/${matchId}`)
 }
-
-  const handleIcebreaker = () => {
-    const icebreakers = [
-      "Hey! What are your kids' favorite games?",
-      'Hi neighbor! Would you like to meet at the park this weekend?',
-      'Hello! How old are your little ones?',
-    ]
-    const random = icebreakers[Math.floor(Math.random() * icebreakers.length)]
-    setText(random)
-  }
 
   return (
     <div className="flex flex-col h-full bg-white rounded-[2.5rem] shadow-xl overflow-hidden font-sans">
+      {/* Header */}
       <div className="px-8 py-6 flex items-center justify-between border-b border-gray-100 bg-white">
         <div className="flex items-center gap-4">
           <ChevronLeft
@@ -175,11 +155,12 @@ const handleMatchAction = async () => {
           </div>
         )}
 
-        <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 font-bold text-sm shadow-inner">
+        <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 font-bold text-sm shadow-inner uppercase">
           {myFamily?.displayName?.charAt(0) || 'U'}
         </div>
       </div>
 
+      {/* Messages Area */}
       <div
         ref={scrollRef}
         className="flex-1 overflow-y-auto p-8 space-y-6 bg-white scrollbar-hide"
@@ -189,10 +170,8 @@ const handleMatchAction = async () => {
             No messages yet. Write to your neighbor!
           </p>
         )}
-
         {messages.map((msg, index) => {
           const isMe = msg.senderEmail === currentUser?.email
-
           return (
             <div
               key={msg.id || index}
@@ -203,22 +182,18 @@ const handleMatchAction = async () => {
               <div
                 className={`max-w-[75%] px-6 py-4 text-[13px] font-bold tracking-tight leading-relaxed shadow-sm ${
                   isMe
-                    ? 'bg-[#F28749] text-white rounded-[2rem] rounded-br-none ml-auto'
-                    : 'bg-[#F2F2F2] text-gray-700 rounded-[2rem] rounded-bl-none mr-auto'
+                    ? 'bg-[#F28749] text-white rounded-[2rem] rounded-br-none'
+                    : 'bg-[#F2F2F2] text-gray-700 rounded-[2rem] rounded-bl-none'
                 }`}
               >
                 {msg.content}
-
-                {/* Debug opcional para estar seguros */}
-                <div className="text-[7px] mt-1 opacity-30">
-                  {isMe ? 'Sent by you' : `From: ${msg.senderEmail}`}
-                </div>
               </div>
             </div>
           )
         })}
       </div>
 
+      {/* Action Buttons */}
       <div className="px-6 py-2 flex gap-3 bg-white">
         <button
           onClick={() => navigate('/profile')}
@@ -232,7 +207,7 @@ const handleMatchAction = async () => {
 
         <button
           disabled={!isFullMatch}
-          onClick={() => navigate('/add-playdate', { state: { matchId } })}
+          onClick={handleGoToSchedules}
           className={`flex-1 py-3 rounded-[1.2rem] flex flex-col items-center justify-center gap-1 transition-all shadow-lg ${
             isFullMatch
               ? 'bg-green-500 text-white hover:bg-green-600 active:scale-95'
@@ -241,12 +216,19 @@ const handleMatchAction = async () => {
         >
           <Calendar size={18} strokeWidth={2.5} />
           <span className="text-[9px] font-black uppercase tracking-widest text-center">
-            {isFullMatch ? 'Schedule' : 'Pending Match'}
+            {isFullMatch ? 'Schedules' : 'Pending'}
           </span>
         </button>
 
         <button
-          onClick={handleIcebreaker}
+          onClick={() => {
+            const random = [
+              "Kids' favorite games?",
+              'Park this weekend?',
+              'How old are your little ones?',
+            ][Math.floor(Math.random() * 3)]
+            setText(random)
+          }}
           className="flex-1 bg-[#F28749] text-white py-3 rounded-[1.2rem] flex flex-col items-center justify-center gap-1 hover:bg-[#e0763a] transition-all active:scale-95 shadow-lg shadow-orange-100"
         >
           <HelpCircle size={18} strokeWidth={2.5} />
@@ -256,6 +238,7 @@ const handleMatchAction = async () => {
         </button>
       </div>
 
+      {/* Input Form */}
       <div className="p-6 bg-white border-t border-gray-50">
         <form
           onSubmit={handleSend}
@@ -263,9 +246,7 @@ const handleMatchAction = async () => {
         >
           <input
             value={text}
-            onChange={(e: ChangeEvent<HTMLInputElement>) =>
-              setText(e.target.value)
-            }
+            onChange={e => setText(e.target.value)}
             placeholder="Type a message..."
             className="flex-1 bg-transparent border-none outline-none text-gray-600 text-sm py-3 font-bold placeholder-gray-300"
           />

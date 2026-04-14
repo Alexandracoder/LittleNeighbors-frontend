@@ -1,23 +1,26 @@
-import axios from 'axios'
+import api from './api'
 import { Playdate, PlaydateRequest } from '../types'
 
-const API_URL = 'http://localhost:8080/api/playdates'
-
-export const playdateService = {
-  create: async (
-    playdateData: PlaydateRequest,
-    token: string,
-  ): Promise<Playdate> => {
-    const response = await axios.post(API_URL, playdateData, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
+const playdateService = {
+  create: async (playdateData: PlaydateRequest): Promise<Playdate> => {
+  
+    const response = await api.post('/playdates', playdateData)
+    return response.data
+  },
+  getByFamily: async (familyId: number): Promise<Playdate[]> => {
+    const response = await api.get(`playdates/family/${familyId}`)
     return response.data
   },
 
-  getByFamily: async (familyId: number, token: string): Promise<Playdate[]> => {
-    const response = await axios.get(`${API_URL}/family/${familyId}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
+getByMatch: async (matchId: number): Promise<Playdate[]> => {
+    const response = await api.get(`/playdates/match/${matchId}`)
+    return response.data
+  },
+
+  confirm: async (playdateId: number): Promise<Playdate> => {
+    const response = await api.patch(`playdates/${playdateId}/confirm`)
     return response.data
   },
 }
+
+export default playdateService;

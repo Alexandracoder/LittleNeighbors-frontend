@@ -1,39 +1,55 @@
-import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { useEffect, useState } from 'react'
+import { useParams, useNavigate } from 'react-router-dom' // Importamos useParams
 import { ArrowLeft, Calendar, MapPin, Clock } from 'lucide-react'
-import { playdateService } from '../services/playdateService'
+import playdateService from '../services/playdateService'
 import dashboardBg from '../assets/new-at-neigborhood.png'
 import { Playdate } from '../types'
 
-export default function SchedulesPage() {
+const SchedulesPage: React.FC = () => {
+  const { matchId } = useParams<{ matchId: string }>() // Capturamos el ID de la URL
   const navigate = useNavigate()
+
   const [playdates, setPlaydates] = useState<Playdate[]>([])
   const [loading, setLoading] = useState(true)
 
-  const token = localStorage.getItem('token') || ''
-  const familyId = Number(localStorage.getItem('familyId'))
-
   useEffect(() => {
-    const fetchPlaydates = async () => {
-      try {
-        if (familyId) {
-          const data = await playdateService.getByFamily(familyId, token)
-          setPlaydates(data)
-        }
-      } catch (error) {
-        console.error(error)
-      } finally {
-        setLoading(false)
-      }
+    // Si no hay matchId en la URL, algo salió mal, volvemos
+    if (!matchId) {
+      navigate('/messages')
+      return
     }
+
+const fetchPlaydates = async () => {
+  try {
+    // 1. Llamamos al servicio
+    const response = await playdateService.getByMatch(Number(matchId))
+
+    // 2. Imprime para estar 100% seguro de qué llega
+    console.log('Respuesta del servicio:', response)
+
+    // 3. Como el error dice que 'response' es 'Playdate[]',
+    // lo asignamos directamente sin buscar '.data'
+    if (Array.isArray(response)) {
+      setPlaydates(response)
+    } else {
+      // Por si acaso el servicio devolviera null o algo inesperado
+      setPlaydates([])
+    }
+  } catch (error) {
+    console.error('Error fetching playdates:', error)
+  } finally {
+    setLoading(false)
+  }
+}
+
     fetchPlaydates()
-  }, [familyId, token])
+  }, [matchId, navigate])
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-brand-dark">
+      <div className="min-h-screen flex items-center justify-center bg-[#1a1a1a]">
         <div className="text-white font-black uppercase tracking-widest animate-pulse">
-          Loading...
+          Loading Schedules...
         </div>
       </div>
     )
@@ -49,18 +65,17 @@ export default function SchedulesPage() {
           backgroundPosition: 'center',
         }}
       />
+      <div className="fixed inset-0 z-10 bg-gradient-to-br from-black/40 via-transparent to-transparent pointer-events-none" />
 
-      <div className="fixed inset-0 z-10 bg-gradient-to-br from-black/40 via-transparent to-transparent" />
-
-      <div className="relative z-20 max-w-2xl mx-auto w-full flex flex-col flex-grow">
+      <div className="relative z-20 max-w-2xl mx-auto w-full flex flex-grow flex-col">
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-brand-dark/90 mb-8 font-black uppercase tracking-widest text-[10px] hover:text-brand-dark transition-all bg-white w-fit px-5 py-2.5 rounded-full shadow-lg border border-white"
+          className="bg-white text-gray-800 mb-8 flex w-fit items-center gap-2 rounded-full px-5 py-2.5 font-black uppercase tracking-widest text-[10px] shadow-lg border border-white transition-all hover:scale-105"
         >
-          <ArrowLeft className="w-3 h-3" /> Back to Dashboard
+          <ArrowLeft className="w-3 h-3" /> Back to Chat
         </button>
 
-        <h1 className="text-5xl font-black uppercase text-brand-dark mb-10 italic tracking-tighter drop-shadow-[0_2px_10px_rgba(255,255,255,0.8)]">
+        <h1 className="text-5xl font-black uppercase text-white mb-10 italic tracking-tighter drop-shadow-[0_2px_15px_rgba(0,0,0,0.3)]">
           My <span className="text-[#F28749]">Playdates</span>
         </h1>
 
@@ -79,7 +94,7 @@ export default function SchedulesPage() {
               return (
                 <div
                   key={pd.id}
-                  className="bg-white/95 rounded-[2.5rem] p-6 shadow-2xl border border-white flex items-center justify-between group hover:scale-[1.01] transition-all"
+                  className="bg-white/95 backdrop-blur-sm rounded-[2.5rem] p-6 shadow-2xl border border-white flex items-center justify-between group hover:scale-[1.01] transition-all"
                 >
                   <div className="flex items-center gap-5">
                     <div className="w-16 h-16 bg-[#F28749] rounded-[1.5rem] flex flex-col items-center justify-center text-white shadow-lg shadow-orange-200">
@@ -92,13 +107,15 @@ export default function SchedulesPage() {
                     </div>
 
                     <div>
-                      <h3 className="text-brand-dark font-black uppercase text-base leading-tight">
+                      <h3 className="text-gray-900 font-black uppercase text-base leading-tight">
                         {pd.title}
                       </h3>
                       <div className="flex flex-col gap-1 mt-1">
                         <p className="flex items-center gap-1 text-gray-500 text-[10px] font-bold uppercase tracking-widest">
                           <MapPin size={12} className="text-[#F28749]" />
-                          {pd.status === 'PENDING' ? 'Proposed' : 'Confirmed'}
+                          {pd.status === 'ACCEPTED'
+                            ? 'Confirmed Location'
+                            : 'Proposed'}
                         </p>
                         <p className="flex items-center gap-1 text-gray-400 text-[10px] font-bold uppercase tracking-widest">
                           <Clock size={12} /> {time}
@@ -109,7 +126,7 @@ export default function SchedulesPage() {
 
                   <div
                     className={`px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-widest ${
-                      pd.status === 'CONFIRMED'
+                      pd.status === 'ACCEPTED'
                         ? 'bg-green-100 text-green-600'
                         : 'bg-orange-100 text-orange-600'
                     }`}
@@ -119,29 +136,21 @@ export default function SchedulesPage() {
                 </div>
               )
             })}
-
-            <button
-              onClick={() => navigate('/add-playdate')}
-              className="w-full py-5 mt-4 border-2 border-dashed border-brand-dark/20 rounded-[2rem] text-brand-dark/40 font-black uppercase text-[10px] tracking-widest hover:bg-white/50 hover:border-brand-dark/40 transition-all bg-white/20 backdrop-blur-sm"
-            >
-              + Propose another playdate
-            </button>
           </div>
         ) : (
           <div
-            onClick={() => navigate('/add-playdate')}
-            className="group flex items-center gap-5 px-10 py-8 bg-white/95 rounded-[3rem] shadow-2xl cursor-pointer hover:bg-white transition-all active:scale-95 border border-white"
+            onClick={() => navigate('/add-playdate', { state: { matchId } })}
+            className="group flex items-center gap-5 px-10 py-8 bg-white/95 backdrop-blur-sm rounded-[3rem] shadow-2xl cursor-pointer border border-white transition-all active:scale-95"
           >
             <div className="w-14 h-14 bg-gray-50 rounded-[1.2rem] flex items-center justify-center shrink-0 shadow-inner group-hover:bg-orange-50 transition-colors">
               <Calendar className="w-7 h-7 text-[#F28749]" />
             </div>
-
             <div>
-              <h2 className="text-xl font-black text-brand-dark uppercase italic tracking-tighter">
+              <h2 className="text-xl font-black text-gray-900 uppercase italic tracking-tighter">
                 No Playdates Yet
               </h2>
               <p className="text-[11px] font-bold text-gray-400 uppercase tracking-[0.2em] leading-none mt-1 group-hover:text-[#F28749] transition-colors">
-                Get started today
+                Tap to suggest the first one
               </p>
             </div>
           </div>
@@ -150,3 +159,5 @@ export default function SchedulesPage() {
     </div>
   )
 }
+
+export default SchedulesPage
