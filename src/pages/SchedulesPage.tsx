@@ -1,49 +1,52 @@
 import React, { useEffect, useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom' // Importamos useParams
-import { ArrowLeft, Calendar, MapPin, Clock } from 'lucide-react'
+import { useParams, useNavigate } from 'react-router-dom'
+import { ArrowLeft, Calendar, MapPin, Clock, CheckCircle2 } from 'lucide-react'
 import playdateService from '../services/playdateService'
 import dashboardBg from '../assets/new-at-neigborhood.png'
 import { Playdate } from '../types'
 
 const SchedulesPage: React.FC = () => {
-  const { matchId } = useParams<{ matchId: string }>() // Capturamos el ID de la URL
+  const { matchId } = useParams<{ matchId: string }>()
   const navigate = useNavigate()
 
   const [playdates, setPlaydates] = useState<Playdate[]>([])
   const [loading, setLoading] = useState(true)
+  const [actionLoading, setActionLoading] = useState<number | null>(null)
+
+  const fetchPlaydates = async () => {
+    try {
+      const response = await playdateService.getByMatch(Number(matchId))
+      if (Array.isArray(response)) {
+        setPlaydates(response)
+      } else {
+        setPlaydates([])
+      }
+    } catch (error) {
+      console.error('Error fetching playdates:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
-    // Si no hay matchId en la URL, algo salió mal, volvemos
     if (!matchId) {
       navigate('/messages')
       return
     }
-
-const fetchPlaydates = async () => {
-  try {
-    // 1. Llamamos al servicio
-    const response = await playdateService.getByMatch(Number(matchId))
-
-    // 2. Imprime para estar 100% seguro de qué llega
-    console.log('Respuesta del servicio:', response)
-
-    // 3. Como el error dice que 'response' es 'Playdate[]',
-    // lo asignamos directamente sin buscar '.data'
-    if (Array.isArray(response)) {
-      setPlaydates(response)
-    } else {
-      // Por si acaso el servicio devolviera null o algo inesperado
-      setPlaydates([])
-    }
-  } catch (error) {
-    console.error('Error fetching playdates:', error)
-  } finally {
-    setLoading(false)
-  }
-}
-
     fetchPlaydates()
   }, [matchId, navigate])
+
+  const handleConfirm = async (playdateId: number) => {
+    setActionLoading(playdateId)
+    try {
+      await playdateService.confirm(playdateId)
+      await fetchPlaydates()
+    } catch (error) {
+      console.error('Error confirming playdate:', error)
+    } finally {
+      setActionLoading(null)
+    }
+  }
 
   if (loading) {
     return (
@@ -91,48 +94,80 @@ const fetchPlaydates = async () => {
                 hour12: true,
               })
 
+              const isAccepted = pd.status === 'ACCEPTED'
+
               return (
                 <div
                   key={pd.id}
-                  className="bg-white/95 backdrop-blur-sm rounded-[2.5rem] p-6 shadow-2xl border border-white flex items-center justify-between group hover:scale-[1.01] transition-all"
+                  className="bg-white/95 backdrop-blur-sm rounded-[2.5rem] p-6 shadow-2xl border border-white transition-all overflow-hidden"
                 >
-                  <div className="flex items-center gap-5">
-                    <div className="w-16 h-16 bg-[#F28749] rounded-[1.5rem] flex flex-col items-center justify-center text-white shadow-lg shadow-orange-200">
-                      <span className="text-[10px] font-black uppercase leading-none">
-                        {month}
-                      </span>
-                      <span className="text-2xl font-black leading-tight">
-                        {day}
-                      </span>
-                    </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-5">
+                      <div
+                        className={`w-16 h-16 ${
+                          isAccepted ? 'bg-green-500' : 'bg-[#F28749]'
+                        } rounded-[1.5rem] flex flex-col items-center justify-center text-white shadow-lg transition-colors`}
+                      >
+                        <span className="text-[10px] font-black uppercase leading-none">
+                          {month}
+                        </span>
+                        <span className="text-2xl font-black leading-tight">
+                          {day}
+                        </span>
+                      </div>
 
-                    <div>
-                      <h3 className="text-gray-900 font-black uppercase text-base leading-tight">
-                        {pd.title}
-                      </h3>
-                      <div className="flex flex-col gap-1 mt-1">
-                        <p className="flex items-center gap-1 text-gray-500 text-[10px] font-bold uppercase tracking-widest">
-                          <MapPin size={12} className="text-[#F28749]" />
-                          {pd.status === 'ACCEPTED'
-                            ? 'Confirmed Location'
-                            : 'Proposed'}
-                        </p>
-                        <p className="flex items-center gap-1 text-gray-400 text-[10px] font-bold uppercase tracking-widest">
-                          <Clock size={12} /> {time}
-                        </p>
+                      <div>
+                        <h3 className="text-gray-900 font-black uppercase text-base leading-tight">
+                          {pd.title}
+                        </h3>
+                        <div className="flex flex-col gap-1 mt-1">
+                          <p className="flex items-center gap-1 text-gray-500 text-[10px] font-bold uppercase tracking-widest">
+                            <MapPin
+                              size={12}
+                              className={
+                                isAccepted ? 'text-green-500' : 'text-[#F28749]'
+                              }
+                            />
+                            {isAccepted
+                              ? 'Confirmed Location'
+                              : 'Proposed Location'}
+                          </p>
+                          <p className="flex items-center gap-1 text-gray-400 text-[10px] font-bold uppercase tracking-widest">
+                            <Clock size={12} /> {time}
+                          </p>
+                        </div>
                       </div>
                     </div>
+
+                    <div
+                      className={`px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-widest ${
+                        isAccepted
+                          ? 'bg-green-100 text-green-600'
+                          : 'bg-orange-100 text-orange-600'
+                      }`}
+                    >
+                      {pd.status}
+                    </div>
                   </div>
 
-                  <div
-                    className={`px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-widest ${
-                      pd.status === 'ACCEPTED'
-                        ? 'bg-green-100 text-green-600'
-                        : 'bg-orange-100 text-orange-600'
-                    }`}
-                  >
-                    {pd.status}
-                  </div>
+                  {!isAccepted && (
+                    <button
+                      onClick={() => handleConfirm(pd.id)}
+                      disabled={actionLoading === pd.id}
+                      className="mt-6 w-full bg-[#F28749] hover:bg-[#e0763a] disabled:opacity-50 text-white py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] transition-all shadow-lg active:scale-[0.98] flex items-center justify-center gap-2"
+                    >
+                      {actionLoading === pd.id
+                        ? 'Processing...'
+                        : 'Confirm Playdate'}
+                    </button>
+                  )}
+
+                  {isAccepted && (
+                    <div className="mt-6 w-full bg-green-50 border border-green-100 text-green-600 py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] flex items-center justify-center gap-2">
+                      <CheckCircle2 size={16} />
+                      Great! It's a plan
+                    </div>
+                  )}
                 </div>
               )
             })}
