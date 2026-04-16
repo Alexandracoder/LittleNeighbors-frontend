@@ -1,0 +1,25 @@
+{
+  "auth": {
+    "login": "Iniciar sessió",
+    "register": "Registrar-se",
+    "logout": "Tancar sessió"
+  },
+  "family": {
+    "representative": "Representant",
+    "description": "Descripció",
+    "children": "Fills/es",
+    "interests": "Interessos",
+    "not_assigned": "No assignat"
+  },
+  "location": {
+    "neighborhood": "Barri",
+    "street": "Carrer",
+    "city": "Ciutat",
+    "postal_code": "Codi Postal",
+    "no_neighborhood": "Sense barri assignat"
+  },
+  "profile": {
+    "title": "El meu Perfil",
+    "edit": "Editar Perfil"
+  }
+}

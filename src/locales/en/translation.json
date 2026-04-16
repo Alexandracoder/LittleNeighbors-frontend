@@ -1,0 +1,25 @@
+{
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout"
+  },
+  "family": {
+    "representative": "Representative",
+    "description": "Description",
+    "children": "Children",
+    "interests": "Interests",
+    "not_assigned": "Not assigned"
+  },
+  "location": {
+    "neighborhood": "Neighborhood",
+    "street": "Street",
+    "city": "City",
+    "postal_code": "Postal Code",
+    "no_neighborhood": "No neighborhood assigned"
+  },
+  "profile": {
+    "title": "My Profile",
+    "edit": "Edit Profile"
+  }
+}

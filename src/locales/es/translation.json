@@ -1,0 +1,25 @@
+{
+  "auth": {
+    "login": "Iniciar sesión",
+    "register": "Registrarse",
+    "logout": "Cerrar sesión"
+  },
+  "family": {
+    "representative": "Representante",
+    "description": "Descripción",
+    "children": "Hijos/as",
+    "interests": "Intereses",
+    "not_assigned": "No asignado"
+  },
+  "location": {
+    "neighborhood": "Barrio",
+    "street": "Calle",
+    "city": "Ciudad",
+    "postal_code": "Código Postal",
+    "no_neighborhood": "Sin barrio asignado"
+  },
+  "profile": {
+    "title": "Mi Perfil",
+    "edit": "Editar Perfil"
+  }
+}
