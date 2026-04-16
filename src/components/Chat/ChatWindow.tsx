@@ -7,6 +7,8 @@ import {
   ChevronLeft,
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import { Client } from '@stomp/stompjs'
+import SockJS from 'sockjs-client' // Importante para la compatibilidad con Spring
 import { messageService } from '../../services/messageService'
 import { userService } from '../../services/userService'
 import { UserProfileDTO } from '../../types'
@@ -32,9 +34,10 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   const [neighborAccepted, setNeighborAccepted] = useState(false)
 
   const scrollRef = useRef<HTMLDivElement>(null)
+  const stompClient = useRef<Client | null>(null)
   const isFullMatch = iAccepted && neighborAccepted
 
-
+  // Cargar perfil si falta
   useEffect(() => {
     const fetchLatestProfile = async () => {
       if (!myFamily && token) {
@@ -49,6 +52,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     fetchLatestProfile()
   }, [myFamily, token])
 
+  // Cargar historial y estados de aceptación
   useEffect(() => {
     if (!matchId || matchId === 'undefined') return
 
@@ -61,41 +65,79 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
           setNeighborAccepted(data.neighborAccepted)
         }
       } catch (err) {
-        console.error('Error loading chat data:', err)
+        console.error('Error loading chat history:', err)
       }
     }
-
     loadHistory()
-    const interval = setInterval(loadHistory, 5000)
-    return () => clearInterval(interval)
   }, [matchId, token])
 
+  // Lógica de WebSocket Corregida
+  useEffect(() => {
+    if (!matchId || matchId === 'undefined' || !token) return
+
+    const client = new Client({
+      // Usamos webSocketFactory para que SockJS gestione la conexión
+      webSocketFactory: () =>
+        new SockJS('http://localhost:8080/ws-little-neighbors'),
+      connectHeaders: {
+        Authorization: `Bearer ${token}`, // Seguridad JWT
+      },
+      debug: str => console.log('STOMP Debug:', str),
+      reconnectDelay: 5000,
+      heartbeatIncoming: 4000,
+      heartbeatOutgoing: 4000,
+    })
+
+    client.onConnect = frame => {
+      console.log('✅ Connected to LittleNeighbors WebSocket')
+
+      client.subscribe(`/topic/messages/${matchId}`, payload => {
+        const newMessage = JSON.parse(payload.body)
+        setMessages(prev => {
+          const exists = prev.some(m => m.id === newMessage.id)
+          return exists ? prev : [...prev, newMessage]
+        })
+      })
+    }
+
+    client.onStompError = frame => {
+      console.error('❌ STOMP Error:', frame.headers['message'])
+    }
+
+    client.activate()
+    stompClient.current = client
+
+    return () => {
+      if (client) {
+        client.deactivate()
+      }
+    }
+  }, [matchId, token])
+
+  // Auto-scroll al recibir mensajes
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight
     }
   }, [messages])
 
-  const handleSend = async (e: FormEvent) => {
+  const handleSend = (e: FormEvent) => {
     e.preventDefault()
-    if (!text.trim() || !matchId || matchId === 'undefined') return
+    // Verificamos que el cliente esté realmente conectado antes de enviar
+    if (!text.trim() || !matchId || !stompClient.current?.connected) return
 
-    const messageContent = text.trim()
-    setText('')
-
-    try {
-      const response = await messageService.sendMessage(
-        Number(matchId),
-        messageContent,
-        token,
-      )
-      if (response) {
-        setMessages(prev => [...prev, response])
-      }
-    } catch (err) {
-      console.error('Error sending message:', err)
-      setText(messageContent)
+    const messageDTO = {
+      matchId: Number(matchId),
+      senderId: currentUser.id,
+      content: text.trim(),
     }
+
+    stompClient.current.publish({
+      destination: `/app/chat/${matchId}`,
+      body: JSON.stringify(messageDTO),
+    })
+
+    setText('')
   }
 
   const handleMatchAction = async () => {
@@ -108,10 +150,10 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     }
   }
 
-const handleGoToSchedules = () => {
-  if (!matchId) return
-  navigate(`/schedules/${matchId}`)
-}
+  const handleGoToSchedules = () => {
+    if (!matchId) return
+    navigate(`/schedules/${matchId}`)
+  }
 
   return (
     <div className="flex flex-col h-full bg-white rounded-[2.5rem] shadow-xl overflow-hidden font-sans">
@@ -126,7 +168,6 @@ const handleGoToSchedules = () => {
             <h2 className="text-xl font-black text-gray-900 uppercase tracking-tighter italic leading-none">
               Chat
             </h2>
-
             <button
               onClick={handleMatchAction}
               disabled={iAccepted}
@@ -138,13 +179,11 @@ const handleGoToSchedules = () => {
                   : 'bg-[#F28749] text-white hover:bg-gray-900 shadow-orange-100'
               }`}
             >
-              {isFullMatch ? (
-                <>✨ Official Match</>
-              ) : iAccepted ? (
-                <>⏳ Waiting for neighbor...</>
-              ) : (
-                '🤝 Confirm Match'
-              )}
+              {isFullMatch
+                ? '✨ Official Match'
+                : iAccepted
+                ? '⏳ Waiting for neighbor...'
+                : '🤝 Confirm Match'}
             </button>
           </div>
         </div>
@@ -171,7 +210,9 @@ const handleGoToSchedules = () => {
           </p>
         )}
         {messages.map((msg, index) => {
-          const isMe = msg.senderEmail === currentUser?.email
+          const isMe =
+            msg.senderId === currentUser?.id ||
+            msg.senderEmail === currentUser?.email
           return (
             <div
               key={msg.id || index}
@@ -193,11 +234,11 @@ const handleGoToSchedules = () => {
         })}
       </div>
 
-      {/* Action Buttons */}
+      {/* Footer Buttons */}
       <div className="px-6 py-2 flex gap-3 bg-white">
         <button
           onClick={() => navigate('/profile')}
-          className="flex-1 bg-[#F28749] text-white py-3 rounded-[1.2rem] flex flex-col items-center justify-center gap-1 hover:bg-[#e0763a] transition-all active:scale-95 shadow-lg shadow-orange-100"
+          className="flex-1 bg-[#F28749] text-white py-3 rounded-[1.2rem] flex flex-col items-center justify-center gap-1 hover:bg-[#e0763a] transition-all active:scale-95"
         >
           <UserCircle size={18} strokeWidth={2.5} />
           <span className="text-[9px] font-black uppercase tracking-widest text-center">
@@ -208,10 +249,10 @@ const handleGoToSchedules = () => {
         <button
           disabled={!isFullMatch}
           onClick={handleGoToSchedules}
-          className={`flex-1 py-3 rounded-[1.2rem] flex flex-col items-center justify-center gap-1 transition-all shadow-lg ${
+          className={`flex-1 py-3 rounded-[1.2rem] flex flex-col items-center justify-center gap-1 transition-all ${
             isFullMatch
-              ? 'bg-green-500 text-white hover:bg-green-600 active:scale-95'
-              : 'bg-gray-100 text-gray-400 cursor-not-allowed opacity-50'
+              ? 'bg-green-500 text-white'
+              : 'bg-gray-100 text-gray-400'
           }`}
         >
           <Calendar size={18} strokeWidth={2.5} />
@@ -222,14 +263,14 @@ const handleGoToSchedules = () => {
 
         <button
           onClick={() => {
-            const random = [
+            const tips = [
               "Kids' favorite games?",
               'Park this weekend?',
               'How old are your little ones?',
-            ][Math.floor(Math.random() * 3)]
-            setText(random)
+            ]
+            setText(tips[Math.floor(Math.random() * tips.length)])
           }}
-          className="flex-1 bg-[#F28749] text-white py-3 rounded-[1.2rem] flex flex-col items-center justify-center gap-1 hover:bg-[#e0763a] transition-all active:scale-95 shadow-lg shadow-orange-100"
+          className="flex-1 bg-[#F28749] text-white py-3 rounded-[1.2rem] flex flex-col items-center justify-center gap-1 hover:bg-[#e0763a]"
         >
           <HelpCircle size={18} strokeWidth={2.5} />
           <span className="text-[9px] font-black uppercase tracking-widest text-center">
@@ -248,12 +289,12 @@ const handleGoToSchedules = () => {
             value={text}
             onChange={e => setText(e.target.value)}
             placeholder="Type a message..."
-            className="flex-1 bg-transparent border-none outline-none text-gray-600 text-sm py-3 font-bold placeholder-gray-300"
+            className="flex-1 bg-transparent border-none outline-none text-gray-600 text-sm py-3 font-bold"
           />
           <button
             type="submit"
-            disabled={!text.trim()}
-            className="bg-[#F28749] text-white px-8 py-3.5 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-[#d97336] disabled:opacity-20 transition-all"
+            disabled={!text.trim() || !stompClient.current?.connected}
+            className="bg-[#F28749] text-white px-8 py-3.5 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2 disabled:opacity-50 transition-all"
           >
             Send <Send size={14} className="fill-current" />
           </button>
