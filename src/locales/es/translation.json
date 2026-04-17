@@ -203,6 +203,40 @@
       "loading": "Cargando eventos..."
     }
   },
+  "playdates": {
+    "page": {
+      "agendaTitle": "Mi",
+      "agendaHighlight": "Agenda",
+      "titleSuggest": "Sugerir un",
+      "titleHighlight": "Plan",
+      "subtitle": "Elige un momento para conocer a tu vecino"
+    },
+    "form": {
+      "titleLabel": "¿Cuál es el plan?",
+      "titlePlaceholder": "Ej: Tarde en el parque / Café y juguetes",
+      "whenLabel": "¿Cuándo?",
+      "detailsLabel": "Detalles extra",
+      "detailsPlaceholder": "¿Algo más que tu vecino deba saber?",
+      "confirmPlan": "Confirmar este plan",
+      "submitIdle": "Enviar Propuesta",
+      "submitLoading": "Enviando..."
+    },
+    "card": {
+      "matchRef": "Ref ID"
+    },
+    "status": {
+      "accepted": "Aceptado",
+      "pending": "Pendiente",
+      "confirming": "Confirmando...",
+      "loadingAgenda": "Cargando tu agenda...",
+      "emptyAgenda": "Tu agenda está vacía",
+      "emptySubtitle": "¡Es hora de conectar con nuevas familias!",
+      "confirmedLocation": "Ubicación Confirmada",
+      "proposedLocation": "Ubicación Propuesta",
+      "planConfirmed": "¡Genial! Hay plan",
+      "tapToSuggest": "Toca para sugerir el primero"
+    }
+  },
   "welcome": {
     "title": "¡Bienvenidos a la comunidad!",
     "body": "Ya eres parte de algo más grande. Tu perfil está listo y tus vecinos te esperan.",

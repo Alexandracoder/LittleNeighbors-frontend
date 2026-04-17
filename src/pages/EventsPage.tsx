@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Plus } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import dashboardBg from '../assets/parent-meeting.png'
 import { EventList } from '../components/EventList'
 import { EventModal } from '../components/EventModal'
@@ -8,9 +9,9 @@ import { CreateEventForm } from '../components/CreateEventForm'
 import { MapComponent } from './MapComponent'
 
 export default function EventsPage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [events, setEvents] = useState<any[]>([])
-  // --- NUEVO ESTADO PARA BARRIOS ---
   const [neighborhoods, setNeighborhoods] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -20,7 +21,7 @@ export default function EventsPage() {
 
   useEffect(() => {
     fetchEvents()
-    fetchNeighborhoods() // <--- Cargamos los barrios al iniciar
+    fetchNeighborhoods()
   }, [])
 
   const fetchNeighborhoods = async () => {
@@ -30,7 +31,6 @@ export default function EventsPage() {
         headers: { Authorization: `Bearer ${token}` },
       })
       const data = await res.json()
-      // Asumimos que la API devuelve un Page objeto con .content
       setNeighborhoods(data.content || [])
     } catch (err) {
       console.error('Error cargando barrios:', err)
@@ -49,7 +49,7 @@ export default function EventsPage() {
       },
     )
       .then(res => {
-        if (!res.ok) throw new Error('Error al cargar eventos')
+        if (!res.ok) throw new Error(t('events.card.errorLoad'))
         return res.json()
       })
       .then(data => {
@@ -58,7 +58,7 @@ export default function EventsPage() {
       })
       .catch(err => {
         console.error(err)
-        setError('No pudimos cargar los eventos.')
+        setError(t('events.card.errorLoad'))
         setLoading(false)
       })
   }
@@ -93,7 +93,7 @@ export default function EventsPage() {
         }}
         className="fixed bottom-8 right-8 z-40 bg-brand-coral text-white p-4 rounded-full shadow-2xl hover:scale-105 transition-all flex items-center gap-2 font-bold"
       >
-        <Plus className="w-6 h-6" /> Crear Evento
+        <Plus className="w-6 h-6" /> {t('events.page.createButton')}
       </button>
 
       {/* Modal */}
@@ -112,18 +112,20 @@ export default function EventsPage() {
           onClick={() => navigate(-1)}
           className="flex items-center gap-2 text-brand-dark hover:text-brand-coral transition-colors font-bold"
         >
-          <ArrowLeft className="w-6 h-6" /> Back to Dashboard
+          <ArrowLeft className="w-6 h-6" /> {t('events.page.backToDashboard')}
         </button>
 
         <h1 className="text-5xl font-black uppercase text-brand-dark drop-shadow-sm">
-          Neighborhood Events
+          {t('events.page.title')}
         </h1>
 
         <button
           onClick={() => setIsMapVisible(!isMapVisible)}
           className="text-brand-dark font-bold underline hover:text-brand-coral transition-colors"
         >
-          {isMapVisible ? 'Ocultar mapa' : 'Ver eventos en el mapa'}
+          {isMapVisible
+            ? t('events.page.toggleMapHide')
+            : t('events.page.toggleMapShow')}
         </button>
 
         {isMapVisible && (
@@ -138,7 +140,7 @@ export default function EventsPage() {
         <div className="bg-white/70 backdrop-blur-sm p-8 rounded-[2rem] border border-white/50 shadow-xl">
           <EventList
             events={events}
-            neighborhoods={neighborhoods} // <--- PASAMOS LOS BARRIOS A LA LISTA
+            neighborhoods={neighborhoods}
             loading={loading}
             error={error}
             onRefresh={fetchEvents}

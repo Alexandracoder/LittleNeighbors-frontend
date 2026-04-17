@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Calendar, MapPin, Clock, CheckCircle2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import playdateService from '../services/playdateService'
 import dashboardBg from '../assets/new-at-neigborhood.png'
 import { Playdate } from '../types'
 
 const SchedulesPage: React.FC = () => {
+  const { t, i18n } = useTranslation()
   const { matchId } = useParams<{ matchId: string }>()
   const navigate = useNavigate()
 
@@ -52,7 +54,7 @@ const SchedulesPage: React.FC = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#1a1a1a]">
         <div className="text-white font-black uppercase tracking-widest animate-pulse">
-          Loading Schedules...
+          {t('playdates.status.loadingAgenda')}
         </div>
       </div>
     )
@@ -75,11 +77,14 @@ const SchedulesPage: React.FC = () => {
           onClick={() => navigate(-1)}
           className="bg-white text-gray-800 mb-8 flex w-fit items-center gap-2 rounded-full px-5 py-2.5 font-black uppercase tracking-widest text-[10px] shadow-lg border border-white transition-all hover:scale-105"
         >
-          <ArrowLeft className="w-3 h-3" /> Back to Chat
+          <ArrowLeft className="w-3 h-3" /> {t('common.back')}
         </button>
 
         <h1 className="text-5xl font-black uppercase text-white mb-10 italic tracking-tighter drop-shadow-[0_2px_15px_rgba(0,0,0,0.3)]">
-          My <span className="text-[#F28749]">Playdates</span>
+          {t('playdates.page.agendaTitle')}{' '}
+          <span className="text-[#F28749]">
+            {t('playdates.page.agendaHighlight')}
+          </span>
         </h1>
 
         {playdates.length > 0 ? (
@@ -87,11 +92,12 @@ const SchedulesPage: React.FC = () => {
             {playdates.map(pd => {
               const dateObj = new Date(pd.startTime)
               const day = dateObj.getDate()
-              const month = dateObj.toLocaleString('en-US', { month: 'short' })
-              const time = dateObj.toLocaleTimeString('en-US', {
+              const month = dateObj.toLocaleString(i18n.language, {
+                month: 'short',
+              })
+              const time = dateObj.toLocaleTimeString(i18n.language, {
                 hour: '2-digit',
                 minute: '2-digit',
-                hour12: true,
               })
 
               const isAccepted = pd.status === 'ACCEPTED'
@@ -129,8 +135,8 @@ const SchedulesPage: React.FC = () => {
                               }
                             />
                             {isAccepted
-                              ? 'Confirmed Location'
-                              : 'Proposed Location'}
+                              ? t('playdates.status.confirmedLocation')
+                              : t('playdates.status.proposedLocation')}
                           </p>
                           <p className="flex items-center gap-1 text-gray-400 text-[10px] font-bold uppercase tracking-widest">
                             <Clock size={12} /> {time}
@@ -146,7 +152,9 @@ const SchedulesPage: React.FC = () => {
                           : 'bg-orange-100 text-orange-600'
                       }`}
                     >
-                      {pd.status}
+                      {isAccepted
+                        ? t('playdates.status.accepted')
+                        : t('playdates.status.pending')}
                     </div>
                   </div>
 
@@ -157,15 +165,15 @@ const SchedulesPage: React.FC = () => {
                       className="mt-6 w-full bg-[#F28749] hover:bg-[#e0763a] disabled:opacity-50 text-white py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] transition-all shadow-lg active:scale-[0.98] flex items-center justify-center gap-2"
                     >
                       {actionLoading === pd.id
-                        ? 'Processing...'
-                        : 'Confirm Playdate'}
+                        ? t('playdates.status.confirming')
+                        : t('playdates.form.confirmPlan')}
                     </button>
                   )}
 
                   {isAccepted && (
                     <div className="mt-6 w-full bg-green-50 border border-green-100 text-green-600 py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] flex items-center justify-center gap-2">
                       <CheckCircle2 size={16} />
-                      Great! It's a plan
+                      {t('playdates.status.planConfirmed')}
                     </div>
                   )}
                 </div>
@@ -182,10 +190,10 @@ const SchedulesPage: React.FC = () => {
             </div>
             <div>
               <h2 className="text-xl font-black text-gray-900 uppercase italic tracking-tighter">
-                No Playdates Yet
+                {t('playdates.status.emptyAgenda')}
               </h2>
               <p className="text-[11px] font-bold text-gray-400 uppercase tracking-[0.2em] leading-none mt-1 group-hover:text-[#F28749] transition-colors">
-                Tap to suggest the first one
+                {t('playdates.status.tapToSuggest')}
               </p>
             </div>
           </div>

@@ -7,8 +7,8 @@ import {
 } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
+import { useTranslation } from 'react-i18next'
 
-// Corregir iconos de Leaflet (a veces no cargan en React)
 const customIcon = new L.Icon({
   iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
   shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
@@ -16,14 +16,12 @@ const customIcon = new L.Icon({
   iconAnchor: [12, 41],
 })
 
-// --- SUB-COMPONENTE 1: Mueve la cámara cuando cambian las coordenadas ---
 function ChangeView({ center }: { center: [number, number] }) {
   const map = useMap()
-  map.setView(center, 15) // El 15 es el nivel de zoom (más cerca)
+  map.setView(center, 15)
   return null
 }
 
-// --- SUB-COMPONENTE 2: Detecta clics para precisión quirúrgica ---
 function LocationMarker({ onLocationSelect, selectedPosition }: any) {
   useMapEvents({
     click(e) {
@@ -44,7 +42,8 @@ export const MapComponent = ({
   onLocationSelect,
   selectedPosition,
 }: any) => {
-  // Posición por defecto (Valencia) o la seleccionada
+  const { i18n } = useTranslation()
+
   const currentPos: [number, number] = selectedPosition
     ? [selectedPosition.lat, selectedPosition.lng]
     : [39.4699, -0.3763]
@@ -57,10 +56,8 @@ export const MapComponent = ({
     >
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
-      {/* Esto hace que el mapa se mueva solo al cambiar el barrio */}
       <ChangeView center={currentPos} />
 
-      {/* Marcadores de otros eventos (si los hay) */}
       {events.map((event: any) => (
         <Marker
           key={event.id}
@@ -69,7 +66,6 @@ export const MapComponent = ({
         />
       ))}
 
-      {/* El marcador que el usuario está moviendo */}
       <LocationMarker
         onLocationSelect={onLocationSelect}
         selectedPosition={selectedPosition}
