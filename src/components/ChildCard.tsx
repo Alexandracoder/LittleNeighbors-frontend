@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next' // 1. Importar hook
 import type { ChildResponseDTO } from '../types'
 import { childApi } from '../services/api'
 
@@ -30,6 +31,7 @@ export default function ChildCard({
   myChildId,
 }: ChildCardProps) {
   const navigate = useNavigate()
+  const { t } = useTranslation() // 2. Inicializar t
   const [status, setStatus] = useState<
     'idle' | 'loading' | 'success' | 'error'
   >('idle')
@@ -40,7 +42,6 @@ export default function ChildCard({
   const isPrenatal = child.lifeStage === 'PREGNANCY'
 
   const handleGoToChat = () => {
-
     if (child.familyId) {
       navigate(`/messages?with=${child.familyId}`)
     } else {
@@ -48,20 +49,29 @@ export default function ChildCard({
     }
   }
 
+  // 3. Edad dinámica con tu JSON
   const getDisplayAge = () => {
-    if (isPrenatal) return 'Coming soon'
+    if (isPrenatal) return t('children.card.agePrenatal')
     if (child.age !== undefined && child.age !== null) {
-      if (child.age === 0) return 'Newborn'
-      return `${child.age} ${child.age === 1 ? 'year' : 'years'} old`
+      if (child.age === 0) return t('children.card.ageNewborn')
+
+      // Lógica para año/años según tu JSON
+      const suffix =
+        child.age === 1
+          ? t('children.card.ageSuffix_one')
+          : t('children.card.ageSuffix_other')
+
+      return `${child.age} ${suffix}`
     }
-    return 'New Neighbor'
+    return t('children.card.ageDefault')
   }
 
+  // 4. Títulos dinámicos con tu JSON
   const getTitle = () => {
-    if (isPrenatal) return 'Expecting'
-    if (child.gender === 'BOY') return 'Little Boy'
-    if (child.gender === 'GIRL') return 'Little Girl'
-    return 'Little Neighbor'
+    if (isPrenatal) return t('children.card.titlePrenatal')
+    if (child.gender === 'BOY') return t('children.card.titleBoy')
+    if (child.gender === 'GIRL') return t('children.card.titleGirl')
+    return t('children.card.titleDefault')
   }
 
   const handleMatchRequest = async () => {
@@ -71,7 +81,7 @@ export default function ChildCard({
       await childApi.requestMatch(myChildId, child.id)
       setStatus('success')
     } catch (err: any) {
-      setErrorMessage(err.response?.data?.message || 'Error sending request')
+      setErrorMessage(err.response?.data?.message || t('common.error'))
       setStatus('error')
       setTimeout(() => setStatus('idle'), 3000)
     }
@@ -114,7 +124,6 @@ export default function ChildCard({
             </button>
           </div>
         ) : (
-          /* Botón de Chat rápido para usuarios ajenos */
           <button
             onClick={handleGoToChat}
             className="p-4 bg-orange-100 text-orange-600 rounded-2xl hover:bg-[#F28749] hover:text-white transition-all shadow-sm group"
@@ -132,7 +141,7 @@ export default function ChildCard({
                 isPrenatal ? 'text-purple-300' : 'text-orange-300'
               }`}
             />
-            <span>Interests</span>
+            <span>{t('children.card.interestsLabel')}</span>
           </div>
           <div className="flex flex-wrap gap-2">
             {child.interests.map((interest, index) => (
@@ -140,7 +149,10 @@ export default function ChildCard({
                 key={index}
                 className="px-4 py-1.5 bg-gray-50 text-gray-600 text-[11px] font-bold rounded-full border border-gray-100"
               >
-                {interest.name}
+                {/* Traducción dinámica de intereses */}
+                {t(`interests.${interest.name.toLowerCase()}`, {
+                  defaultValue: interest.name,
+                })}
               </span>
             ))}
           </div>
@@ -154,17 +166,17 @@ export default function ChildCard({
               onClick={handleMatchRequest}
               className="w-full py-4 bg-gray-900 text-white font-black rounded-2xl hover:bg-gray-800 transition-all flex items-center justify-center gap-2"
             >
-              <Send className="w-5 h-5" /> REQUEST PLAYDATE
+              <Send className="w-5 h-5" /> {t('children.card.requestPlaydate')}
             </button>
           )}
           {status === 'loading' && (
             <div className="text-center text-gray-400 font-bold flex items-center justify-center gap-2">
-              <Loader2 className="animate-spin" /> SENDING...
+              <Loader2 className="animate-spin" /> {t('children.card.sending')}
             </div>
           )}
           {status === 'success' && (
             <div className="text-center text-green-500 font-black flex items-center justify-center gap-2">
-              <CheckCircle2 /> REQUEST SENT
+              <CheckCircle2 /> {t('children.card.requestSent')}
             </div>
           )}
           {status === 'error' && (

@@ -1,4 +1,5 @@
 import { ReactNode } from "react"
+import './i18n'
 
 export interface AuthRequest {
   email: string

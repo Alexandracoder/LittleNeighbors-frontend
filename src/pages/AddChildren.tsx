@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { childApi } from '../services/api'
 import { useAuth } from '../context/AuthContext'
 import type { ChildResponseDTO } from '../types'
 import ChildForm from '../components/ChildForm'
 import ChildCard from '../components/ChildCard'
-// Añadimos Heart y Users a los imports
 import {
   Plus,
   ArrowRight,
@@ -17,6 +17,7 @@ import {
 } from 'lucide-react'
 
 export default function AddChildPage() {
+  const { t } = useTranslation()
   const { refreshStatus } = useAuth()
   const [children, setChildren] = useState<ChildResponseDTO[]>([])
   const [isFormOpen, setIsFormOpen] = useState(false)
@@ -50,13 +51,13 @@ export default function AddChildPage() {
   }
 
   const handleDelete = async (id: number) => {
-    if (window.confirm('Are you sure you want to remove this profile?')) {
+    if (window.confirm(t('profile.deleteConfirm'))) {
       try {
         await childApi.delete(id)
         await loadChildren()
         await refreshStatus()
       } catch (err) {
-        alert('Could not delete profile.')
+        alert(t('profile.deleteError'))
       }
     }
   }
@@ -80,11 +81,11 @@ export default function AddChildPage() {
                 <Baby className="text-white w-8 h-8" />
               </div>
               <h1 className="text-4xl font-black text-[#2D2D2D] tracking-tight">
-                Little Neighbors
+                {t('children.page.title')}
               </h1>
             </div>
             <p className="text-gray-500 font-bold ml-1 uppercase tracking-widest text-xs">
-              Manage your family members
+              {t('children.page.subtitle')}
             </p>
           </div>
 
@@ -92,7 +93,7 @@ export default function AddChildPage() {
             onClick={() => navigate('/explore')}
             className="group flex items-center gap-3 px-8 py-4 bg-[#FF8A5C] text-white font-black rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all"
           >
-            Start Exploring
+            {t('children.page.startExploring')}
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </button>
         </header>
@@ -103,7 +104,6 @@ export default function AddChildPage() {
           </div>
         ) : (
           <div className="space-y-12">
-            {/* GRID DE NIÑOS */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {children.map(child => (
                 <ChildCard
@@ -125,17 +125,16 @@ export default function AddChildPage() {
                   <Plus className="w-10 h-10" />
                 </div>
                 <span className="font-black text-[#FF8A5C]/40 group-hover:text-[#FF8A5C] uppercase tracking-widest text-xs">
-                  Add New Profile
+                  {t('children.page.addNewProfile')}
                 </span>
               </button>
             </div>
 
-            {/* --- SECCIÓN DE MIS MATCHES INTEGRADA --- */}
             <div className="max-w-2xl">
               <div className="flex items-center gap-2 mb-6 ml-2">
                 <Users className="w-4 h-4 text-[#FF8A5C]" />
                 <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">
-                  Community Connections
+                  {t('matches.title')}
                 </h3>
               </div>
 
@@ -149,10 +148,10 @@ export default function AddChildPage() {
                   </div>
                   <div className="text-left">
                     <span className="block font-black uppercase italic tracking-tighter text-xl text-[#2D2D2D] leading-none mb-1">
-                      My Matches
+                      {t('dashboard.myPlaydates')}
                     </span>
                     <span className="block text-[10px] font-bold uppercase text-gray-400 tracking-wider">
-                      Manage your trusted circle
+                      {t('dashboard.subtitle')}
                     </span>
                   </div>
                 </div>
@@ -164,7 +163,6 @@ export default function AddChildPage() {
           </div>
         )}
 
-        {/* MODAL FORM (Sin cambios) */}
         {isFormOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div

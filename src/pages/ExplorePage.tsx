@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { familyApi, interestApi } from '../services/api'
 import type {
   FamilyResponseDTO,
@@ -20,6 +21,7 @@ import {
 
 export default function ExplorePage() {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const [families, setFamilies] = useState<FamilyResponseDTO[]>([])
   const [availableInterests, setAvailableInterests] = useState<
     InterestResponseDTO[]
@@ -35,7 +37,6 @@ export default function ExplorePage() {
     null,
   )
 
-  // 1. Cargar datos iniciales
   useEffect(() => {
     const initData = async () => {
       try {
@@ -48,20 +49,19 @@ export default function ExplorePage() {
         if (myProfile?.children?.length > 0) {
           setMyChildren(myProfile.children)
           setMyChildId(myProfile.children[0].id)
-          // Opcional: guardar los intereses del hijo actual para resaltar comunes
           setMyChildInterests(
             myProfile.children[0].interests?.map((i: any) => i.id) || [],
           )
         }
       } catch (err) {
         console.error('Error initialization data:', err)
-        setError('Please complete your family profile first.')
+        setError(t('explore.errorProfile'))
       }
     }
     initData()
-  }, [])
+  }, [t])
 
-  // 2. Cargar familias según filtros
+ 
   const loadFamilies = useCallback(async () => {
     if (!myChildId) return
     setLoading(true)
@@ -76,11 +76,11 @@ export default function ExplorePage() {
       const data = await familyApi.explore(filters)
       setFamilies(data)
     } catch (err: any) {
-      setError('Could not find families.')
+      setError(t('explore.errorFamilies')) // Clave del JSON
     } finally {
       setLoading(false)
     }
-  }, [myChildId, ageRange, selectedInterestIds])
+  }, [myChildId, ageRange, selectedInterestIds, t])
 
   useEffect(() => {
     loadFamilies()
@@ -95,30 +95,28 @@ export default function ExplorePage() {
   return (
     <MainLayout
       backgroundImage={bgImage}
-      title="Explore"
-      subtitle="Find your community playmates"
+      title={t('explore.title')}
+      subtitle={t('explore.subtitle')}
       showGlassCard={false}
     >
       <div className="flex flex-col gap-8">
         {/* --- NAVEGACIÓN SUPERIOR --- */}
         <div className="flex items-center justify-between mb-2">
-          {/* Botón Back */}
           <button
             onClick={() => navigate(-1)}
             className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-white/70 hover:bg-white/20 hover:text-white transition-all group"
           >
             <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
             <span className="text-[10px] font-black uppercase tracking-widest">
-              Back
+              {t('common.back')}
             </span>
           </button>
 
-          {/* Accesos Rápidos: Dashboard y Perfil */}
           <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md p-1.5 rounded-full border border-white/20">
             <button
               onClick={() => navigate('/dashboard')}
               className="p-2.5 hover:bg-[#F28749] rounded-full text-white transition-all hover:scale-110"
-              title="Dashboard"
+              title={t('navigation.dashboard')}
             >
               <LayoutDashboard className="w-4 h-4" />
             </button>
@@ -126,7 +124,7 @@ export default function ExplorePage() {
             <button
               onClick={() => navigate('/add-child')}
               className="p-2.5 hover:bg-[#F28749] rounded-full text-white transition-all hover:scale-110"
-              title="My Profile"
+              title={t('navigation.profile')}
             >
               <User className="w-4 h-4" />
             </button>
@@ -136,7 +134,7 @@ export default function ExplorePage() {
         {/* 1. SELECTOR DE HIJOS */}
         <div className="flex flex-wrap gap-3 items-center bg-white/10 backdrop-blur-md p-3 rounded-full border border-white/20 w-fit shadow-xl">
           <span className="text-[10px] font-black uppercase tracking-widest text-white/60 ml-4 mr-2">
-            Active Profile:
+            {t('explore.activeProfile')}
           </span>
           {myChildren.map(child => (
             <button
@@ -151,7 +149,8 @@ export default function ExplorePage() {
                   : 'bg-white/10 text-white/70 hover:bg-white/20 hover:text-white'
               }`}
             >
-              {child.gender === 'BOY' ? '👦' : '👧'} {child.age} yrs
+              {child.gender === 'BOY' ? '👦' : '👧'} {child.age}{' '}
+              {t('family.card.yearsOldSuffix').toLowerCase()}
             </button>
           ))}
         </div>
@@ -162,7 +161,7 @@ export default function ExplorePage() {
           <div className="w-full md:w-1/3 bg-white/10 backdrop-blur-xl rounded-[2.5rem] p-7 border border-white/20 shadow-xl flex flex-col justify-between">
             <div>
               <label className="text-[10px] font-black text-[#F28749] uppercase tracking-[0.2em] mb-4 block">
-                Age Range
+                {t('explore.filters.ageRangeLabel')}
               </label>
               <div className="relative">
                 <select
@@ -177,16 +176,16 @@ export default function ExplorePage() {
                   className="w-full bg-white/10 border border-white/20 rounded-2xl px-4 py-3 text-sm font-bold text-white appearance-none cursor-pointer focus:bg-white/20 outline-none transition-all"
                 >
                   <option value="" className="text-gray-900">
-                    All Ages
+                    {t('explore.filters.ageRangeAll')}
                   </option>
                   <option value="0-2" className="text-gray-900">
-                    Toddlers (0-2)
+                    {t('explore.filters.ageRangeToddlers')}
                   </option>
                   <option value="3-5" className="text-gray-900">
-                    Preschoolers (3-5)
+                    {t('explore.filters.ageRangePreschoolers')}
                   </option>
                   <option value="6-12" className="text-gray-900">
-                    School Age (6+)
+                    {t('explore.filters.ageRangeSchool')}
                   </option>
                 </select>
                 <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#F28749] pointer-events-none" />
@@ -202,7 +201,7 @@ export default function ExplorePage() {
                 className="mt-6 flex items-center gap-2 text-[9px] font-black uppercase text-[#F28749] hover:text-white transition-colors"
               >
                 <FilterX className="w-4 h-4" />
-                Clear all filters
+                {t('explore.filters.clearAll')}
               </button>
             )}
           </div>
@@ -210,7 +209,7 @@ export default function ExplorePage() {
           {/* DERECHA: Intereses */}
           <div className="w-full md:w-2/3 bg-white/10 backdrop-blur-xl rounded-[3rem] p-7 border border-white/20 shadow-xl text-white">
             <label className="text-[10px] font-black text-[#F28749] uppercase tracking-[0.2em] mb-4 block">
-              Interests
+              {t('explore.filters.interestsLabel')}
             </label>
             <div className="flex flex-wrap gap-2">
               {availableInterests.map(interest => {
@@ -247,7 +246,7 @@ export default function ExplorePage() {
               <div className="animate-spin h-12 w-12 border-4 border-[#F28749] border-t-transparent rounded-full mx-auto mb-4" />
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 pb-10">
               {families.map(f => (
                 <div
                   key={f.id}

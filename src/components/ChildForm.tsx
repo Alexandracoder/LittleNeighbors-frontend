@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { childApi, interestApi } from '../services/api'
+import { useTranslation } from 'react-i18next' // 1. Importar hook
 import type {
   ChildRequestDTO,
   ChildResponseDTO,
@@ -18,6 +19,7 @@ export default function ChildForm({
   onSuccess,
   onCancel,
 }: ChildFormProps) {
+  const { t } = useTranslation() // 2. Inicializar t
   const [loading, setLoading] = useState(false)
   const [allInterests, setAllInterests] = useState<InterestResponseDTO[]>([])
   const [formData, setFormData] = useState<ChildRequestDTO>({
@@ -69,7 +71,7 @@ export default function ChildForm({
       onSuccess()
     } catch (err) {
       console.error(err)
-      alert('Failed to save profile. Please try again.')
+      alert(t('children.form.errorSave')) // Uso de traducción para error
     } finally {
       setLoading(false)
     }
@@ -90,7 +92,9 @@ export default function ChildForm({
     <form onSubmit={handleSubmit} className="space-y-8 bg-white p-2">
       <div className="flex justify-between items-center mb-2">
         <h2 className="text-3xl font-black text-[#2D2D2D] uppercase italic tracking-tight">
-          {initialData ? 'Edit Profile' : 'New Little Neighbor'}
+          {initialData
+            ? t('children.form.titleEdit')
+            : t('children.form.titleNew')}
         </h2>
         <button
           type="button"
@@ -102,9 +106,10 @@ export default function ChildForm({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Etapa de Vida */}
         <div className="space-y-3">
           <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">
-            Life Stage
+            {t('children.form.lifeStageLabel')}
           </label>
           <select
             value={formData.lifeStage}
@@ -118,14 +123,17 @@ export default function ChildForm({
             }}
             className="w-full p-4 bg-gray-50 border-2 border-transparent focus:border-[#FF8A5C] rounded-2xl font-bold transition-all outline-none appearance-none cursor-pointer"
           >
-            <option value="PREGNANCY">Pregnancy / Expecting 🤰</option>
-            <option value="BORN">Already Born 👶</option>
+            <option value="PREGNANCY">
+              {t('children.form.lifeStagePregnancy')}
+            </option>
+            <option value="BORN">{t('children.form.lifeStageBorn')}</option>
           </select>
         </div>
 
+        {/* Género */}
         <div className="space-y-3">
           <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">
-            Gender
+            {t('children.form.genderLabel')}
           </label>
           <select
             value={formData.gender || ''}
@@ -138,20 +146,23 @@ export default function ChildForm({
             className="w-full p-4 bg-gray-50 border-2 border-transparent focus:border-[#FF8A5C] rounded-2xl font-bold transition-all outline-none appearance-none cursor-pointer"
           >
             <option value="" disabled>
-              Select Gender
+              {t('children.form.genderPlaceholder')}
             </option>
-            <option value="BOY">Boy 👦</option>
-            <option value="GIRL">Girl 👧</option>
-            <option value="SURPRISE">Surprise ✨</option>
+            <option value="BOY">{t('children.form.genderBoy')}</option>
+            <option value="GIRL">{t('children.form.genderGirl')}</option>
+            <option value="SURPRISE">
+              {t('children.form.genderSurprise')}
+            </option>
           </select>
         </div>
 
+        {/* Fecha de Nacimiento */}
         {formData.lifeStage === 'BORN' && (
           <div className="space-y-3 md:col-span-2 animate-in fade-in slide-in-from-top-2">
             <div className="flex items-center gap-2 ml-1">
               <Calendar className="w-4 h-4 text-[#FF8A5C]" />
               <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">
-                Birth Date
+                {t('children.form.birthDateLabel')}
               </label>
             </div>
             <input
@@ -168,11 +179,12 @@ export default function ChildForm({
         )}
       </div>
 
+      {/* Intereses */}
       <div className="space-y-4">
         <div className="flex items-center gap-2">
           <Heart className="w-5 h-5 text-[#FF8A5C]" />
           <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">
-            Interests & Hobbies
+            {t('children.form.interestsLabel')}
           </span>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -187,7 +199,10 @@ export default function ChildForm({
                   : 'bg-white border-gray-100 text-gray-400 hover:border-orange-200'
               }`}
             >
-              {interest.name}
+              {/* Traducción dinámica del nombre del interés */}
+              {t(`interests.${interest.name.toLowerCase()}`, {
+                defaultValue: interest.name,
+              })}
             </button>
           ))}
         </div>
@@ -204,7 +219,9 @@ export default function ChildForm({
           ) : (
             <>
               <Save className="w-5 h-5" />
-              {initialData ? 'UPDATE PROFILE' : 'CREATE PROFILE'}
+              {initialData
+                ? t('children.form.submitUpdate')
+                : t('children.form.submitCreate')}
             </>
           )}
         </button>

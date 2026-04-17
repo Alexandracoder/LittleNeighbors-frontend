@@ -1,6 +1,7 @@
 import { MessageCircle, Loader2, MapPin, Heart } from 'lucide-react'
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import type { FamilyResponseDTO, InterestResponseDTO } from '../types'
 import matchService from '../services/matchService'
 
@@ -16,6 +17,7 @@ export default function FamilyCard({
   myInterestIds = [],
 }: FamilyCardProps) {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const [connectingChildId, setConnectingChildId] = useState<number | null>(
     null,
   )
@@ -32,12 +34,10 @@ export default function FamilyCard({
 
   const handleBreakTheIce = async (targetChildId: number) => {
     if (typeof myChildId !== 'number') return
-
     try {
       setConnectingChildId(targetChildId)
       const newMatch = await matchService.requestMatch(myChildId, targetChildId)
-
-      if (newMatch && newMatch.id) {
+      if (newMatch?.id) {
         navigate(`/chat/${newMatch.id}`, { replace: true })
       }
     } catch (error) {
@@ -53,29 +53,30 @@ export default function FamilyCard({
         <div className="flex justify-between items-start mb-4">
           <div className="flex flex-col gap-1">
             <h3 className="text-3xl font-black text-white uppercase italic tracking-tighter">
-              The {family.familyName}s
+              {/* CORREGIDO: Usando claves exactas de tu JSON */}
+              {t('family.card.namePrefix')} {family.familyName}{' '}
+              {t('family.card.nameSuffix')}
             </h3>
             <div className="flex items-center gap-1.5">
               <MapPin className="w-3 h-3 text-[#F28749]" />
               <span className="text-[10px] font-bold text-white/50 uppercase tracking-widest">
-                {family.neighborhood?.name || 'Nearby'}
+                {family.neighborhood?.name || t('family.card.nearby')}
               </span>
             </div>
           </div>
         </div>
         <p className="text-white/70 text-sm font-medium italic leading-relaxed line-clamp-2">
-          "{family.description || 'Looking for new community friends!'}"
+          "{family.description || t('family.card.descriptionFallback')}"
         </p>
       </div>
 
       <div className="px-6 py-4 flex flex-col gap-3">
         <span className="text-[9px] font-black text-[#F28749] uppercase tracking-[0.2em] px-2 mb-1">
-          Select a playmate to chat:
+          {t('family.card.selectPlaymate')}
         </span>
 
         {family.children.map(child => {
           const isConnecting = connectingChildId === child.id
-
           return (
             <button
               key={child.id}
@@ -97,14 +98,19 @@ export default function FamilyCard({
                       isConnecting ? 'text-[#333D47]' : 'text-white'
                     }`}
                   >
-                    {child.gender}
+                    {/* CORREGIDO: Usando claves de children.card */}
+                    {child.gender === 'BOY'
+                      ? t('children.card.titleBoy')
+                      : t('children.card.titleGirl')}
                   </div>
                   <div
                     className={`text-[10px] font-bold ${
                       isConnecting ? 'text-[#333D47]/60' : 'text-white/40'
                     }`}
                   >
-                    {child.age === 0 ? 'NEWBORN' : `${child.age} YEARS OLD`}
+                    {child.age === 0
+                      ? t('family.card.newborn')
+                      : `${child.age} ${t('family.card.yearsOldSuffix')}`}
                   </div>
                 </div>
               </div>
@@ -143,7 +149,10 @@ export default function FamilyCard({
                 {isMatch && (
                   <Heart className="w-2.5 h-2.5 fill-red-500 text-red-500" />
                 )}
-                {interest.name}
+                {/* Busca intereses en tu JSON, si no existen usa el nombre de la DB */}
+                {t(`interests.${interest.name.toLowerCase()}`, {
+                  defaultValue: interest.name,
+                })}
               </span>
             )
           })}

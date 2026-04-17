@@ -5,6 +5,7 @@ import {
   Navigate,
   useParams,
 } from 'react-router-dom'
+import Navbar from './components/Navbar'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import ChatWindow from './components/Chat/ChatWindow'
@@ -20,8 +21,10 @@ import ExplorePage from './pages/ExplorePage'
 import EventsPage from './pages/EventsPage'
 import SchedulesPage from './pages/SchedulesPage'
 import Welcome from './pages/Welcome'
-import 'leaflet/dist/leaflet.css'
 import MySchedulesPage from './pages/MySchedulesPage'
+
+// Estilos
+import 'leaflet/dist/leaflet.css'
 
 const LoadingScreen = () => (
   <div className="min-h-screen flex flex-col items-center justify-center bg-[#1a1a1a] text-white">
@@ -36,23 +39,9 @@ function ChatWrapper() {
   const { matchId } = useParams()
   const { user, token, loading } = useAuth()
 
-
   if (loading) return <LoadingScreen />
 
-
-  console.log('ChatWrapper Check:', {
-    matchId,
-    hasUser: !!user,
-    hasToken: !!token,
-  })
-
   if (!user || !token || !matchId) {
-
-    console.error('Redirigiendo a dashboard porque falta:', {
-      user,
-      token,
-      matchId,
-    })
     return <Navigate to="/dashboard" replace />
   }
 
@@ -69,86 +58,131 @@ function AppContent() {
   if (loading) return <LoadingScreen />
 
   return (
-    <Routes>
-      {/* --- RUTAS PÚBLICAS --- */}
-      <Route
-        path="/login"
-        element={!user ? <Login /> : <Navigate to="/" replace />}
-      />
-      <Route
-        path="/register"
-        element={!user ? <Register /> : <Navigate to="/" replace />}
-      />
-      {/* --- ONBOARDING Y COMUNIDAD --- */}
-      <Route
-        path="/create-family"
-        element={
-          <ProtectedRoute>
-            <CreateFamily />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/add-child"
-        element={
-          <ProtectedRoute allowedRoles={['ROLE_FAMILY']}>
-            <AddChildPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute allowedRoles={['ROLE_FAMILY']}>
-            <Dashboard />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/explore"
-        element={
-          <ProtectedRoute allowedRoles={['ROLE_FAMILY']}>
-            <ExplorePage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/events"
-        element={
-          <ProtectedRoute allowedRoles={['ROLE_FAMILY']}>
-            <EventsPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/chat/:matchId"
-        element={
-          <ProtectedRoute allowedRoles={['ROLE_FAMILY']}>
-            <ChatWrapper />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/schedules/:matchId"
-        element={
-          <ProtectedRoute>
-            <SchedulesPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route path="/add-playdate" element={<AddPlaydatePage />} />
-      <Route
-        path="/welcome"
-        element={
-          <ProtectedRoute allowedRoles={['ROLE_FAMILY']}>
-            <Welcome />
-          </ProtectedRoute>
-        }
-      />
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
-      <Route path="*" element={<Navigate to="/" replace />} />
-      <Route path="/my-schedules" element={<MySchedulesPage />} />
-    </Routes>
+    <div className="min-h-screen bg-[#1a1a1a]">
+      {/* El Navbar ahora está envuelto correctamente por el AuthProvider */}
+      {user && <Navbar />}
+
+      {/* Contenedor con padding para evitar solapamiento visual */}
+      <div className={`${user ? 'pt-28' : ''}`}>
+        <Routes>
+          {/* --- RUTAS PÚBLICAS --- */}
+          <Route
+            path="/login"
+            element={!user ? <Login /> : <Navigate to="/" replace />}
+          />
+          <Route
+            path="/register"
+            element={!user ? <Register /> : <Navigate to="/" replace />}
+          />
+
+          {/* --- RUTAS PROTEGIDAS --- */}
+
+          {/* RUTA DE PERFIL - Restaurada correctamente */}
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute allowedRoles={['ROLE_FAMILY']}>
+                <AddChildPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/create-family"
+            element={
+              <ProtectedRoute>
+                <CreateFamily />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/add-child"
+            element={
+              <ProtectedRoute allowedRoles={['ROLE_FAMILY']}>
+                <AddChildPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute allowedRoles={['ROLE_FAMILY']}>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/explore"
+            element={
+              <ProtectedRoute allowedRoles={['ROLE_FAMILY']}>
+                <ExplorePage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/events"
+            element={
+              <ProtectedRoute allowedRoles={['ROLE_FAMILY']}>
+                <EventsPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/chat/:matchId"
+            element={
+              <ProtectedRoute allowedRoles={['ROLE_FAMILY']}>
+                <ChatWrapper />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/schedules/:matchId"
+            element={
+              <ProtectedRoute>
+                <SchedulesPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/add-playdate"
+            element={
+              <ProtectedRoute>
+                <AddPlaydatePage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/welcome"
+            element={
+              <ProtectedRoute allowedRoles={['ROLE_FAMILY']}>
+                <Welcome />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/my-schedules"
+            element={
+              <ProtectedRoute>
+                <MySchedulesPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* --- REDIRECCIONES --- */}
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </div>
+    </div>
   )
 }
 

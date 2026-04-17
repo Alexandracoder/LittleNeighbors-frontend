@@ -1,25 +1,242 @@
 {
+  "common": {
+    "back": "Tornar",
+    "loading": "Carregant el Barri...",
+    "signOut": "Tancar sessió",
+    "logout": "Eixir",
+    "save": "Guardar",
+    "cancel": "Cancel·lar",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "error": "Error",
+    "send": "Enviar",
+    "close": "Tancar"
+  },
+
   "auth": {
-    "login": "Iniciar sessió",
-    "register": "Registrar-se",
-    "logout": "Tancar sessió"
+    "login": {
+      "title": "Hola de nou!",
+      "subtitle": "Els teus veïns et trobaven a faltar.",
+      "cta": "ENTRA AL BARRI",
+      "formTitle": "Benvingut de nou",
+      "emailPlaceholder": "El teu correu",
+      "passwordPlaceholder": "Contrasenya",
+      "submitIdle": "INICIAR SESSIÓ",
+      "submitLoading": "OBRINT LES PORTES...",
+      "linkRegister": "Soc un veí nou",
+      "linkBack": "Tornar a veure l'ànima",
+      "errorInvalidCredentials": "Correu o contrasenya incorrectes. Torna-ho a intentar.",
+      "errorConnection": "Error de connexió. El servidor està en marxa?"
+    },
+    "register": {
+      "title": "Uneix-te al Barri",
+      "subtitle": "Preparat per conéixer la teua nova comunitat?",
+      "cta": "CREAR COMPTE",
+      "formTitle": "Nou Membre",
+      "firstNamePlaceholder": "Nom",
+      "lastNamePlaceholder": "Cognoms",
+      "emailPlaceholder": "El teu correu",
+      "passwordPlaceholder": "Contrasenya",
+      "submitIdle": "Uneix-te ara",
+      "submitLoading": "Creant...",
+      "linkLogin": "Ja ets veí? Inicia sessió",
+      "linkBack": "Tornar",
+      "errorDefault": "El registre ha fallat."
+    }
   },
+
+  "loading": {
+    "neighborhood": "Carregant el Barri...",
+    "verifyingNeighborhood": "Verificant el veïnat...",
+    "searchingNeighbors": "Buscant veïns..."
+  },
+
+  "navigation": {
+    "dashboard": "Inici",
+    "explore": "Explorar",
+    "profile": "Perfil",
+    "backToDashboard": "Tornar a l'inici"
+  },
+
+  "dashboard": {
+    "subtitle": "El teu barri, simplificat.",
+    "findNeighbors": "Troba Veïns",
+    "myPlaydates": "Les Meues Quedades",
+    "events": "Esdeveniments",
+    "myProfile": "El Meu Perfil"
+  },
+
   "family": {
-    "representative": "Representant",
-    "description": "Descripció",
-    "children": "Fills/es",
-    "interests": "Interessos",
-    "not_assigned": "No assignat"
+    "create": {
+      "heroTitle": "Quasi a punt...",
+      "heroSubtitle": "Configurem el teu perfil familiar per començar a conéixer veïns.",
+      "heroCta": "COMENCEM",
+      "formTitle": "Dades de la Família",
+      "representativeNameLabel": "Nom del Representant",
+      "representativeNamePlaceholder": "p. ex. Maria García",
+      "familyNameLabel": "Nom de la Família",
+      "familyNamePlaceholder": "p. ex. La Família García",
+      "neighborhoodLabel": "El Teu Barri",
+      "neighborhoodPlaceholder": "Tria on vius...",
+      "bioLabel": "Bio / Descripció",
+      "bioPlaceholder": "Conta als veïns com és la teua família...",
+      "submitIdle": "Completar Perfil",
+      "submitLoading": "Processant...",
+      "errorNoNeighborhood": "Selecciona un barri abans de continuar.",
+      "errorDefault": "No s'ha pogut inicialitzar el perfil familiar"
+    },
+    "card": {
+      "namePrefix": "La família",
+      "nameSuffix": "",
+      "nearby": "A prop",
+      "descriptionFallback": "Buscant nous amics a la comunitat!",
+      "selectPlaymate": "Tria un company de joc per xatejar:",
+      "newborn": "NADÓ",
+      "yearsOldSuffix": "ANYS"
+    }
   },
-  "location": {
-    "neighborhood": "Barri",
-    "street": "Carrer",
-    "city": "Ciutat",
-    "postal_code": "Codi Postal",
-    "no_neighborhood": "Sense barri assignat"
+
+  "children": {
+    "page": {
+      "title": "Xicotets Veïns",
+      "subtitle": "Gestiona els membres de la teua família",
+      "startExploring": "Començar a Explorar",
+      "addNewProfile": "Afegir Nou Perfil"
+    },
+    "card": {
+      "titleBoy": "Xicotet",
+      "titleGirl": "Xicoteta",
+      "titlePrenatal": "En camí",
+      "titleDefault": "Xicotet Veí",
+      "agePrenatal": "Pròximament",
+      "ageNewborn": "Nadó",
+      "ageSuffix_one": "any",
+      "ageSuffix_other": "anys",
+      "ageDefault": "Nou Veí",
+      "interestsLabel": "Interessos",
+      "requestPlaydate": "SOL·LICITAR QUEDADA",
+      "sending": "ENVIANT...",
+      "requestSent": "SOL·LICITUD ENVIADA"
+    },
+    "form": {
+      "titleNew": "Nou Xicotet Veí",
+      "titleEdit": "Editar Perfil",
+      "lifeStageLabel": "Etapa de Vida",
+      "lifeStagePregnancy": "Embaràs / Esperant 🤰",
+      "lifeStageBorn": "Ja ha nascut 👶",
+      "genderLabel": "Gènere",
+      "genderPlaceholder": "Tria el gènere",
+      "genderBoy": "Xiquet 👦",
+      "genderGirl": "Xiqueta 👧",
+      "genderSurprise": "Sorpresa ✨",
+      "birthDateLabel": "Data de Naixement",
+      "interestsLabel": "Interessos i Aficions",
+      "submitCreate": "CREAR PERFIL",
+      "submitUpdate": "ACTUALITZAR PERFIL",
+      "errorSave": "No s'ha pogut guardar el perfil. Torna-ho a intentar."
+    }
   },
+
+  "explore": {
+    "title": "Explorar",
+    "subtitle": "Troba els teus companys de joc al barri",
+    "activeProfile": "Perfil actiu:",
+    "filters": {
+      "ageRangeLabel": "Rang d'Edat",
+      "ageRangeAll": "Totes les Edats",
+      "ageRangeToddlers": "Menuts (0-2)",
+      "ageRangePreschoolers": "Preescolars (3-5)",
+      "ageRangeSchool": "Edat Escolar (6+)",
+      "interestsLabel": "Interessos",
+      "clearAll": "Esborrar tots els filtres"
+    },
+    "errorProfile": "Completa el teu perfil familiar primer.",
+    "errorFamilies": "No s'han pogut trobar famílies."
+  },
+
+  "chat": {
+    "title": "Xat",
+    "matched": "✓",
+    "noMessages": "Encara no hi ha missatges. Escriu al teu veí!",
+    "inputPlaceholder": "Escriu un missatge...",
+    "sendButton": "Enviar",
+    "profileButton": "Perfil",
+    "saveMatchIdle": "Guardar Connexió",
+    "saveMatchDone": "Connectats",
+    "icebreakerButton": "Trencagel"
+  },
+
+  "matches": {
+    "title": "Les Meues Converses",
+    "empty": "Encara no tens connexions. És hora d'explorar el barri!",
+    "statusConnected": "● Connectats",
+    "statusPending": "● Pendent d'aprovació",
+    "statusDeclined": "● Rebutjat",
+    "actionAccept": "Acceptar",
+    "actionIgnore": "Ignorar",
+    "familyNamePrefix": "Família",
+    "familyNameFallback": "Nou Veí",
+    "errorLoad": "No s'han pogut carregar les connexions. Torna-ho a intentar.",
+    "errorUpdate": "No s'ha pogut actualitzar l'estat de la connexió"
+  },
+
+  "events": {
+    "page": {
+      "title": "Esdeveniments del Barri",
+      "createButton": "Crear Esdeveniment",
+      "toggleMapShow": "Veure esdeveniments al mapa",
+      "toggleMapHide": "Amagar mapa",
+      "backToDashboard": "Tornar a l'inici"
+    },
+    "form": {
+      "titleCreate": "Nou Esdeveniment",
+      "titleEdit": "Editar Esdeveniment",
+      "titleLabel": "Títol",
+      "dateLabel": "Data",
+      "neighborhoodLabel": "Barri",
+      "locationLabel": "Ubicació exacta (fes clic al mapa):",
+      "descriptionLabel": "Descripció",
+      "submitCreate": "🚀 Publicar Esdeveniment",
+      "submitEdit": "💾 Guardar Canvis",
+      "locationFallback": "València"
+    },
+    "card": {
+      "editButton": "Editar",
+      "deleteButton": "Eliminar",
+      "neighborhoodFallback": "València",
+      "confirmDelete": "Estàs segur que vols eliminar aquest esdeveniment?",
+      "errorDelete": "Error en eliminar l'esdeveniment.",
+      "errorLoad": "No hem pogut carregar els esdeveniments."
+    },
+    "list": {
+      "empty": "No hi ha esdeveniments pròxims a València. Crea el primer!",
+      "loading": "Carregant esdeveniments..."
+    }
+  },
+
+  "schedules": {
+    "title": "Les Meues Quedades",
+    "empty": {
+      "title": "Encara no tens quedades",
+      "subtitle": "Comença hui mateix"
+    }
+  },
+
+  "welcome": {
+    "title": "Benvinguts a la comunitat!",
+    "body": "Ja formes part d'alguna cosa més gran. El teu perfil està a punt i els teus veïns t'esperen.",
+    "ctaExplore": "Començar a fer match!",
+    "ctaProfile": "Veure el meu perfil"
+  },
+
+  "neighborhoods": {
+    "events": {
+      "title": "Esdeveniments al Barri"
+    }
+  },
+
   "profile": {
-    "title": "El meu Perfil",
-    "edit": "Editar Perfil"
+    "deleteConfirm": "Estàs segur que vols eliminar aquest perfil?",
+    "deleteError": "No s'ha pogut eliminar el perfil."
   }
 }
