@@ -6,13 +6,14 @@ import {
   Calendar as CalendarIcon,
   AlignLeft,
 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import playdateService from '../services/playdateService'
 import dashboardBg from '../assets/neighborhood-picnic1.png'
 
 export default function AddPlaydatePage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const location = useLocation()
-
 
   const { matchId } = location.state || {}
 
@@ -21,32 +22,31 @@ export default function AddPlaydatePage() {
   const [description, setDescription] = useState('')
   const [loading, setLoading] = useState(false)
 
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault()
-  if (!matchId || !title || !startTime) return
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!matchId || !title || !startTime) return
 
-  setLoading(true)
-  try {
-    const formattedDate = startTime.replace('T', ' ') + ':00'
+    setLoading(true)
+    try {
+      const formattedDate = startTime.replace('T', ' ') + ':00'
 
-    await playdateService.create({
-      title,
-      startTime: formattedDate,
-      description,
-      matchId: Number(matchId),
-    })
+      await playdateService.create({
+        title,
+        startTime: formattedDate,
+        description,
+        matchId: Number(matchId),
+      })
 
-    navigate(`/schedules/${matchId}`)
-  } catch (error) {
-    console.error('Error:', error)
-  } finally {
-    setLoading(false)
+      navigate(`/schedules/${matchId}`)
+    } catch (error) {
+      console.error('Error:', error)
+    } finally {
+      setLoading(false)
+    }
   }
-}
 
   return (
     <div className="relative min-h-screen w-full p-6 text-white font-sans flex flex-col">
-      {/* FONDO */}
       <div
         className="fixed inset-0 z-0"
         style={{
@@ -63,28 +63,31 @@ const handleSubmit = async (e: React.FormEvent) => {
           onClick={() => navigate(-1)}
           className="flex items-center gap-2 text-gray-800 mb-8 font-black uppercase tracking-widest text-[10px] hover:scale-105 transition-all bg-white w-fit px-5 py-2.5 rounded-full shadow-xl"
         >
-          <ArrowLeft className="w-3 h-3" /> Cancel
+          <ArrowLeft className="w-3 h-3" /> {t('common.back')}
         </button>
 
         <h1 className="text-4xl font-black uppercase text-white mb-2 italic tracking-tighter">
-          Suggest a <span className="text-[#F28749]">Playdate</span>
+          {t('playdates.page.titleSuggest')}{' '}
+          <span className="text-[#F28749]">
+            {t('playdates.page.titleHighlight')}
+          </span>
         </h1>
         <p className="text-[10px] font-bold text-gray-300 uppercase tracking-[0.3em] mb-10">
-          Pick a time to meet your neighbor (Match #{matchId})
+          {t('playdates.page.subtitle')} (Match #{matchId})
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="bg-white/95 rounded-[2.5rem] p-8 shadow-2xl space-y-6 text-gray-900">
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase text-gray-400 ml-4 tracking-widest flex items-center gap-2">
-                <CalendarIcon size={12} className="text-[#F28749]" /> What's the
-                plan?
+                <CalendarIcon size={12} className="text-[#F28749]" />{' '}
+                {t('playdates.form.titleLabel')}
               </label>
               <input
                 type="text"
                 value={title}
                 onChange={e => setTitle(e.target.value)}
-                placeholder="Ex: Park Afternoon / Coffee & Toys"
+                placeholder={t('playdates.form.titlePlaceholder')}
                 className="w-full bg-gray-50 border-none rounded-2xl px-6 py-4 text-gray-900 font-bold placeholder-gray-300 focus:ring-2 focus:ring-[#F28749] transition-all"
                 required
               />
@@ -92,7 +95,8 @@ const handleSubmit = async (e: React.FormEvent) => {
 
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase text-gray-400 ml-4 tracking-widest flex items-center gap-2">
-                <CalendarIcon size={12} className="text-[#F28749]" /> When?
+                <CalendarIcon size={12} className="text-[#F28749]" />{' '}
+                {t('playdates.form.whenLabel')}
               </label>
               <input
                 type="datetime-local"
@@ -105,12 +109,13 @@ const handleSubmit = async (e: React.FormEvent) => {
 
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase text-gray-400 ml-4 tracking-widest flex items-center gap-2">
-                <AlignLeft size={12} className="text-[#F28749]" /> Extra Details
+                <AlignLeft size={12} className="text-[#F28749]" />{' '}
+                {t('playdates.form.detailsLabel')}
               </label>
               <textarea
                 value={description}
                 onChange={e => setDescription(e.target.value)}
-                placeholder="Anything else your neighbor should know?"
+                placeholder={t('playdates.form.detailsPlaceholder')}
                 className="w-full bg-gray-50 border-none rounded-2xl px-6 py-4 text-gray-900 font-bold placeholder-gray-300 focus:ring-2 focus:ring-[#F28749] transition-all min-h-[120px] resize-none"
               />
             </div>
@@ -122,10 +127,10 @@ const handleSubmit = async (e: React.FormEvent) => {
             className="w-full bg-[#F28749] text-white py-6 rounded-[2rem] font-black uppercase tracking-[0.2em] shadow-xl hover:bg-[#d97336] active:scale-[0.98] transition-all flex items-center justify-center gap-3 disabled:opacity-50"
           >
             {loading ? (
-              'Sending...'
+              t('playdates.form.submitLoading')
             ) : (
               <>
-                Send Proposal <Send size={18} />
+                {t('playdates.form.submitIdle')} <Send size={18} />
               </>
             )}
           </button>

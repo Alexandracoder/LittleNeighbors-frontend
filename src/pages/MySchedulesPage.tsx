@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, Calendar, MapPin, Clock, CheckCircle2 } from 'lucide-react'
+import { ArrowLeft, Calendar, Clock } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import playdateService from '../services/playdateService'
 import dashboardBg from '../assets/new-at-neigborhood.png'
 import { Playdate } from '../types'
 
 const MySchedulesPage: React.FC = () => {
+  const { t, i18n } = useTranslation()
   const navigate = useNavigate()
   const [playdates, setPlaydates] = useState<Playdate[]>([])
   const [loading, setLoading] = useState(true)
@@ -44,7 +46,7 @@ const MySchedulesPage: React.FC = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#1a1a1a]">
         <div className="text-white font-black uppercase tracking-widest animate-pulse">
-          Loading Your Agenda...
+          {t('playdates.status.loadingAgenda')}
         </div>
       </div>
     )
@@ -67,23 +69,29 @@ const MySchedulesPage: React.FC = () => {
           onClick={() => navigate('/dashboard')}
           className="bg-white text-gray-800 mb-8 flex w-fit items-center gap-2 rounded-full px-5 py-2.5 font-black uppercase tracking-widest text-[10px] shadow-lg border border-white transition-all hover:scale-105"
         >
-          <ArrowLeft className="w-3 h-3" /> Back to Dashboard
+          <ArrowLeft className="w-3 h-3" /> {t('common.back')}
         </button>
 
         <h1 className="text-5xl font-black uppercase text-white mb-10 italic tracking-tighter drop-shadow-[0_2px_15px_rgba(0,0,0,0.3)]">
-          My <span className="text-[#F28749]">Agenda</span>
+          {t('playdates.page.agendaTitle')}{' '}
+          <span className="text-[#F28749]">
+            {t('playdates.page.agendaHighlight')}
+          </span>
         </h1>
 
         {playdates.length > 0 ? (
           <div className="space-y-4">
             {playdates.map(pd => {
               const dateObj = new Date(pd.startTime)
+
+              // Formato dinámico según el idioma seleccionado
               const day = dateObj.getDate()
-              const month = dateObj.toLocaleString('en-US', { month: 'short' })
-              const time = dateObj.toLocaleTimeString('en-US', {
+              const month = dateObj.toLocaleString(i18n.language, {
+                month: 'short',
+              })
+              const time = dateObj.toLocaleTimeString(i18n.language, {
                 hour: '2-digit',
                 minute: '2-digit',
-                hour12: true,
               })
 
               const isAccepted = pd.status === 'ACCEPTED'
@@ -95,9 +103,17 @@ const MySchedulesPage: React.FC = () => {
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-5">
-                      <div className={`w-16 h-16 ${isAccepted ? 'bg-green-500' : 'bg-[#F28749]'} rounded-[1.5rem] flex flex-col items-center justify-center text-white shadow-lg`}>
-                        <span className="text-[10px] font-black uppercase leading-none">{month}</span>
-                        <span className="text-2xl font-black leading-tight">{day}</span>
+                      <div
+                        className={`w-16 h-16 ${
+                          isAccepted ? 'bg-green-500' : 'bg-[#F28749]'
+                        } rounded-[1.5rem] flex flex-col items-center justify-center text-white shadow-lg`}
+                      >
+                        <span className="text-[10px] font-black uppercase leading-none">
+                          {month}
+                        </span>
+                        <span className="text-2xl font-black leading-tight">
+                          {day}
+                        </span>
                       </div>
 
                       <div>
@@ -105,7 +121,7 @@ const MySchedulesPage: React.FC = () => {
                           {pd.title}
                         </h3>
                         <p className="text-gray-400 text-[9px] font-bold uppercase tracking-widest mb-1">
-                          Ref ID: #{pd.matchId}
+                          {t('playdates.card.matchRef')}: #{pd.matchId}
                         </p>
                         <div className="flex flex-col gap-1">
                           <p className="flex items-center gap-1 text-gray-500 text-[10px] font-bold uppercase tracking-widest">
@@ -115,10 +131,16 @@ const MySchedulesPage: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className={`px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-widest ${
-                      isAccepted ? 'bg-green-100 text-green-600' : 'bg-orange-100 text-orange-600'
-                    }`}>
-                      {pd.status}
+                    <div
+                      className={`px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-widest ${
+                        isAccepted
+                          ? 'bg-green-100 text-green-600'
+                          : 'bg-orange-100 text-orange-600'
+                      }`}
+                    >
+                      {isAccepted
+                        ? t('playdates.status.accepted')
+                        : t('playdates.status.pending')}
                     </div>
                   </div>
 
@@ -128,7 +150,9 @@ const MySchedulesPage: React.FC = () => {
                       disabled={actionLoading === pd.id}
                       className="mt-6 w-full bg-[#F28749] hover:bg-[#e0763a] text-white py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] transition-all shadow-lg flex items-center justify-center gap-2"
                     >
-                      {actionLoading === pd.id ? 'Confirming...' : 'Confirm this plan'}
+                      {actionLoading === pd.id
+                        ? t('playdates.status.confirming')
+                        : t('playdates.form.confirmPlan')}
                     </button>
                   )}
                 </div>
@@ -138,9 +162,11 @@ const MySchedulesPage: React.FC = () => {
         ) : (
           <div className="bg-white/95 backdrop-blur-sm rounded-[3rem] p-12 text-center border border-white">
             <Calendar className="w-12 h-12 text-gray-200 mx-auto mb-4" />
-            <h2 className="text-xl font-black text-gray-900 uppercase italic">Your agenda is empty</h2>
+            <h2 className="text-xl font-black text-gray-900 uppercase italic">
+              {t('playdates.status.emptyAgenda')}
+            </h2>
             <p className="text-gray-400 text-[11px] font-bold uppercase tracking-widest mt-2">
-              Time to match with new families!
+              {t('playdates.status.emptySubtitle')}
             </p>
           </div>
         )}

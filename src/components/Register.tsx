@@ -3,9 +3,11 @@ import { useNavigate } from 'react-router-dom'
 import { UserPlus, Mail, Lock, ArrowRight } from 'lucide-react'
 import { authApi } from '../services/api'
 import { useAuth } from '../context/AuthContext'
+import { useTranslation } from 'react-i18next' // 1. Importar i18n
 import registerBg from '../assets/moving.png'
 
 export default function Register() {
+  const { t, i18n } = useTranslation() // 2. Inicializar t e i18n
   const [showForm, setShowForm] = useState(false)
   const [formData, setFormData] = useState({
     firstName: '',
@@ -44,7 +46,8 @@ export default function Register() {
         }
       }
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Registration failed.')
+      // 3. Captura el mensaje del backend (como el 409 que hicimos) o el default del JSON
+      setError(err.response?.data?.message || t('auth.register.errorDefault'))
     } finally {
       setLoading(false)
     }
@@ -56,7 +59,24 @@ export default function Register() {
 
   return (
     <div className="relative min-h-screen w-full flex items-center justify-center p-4 overflow-hidden font-sans">
-      {/* FONDO: Nítido al inicio, sutil blur al abrir formulario */}
+      {/* --- SELECTOR DE IDIOMAS FLOTANTE --- */}
+      <div className="absolute top-6 right-6 z-50 flex gap-2">
+        {['en', 'es', 'va'].map(lng => (
+          <button
+            key={lng}
+            onClick={() => i18n.changeLanguage(lng)}
+            className={`w-10 h-10 rounded-full flex items-center justify-center text-[10px] font-black transition-all border-2 ${
+              i18n.language === lng
+                ? 'bg-[#F28749] border-[#F28749] text-white shadow-lg scale-110'
+                : 'bg-white/10 border-white/20 text-white hover:bg-white/30 backdrop-blur-md'
+            }`}
+          >
+            {lng.toUpperCase()}
+          </button>
+        ))}
+      </div>
+
+      {/* FONDO */}
       <div
         className="absolute inset-0 z-0 transition-all duration-1000 ease-in-out"
         style={{
@@ -75,21 +95,21 @@ export default function Register() {
           /* PANTALLA DE BIENVENIDA ESTILO "SOUL" */
           <div className="text-center animate-in fade-in zoom-in duration-700">
             <h1 className="text-6xl font-black text-white mb-4 drop-shadow-2xl italic tracking-tighter">
-              Join the Hood
+              {t('auth.register.title')}
             </h1>
             <p className="text-2xl text-white/90 mb-10 font-medium drop-shadow-lg text-balance">
-              Ready to meet your new community?
+              {t('auth.register.subtitle')}
             </p>
             <button
               onClick={() => setShowForm(true)}
               className="group flex items-center gap-4 mx-auto px-10 py-5 bg-white text-[#F28749] font-black rounded-[2rem] hover:bg-[#F28749] hover:text-white transition-all shadow-2xl active:scale-95"
             >
-              <span>CREATE ACCOUNT</span>
+              <span>{t('auth.register.cta')}</span>
               <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
             </button>
           </div>
         ) : (
-          /* CARD DE REGISTRO UNIFICADA CON EL LAYOUT */
+          /* CARD DE REGISTRO */
           <div className="bg-white/90 backdrop-blur-xl rounded-[3rem] shadow-2xl p-10 border-t-[10px] border-[#F28749] animate-in slide-in-from-top-10 duration-500">
             <div className="flex justify-center mb-6">
               <div className="bg-[#F28749] p-4 rounded-3xl shadow-lg">
@@ -98,7 +118,7 @@ export default function Register() {
             </div>
 
             <h2 className="text-3xl font-black text-center text-[#333D47] mb-8 uppercase tracking-tighter">
-              New Member
+              {t('auth.register.formTitle')}
             </h2>
 
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -107,7 +127,7 @@ export default function Register() {
                   <input
                     name="firstName"
                     type="text"
-                    placeholder="First Name"
+                    placeholder={t('auth.register.firstNamePlaceholder')}
                     value={formData.firstName}
                     onChange={handleChange}
                     className="w-full p-4 border border-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-[#F28749] bg-white/50"
@@ -118,7 +138,7 @@ export default function Register() {
                   <input
                     name="lastName"
                     type="text"
-                    placeholder="Last Name"
+                    placeholder={t('auth.register.lastNamePlaceholder')}
                     value={formData.lastName}
                     onChange={handleChange}
                     className="w-full p-4 border border-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-[#F28749] bg-white/50"
@@ -135,7 +155,7 @@ export default function Register() {
                   value={formData.email}
                   onChange={handleChange}
                   className="w-full pl-12 pr-4 py-4 border border-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-[#F28749] bg-white/50"
-                  placeholder="Your email"
+                  placeholder={t('auth.register.emailPlaceholder')}
                   required
                 />
               </div>
@@ -148,7 +168,7 @@ export default function Register() {
                   value={formData.password}
                   onChange={handleChange}
                   className="w-full pl-12 pr-4 py-4 border border-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-[#F28749] bg-white/50"
-                  placeholder="Password"
+                  placeholder={t('auth.register.passwordPlaceholder')}
                   required
                 />
               </div>
@@ -164,7 +184,9 @@ export default function Register() {
                 disabled={loading}
                 className="w-full bg-[#F28749] text-white font-black py-5 rounded-2xl shadow-xl hover:opacity-90 transition-all transform hover:-translate-y-1 mt-4 uppercase tracking-widest"
               >
-                {loading ? 'Creating...' : 'Join Now'}
+                {loading
+                  ? t('auth.register.submitLoading')
+                  : t('auth.register.submitIdle')}
               </button>
 
               <div className="flex flex-col gap-3 mt-6 text-center">
@@ -173,14 +195,14 @@ export default function Register() {
                   onClick={() => navigate('/login')}
                   className="text-[#F28749] font-bold text-sm hover:underline"
                 >
-                  Already a neighbor? Log in
+                  {t('auth.register.linkLogin')}
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowForm(false)}
                   className="text-gray-400 font-medium text-xs uppercase tracking-widest mt-2"
                 >
-                  Go Back
+                  {t('auth.register.linkBack')}
                 </button>
               </div>
             </form>
