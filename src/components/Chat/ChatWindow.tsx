@@ -5,14 +5,18 @@ import {
   Calendar,
   HelpCircle,
   ChevronLeft,
+  Star,
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { Client } from '@stomp/stompjs'
-import SockJS from 'sockjs-client' // Importante para la compatibilidad con Spring
+import SockJS from 'sockjs-client'
+import { useTranslation } from 'react-i18next'
 import { messageService } from '../../services/messageService'
-import { userService } from '../../services/userService'
-import { UserProfileDTO } from '../../types'
 import matchService from '../../services/matchService'
+import { UserProfileDTO } from '../../types'
+
+import chatBgPattern from '../../assets/chat.png'
+import mainAppBg from '../../assets/for-pregnants.png'
 
 interface ChatWindowProps {
   matchId: string | number
@@ -25,280 +29,211 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   currentUser,
   token,
 }) => {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [messages, setMessages] = useState<any[]>([])
   const [text, setText] = useState<string>('')
-  const [myFamily, setMyFamily] = useState<any>(currentUser?.family)
-
   const [iAccepted, setIAccepted] = useState(false)
-  const [neighborAccepted, setNeighborAccepted] = useState(false)
 
   const scrollRef = useRef<HTMLDivElement>(null)
   const stompClient = useRef<Client | null>(null)
-  const isFullMatch = iAccepted && neighborAccepted
 
-  // Cargar perfil si falta
   useEffect(() => {
-    const fetchLatestProfile = async () => {
-      if (!myFamily && token) {
-        try {
-          const profile = await userService.getProfile(token)
-          if (profile?.family) setMyFamily(profile.family)
-        } catch (err) {
-          console.error('Error fetching profile:', err)
-        }
-      }
-    }
-    fetchLatestProfile()
-  }, [myFamily, token])
-
-  // Cargar historial y estados de aceptación
-  useEffect(() => {
-    if (!matchId || matchId === 'undefined') return
-
-    const loadHistory = async () => {
+    const loadData = async () => {
+      if (!matchId || !token) return
       try {
         const data = await messageService.getHistory(Number(matchId), token)
         if (data) {
           setMessages(data.messages || [])
-          setIAccepted(data.userAccepted)
-          setNeighborAccepted(data.neighborAccepted)
+          setIAccepted(data.userAccepted || false)
         }
       } catch (err) {
-        console.error('Error loading chat history:', err)
+        console.error(err)
       }
     }
-    loadHistory()
+    loadData()
   }, [matchId, token])
 
-  // Lógica de WebSocket Corregida
   useEffect(() => {
-    if (!matchId || matchId === 'undefined' || !token) return
-
+    if (!matchId || !token) return
     const client = new Client({
-      // Usamos webSocketFactory para que SockJS gestione la conexión
       webSocketFactory: () =>
         new SockJS('http://localhost:8080/ws-little-neighbors'),
-      connectHeaders: {
-        Authorization: `Bearer ${token}`, // Seguridad JWT
-      },
-      debug: str => console.log('STOMP Debug:', str),
-      reconnectDelay: 5000,
-      heartbeatIncoming: 4000,
-      heartbeatOutgoing: 4000,
-    })
-
-    client.onConnect = frame => {
-      console.log('✅ Connected to LittleNeighbors WebSocket')
-
-      client.subscribe(`/topic/messages/${matchId}`, payload => {
-        const newMessage = JSON.parse(payload.body)
-        setMessages(prev => {
-          const exists = prev.some(m => m.id === newMessage.id)
-          return exists ? prev : [...prev, newMessage]
+      connectHeaders: { Authorization: `Bearer ${token}` },
+      onConnect: () => {
+        client.subscribe(`/topic/messages/${matchId}`, payload => {
+          const newMessage = JSON.parse(payload.body)
+          setMessages(prev => [...prev, newMessage])
         })
-      })
-    }
-
-    client.onStompError = frame => {
-      console.error('❌ STOMP Error:', frame.headers['message'])
-    }
-
+      },
+    })
     client.activate()
     stompClient.current = client
-
     return () => {
-      if (client) {
-        client.deactivate()
-      }
+      if (client.active) client.deactivate()
     }
   }, [matchId, token])
 
-  // Auto-scroll al recibir mensajes
   useEffect(() => {
-    if (scrollRef.current) {
+    if (scrollRef.current)
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight
-    }
   }, [messages])
 
   const handleSend = (e: FormEvent) => {
     e.preventDefault()
-    // Verificamos que el cliente esté realmente conectado antes de enviar
-    if (!text.trim() || !matchId || !stompClient.current?.connected) return
-
-    const messageDTO = {
-      matchId: Number(matchId),
-      senderId: currentUser.id,
-      content: text.trim(),
-    }
-
+    if (!text.trim() || !stompClient.current?.connected) return
     stompClient.current.publish({
       destination: `/app/chat/${matchId}`,
-      body: JSON.stringify(messageDTO),
+      body: JSON.stringify({
+        matchId: Number(matchId),
+        senderId: currentUser.id,
+        content: text.trim(),
+      }),
     })
-
     setText('')
   }
 
-  const handleMatchAction = async () => {
-    if (!matchId) return
-    try {
-      await matchService.confirmMatch(Number(matchId))
-      setIAccepted(true)
-    } catch (err) {
-      console.error('Error confirming match:', err)
-    }
-  }
-
-  const handleGoToSchedules = () => {
-    if (!matchId) return
-    navigate(`/schedules/${matchId}`)
+  const handleIcebreaker = () => {
+    const icebreakers = [
+      '¿Parque favorito?',
+      '¿Dibujos preferidos?',
+      '¿Alguna alergia?',
+      '¿Jugamos este finde?',
+      '¿Juguete estrella?',
+    ]
+    setText(icebreakers[Math.floor(Math.random() * icebreakers.length)])
   }
 
   return (
-    <div className="flex flex-col h-full bg-white rounded-[2.5rem] shadow-xl overflow-hidden font-sans">
-      {/* Header */}
-      <div className="px-8 py-6 flex items-center justify-between border-b border-gray-100 bg-white">
-        <div className="flex items-center gap-4">
-          <ChevronLeft
-            className="text-gray-400 w-6 h-6 cursor-pointer hover:text-gray-600 transition-colors"
-            onClick={() => navigate(-1)}
-          />
-          <div>
-            <h2 className="text-xl font-black text-gray-900 uppercase tracking-tighter italic leading-none">
-              Chat
-            </h2>
+    <div
+      className="min-h-screen w-full flex items-center justify-center p-2 md:p-6"
+      style={{
+        backgroundImage: `url(${mainAppBg})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }}
+    >
+      <div className="relative w-full max-w-2xl bg-white/90 rounded-[2.5rem] shadow-2xl flex flex-col h-[90vh] border-2 border-white overflow-hidden">
+        {/* HEADER */}
+        <div className="bg-[#F28749] px-6 py-4 flex items-center justify-between border-b-4 border-gray-900 z-10">
+          <div className="flex items-center gap-3">
             <button
-              onClick={handleMatchAction}
-              disabled={iAccepted}
-              className={`mt-2 px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.1em] transition-all flex items-center gap-1.5 shadow-lg ${
-                isFullMatch
-                  ? 'bg-green-500 text-white shadow-green-100'
-                  : iAccepted
-                  ? 'bg-blue-100 text-blue-600 border border-blue-200 shadow-none'
-                  : 'bg-[#F28749] text-white hover:bg-gray-900 shadow-orange-100'
-              }`}
+              onClick={() => navigate(-1)}
+              className="p-2 hover:bg-black/10 rounded-full"
             >
-              {isFullMatch
-                ? '✨ Official Match'
-                : iAccepted
-                ? '⏳ Waiting for neighbor...'
-                : '🤝 Confirm Match'}
+              <ChevronLeft size={24} className="text-gray-900" />
             </button>
-          </div>
-        </div>
-
-        {!isFullMatch && neighborAccepted && (
-          <div className="bg-green-50 text-green-600 text-[8px] font-black px-2 py-1 rounded animate-bounce uppercase">
-            They want to match!
-          </div>
-        )}
-
-        <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 font-bold text-sm shadow-inner uppercase">
-          {myFamily?.displayName?.charAt(0) || 'U'}
-        </div>
-      </div>
-
-      {/* Messages Area */}
-      <div
-        ref={scrollRef}
-        className="flex-1 overflow-y-auto p-8 space-y-6 bg-white scrollbar-hide"
-      >
-        {messages.length === 0 && (
-          <p className="text-center text-gray-300 text-xs italic py-10">
-            No messages yet. Write to your neighbor!
-          </p>
-        )}
-        {messages.map((msg, index) => {
-          const isMe =
-            msg.senderId === currentUser?.id ||
-            msg.senderEmail === currentUser?.email
-          return (
-            <div
-              key={msg.id || index}
-              className={`flex w-full mb-4 ${
-                isMe ? 'justify-end' : 'justify-start'
-              }`}
-            >
-              <div
-                className={`max-w-[75%] px-6 py-4 text-[13px] font-bold tracking-tight leading-relaxed shadow-sm ${
-                  isMe
-                    ? 'bg-[#F28749] text-white rounded-[2rem] rounded-br-none'
-                    : 'bg-[#F2F2F2] text-gray-700 rounded-[2rem] rounded-bl-none'
-                }`}
-              >
-                {msg.content}
+            <div>
+              <h2 className="text-lg font-black text-gray-900 uppercase italic leading-none">
+                CHAT
+              </h2>
+              <div className="flex items-center gap-1.5 mt-1">
+                <Star size={10} className="fill-gray-900" />
+                <span className="text-[10px] text-gray-900 font-black uppercase tracking-widest">
+                  Live
+                </span>
               </div>
             </div>
-          )
-        })}
-      </div>
-
-      {/* Footer Buttons */}
-      <div className="px-6 py-2 flex gap-3 bg-white">
-        <button
-          onClick={() => navigate('/profile')}
-          className="flex-1 bg-[#F28749] text-white py-3 rounded-[1.2rem] flex flex-col items-center justify-center gap-1 hover:bg-[#e0763a] transition-all active:scale-95"
-        >
-          <UserCircle size={18} strokeWidth={2.5} />
-          <span className="text-[9px] font-black uppercase tracking-widest text-center">
-            Profile
-          </span>
-        </button>
-
-        <button
-          disabled={!isFullMatch}
-          onClick={handleGoToSchedules}
-          className={`flex-1 py-3 rounded-[1.2rem] flex flex-col items-center justify-center gap-1 transition-all ${
-            isFullMatch
-              ? 'bg-green-500 text-white'
-              : 'bg-gray-100 text-gray-400'
-          }`}
-        >
-          <Calendar size={18} strokeWidth={2.5} />
-          <span className="text-[9px] font-black uppercase tracking-widest text-center">
-            {isFullMatch ? 'Schedules' : 'Pending'}
-          </span>
-        </button>
-
-        <button
-          onClick={() => {
-            const tips = [
-              "Kids' favorite games?",
-              'Park this weekend?',
-              'How old are your little ones?',
-            ]
-            setText(tips[Math.floor(Math.random() * tips.length)])
-          }}
-          className="flex-1 bg-[#F28749] text-white py-3 rounded-[1.2rem] flex flex-col items-center justify-center gap-1 hover:bg-[#e0763a]"
-        >
-          <HelpCircle size={18} strokeWidth={2.5} />
-          <span className="text-[9px] font-black uppercase tracking-widest text-center">
-            Icebreaker
-          </span>
-        </button>
-      </div>
-
-      {/* Input Form */}
-      <div className="p-6 bg-white border-t border-gray-50">
-        <form
-          onSubmit={handleSend}
-          className="flex items-center bg-[#F7F7F7] rounded-full p-1.5 pl-8 border border-gray-100 shadow-inner"
-        >
-          <input
-            value={text}
-            onChange={e => setText(e.target.value)}
-            placeholder="Type a message..."
-            className="flex-1 bg-transparent border-none outline-none text-gray-600 text-sm py-3 font-bold"
-          />
+          </div>
           <button
-            type="submit"
-            disabled={!text.trim() || !stompClient.current?.connected}
-            className="bg-[#F28749] text-white px-8 py-3.5 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2 disabled:opacity-50 transition-all"
+            onClick={async () => {
+              try {
+                await matchService.confirmMatch(Number(matchId))
+                setIAccepted(true)
+              } catch (e) {}
+            }}
+            className="bg-gray-900 text-[#F28749] px-4 py-2 rounded-xl text-[10px] font-black border-2 border-[#F28749]"
           >
-            Send <Send size={14} className="fill-current" />
+            {iAccepted ? 'PENDIENTE' : 'CONFIRMAR'}
           </button>
-        </form>
+        </div>
+
+        {/* MENSAJES */}
+        <div
+          ref={scrollRef}
+          className="flex-1 overflow-y-auto p-6 space-y-6"
+          style={{
+            backgroundImage: `url(${chatBgPattern})`,
+            backgroundSize: '250px',
+            backgroundColor: 'rgba(255, 215, 0, 0.2)',
+          }}
+        >
+          {messages.map((msg, idx) => {
+            // --- BLOQUE DE LÓGICA ISME REFORZADA ---
+            const isMe =
+              msg.senderId?.toString() === currentUser.id?.toString() ||
+              (msg.senderEmail && msg.senderEmail === currentUser.email)
+            // ---------------------------------------
+
+            return (
+              <div
+                key={idx}
+                className={`w-full flex ${
+                  isMe ? 'justify-end' : 'justify-start'
+                }`}
+              >
+                <div
+                  className={`max-w-[80%] px-5 py-3 rounded-2xl text-sm font-black shadow-md border-2 ${
+                    isMe
+                      ? 'bg-[#F28749] text-gray-900 border-gray-900 rounded-tr-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]'
+                      : 'bg-white text-gray-600 border-gray-200 rounded-tl-none shadow-[4px_4px_0px_0px_rgba(0,0,0,0.05)]'
+                  }`}
+                >
+                  {msg.content}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+
+        {/* ACTION BAR */}
+        <div className="px-4 py-3 bg-white border-t-2 border-gray-100 flex items-center justify-around">
+          <button
+            onClick={() => navigate('/profile')}
+            className="flex flex-col items-center gap-1 text-gray-900"
+          >
+            <UserCircle size={24} strokeWidth={2.5} />
+            <span className="text-[8px] font-black uppercase">Perfil</span>
+          </button>
+          <div className="h-8 w-[2px] bg-gray-50"></div>
+          <button
+            onClick={() => navigate(`/schedules/${matchId}`)}
+            className="flex flex-col items-center gap-1 text-gray-900"
+          >
+            <Calendar size={24} strokeWidth={2.5} />
+            <span className="text-[8px] font-black uppercase">Agenda</span>
+          </button>
+          <div className="h-8 w-[2px] bg-gray-50"></div>
+          <button
+            onClick={handleIcebreaker}
+            className="flex flex-col items-center gap-1 text-gray-900"
+          >
+            <HelpCircle size={24} strokeWidth={2.5} />
+            <span className="text-[8px] font-black uppercase">Hielo</span>
+          </button>
+        </div>
+
+        {/* INPUT */}
+        <div className="p-4 bg-white border-t-2 border-gray-50">
+          <form
+            onSubmit={handleSend}
+            className="flex items-center gap-2 bg-gray-100 rounded-xl p-1.5 pl-4 border-2 border-gray-200 shadow-inner"
+          >
+            <input
+              value={text}
+              onChange={e => setText(e.target.value)}
+              placeholder="Mensaje..."
+              className="flex-1 bg-transparent border-none outline-none text-gray-800 text-sm font-bold"
+            />
+            <button
+              type="submit"
+              disabled={!text.trim()}
+              className="bg-[#F28749] text-gray-900 p-3 rounded-xl border-2 border-gray-900 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-y-0.5 active:shadow-none transition-all"
+            >
+              <Send size={18} strokeWidth={3} />
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   )
