@@ -11,7 +11,7 @@ export const EventCard = ({
   onEdit,
   onDelete,
 }: EventCardProps) => {
-  // Buscamos el objeto del barrio que coincida con el ID del evento
+
   const neighborhoodName =
     neighborhoods.find(n => n.id === event.neighborhoodId)?.name || 'Valencia'
 

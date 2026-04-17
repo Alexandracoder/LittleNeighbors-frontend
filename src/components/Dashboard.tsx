@@ -1,6 +1,7 @@
 import { useEffect, useState, MouseEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useTranslation } from 'react-i18next' // <-- IMPORTANTE
 import { childApi } from '../services/api'
 import type { ChildResponseDTO } from '../types'
 import MainLayout from '../components/layout/MainLayout'
@@ -17,6 +18,7 @@ import dashboardBg from '../assets/neighborhood-picnic.png'
 
 export default function Dashboard() {
   const navigate = useNavigate()
+  const { t } = useTranslation() // <-- IMPORTANTE
   const { familyEntity, loading, logout, token } = useAuth()
   const [children, setChildren] = useState<ChildResponseDTO[]>([])
   const [fetching, setFetching] = useState(false)
@@ -65,8 +67,10 @@ export default function Dashboard() {
   return (
     <MainLayout
       backgroundImage={dashboardBg}
+      // Traducimos el saludo. Si en el JSON pusiste "Hello" o "Hola",
+      // aquí se combinará con el nombre de la familia.
       title={`Hola, ${familyEntity?.familyName}`}
-      subtitle="Your neighborhood, simplified."
+      subtitle={t('dashboard.subtitle')}
       showGlassCard={false}
     >
       {/* --- NAVEGACIÓN SUPERIOR --- */}
@@ -77,7 +81,7 @@ export default function Dashboard() {
         >
           <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
           <span className="font-black uppercase tracking-widest text-[10px]">
-            Back
+            {t('common.back')}
           </span>
         </button>
 
@@ -86,7 +90,7 @@ export default function Dashboard() {
           className="flex items-center gap-2 px-5 py-2.5 bg-white/10 backdrop-blur-xl text-white/80 hover:text-red-400 rounded-full border border-white/20 hover:bg-white/20 transition-all active:scale-95 group shadow-xl"
         >
           <span className="font-black uppercase tracking-widest text-[10px]">
-            Sign Out
+            {t('common.signOut')}
           </span>
           <LogOut className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
         </button>
@@ -102,7 +106,7 @@ export default function Dashboard() {
           >
             <Search className="w-6 h-6" />
             <span className="font-black uppercase tracking-widest text-sm">
-              Find Neighbors
+              {t('dashboard.findNeighbors')}
             </span>
           </button>
         </div>
@@ -116,7 +120,7 @@ export default function Dashboard() {
           >
             <Calendar className="w-5 h-5 text-[#F28749]" />
             <span className="font-black uppercase tracking-widest text-xs">
-              My Playdates
+              {t('dashboard.myPlaydates')}
             </span>
           </button>
 
@@ -127,18 +131,18 @@ export default function Dashboard() {
           >
             <MapPin className="w-5 h-5 text-[#F28749]" />
             <span className="font-black uppercase tracking-widest text-xs">
-              Events
+              {t('dashboard.events')}
             </span>
           </button>
 
-          {/* MY PROFILE (Para gestionar hijos y datos) */}
+          {/* MY PROFILE */}
           <button
             onClick={() => navigate('/add-child')}
             className="flex items-center gap-3 px-8 py-4 bg-white/10 backdrop-blur-xl text-white rounded-full border-2 border-white/20 shadow-xl transition-all hover:bg-white/20 hover:scale-105 active:scale-95"
           >
             <User className="w-5 h-5 text-[#F28749]" />
             <span className="font-black uppercase tracking-widest text-xs">
-              My Profile
+              {t('dashboard.myProfile')}
             </span>
           </button>
         </div>

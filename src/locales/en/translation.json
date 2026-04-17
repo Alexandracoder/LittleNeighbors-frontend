@@ -1,25 +1,242 @@
 {
+  "common": {
+    "back": "Back",
+    "loading": "Loading Neighborhood...",
+    "signOut": "Sign Out",
+    "logout": "Logout",
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "error": "Error",
+    "send": "Send",
+    "close": "Close"
+  },
+
   "auth": {
-    "login": "Login",
-    "register": "Register",
-    "logout": "Logout"
+    "login": {
+      "title": "Hello again!",
+      "subtitle": "Your neighbors missed you.",
+      "cta": "ENTER THE HOOD",
+      "formTitle": "Welcome Back",
+      "emailPlaceholder": "Your email",
+      "passwordPlaceholder": "Password",
+      "submitIdle": "LOG IN",
+      "submitLoading": "OPENING DOORS...",
+      "linkRegister": "I'm a new neighbor",
+      "linkBack": "Go Back to view the soul",
+      "errorInvalidCredentials": "Invalid email or password. Please try again.",
+      "errorConnection": "Connection error. Is the server running?"
+    },
+    "register": {
+      "title": "Join the Hood",
+      "subtitle": "Ready to meet your new community?",
+      "cta": "CREATE ACCOUNT",
+      "formTitle": "New Member",
+      "firstNamePlaceholder": "First Name",
+      "lastNamePlaceholder": "Last Name",
+      "emailPlaceholder": "Your email",
+      "passwordPlaceholder": "Password",
+      "submitIdle": "Join Now",
+      "submitLoading": "Creating...",
+      "linkLogin": "Already a neighbor? Log in",
+      "linkBack": "Go Back",
+      "errorDefault": "Registration failed."
+    }
   },
+
+  "loading": {
+    "neighborhood": "Loading Neighborhood...",
+    "verifyingNeighborhood": "Verifying neighborhood...",
+    "searchingNeighbors": "Searching for neighbors..."
+  },
+
+  "navigation": {
+    "dashboard": "Dashboard",
+    "explore": "Explore",
+    "profile": "Profile",
+    "backToDashboard": "Back to Dashboard"
+  },
+
+  "dashboard": {
+    "subtitle": "Your neighborhood, simplified.",
+    "findNeighbors": "Find Neighbors",
+    "myPlaydates": "My Playdates",
+    "events": "Events",
+    "myProfile": "My Profile"
+  },
+
   "family": {
-    "representative": "Representative",
-    "description": "Description",
-    "children": "Children",
-    "interests": "Interests",
-    "not_assigned": "Not assigned"
+    "create": {
+      "heroTitle": "Almost there...",
+      "heroSubtitle": "Let's set up your family profile to start meeting neighbors.",
+      "heroCta": "GET STARTED",
+      "formTitle": "Family Details",
+      "representativeNameLabel": "Representative Name",
+      "representativeNamePlaceholder": "e.g. Jane Doe",
+      "familyNameLabel": "Family Name",
+      "familyNamePlaceholder": "e.g. The Smith Family",
+      "neighborhoodLabel": "Your Neighborhood",
+      "neighborhoodPlaceholder": "Choose where you live...",
+      "bioLabel": "Bio / Description",
+      "bioPlaceholder": "Tell neighbors about your family...",
+      "submitIdle": "Complete Profile",
+      "submitLoading": "Processing...",
+      "errorNoNeighborhood": "Please select a neighborhood before continuing.",
+      "errorDefault": "Failed to initialize family profile"
+    },
+    "card": {
+      "namePrefix": "The",
+      "nameSuffix": "s",
+      "nearby": "Nearby",
+      "descriptionFallback": "Looking for new community friends!",
+      "selectPlaymate": "Select a playmate to chat:",
+      "newborn": "NEWBORN",
+      "yearsOldSuffix": "YEARS OLD"
+    }
   },
-  "location": {
-    "neighborhood": "Neighborhood",
-    "street": "Street",
-    "city": "City",
-    "postal_code": "Postal Code",
-    "no_neighborhood": "No neighborhood assigned"
+
+  "children": {
+    "page": {
+      "title": "Little Neighbors",
+      "subtitle": "Manage your family members",
+      "startExploring": "Start Exploring",
+      "addNewProfile": "Add New Profile"
+    },
+    "card": {
+      "titleBoy": "Little Boy",
+      "titleGirl": "Little Girl",
+      "titlePrenatal": "Expecting",
+      "titleDefault": "Little Neighbor",
+      "agePrenatal": "Coming soon",
+      "ageNewborn": "Newborn",
+      "ageSuffix_one": "year old",
+      "ageSuffix_other": "years old",
+      "ageDefault": "New Neighbor",
+      "interestsLabel": "Interests",
+      "requestPlaydate": "REQUEST PLAYDATE",
+      "sending": "SENDING...",
+      "requestSent": "REQUEST SENT"
+    },
+    "form": {
+      "titleNew": "New Little Neighbor",
+      "titleEdit": "Edit Profile",
+      "lifeStageLabel": "Life Stage",
+      "lifeStagePregnancy": "Pregnancy / Expecting 🤰",
+      "lifeStageBorn": "Already Born 👶",
+      "genderLabel": "Gender",
+      "genderPlaceholder": "Select Gender",
+      "genderBoy": "Boy 👦",
+      "genderGirl": "Girl 👧",
+      "genderSurprise": "Surprise ✨",
+      "birthDateLabel": "Birth Date",
+      "interestsLabel": "Interests & Hobbies",
+      "submitCreate": "CREATE PROFILE",
+      "submitUpdate": "UPDATE PROFILE",
+      "errorSave": "Failed to save profile. Please try again."
+    }
   },
+
+  "explore": {
+    "title": "Explore",
+    "subtitle": "Find your community playmates",
+    "activeProfile": "Active Profile:",
+    "filters": {
+      "ageRangeLabel": "Age Range",
+      "ageRangeAll": "All Ages",
+      "ageRangeToddlers": "Toddlers (0-2)",
+      "ageRangePreschoolers": "Preschoolers (3-5)",
+      "ageRangeSchool": "School Age (6+)",
+      "interestsLabel": "Interests",
+      "clearAll": "Clear all filters"
+    },
+    "errorProfile": "Please complete your family profile first.",
+    "errorFamilies": "Could not find families."
+  },
+
+  "chat": {
+    "title": "Chat",
+    "matched": "✓",
+    "noMessages": "No messages yet. Say hi to your neighbor!",
+    "inputPlaceholder": "Type a message...",
+    "sendButton": "Send",
+    "profileButton": "Profile",
+    "saveMatchIdle": "Save Match",
+    "saveMatchDone": "Matched",
+    "icebreakerButton": "Icebreaker"
+  },
+
+  "matches": {
+    "title": "My Conversations",
+    "empty": "No matches yet. Time to explore the neighborhood!",
+    "statusConnected": "● Connected",
+    "statusPending": "● Pending Approval",
+    "statusDeclined": "● Declined",
+    "actionAccept": "Accept",
+    "actionIgnore": "Ignore",
+    "familyNamePrefix": "Family",
+    "familyNameFallback": "New Neighbor",
+    "errorLoad": "Failed to load matches. Please try again later.",
+    "errorUpdate": "Could not update match status"
+  },
+
+  "events": {
+    "page": {
+      "title": "Neighborhood Events",
+      "createButton": "Create Event",
+      "toggleMapShow": "View events on map",
+      "toggleMapHide": "Hide map",
+      "backToDashboard": "Back to Dashboard"
+    },
+    "form": {
+      "titleCreate": "New Event",
+      "titleEdit": "Edit Event",
+      "titleLabel": "Title",
+      "dateLabel": "Date",
+      "neighborhoodLabel": "Neighborhood",
+      "locationLabel": "Exact location (click on the map):",
+      "descriptionLabel": "Description",
+      "submitCreate": "🚀 Publish Event",
+      "submitEdit": "💾 Save Changes",
+      "locationFallback": "Valencia"
+    },
+    "card": {
+      "editButton": "Edit",
+      "deleteButton": "Delete",
+      "neighborhoodFallback": "Valencia",
+      "confirmDelete": "Are you sure you want to delete this event?",
+      "errorDelete": "Error deleting the event.",
+      "errorLoad": "Could not load events."
+    },
+    "list": {
+      "empty": "No upcoming events in Valencia. Create the first one!",
+      "loading": "Loading events..."
+    }
+  },
+
+  "schedules": {
+    "title": "My Playdates",
+    "empty": {
+      "title": "No Playdates Yet",
+      "subtitle": "Get started today"
+    }
+  },
+
+  "welcome": {
+    "title": "Welcome to the community!",
+    "body": "You are now part of something bigger. Your profile is ready and your neighbors are waiting.",
+    "ctaExplore": "Start matching!",
+    "ctaProfile": "View my profile"
+  },
+
+  "neighborhoods": {
+    "events": {
+      "title": "Neighborhood Events"
+    }
+  },
+
   "profile": {
-    "title": "My Profile",
-    "edit": "Edit Profile"
+    "deleteConfirm": "Are you sure you want to remove this profile?",
+    "deleteError": "Could not delete profile."
   }
 }
