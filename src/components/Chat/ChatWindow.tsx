@@ -15,9 +15,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { messageService } from '../../services/messageService'
 import matchService from '../../services/matchService'
 import { UserProfileDTO } from '../../types'
-
-import chatBgPattern from '../../assets/chat.png'
-import mainAppBg from '../../assets/for-pregnants.png'
+import forPregnantsBg from '../../assets/for-pregnants.png'
 
 interface ChatWindowProps {
   matchId: string | number
@@ -96,41 +94,56 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
 
   const handleIcebreaker = () => {
     const icebreakers = [
-      '¿Parque favorito?',
-      '¿Dibujos preferidos?',
-      '¿Alguna alergia?',
-      '¿Jugamos este finde?',
-      '¿Juguete estrella?',
+      t('chat.icebreaker1', '¿Parque favorito?'),
+      t('chat.icebreaker2', '¿Dibujos preferidos?'),
+      t('chat.icebreaker3', '¿Alguna alergia?'),
+      t('chat.icebreaker4', '¿Jugamos este finde?'),
+      t('chat.icebreaker5', '¿Juguete estrella?'),
     ]
     setText(icebreakers[Math.floor(Math.random() * icebreakers.length)])
   }
 
+  const brand = {
+    orange: '#F28749',
+    cream: '#FDF8F3',
+  }
+
+  const backgroundPattern = {
+    backgroundColor: brand.cream,
+    backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5L5 25v25h15V35h20v15h15V25L30 5zM10 25l20-16 20 16v23h-11V33H21v15H11V25z' fill='%23F28749' fill-opacity='0.08'/%3E%3Cpath d='M15 45c0-2.5 5-5 5-5s5 2.5 5 5-5 5-5 5-5-2.5-5-5z' fill='%23F28749' fill-opacity='0.05'/%3E%3Csvg%3E")`,
+  }
+
   return (
-    <div
-      className="min-h-screen w-full flex items-center justify-center p-2 md:p-6"
-      style={{
-        backgroundImage: `url(${mainAppBg})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-      }}
-    >
-      <div className="relative w-full max-w-2xl bg-white/90 rounded-[2.5rem] shadow-2xl flex flex-col h-[90vh] border-2 border-white overflow-hidden">
-        {/* HEADER */}
-        <div className="bg-[#F28749] px-6 py-4 flex items-center justify-between border-b-4 border-gray-900 z-10 shadow-sm">
+   
+    <div className="min-h-screen w-full flex items-center justify-center p-2 md:p-6 relative">
+      {/* Capa 1: La imagen de fondo `for-pregnants.png` */}
+      <div
+        className="absolute inset-0 z-0"
+        style={{
+          backgroundImage: `url(${forPregnantsBg})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      />
+
+      {/* Capa 3: La ventana del chat (Manteniendo el diseño actual) */}
+      <div className="relative w-full max-w-2xl bg-white rounded-[3rem] shadow-2xl flex flex-col h-[90vh] border-[6px] border-white overflow-hidden z-20">
+        {/* HEADER: Coral brillante (Estilo de la foto) */}
+        <div className="bg-[#FF9E91] px-6 py-5 flex items-center justify-between z-10 border-b border-gray-100 shadow-sm">
           <div className="flex items-center gap-3">
             <button
               onClick={() => navigate(-1)}
-              className="p-2 hover:bg-black/10 rounded-full transition-colors"
+              className="p-2 hover:bg-black/5 rounded-full transition-colors"
             >
               <ChevronLeft size={24} className="text-gray-900" />
             </button>
             <div>
-              <h2 className="text-lg font-black text-gray-900 uppercase italic leading-none tracking-tighter">
+              <h2 className="text-xl font-black text-gray-900 uppercase italic tracking-tighter leading-none">
                 LITTLE CHAT
               </h2>
               <div className="flex items-center gap-1.5 mt-1">
-                <Star size={10} className="fill-gray-900" />
-                <span className="text-[10px] text-gray-900 font-black uppercase tracking-widest">
+                <Star size={12} className="fill-gray-900 text-gray-900" />
+                <span className="text-[10px] text-gray-900 font-bold uppercase tracking-widest">
                   Live
                 </span>
               </div>
@@ -143,28 +156,25 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                 setIAccepted(true)
               } catch (e) {}
             }}
-            className="bg-gray-900 text-[#F28749] px-4 py-2 rounded-xl text-[10px] font-black border-2 border-[#F28749] shadow-[3px_3px_0px_0px_rgba(242,135,73,0.3)]"
+            className="bg-gray-800 text-[#FF9E91] px-4 py-2 rounded-2xl text-[10px] font-black border border-[#FF9E91] shadow-sm active:scale-95 transition-all"
           >
-            {iAccepted ? 'PENDIENTE' : 'CONFIRMAR'}
+            {iAccepted
+              ? t('chat.pending', 'PENDIENTE')
+              : t('chat.confirm', 'CONFIRMAR')}
           </button>
         </div>
 
-        {/* CONTENEDOR DE MENSAJES */}
+        {/* --- 3. ÁREA DE MENSAJES: Mantiene el fondo Cream y el Patrón sutil --- */}
         <div
           ref={scrollRef}
-          className="flex-1 overflow-y-auto p-6 space-y-6"
-          style={{
-            backgroundImage: `url(${chatBgPattern})`,
-            backgroundSize: '250px',
-            backgroundColor: 'rgba(255, 215, 0, 0.2)',
-          }}
+          className="flex-1 overflow-y-auto p-6 space-y-5"
+          style={backgroundPattern}
         >
           <AnimatePresence initial={false}>
             {messages.map((msg, idx) => {
               const isMe =
                 msg.senderId?.toString() === currentUser.id?.toString() ||
                 (msg.senderEmail && msg.senderEmail === currentUser.email)
-
               return (
                 <motion.div
                   key={msg.id || idx}
@@ -175,27 +185,25 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                     isMe ? 'flex-row-reverse' : 'flex-row'
                   }`}
                 >
-                  {/* AVATAR: Se muestra al lado de la burbuja */}
                   <div className="flex-shrink-0 mb-1">
-                    {msg.senderAvatar ? (
-                      <img
-                        src={msg.senderAvatar}
-                        alt="avatar"
-                        className="w-8 h-8 rounded-full border-2 border-gray-900 object-cover shadow-sm"
-                      />
-                    ) : (
-                      <div className="w-8 h-8 rounded-full bg-gray-200 border-2 border-gray-900 flex items-center justify-center">
-                        <UserCircle size={20} className="text-gray-600" />
-                      </div>
-                    )}
+                    <div className="w-9 h-9 rounded-full bg-white border border-gray-300 flex items-center justify-center overflow-hidden shadow-sm">
+                      {msg.senderAvatar ? (
+                        <img
+                          src={msg.senderAvatar}
+                          alt=""
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <UserCircle size={22} className="text-gray-400" />
+                      )}
+                    </div>
                   </div>
-
-                  {/* BURBUJA */}
+                  {/* Burbujas: Estilo "Foto" (font-bold y bordes) */}
                   <div
-                    className={`max-w-[75%] px-5 py-3 rounded-2xl text-sm font-black shadow-md border-2 ${
+                    className={`max-w-[75%] px-5 py-3 rounded-[1.5rem] text-sm font-bold border shadow-sm ${
                       isMe
-                        ? 'bg-[#F28749] text-gray-900 border-gray-900 rounded-br-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]'
-                        : 'bg-white text-gray-700 border-gray-200 rounded-bl-none shadow-[4px_4px_0px_0px_rgba(0,0,0,0.05)]'
+                        ? 'bg-[#FF9E91] text-gray-900 border-gray-900 rounded-br-none'
+                        : 'bg-white text-gray-700 border-gray-200 rounded-tl-none'
                     }`}
                   >
                     {msg.content}
@@ -206,55 +214,64 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
           </AnimatePresence>
         </div>
 
-        {/* ACTION BAR */}
-        <div className="px-4 py-3 bg-white border-t-2 border-gray-100 flex items-center justify-around">
+        {/* NAVEGACIÓN INFERIOR */}
+        <div className="px-4 py-3 bg-white border-t border-gray-100 flex items-center justify-around z-10 relative">
           <button
             onClick={() => navigate('/profile')}
-            className="flex flex-col items-center gap-1 text-gray-900 hover:scale-110 transition-transform"
+            className="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-900 transition-colors group"
           >
-            <UserCircle size={24} strokeWidth={2.5} />
-            <span className="text-[8px] font-black uppercase tracking-tighter">
-              Perfil
+            <UserCircle
+              size={26}
+              className="group-hover:scale-110 transition-transform"
+            />
+            <span className="text-[9px] font-black uppercase tracking-tighter">
+              {t('chat.profile', 'Perfil')}
             </span>
           </button>
-          <div className="h-8 w-[2px] bg-gray-50"></div>
+          <div className="h-8 w-[1px] bg-gray-100"></div>
           <button
             onClick={() => navigate(`/schedules/${matchId}`)}
-            className="flex flex-col items-center gap-1 text-gray-900 hover:scale-110 transition-transform"
+            className="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-900 transition-colors group"
           >
-            <Calendar size={24} strokeWidth={2.5} />
-            <span className="text-[8px] font-black uppercase tracking-tighter">
-              Agenda
+            <Calendar
+              size={26}
+              className="group-hover:scale-110 transition-transform"
+            />
+            <span className="text-[9px] font-black uppercase tracking-tighter">
+              {t('chat.agenda', 'Agenda')}
             </span>
           </button>
-          <div className="h-8 w-[2px] bg-gray-50"></div>
+          <div className="h-8 w-[1px] bg-gray-100"></div>
           <button
             onClick={handleIcebreaker}
-            className="flex flex-col items-center gap-1 text-gray-900 hover:scale-110 transition-transform"
+            className="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-900 transition-colors group"
           >
-            <HelpCircle size={24} strokeWidth={2.5} />
-            <span className="text-[8px] font-black uppercase tracking-tighter">
-              Hielo
+            <HelpCircle
+              size={26}
+              className="group-hover:scale-110 transition-transform"
+            />
+            <span className="text-[9px] font-black uppercase tracking-tighter">
+              {t('chat.icebreaker', 'Hielo')}
             </span>
           </button>
         </div>
 
-        {/* INPUT FORM */}
-        <div className="p-4 bg-white border-t-2 border-gray-50">
+        {/* INPUT DE ENVÍO */}
+        <div className="p-4 bg-white border-t border-gray-100 z-10 relative">
           <form
             onSubmit={handleSend}
-            className="flex items-center gap-2 bg-gray-50 rounded-2xl p-1.5 pl-4 border-2 border-gray-200 shadow-inner focus-within:border-[#F28749] transition-colors"
+            className="flex items-center gap-2 bg-gray-50 rounded-2xl p-1.5 pl-4 border border-gray-200 focus-within:border-[#F28749] transition-colors"
           >
             <input
               value={text}
               onChange={e => setText(e.target.value)}
-              placeholder="Escribe un mensaje..."
+              placeholder={t('chat.placeholder', 'Escribe aquí...')}
               className="flex-1 bg-transparent border-none outline-none text-gray-800 text-sm font-bold"
             />
             <button
               type="submit"
               disabled={!text.trim()}
-              className="bg-[#F28749] text-gray-900 p-3 rounded-xl border-2 border-gray-900 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-y-0.5 active:shadow-none transition-all disabled:opacity-30 disabled:shadow-none"
+              className="bg-[#FF9E91] text-gray-900 p-3 rounded-xl border border-gray-900 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:translate-y-0.5 active:shadow-none transition-all disabled:opacity-50 disabled:shadow-none"
             >
               <Send size={18} strokeWidth={3} />
             </button>
