@@ -246,5 +246,8 @@
   "profile": {
     "deleteConfirm": "¿Estás seguro de que quieres eliminar este perfil?",
     "deleteError": "No se pudo eliminar el perfil."
-  }
+  },
+"form": {
+  "timeCaption": "Hora"
+}
 }

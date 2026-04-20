@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { SetStateAction, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import {
   ArrowLeft,
@@ -7,8 +7,19 @@ import {
   AlignLeft,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import DatePicker, { registerLocale } from 'react-datepicker'
+import { enUS as en } from 'date-fns/locale'
+import { es } from 'date-fns/locale/es'
 import playdateService from '../services/playdateService'
 import dashboardBg from '../assets/neighborhood-picnic1.png'
+
+import 'react-datepicker/dist/react-datepicker.css'
+import './datepicker-custom.css' 
+import i18n from '../i18n'
+
+
+registerLocale('en', en)
+registerLocale('es', es)
 
 export default function AddPlaydatePage() {
   const { t } = useTranslation()
@@ -18,17 +29,22 @@ export default function AddPlaydatePage() {
   const { matchId } = location.state || {}
 
   const [title, setTitle] = useState('')
-  const [startTime, setStartTime] = useState('')
+  const [startDate, setStartDate] = useState<Date | null>(new Date())
   const [description, setDescription] = useState('')
   const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!matchId || !title || !startTime) return
+    if (!matchId || !title || !startDate) return
 
     setLoading(true)
     try {
-      const formattedDate = startTime.replace('T', ' ') + ':00'
+      const year = startDate.getFullYear()
+      const month = String(startDate.getMonth() + 1).padStart(2, '0')
+      const day = String(startDate.getDate()).padStart(2, '0')
+      const hours = String(startDate.getHours()).padStart(2, '0')
+      const minutes = String(startDate.getMinutes()).padStart(2, '0')
+      const formattedDate = `${year}-${month}-${day} ${hours}:${minutes}:00`
 
       await playdateService.create({
         title,
@@ -73,11 +89,12 @@ export default function AddPlaydatePage() {
           </span>
         </h1>
         <p className="text-[10px] font-bold text-gray-300 uppercase tracking-[0.3em] mb-10">
-          {t('playdates.page.subtitle')} (Match #{matchId})
+          {t('playdates.page.subtitle')}
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="bg-white/95 rounded-[2.5rem] p-8 shadow-2xl space-y-6 text-gray-900">
+            {/* Campo Título */}
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase text-gray-400 ml-4 tracking-widest flex items-center gap-2">
                 <CalendarIcon size={12} className="text-[#F28749]" />{' '}
@@ -93,20 +110,27 @@ export default function AddPlaydatePage() {
               />
             </div>
 
-            <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase text-gray-400 ml-4 tracking-widest flex items-center gap-2">
-                <CalendarIcon size={12} className="text-[#F28749]" />{' '}
-                {t('playdates.form.whenLabel')}
-              </label>
-              <input
-                type="datetime-local"
-                value={startTime}
-                onChange={e => setStartTime(e.target.value)}
-                className="w-full bg-gray-50 border-none rounded-2xl px-6 py-4 text-gray-900 font-bold focus:ring-2 focus:ring-[#F28749] transition-all"
-                required
-              />
-            </div>
+            <DatePicker
+              selected={startDate}
+              onChange={(date: SetStateAction<Date | null>) => setStartDate(date)}
+              
+              locale={
+                i18n.language.startsWith('va')
+                  ? 'va'
+                  : i18n.language.startsWith('en')
+                  ? 'en'
+                  : 'es'
+              }
+              showTimeSelect
+              timeFormat="HH:mm"
+              timeIntervals={15}
+          
+              timeCaption={t('playdates.form.timeCaption')}
+              dateFormat="dd/MM/yyyy HH:mm"
+              className="w-full bg-gray-50 border-none rounded-2xl px-6 py-4 text-gray-900 font-bold focus:ring-2 focus:ring-[#F28749] transition-all"
+            />
 
+            {/* Campo Descripción */}
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase text-gray-400 ml-4 tracking-widest flex items-center gap-2">
                 <AlignLeft size={12} className="text-[#F28749]" />{' '}

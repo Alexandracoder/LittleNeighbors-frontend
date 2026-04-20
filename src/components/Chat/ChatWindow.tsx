@@ -110,13 +110,11 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
 
   const backgroundPattern = {
     backgroundColor: brand.cream,
-    backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5L5 25v25h15V35h20v15h15V25L30 5zM10 25l20-16 20 16v23h-11V33H21v15H11V25z' fill='%23F28749' fill-opacity='0.08'/%3E%3Cpath d='M15 45c0-2.5 5-5 5-5s5 2.5 5 5-5 5-5 5-5-2.5-5-5z' fill='%23F28749' fill-opacity='0.05'/%3E%3Csvg%3E")`,
+    backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5L5 25v25h15V35h20v15h15V25L30 5zM10 25l20-16 20 16v23h-11V33H21v15H11V25z' fill='%23F28749' fill-opacity='0.08'/%3E%3Cpath d='M15 45c0-2.5 5-5 5-5s5 2.5 5 5-5 5-5 5-5-2.5-5-5z' fill='%23F28749' fill-opacity='0.05'/%3E%3C/svg%3E")`,
   }
 
   return (
-   
     <div className="min-h-screen w-full flex items-center justify-center p-2 md:p-6 relative">
-      {/* Capa 1: La imagen de fondo `for-pregnants.png` */}
       <div
         className="absolute inset-0 z-0"
         style={{
@@ -126,9 +124,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
         }}
       />
 
-      {/* Capa 3: La ventana del chat (Manteniendo el diseño actual) */}
       <div className="relative w-full max-w-2xl bg-white rounded-[3rem] shadow-2xl flex flex-col h-[90vh] border-[6px] border-white overflow-hidden z-20">
-        {/* HEADER: Coral brillante (Estilo de la foto) */}
         <div className="bg-[#FF9E91] px-6 py-5 flex items-center justify-between z-10 border-b border-gray-100 shadow-sm">
           <div className="flex items-center gap-3">
             <button
@@ -164,7 +160,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
           </button>
         </div>
 
-        {/* --- 3. ÁREA DE MENSAJES: Mantiene el fondo Cream y el Patrón sutil --- */}
         <div
           ref={scrollRef}
           className="flex-1 overflow-y-auto p-6 space-y-5"
@@ -198,7 +193,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                       )}
                     </div>
                   </div>
-                  {/* Burbujas: Estilo "Foto" (font-bold y bordes) */}
                   <div
                     className={`max-w-[75%] px-5 py-3 rounded-[1.5rem] text-sm font-bold border shadow-sm ${
                       isMe
@@ -214,7 +208,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
           </AnimatePresence>
         </div>
 
-        {/* NAVEGACIÓN INFERIOR */}
         <div className="px-4 py-3 bg-white border-t border-gray-100 flex items-center justify-around z-10 relative">
           <button
             onClick={() => navigate('/profile')}
@@ -256,7 +249,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
           </button>
         </div>
 
-        {/* INPUT DE ENVÍO */}
         <div className="p-4 bg-white border-t border-gray-100 z-10 relative">
           <form
             onSubmit={handleSend}

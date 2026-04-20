@@ -2,12 +2,12 @@ import { useState, FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { LogIn, Mail, Lock, ArrowRight } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
-import { useTranslation } from 'react-i18next' // 1. Importamos el hook
+import { useTranslation } from 'react-i18next'
 
-import loginBg from '../assets/community-connecting.png'
+import loginBg from '../assets/playing-together.png'
 
 export default function Login() {
-  const { t, i18n } = useTranslation() // 2. Extraemos t e i18n
+  const { t, i18n } = useTranslation()
   const [showForm, setShowForm] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')

@@ -21,13 +21,13 @@ export const useChatSocket = (
 
         stompClient.current?.subscribe(
           `/topic/messages/${matchId}`,
-          payload => {
+          (          payload: { body: string }) => {
             const newMessage = JSON.parse(payload.body)
             onMessageReceived(newMessage)
           },
         )
       },
-      error => {
+      (      error: any) => {
         console.error('Error en WebSocket:', error)
         setConnected(false)
       },
