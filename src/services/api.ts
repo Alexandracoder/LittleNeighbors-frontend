@@ -84,12 +84,10 @@ export const familyApi = {
     const response = await api.post<FamilyResponseDTO>('/families', data)
     return response.data
   },
-
   getMyFamily: async (): Promise<FamilyResponseDTO> => {
     const response = await api.get<FamilyResponseDTO>('/families/my-family')
     return response.data
   },
-
   explore: async (filters: {
     currentChildId: number
     minAge: number
@@ -146,6 +144,7 @@ export const interestApi = {
     return response.data
   },
 }
+
 export const userApi = {
   getStatus: async (): Promise<UserStatusDTO> => {
     const response = await api.get<UserStatusDTO>('/users/me/status')

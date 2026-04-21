@@ -12,7 +12,7 @@ import { Client } from '@stomp/stompjs'
 import SockJS from 'sockjs-client'
 import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
-import { messageService } from '../../services/messageService'
+import api from '../../services/api'
 import matchService from '../../services/matchService'
 import { UserProfileDTO } from '../../types'
 import forPregnantsBg from '../../assets/for-pregnants.png'
@@ -33,33 +33,27 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   const [messages, setMessages] = useState<any[]>([])
   const [text, setText] = useState<string>('')
   const [iAccepted, setIAccepted] = useState(false)
-
   const scrollRef = useRef<HTMLDivElement>(null)
   const stompClient = useRef<Client | null>(null)
 
   useEffect(() => {
-    const loadData = async () => {
+    const loadHistory = async () => {
       if (!matchId) return
       try {
-        // Llamada corregida: según tu service, solo pasamos matchId.
-        // El token lo debe manejar tu instancia de 'api' (axios) mediante un interceptor.
-        const data: any = await messageService.getHistory(Number(matchId))
-
-        if (data) {
-          // Si data es un array lo usamos, si es objeto usamos data.messages
-          const messagesArray = Array.isArray(data) ? data : data.messages || []
-          setMessages(messagesArray)
-          setIAccepted(data.userAccepted || false)
-        }
+        const response = await api.get(`/messages/history/match/${matchId}`)
+        const data = response.data
+        setMessages(Array.isArray(data) ? data : data.messages || [])
+        setIAccepted(data.userAccepted || false)
       } catch (err) {
-        console.error('Error loading chat history:', err)
+        console.error(err)
       }
     }
-    loadData()
+    loadHistory()
   }, [matchId])
 
   useEffect(() => {
     if (!matchId || !token) return
+
     const client = new Client({
       webSocketFactory: () =>
         new SockJS('http://localhost:8080/ws-little-neighbors'),
@@ -67,25 +61,32 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
       onConnect: () => {
         client.subscribe(`/topic/messages/${matchId}`, payload => {
           const newMessage = JSON.parse(payload.body)
-          setMessages(prev => [...prev, newMessage])
+          setMessages(prev => {
+            if (prev.some(m => m.id === newMessage.id)) return prev
+            return [...prev, newMessage]
+          })
         })
       },
     })
+
     client.activate()
     stompClient.current = client
+
     return () => {
       if (client.active) client.deactivate()
     }
   }, [matchId, token])
 
   useEffect(() => {
-    if (scrollRef.current)
+    if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+    }
   }, [messages])
 
   const handleSend = (e: FormEvent) => {
     e.preventDefault()
     if (!text.trim() || !stompClient.current?.connected) return
+
     stompClient.current.publish({
       destination: `/app/chat/${matchId}`,
       body: JSON.stringify({
@@ -98,7 +99,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   }
 
   const handleIcebreaker = () => {
-
     const icebreakers = [
       t('chat.icebreaker1', '¿Parque favorito?'),
       t('chat.icebreaker2', '¿Dibujos preferidos?'),
@@ -124,9 +124,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
           backgroundPosition: 'center',
         }}
       />
-
       <div className="relative w-full max-w-2xl bg-white rounded-[3rem] shadow-2xl flex flex-col h-[90vh] border-[6px] border-white overflow-hidden z-20">
-        {/* HEADER */}
         <div className="bg-[#FF9E91] px-6 py-5 flex items-center justify-between z-10 border-b border-gray-100 shadow-sm">
           <div className="flex items-center gap-3">
             <button
@@ -142,7 +140,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
               <div className="flex items-center gap-1.5 mt-1">
                 <Star size={12} className="fill-gray-900 text-gray-900" />
                 <span className="text-[10px] text-gray-900 font-bold uppercase tracking-widest">
-                  {t('chat.live', 'Live')}
+                  {t('chat.live', 'LIVE')}
                 </span>
               </div>
             </div>
@@ -152,30 +150,29 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
               try {
                 await matchService.confirmMatch(Number(matchId))
                 setIAccepted(true)
-              } catch (e) {}
+              } catch (e) {
+                console.error(e)
+              }
             }}
             className="bg-gray-800 text-[#FF9E91] px-4 py-2 rounded-2xl text-[10px] font-black border border-[#FF9E91] shadow-sm active:scale-95 transition-all"
           >
             {iAccepted
-              ? t('chat.pending', 'PENDIENTE')
-              : t('chat.confirm', 'CONFIRMAR')}
+              ? t('chat.pending', 'PENDING')
+              : t('chat.confirm', 'CONFIRM')}
           </button>
         </div>
 
-        {/* MESSAGES AREA */}
         <div
           ref={scrollRef}
           className="flex-1 overflow-y-auto p-6 space-y-5"
           style={backgroundPattern}
         >
           <AnimatePresence initial={false}>
-            {Array.isArray(messages) &&
+            {messages.length > 0 ? (
               messages.map((msg, idx) => {
-                // Lógica de diferenciación recuperada
                 const isMe =
                   msg.senderId?.toString() === currentUser.id?.toString() ||
-                  (msg.senderEmail && msg.senderEmail === currentUser.email)
-
+                  msg.senderEmail === currentUser.email
                 return (
                   <motion.div
                     key={msg.id || idx}
@@ -209,11 +206,15 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                     </div>
                   </motion.div>
                 )
-              })}
+              })
+            ) : (
+              <div className="h-full flex items-center justify-center text-gray-400 text-sm font-medium italic">
+                {t('chat.noMessages', 'No messages yet...')}
+              </div>
+            )}
           </AnimatePresence>
         </div>
 
-        {/* ACTION BUTTONS */}
         <div className="px-4 py-3 bg-white border-t border-gray-100 flex items-center justify-around z-10 relative">
           <button
             onClick={() => navigate('/profile')}
@@ -221,7 +222,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
           >
             <UserCircle size={26} />
             <span className="text-[9px] font-black uppercase tracking-tighter">
-              {t('chat.profile', 'Perfil')}
+              {t('navigation.profile', 'Profile')}
             </span>
           </button>
           <div className="h-8 w-[1px] bg-gray-100"></div>
@@ -231,7 +232,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
           >
             <Calendar size={26} />
             <span className="text-[9px] font-black uppercase tracking-tighter">
-              {t('chat.agenda', 'Agenda')}
+              {t('playdates.page.agendaHighlight', 'Agenda')}
             </span>
           </button>
           <div className="h-8 w-[1px] bg-gray-100"></div>
@@ -241,12 +242,11 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
           >
             <HelpCircle size={26} />
             <span className="text-[9px] font-black uppercase tracking-tighter">
-              {t('chat.icebreaker', 'Hielo')}
+              {t('chat.icebreaker', 'Icebreaker')}
             </span>
           </button>
         </div>
 
-        {/* INPUT FORM */}
         <div className="p-4 bg-white border-t border-gray-100 z-10 relative">
           <form
             onSubmit={handleSend}
@@ -255,13 +255,13 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
             <input
               value={text}
               onChange={e => setText(e.target.value)}
-              placeholder={t('chat.placeholder', 'Escribe aquí...')}
+              placeholder={t('chat.inputPlaceholder', 'Type...')}
               className="flex-1 bg-transparent border-none outline-none text-gray-800 text-sm font-bold"
             />
             <button
               type="submit"
               disabled={!text.trim()}
-              className="bg-[#FF9E91] text-gray-900 p-3 rounded-xl border border-gray-900 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:translate-y-0.5 active:shadow-none transition-all disabled:opacity-50"
+              className="bg-[#FF9E91] text-gray-900 p-3 rounded-xl border border-gray-900 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:translate-y-0.5 transition-all"
             >
               <Send size={18} strokeWidth={3} />
             </button>
