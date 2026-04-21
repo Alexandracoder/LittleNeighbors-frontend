@@ -147,15 +147,23 @@
     "errorFamilies": "No se han encontrado familias."
   },
   "chat": {
-    "title": "Chat",
+    "title": "CHATEAR",
     "matched": "✓",
-    "noMessages": "No hay mensajes aún. ¡Escribe a tu vecino!",
+    "noMessages": "No hay mensajes aún. ¡Saluda a tu vecino!",
     "inputPlaceholder": "Escribe un mensaje...",
     "sendButton": "Enviar",
-    "profileButton": "Perfil",
+    "profile": "Perfil",
+    "agenda": "Agenda",
+    "confirm": "CONFIRMAR",
+    "pending": "PENDIENTE",
     "saveMatchIdle": "Guardar Match",
-    "saveMatchDone": "Conectados",
-    "icebreakerButton": "Romper el hielo"
+    "saveMatchDone": "Conectado",
+    "icebreaker": "Hielo",
+    "icebreaker1": "¿Parque favorito?",
+    "icebreaker2": "¿Dibujos preferidos?",
+    "icebreaker3": "¿Alguna alergia?",
+    "icebreaker4": "¿Jugamos este finde?",
+    "icebreaker5": "¿Juguete estrella?"
   },
   "matches": {
     "title": "Mis Conversaciones",

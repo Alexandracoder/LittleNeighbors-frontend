@@ -146,16 +146,24 @@
     "errorProfile": "Primer completa el teu perfil familiar.",
     "errorFamilies": "No s'han trobat famílies."
   },
-  "chat": {
-    "title": "Xat",
+"chat": {
+    "title": "XARRAR",
     "matched": "✓",
-    "noMessages": "No hi ha missatges encara. Escriu al teu veí!",
+    "noMessages": "Encara no hi ha missatges. Saluda al teu veí!",
     "inputPlaceholder": "Escriu un missatge...",
     "sendButton": "Enviar",
-    "profileButton": "Perfil",
+    "profile": "Perfil",
+    "agenda": "Agenda",
+    "confirm": "CONFIRMAR",
+    "pending": "PENDENT",
     "saveMatchIdle": "Guardar Match",
-    "saveMatchDone": "Connectats",
-    "icebreakerButton": "Trencar el gel"
+    "saveMatchDone": "Connectat",
+    "icebreaker": "Gel",
+    "icebreaker1": "Quin és el vostre parc favorit?",
+    "icebreaker2": "Quins dibuixos preferiu?",
+    "icebreaker3": "Teniu alguna al·lèrgia?",
+    "icebreaker4": "Juguem este cap de setmana?",
+    "icebreaker5": "Quin és el seu joguet estrella?"
   },
   "matches": {
     "title": "Les meues Converses",

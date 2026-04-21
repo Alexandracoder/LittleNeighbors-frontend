@@ -134,13 +134,8 @@ export interface MessageDTO {
 }
 
 export interface MessageService {
-  getHistory: (matchId: string | number, token: string) => Promise<MessageDTO[]>
-  sendMessage: (
-    matchId: string | number,
-    senderId: number,
-    content: string,
-    token: string,
-  ) => Promise<MessageDTO>
+  getHistory: (matchId: number, signal?: AbortSignal) => Promise<MessageDTO[]>
+  sendMessage: (matchId: number, content: string) => Promise<MessageDTO>
 }
 
 export interface Playdate {

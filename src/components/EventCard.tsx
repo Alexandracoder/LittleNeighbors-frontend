@@ -1,6 +1,6 @@
 interface EventCardProps {
   event: any
-  neighborhoods: { id: number; name: string }[] // 👈 Añadimos la lista de barrios
+  neighborhoods: { id: number; name: string }[]
   onEdit: (event: any) => void
   onDelete: (id: number) => void
 }

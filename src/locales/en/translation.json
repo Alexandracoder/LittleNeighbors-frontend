@@ -146,17 +146,26 @@
     "errorProfile": "Complete your family profile first.",
     "errorFamilies": "No families found."
   },
-  "chat": {
+"chat": {
     "title": "Chat",
     "matched": "✓",
     "noMessages": "No messages yet. Say hi to your neighbor!",
-    "inputPlaceholder": "Type a message...",
+    "placeholder": "Type a message...",
     "sendButton": "Send",
-    "profileButton": "Profile",
+    "profile": "Profile",
+    "agenda": "Agenda",
+    "confirm": "CONFIRM",
+    "pending": "PENDING",
     "saveMatchIdle": "Save Match",
     "saveMatchDone": "Connected",
-    "icebreakerButton": "Break the ice"
+    "icebreaker": "Break the ice",
+    "icebreaker1": "Favorite park?",
+    "icebreaker2": "Favorite cartoons?",
+    "icebreaker3": "Any allergies?",
+    "icebreaker4": "Play this weekend?",
+    "icebreaker5": "Star toy?"
   },
+  
   "matches": {
     "title": "My Conversations",
     "empty": "No matches yet. Time to explore the hood!",
