@@ -97,6 +97,25 @@
       "startExploring": "Empezar a explorar",
       "addNewProfile": "Añadir nuevo perfil"
     },
+    "form": {
+      "titleNew": "Nuevo Pequeño Vecino",
+      "titleEdit": "Editar Perfil",
+      "lifeStageLabel": "Etapa de vida",
+      "lifeStagePregnancy": "Embarazo / En espera 🤰",
+      "lifeStageBorn": "Ya ha nacido 👶",
+      "genderLabel": "Género",
+      "genderPlaceholder": "Seleccionar género",
+      "genderBoy": "Niño 👦",
+      "genderGirl": "Niña 👧",
+      "genderSurprise": "Sorpresa ✨",
+      "birthDateLabel": "Fecha de nacimiento / Prevista",
+      "descriptionLabel": "Bio / Sobre el peque",
+      "descriptionPlaceholder": "Ej: Le encantan los dinosaurios, le gusta mucho pintar o estamos empezando con el pañal...",
+      "interestsLabel": "Intereses y Hobbies",
+      "submitCreate": "CREAR PERFIL",
+      "submitUpdate": "ACTUALIZAR PERFIL",
+      "errorSave": "Error al guardar el perfil. Inténtalo de nuevo."
+    },
     "card": {
       "titleBoy": "Niño",
       "titleGirl": "Niña",
@@ -111,23 +130,6 @@
       "requestPlaydate": "SOLICITAR PLAYDATE",
       "sending": "ENVIANDO...",
       "requestSent": "SOLICITUD ENVIADA"
-    },
-    "form": {
-      "titleNew": "Nuevo Pequeño Vecino",
-      "titleEdit": "Editar Perfil",
-      "lifeStageLabel": "Etapa de vida",
-      "lifeStagePregnancy": "Embarazo / En espera 🤰",
-      "lifeStageBorn": "Ya ha nacido 👶",
-      "genderLabel": "Género",
-      "genderPlaceholder": "Seleccionar género",
-      "genderBoy": "Niño 👦",
-      "genderGirl": "Niña 👧",
-      "genderSurprise": "Sorpresa ✨",
-      "birthDateLabel": "Fecha de nacimiento",
-      "interestsLabel": "Intereses y Hobbies",
-      "submitCreate": "CREAR PERFIL",
-      "submitUpdate": "ACTUALIZAR PERFIL",
-      "errorSave": "Error al guardar el perfil. Inténtalo de nuevo."
     }
   },
   "explore": {
@@ -147,15 +149,23 @@
     "errorFamilies": "No se han encontrado familias."
   },
   "chat": {
-    "title": "Chat",
+    "title": "CHATEAR",
     "matched": "✓",
-    "noMessages": "No hay mensajes aún. ¡Escribe a tu vecino!",
+    "noMessages": "No hay mensajes aún. ¡Saluda a tu vecino!",
     "inputPlaceholder": "Escribe un mensaje...",
     "sendButton": "Enviar",
-    "profileButton": "Perfil",
+    "profile": "Perfil",
+    "agenda": "Agenda",
+    "confirm": "CONFIRMAR",
+    "pending": "PENDIENTE",
     "saveMatchIdle": "Guardar Match",
-    "saveMatchDone": "Conectados",
-    "icebreakerButton": "Romper el hielo"
+    "saveMatchDone": "Conectado",
+    "icebreaker": "Hielo",
+    "icebreaker1": "¿Parque favorito?",
+    "icebreaker2": "¿Dibujos preferidos?",
+    "icebreaker3": "¿Alguna alergia?",
+    "icebreaker4": "¿Jugamos este finde?",
+    "icebreaker5": "¿Juguete estrella?"
   },
   "matches": {
     "title": "Mis Conversaciones",
@@ -246,5 +256,8 @@
   "profile": {
     "deleteConfirm": "¿Estás seguro de que quieres eliminar este perfil?",
     "deleteError": "No se pudo eliminar el perfil."
+  },
+  "form": {
+    "timeCaption": "Hora"
   }
 }

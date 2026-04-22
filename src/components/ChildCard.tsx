@@ -11,7 +11,7 @@ import {
 } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useTranslation } from 'react-i18next' // 1. Importar hook
+import { useTranslation } from 'react-i18next'
 import type { ChildResponseDTO } from '../types'
 import { childApi } from '../services/api'
 
@@ -31,7 +31,7 @@ export default function ChildCard({
   myChildId,
 }: ChildCardProps) {
   const navigate = useNavigate()
-  const { t } = useTranslation() // 2. Inicializar t
+  const { t } = useTranslation()
   const [status, setStatus] = useState<
     'idle' | 'loading' | 'success' | 'error'
   >('idle')
@@ -49,13 +49,13 @@ export default function ChildCard({
     }
   }
 
-  // 3. Edad dinámica con tu JSON
+
   const getDisplayAge = () => {
     if (isPrenatal) return t('children.card.agePrenatal')
     if (child.age !== undefined && child.age !== null) {
       if (child.age === 0) return t('children.card.ageNewborn')
 
-      // Lógica para año/años según tu JSON
+
       const suffix =
         child.age === 1
           ? t('children.card.ageSuffix_one')
@@ -66,7 +66,7 @@ export default function ChildCard({
     return t('children.card.ageDefault')
   }
 
-  // 4. Títulos dinámicos con tu JSON
+
   const getTitle = () => {
     if (isPrenatal) return t('children.card.titlePrenatal')
     if (child.gender === 'BOY') return t('children.card.titleBoy')

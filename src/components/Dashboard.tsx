@@ -1,7 +1,7 @@
 import { useEffect, useState, MouseEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { useTranslation } from 'react-i18next' // <-- IMPORTANTE
+import { useTranslation } from 'react-i18next'
 import { childApi } from '../services/api'
 import type { ChildResponseDTO } from '../types'
 import MainLayout from '../components/layout/MainLayout'
@@ -18,9 +18,9 @@ import dashboardBg from '../assets/neighborhood-picnic.png'
 
 export default function Dashboard() {
   const navigate = useNavigate()
-  const { t } = useTranslation() // <-- IMPORTANTE
+  const { t } = useTranslation()
   const { familyEntity, loading, logout, token } = useAuth()
-  const [children, setChildren] = useState<ChildResponseDTO[]>([])
+  const [, setChildren] = useState<ChildResponseDTO[]>([])
   const [fetching, setFetching] = useState(false)
 
   useEffect(() => {
@@ -67,8 +67,7 @@ export default function Dashboard() {
   return (
     <MainLayout
       backgroundImage={dashboardBg}
-      // Traducimos el saludo. Si en el JSON pusiste "Hello" o "Hola",
-      // aquí se combinará con el nombre de la familia.
+
       title={`Hola, ${familyEntity?.familyName}`}
       subtitle={t('dashboard.subtitle')}
       showGlassCard={false}

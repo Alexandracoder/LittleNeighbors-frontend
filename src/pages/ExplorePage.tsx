@@ -28,7 +28,7 @@ export default function ExplorePage() {
   >([])
   const [myChildren, setMyChildren] = useState<ChildSummaryDTO[]>([])
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+  const [, setError] = useState('')
 
   const [myChildId, setMyChildId] = useState<number | undefined>(undefined)
   const [myChildInterests, setMyChildInterests] = useState<number[]>([])

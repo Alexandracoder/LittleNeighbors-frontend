@@ -49,7 +49,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const decoded = jwtDecode<DecodedToken>(t)
       const currentTime = Date.now() / 1000
       if (decoded.exp && decoded.exp < currentTime) return null
-      return { email: decoded.sub, roles: decoded.roles }
+return {
+  email: decoded.sub,
+  roles: decoded.roles,
+  id: '',
+  family: null,
+}
     } catch {
       return null
     }

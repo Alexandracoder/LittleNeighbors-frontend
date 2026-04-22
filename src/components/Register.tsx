@@ -3,11 +3,11 @@ import { useNavigate } from 'react-router-dom'
 import { UserPlus, Mail, Lock, ArrowRight } from 'lucide-react'
 import { authApi } from '../services/api'
 import { useAuth } from '../context/AuthContext'
-import { useTranslation } from 'react-i18next' // 1. Importar i18n
+import { useTranslation } from 'react-i18next'
 import registerBg from '../assets/moving.png'
 
 export default function Register() {
-  const { t, i18n } = useTranslation() // 2. Inicializar t e i18n
+  const { t, i18n } = useTranslation()
   const [showForm, setShowForm] = useState(false)
   const [formData, setFormData] = useState({
     firstName: '',
@@ -46,7 +46,6 @@ export default function Register() {
         }
       }
     } catch (err: any) {
-      // 3. Captura el mensaje del backend (como el 409 que hicimos) o el default del JSON
       setError(err.response?.data?.message || t('auth.register.errorDefault'))
     } finally {
       setLoading(false)

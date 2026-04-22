@@ -12,7 +12,7 @@ import { Client } from '@stomp/stompjs'
 import SockJS from 'sockjs-client'
 import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
-import { messageService } from '../../services/messageService'
+import api from '../../services/api'
 import matchService from '../../services/matchService'
 import { UserProfileDTO } from '../../types'
 import forPregnantsBg from '../../assets/for-pregnants.png'
@@ -33,28 +33,27 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   const [messages, setMessages] = useState<any[]>([])
   const [text, setText] = useState<string>('')
   const [iAccepted, setIAccepted] = useState(false)
-
   const scrollRef = useRef<HTMLDivElement>(null)
   const stompClient = useRef<Client | null>(null)
 
   useEffect(() => {
-    const loadData = async () => {
-      if (!matchId || !token) return
+    const loadHistory = async () => {
+      if (!matchId) return
       try {
-        const data = await messageService.getHistory(Number(matchId), token)
-        if (data) {
-          setMessages(data.messages || [])
-          setIAccepted(data.userAccepted || false)
-        }
+        const response = await api.get(`/messages/history/match/${matchId}`)
+        const data = response.data
+        setMessages(Array.isArray(data) ? data : data.messages || [])
+        setIAccepted(data.userAccepted || false)
       } catch (err) {
         console.error(err)
       }
     }
-    loadData()
-  }, [matchId, token])
+    loadHistory()
+  }, [matchId])
 
   useEffect(() => {
     if (!matchId || !token) return
+
     const client = new Client({
       webSocketFactory: () =>
         new SockJS('http://localhost:8080/ws-little-neighbors'),
@@ -62,25 +61,32 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
       onConnect: () => {
         client.subscribe(`/topic/messages/${matchId}`, payload => {
           const newMessage = JSON.parse(payload.body)
-          setMessages(prev => [...prev, newMessage])
+          setMessages(prev => {
+            if (prev.some(m => m.id === newMessage.id)) return prev
+            return [...prev, newMessage]
+          })
         })
       },
     })
+
     client.activate()
     stompClient.current = client
+
     return () => {
       if (client.active) client.deactivate()
     }
   }, [matchId, token])
 
   useEffect(() => {
-    if (scrollRef.current)
+    if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+    }
   }, [messages])
 
   const handleSend = (e: FormEvent) => {
     e.preventDefault()
     if (!text.trim() || !stompClient.current?.connected) return
+
     stompClient.current.publish({
       destination: `/app/chat/${matchId}`,
       body: JSON.stringify({
@@ -103,20 +109,28 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     setText(icebreakers[Math.floor(Math.random() * icebreakers.length)])
   }
 
-  const brand = {
-    orange: '#F28749',
-    cream: '#FDF8F3',
+  const backgroundPattern = {
+    backgroundColor: '#FDF8F3',
+    backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5L5 25v25h15V35h20v15h15V25L30 5zM10 25l20-16 20 16v23h-11V33H21v15H11V25z' fill='%23F28749' fill-opacity='0.08'/%3E%3Cpath d='M15 45c0-2.5 5-5 5-5s5 2.5 5 5-5 5-5 5-5-2.5-5-5z' fill='%23F28749' fill-opacity='0.05'/%3E%3C/svg%3E")`,
   }
 
-  const backgroundPattern = {
-    backgroundColor: brand.cream,
-    backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5L5 25v25h15V35h20v15h15V25L30 5zM10 25l20-16 20 16v23h-11V33H21v15H11V25z' fill='%23F28749' fill-opacity='0.08'/%3E%3Cpath d='M15 45c0-2.5 5-5 5-5s5 2.5 5 5-5 5-5 5-5-2.5-5-5z' fill='%23F28749' fill-opacity='0.05'/%3E%3Csvg%3E")`,
+  const generateSmartIcebreaker = (childDescription: string) => {
+    const bio = childDescription.toLowerCase()
+
+    const triggers = [
+      { key: 'dino', msg: t('chat.icebreaker.dinos') },
+      { key: 'pintar', msg: t('chat.icebreaker.art') },
+      { key: 'lego', msg: t('chat.icebreaker.blocks') },
+      { key: 'parque', msg: t('chat.icebreaker.park') },
+    ]
+
+    const match = triggers.find(t => bio.includes(t.key))
+
+    return match ? match.msg : t('chat.icebreaker.generic')
   }
 
   return (
-   
     <div className="min-h-screen w-full flex items-center justify-center p-2 md:p-6 relative">
-      {/* Capa 1: La imagen de fondo `for-pregnants.png` */}
       <div
         className="absolute inset-0 z-0"
         style={{
@@ -125,10 +139,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
           backgroundPosition: 'center',
         }}
       />
-
-      {/* Capa 3: La ventana del chat (Manteniendo el diseño actual) */}
       <div className="relative w-full max-w-2xl bg-white rounded-[3rem] shadow-2xl flex flex-col h-[90vh] border-[6px] border-white overflow-hidden z-20">
-        {/* HEADER: Coral brillante (Estilo de la foto) */}
         <div className="bg-[#FF9E91] px-6 py-5 flex items-center justify-between z-10 border-b border-gray-100 shadow-sm">
           <div className="flex items-center gap-3">
             <button
@@ -139,12 +150,12 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
             </button>
             <div>
               <h2 className="text-xl font-black text-gray-900 uppercase italic tracking-tighter leading-none">
-                LITTLE CHAT
+                {t('chat.title', 'LITTLE CHAT')}
               </h2>
               <div className="flex items-center gap-1.5 mt-1">
                 <Star size={12} className="fill-gray-900 text-gray-900" />
                 <span className="text-[10px] text-gray-900 font-bold uppercase tracking-widest">
-                  Live
+                  {t('chat.live', 'LIVE')}
                 </span>
               </div>
             </div>
@@ -154,109 +165,103 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
               try {
                 await matchService.confirmMatch(Number(matchId))
                 setIAccepted(true)
-              } catch (e) {}
+              } catch (e) {
+                console.error(e)
+              }
             }}
             className="bg-gray-800 text-[#FF9E91] px-4 py-2 rounded-2xl text-[10px] font-black border border-[#FF9E91] shadow-sm active:scale-95 transition-all"
           >
             {iAccepted
-              ? t('chat.pending', 'PENDIENTE')
-              : t('chat.confirm', 'CONFIRMAR')}
+              ? t('chat.pending', 'PENDING')
+              : t('chat.confirm', 'CONFIRM')}
           </button>
         </div>
 
-        {/* --- 3. ÁREA DE MENSAJES: Mantiene el fondo Cream y el Patrón sutil --- */}
         <div
           ref={scrollRef}
           className="flex-1 overflow-y-auto p-6 space-y-5"
           style={backgroundPattern}
         >
           <AnimatePresence initial={false}>
-            {messages.map((msg, idx) => {
-              const isMe =
-                msg.senderId?.toString() === currentUser.id?.toString() ||
-                (msg.senderEmail && msg.senderEmail === currentUser.email)
-              return (
-                <motion.div
-                  key={msg.id || idx}
-                  initial={{ opacity: 0, scale: 0.8, y: 20 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  transition={{ type: 'spring', stiffness: 260, damping: 20 }}
-                  className={`w-full flex items-end gap-2 ${
-                    isMe ? 'flex-row-reverse' : 'flex-row'
-                  }`}
-                >
-                  <div className="flex-shrink-0 mb-1">
-                    <div className="w-9 h-9 rounded-full bg-white border border-gray-300 flex items-center justify-center overflow-hidden shadow-sm">
-                      {msg.senderAvatar ? (
-                        <img
-                          src={msg.senderAvatar}
-                          alt=""
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <UserCircle size={22} className="text-gray-400" />
-                      )}
-                    </div>
-                  </div>
-                  {/* Burbujas: Estilo "Foto" (font-bold y bordes) */}
-                  <div
-                    className={`max-w-[75%] px-5 py-3 rounded-[1.5rem] text-sm font-bold border shadow-sm ${
-                      isMe
-                        ? 'bg-[#FF9E91] text-gray-900 border-gray-900 rounded-br-none'
-                        : 'bg-white text-gray-700 border-gray-200 rounded-tl-none'
+            {messages.length > 0 ? (
+              messages.map((msg, idx) => {
+                const isMe =
+                  msg.senderId?.toString() === currentUser.id?.toString() ||
+                  msg.senderEmail === currentUser.email
+                return (
+                  <motion.div
+                    key={msg.id || idx}
+                    initial={{ opacity: 0, scale: 0.8, y: 20 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    className={`w-full flex items-end gap-2 ${
+                      isMe ? 'flex-row-reverse' : 'flex-row'
                     }`}
                   >
-                    {msg.content}
-                  </div>
-                </motion.div>
-              )
-            })}
+                    <div className="flex-shrink-0 mb-1">
+                      <div className="w-9 h-9 rounded-full bg-white border border-gray-300 flex items-center justify-center overflow-hidden shadow-sm">
+                        {msg.senderAvatar ? (
+                          <img
+                            src={msg.senderAvatar}
+                            alt=""
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <UserCircle size={22} className="text-gray-400" />
+                        )}
+                      </div>
+                    </div>
+                    <div
+                      className={`max-w-[75%] px-5 py-3 rounded-[1.5rem] text-sm font-bold border shadow-sm ${
+                        isMe
+                          ? 'bg-[#FF9E91] text-gray-900 border-gray-900 rounded-br-none'
+                          : 'bg-white text-gray-700 border-gray-200 rounded-tl-none'
+                      }`}
+                    >
+                      {msg.content}
+                    </div>
+                  </motion.div>
+                )
+              })
+            ) : (
+              <div className="h-full flex items-center justify-center text-gray-400 text-sm font-medium italic">
+                {t('chat.noMessages', 'No messages yet...')}
+              </div>
+            )}
           </AnimatePresence>
         </div>
 
-        {/* NAVEGACIÓN INFERIOR */}
         <div className="px-4 py-3 bg-white border-t border-gray-100 flex items-center justify-around z-10 relative">
           <button
             onClick={() => navigate('/profile')}
-            className="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-900 transition-colors group"
+            className="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-900 transition-colors"
           >
-            <UserCircle
-              size={26}
-              className="group-hover:scale-110 transition-transform"
-            />
+            <UserCircle size={26} />
             <span className="text-[9px] font-black uppercase tracking-tighter">
-              {t('chat.profile', 'Perfil')}
+              {t('navigation.profile', 'Profile')}
             </span>
           </button>
           <div className="h-8 w-[1px] bg-gray-100"></div>
           <button
             onClick={() => navigate(`/schedules/${matchId}`)}
-            className="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-900 transition-colors group"
+            className="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-900 transition-colors"
           >
-            <Calendar
-              size={26}
-              className="group-hover:scale-110 transition-transform"
-            />
+            <Calendar size={26} />
             <span className="text-[9px] font-black uppercase tracking-tighter">
-              {t('chat.agenda', 'Agenda')}
+              {t('playdates.page.agendaHighlight', 'Agenda')}
             </span>
           </button>
           <div className="h-8 w-[1px] bg-gray-100"></div>
           <button
             onClick={handleIcebreaker}
-            className="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-900 transition-colors group"
+            className="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-900 transition-colors"
           >
-            <HelpCircle
-              size={26}
-              className="group-hover:scale-110 transition-transform"
-            />
+            <HelpCircle size={26} />
             <span className="text-[9px] font-black uppercase tracking-tighter">
-              {t('chat.icebreaker', 'Hielo')}
+              {t('chat.icebreaker', 'Icebreaker')}
             </span>
           </button>
         </div>
 
-        {/* INPUT DE ENVÍO */}
         <div className="p-4 bg-white border-t border-gray-100 z-10 relative">
           <form
             onSubmit={handleSend}
@@ -265,13 +270,13 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
             <input
               value={text}
               onChange={e => setText(e.target.value)}
-              placeholder={t('chat.placeholder', 'Escribe aquí...')}
+              placeholder={t('chat.inputPlaceholder', 'Type...')}
               className="flex-1 bg-transparent border-none outline-none text-gray-800 text-sm font-bold"
             />
             <button
               type="submit"
               disabled={!text.trim()}
-              className="bg-[#FF9E91] text-gray-900 p-3 rounded-xl border border-gray-900 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:translate-y-0.5 active:shadow-none transition-all disabled:opacity-50 disabled:shadow-none"
+              className="bg-[#FF9E91] text-gray-900 p-3 rounded-xl border border-gray-900 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:translate-y-0.5 transition-all"
             >
               <Send size={18} strokeWidth={3} />
             </button>

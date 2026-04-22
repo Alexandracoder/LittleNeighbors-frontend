@@ -50,6 +50,7 @@ export interface ChildRequestDTO {
   birthDate: string
   lifeStage: string
   gender: 'BOY' | 'GIRL'
+  description?: string
   interestIds: number[]
   age: number
 }
@@ -58,10 +59,12 @@ export interface ChildResponseDTO {
   lifeStage: string
   id: number
   gender: 'BOY' | 'GIRL'
+  description?: string
   birthDate: string
   age: number
   interests: InterestResponseDTO[]
   familyId: number
+  avatarUrl?: string
 }
 
 export interface InterestResponseDTO {
@@ -134,13 +137,8 @@ export interface MessageDTO {
 }
 
 export interface MessageService {
-  getHistory: (matchId: string | number, token: string) => Promise<MessageDTO[]>
-  sendMessage: (
-    matchId: string | number,
-    senderId: number,
-    content: string,
-    token: string,
-  ) => Promise<MessageDTO>
+  getHistory: (matchId: number, signal?: AbortSignal) => Promise<MessageDTO[]>
+  sendMessage: (matchId: number, content: string) => Promise<MessageDTO>
 }
 
 export interface Playdate {

@@ -116,14 +116,16 @@
       "titleNew": "Nou Menut Veí",
       "titleEdit": "Editar Perfil",
       "lifeStageLabel": "Etapa de vida",
-      "lifeStagePregnancy": "Embaràs / En espera 🤰",
+      "lifeStagePregnancy": "En el forn (Embaràs) 🤰",
       "lifeStageBorn": "Ja ha nascut 👶",
       "genderLabel": "Gènere",
       "genderPlaceholder": "Seleccionar gènere",
       "genderBoy": "Xiquet 👦",
       "genderGirl": "Xiqueta 👧",
       "genderSurprise": "Sorpresa ✨",
-      "birthDateLabel": "Data de naixement",
+      "birthDateLabel": "Data de naixement / Prevista",
+      "descriptionLabel": "Bio / Sobre el menut",
+      "descriptionPlaceholder": "Ex: Li encanten els dinosaures, li agrada molt pintar o estem començant amb el bolquer...",
       "interestsLabel": "Interessos i Hobbies",
       "submitCreate": "CREAR PERFIL",
       "submitUpdate": "ACTUALITZAR PERFIL",
@@ -147,15 +149,23 @@
     "errorFamilies": "No s'han trobat famílies."
   },
   "chat": {
-    "title": "Xat",
+    "title": "XARRAR",
     "matched": "✓",
-    "noMessages": "No hi ha missatges encara. Escriu al teu veí!",
+    "noMessages": "Encara no hi ha missatges. Saluda al teu veí!",
     "inputPlaceholder": "Escriu un missatge...",
     "sendButton": "Enviar",
-    "profileButton": "Perfil",
+    "profile": "Perfil",
+    "agenda": "Agenda",
+    "confirm": "CONFIRMAR",
+    "pending": "PENDENT",
     "saveMatchIdle": "Guardar Match",
-    "saveMatchDone": "Connectats",
-    "icebreakerButton": "Trencar el gel"
+    "saveMatchDone": "Connectat",
+    "icebreaker": "Gel",
+    "icebreaker1": "Quin és el vostre parc favorit?",
+    "icebreaker2": "Quins dibuixos preferiu?",
+    "icebreaker3": "Teniu alguna al·lèrgia?",
+    "icebreaker4": "Juguem este cap de setmana?",
+    "icebreaker5": "Quin és el seu joguet estrella?"
   },
   "matches": {
     "title": "Les meues Converses",
@@ -221,9 +231,6 @@
       "submitIdle": "Enviar Proposta",
       "submitLoading": "Enviant..."
     },
-    "card": {
-      "matchRef": "Ref ID"
-    },
     "status": {
       "accepted": "Acceptat",
       "pending": "Pendent",
@@ -232,19 +239,22 @@
       "emptyAgenda": "La teua agenda està buida",
       "emptySubtitle": "És hora de connectar amb noves famílies!",
       "confirmedLocation": "Ubicació Confirmada",
-      "proposedLocation": "Ubicació Proposada",
+      "proposedLocation": "Ubicació Propuesta",
       "planConfirmed": "Genial! Hi ha pla",
       "tapToSuggest": "Toca per a suggerir el primer"
     }
   },
   "welcome": {
     "title": "Benvinguts a la comunitat!",
-    "body": "Ja eres part d'una cosa més gran. El teu perfil està llest.",
+    "body": "Ya eres part d'una cosa més gran. El teu perfil està llest.",
     "ctaExplore": "Començar a fer match!",
     "ctaProfile": "Veure el meu perfil"
   },
   "profile": {
     "deleteConfirm": "Estàs segur que vols eliminar este perfil?",
     "deleteError": "No s'ha pogut eliminar el perfil."
+  },
+  "form": {
+    "timeCaption": "Hora"
   }
 }
