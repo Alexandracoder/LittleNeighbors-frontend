@@ -116,14 +116,16 @@
       "titleNew": "Nou Menut Veí",
       "titleEdit": "Editar Perfil",
       "lifeStageLabel": "Etapa de vida",
-      "lifeStagePregnancy": "Embaràs / En espera 🤰",
+      "lifeStagePregnancy": "En el forn (Embaràs) 🤰",
       "lifeStageBorn": "Ja ha nascut 👶",
       "genderLabel": "Gènere",
       "genderPlaceholder": "Seleccionar gènere",
       "genderBoy": "Xiquet 👦",
       "genderGirl": "Xiqueta 👧",
       "genderSurprise": "Sorpresa ✨",
-      "birthDateLabel": "Data de naixement",
+      "birthDateLabel": "Data de naixement / Prevista",
+      "descriptionLabel": "Bio / Sobre el menut",
+      "descriptionPlaceholder": "Ex: Li encanten els dinosaures, li agrada molt pintar o estem començant amb el bolquer...",
       "interestsLabel": "Interessos i Hobbies",
       "submitCreate": "CREAR PERFIL",
       "submitUpdate": "ACTUALITZAR PERFIL",
@@ -146,7 +148,7 @@
     "errorProfile": "Primer completa el teu perfil familiar.",
     "errorFamilies": "No s'han trobat famílies."
   },
-"chat": {
+  "chat": {
     "title": "XARRAR",
     "matched": "✓",
     "noMessages": "Encara no hi ha missatges. Saluda al teu veí!",
@@ -229,9 +231,6 @@
       "submitIdle": "Enviar Proposta",
       "submitLoading": "Enviant..."
     },
-    "card": {
-      "matchRef": "Ref ID"
-    },
     "status": {
       "accepted": "Acceptat",
       "pending": "Pendent",
@@ -240,19 +239,22 @@
       "emptyAgenda": "La teua agenda està buida",
       "emptySubtitle": "És hora de connectar amb noves famílies!",
       "confirmedLocation": "Ubicació Confirmada",
-      "proposedLocation": "Ubicació Proposada",
+      "proposedLocation": "Ubicació Propuesta",
       "planConfirmed": "Genial! Hi ha pla",
       "tapToSuggest": "Toca per a suggerir el primer"
     }
   },
   "welcome": {
     "title": "Benvinguts a la comunitat!",
-    "body": "Ja eres part d'una cosa més gran. El teu perfil està llest.",
+    "body": "Ya eres part d'una cosa més gran. El teu perfil està llest.",
     "ctaExplore": "Començar a fer match!",
     "ctaProfile": "Veure el meu perfil"
   },
   "profile": {
     "deleteConfirm": "Estàs segur que vols eliminar este perfil?",
     "deleteError": "No s'ha pogut eliminar el perfil."
+  },
+  "form": {
+    "timeCaption": "Hora"
   }
 }

@@ -50,6 +50,7 @@ export interface ChildRequestDTO {
   birthDate: string
   lifeStage: string
   gender: 'BOY' | 'GIRL'
+  description?: string
   interestIds: number[]
   age: number
 }
@@ -58,10 +59,12 @@ export interface ChildResponseDTO {
   lifeStage: string
   id: number
   gender: 'BOY' | 'GIRL'
+  description?: string
   birthDate: string
   age: number
   interests: InterestResponseDTO[]
   familyId: number
+  avatarUrl?: string
 }
 
 export interface InterestResponseDTO {

@@ -97,6 +97,25 @@
       "startExploring": "Empezar a explorar",
       "addNewProfile": "Añadir nuevo perfil"
     },
+    "form": {
+      "titleNew": "Nuevo Pequeño Vecino",
+      "titleEdit": "Editar Perfil",
+      "lifeStageLabel": "Etapa de vida",
+      "lifeStagePregnancy": "Embarazo / En espera 🤰",
+      "lifeStageBorn": "Ya ha nacido 👶",
+      "genderLabel": "Género",
+      "genderPlaceholder": "Seleccionar género",
+      "genderBoy": "Niño 👦",
+      "genderGirl": "Niña 👧",
+      "genderSurprise": "Sorpresa ✨",
+      "birthDateLabel": "Fecha de nacimiento / Prevista",
+      "descriptionLabel": "Bio / Sobre el peque",
+      "descriptionPlaceholder": "Ej: Le encantan los dinosaurios, le gusta mucho pintar o estamos empezando con el pañal...",
+      "interestsLabel": "Intereses y Hobbies",
+      "submitCreate": "CREAR PERFIL",
+      "submitUpdate": "ACTUALIZAR PERFIL",
+      "errorSave": "Error al guardar el perfil. Inténtalo de nuevo."
+    },
     "card": {
       "titleBoy": "Niño",
       "titleGirl": "Niña",
@@ -111,23 +130,6 @@
       "requestPlaydate": "SOLICITAR PLAYDATE",
       "sending": "ENVIANDO...",
       "requestSent": "SOLICITUD ENVIADA"
-    },
-    "form": {
-      "titleNew": "Nuevo Pequeño Vecino",
-      "titleEdit": "Editar Perfil",
-      "lifeStageLabel": "Etapa de vida",
-      "lifeStagePregnancy": "Embarazo / En espera 🤰",
-      "lifeStageBorn": "Ya ha nacido 👶",
-      "genderLabel": "Género",
-      "genderPlaceholder": "Seleccionar género",
-      "genderBoy": "Niño 👦",
-      "genderGirl": "Niña 👧",
-      "genderSurprise": "Sorpresa ✨",
-      "birthDateLabel": "Fecha de nacimiento",
-      "interestsLabel": "Intereses y Hobbies",
-      "submitCreate": "CREAR PERFIL",
-      "submitUpdate": "ACTUALIZAR PERFIL",
-      "errorSave": "Error al guardar el perfil. Inténtalo de nuevo."
     }
   },
   "explore": {
@@ -255,7 +257,7 @@
     "deleteConfirm": "¿Estás seguro de que quieres eliminar este perfil?",
     "deleteError": "No se pudo eliminar el perfil."
   },
-"form": {
-  "timeCaption": "Hora"
-}
+  "form": {
+    "timeCaption": "Hora"
+  }
 }

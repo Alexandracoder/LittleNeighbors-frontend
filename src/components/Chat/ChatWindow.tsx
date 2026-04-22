@@ -114,6 +114,21 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5L5 25v25h15V35h20v15h15V25L30 5zM10 25l20-16 20 16v23h-11V33H21v15H11V25z' fill='%23F28749' fill-opacity='0.08'/%3E%3Cpath d='M15 45c0-2.5 5-5 5-5s5 2.5 5 5-5 5-5 5-5-2.5-5-5z' fill='%23F28749' fill-opacity='0.05'/%3E%3C/svg%3E")`,
   }
 
+  const generateSmartIcebreaker = (childDescription: string) => {
+    const bio = childDescription.toLowerCase()
+
+    const triggers = [
+      { key: 'dino', msg: t('chat.icebreaker.dinos') },
+      { key: 'pintar', msg: t('chat.icebreaker.art') },
+      { key: 'lego', msg: t('chat.icebreaker.blocks') },
+      { key: 'parque', msg: t('chat.icebreaker.park') },
+    ]
+
+    const match = triggers.find(t => bio.includes(t.key))
+
+    return match ? match.msg : t('chat.icebreaker.generic')
+  }
+
   return (
     <div className="min-h-screen w-full flex items-center justify-center p-2 md:p-6 relative">
       <div
