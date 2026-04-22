@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.app.json",
-    "test": "vitest --run"
+    "test": "vitest"
   },
   "dependencies": {
     "@stomp/stompjs": "^7.3.0",
