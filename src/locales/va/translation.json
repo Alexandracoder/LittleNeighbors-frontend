@@ -55,6 +55,7 @@
     "backToDashboard": "Tornar al panell"
   },
   "dashboard": {
+    "hello": "Hola",
     "subtitle": "El teu barri, simplificat.",
     "findNeighbors": "Buscar Veïns",
     "myPlaydates": "Els meus Playdates",

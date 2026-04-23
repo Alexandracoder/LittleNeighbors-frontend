@@ -67,8 +67,7 @@ export default function Dashboard() {
   return (
     <MainLayout
       backgroundImage={dashboardBg}
-
-      title={`Hola, ${familyEntity?.familyName}`}
+      title={`${t('dashboard.hello')}, ${familyEntity?.familyName}`}
       subtitle={t('dashboard.subtitle')}
       showGlassCard={false}
     >

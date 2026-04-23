@@ -55,6 +55,7 @@
     "backToDashboard": "Volver al panel"
   },
   "dashboard": {
+    "hello": "¡Hola!",
     "subtitle": "Tu barrio, simplificado.",
     "findNeighbors": "Buscar Vecinos",
     "myPlaydates": "Mis Playdates",

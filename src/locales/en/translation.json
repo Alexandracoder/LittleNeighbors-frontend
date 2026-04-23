@@ -55,6 +55,7 @@
     "backToDashboard": "Back to dashboard"
   },
   "dashboard": {
+    "hello": "Hello",
     "subtitle": "Your neighborhood, simplified.",
     "findNeighbors": "Find Neighbors",
     "myPlaydates": "My Playdates",
