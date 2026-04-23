@@ -95,13 +95,15 @@ function ChildFormStub({
 
 async function renderWithI18n(language: 'en' | 'es' | 'va' = 'en') {
   const instance = await createI18n(language)
-  const user = userEvent.setup()
 
   const utils = render(
     <I18nextProvider i18n={instance}>
       <ChildFormStub />
-    </I18nextProvider>
+    </I18nextProvider>,
   )
+
+
+  const user = userEvent.setup()
 
   return { user, ...utils }
 }
