@@ -1,3 +1,6 @@
+import { useTranslation } from 'react-i18next'
+import { Calendar, Clock, MapPin, Edit3, Trash2 } from 'lucide-react'
+
 interface EventCardProps {
   event: any
   neighborhoods: { id: number; name: string }[]
@@ -11,51 +14,71 @@ export const EventCard = ({
   onEdit,
   onDelete,
 }: EventCardProps) => {
+  const { t } = useTranslation()
 
   const neighborhoodName =
     neighborhoods.find(n => n.id === event.neighborhoodId)?.name || 'Valencia'
 
   return (
-    <div className="bg-white p-5 rounded-[2rem] shadow-md border border-gray-100 mb-4 transition-all active:scale-[0.98]">
-      <div className="flex justify-between items-start mb-2">
-        <h3 className="text-lg font-black text-brand-dark leading-tight">
-          {event.title}
-        </h3>
-        {/* Mostramos el NOMBRE en lugar del ID */}
-        <span className="bg-brand-coral/10 text-brand-coral text-[10px] font-bold px-2 py-1 rounded-full uppercase">
-          📍 {neighborhoodName}
-        </span>
+    <div className="group bg-white/40 backdrop-blur-md p-6 rounded-[2.5rem] border border-white/50 shadow-xl mb-6 transition-all hover:-translate-y-2 hover:shadow-2xl active:scale-[0.98]">
+      <div className="flex justify-between items-start mb-4">
+        <div className="space-y-1">
+          <h3 className="text-xl font-black text-[#2D2D2D] leading-tight tracking-tight uppercase">
+            {event.title}
+          </h3>
+          <div className="flex items-center gap-1.5 text-[#F28749]">
+            <MapPin className="w-3 h-3" />
+            <span className="text-[10px] font-black uppercase tracking-widest">
+              {neighborhoodName}
+            </span>
+          </div>
+        </div>
+
+        {/* Badge de fecha flotante */}
+        <div className="bg-[#F28749] text-white p-3 rounded-2xl shadow-lg shadow-orange-200 flex flex-col items-center min-w-[50px]">
+          <span className="text-xs font-black">
+            {new Date(event.eventDate).getDate()}
+          </span>
+          <span className="text-[8px] uppercase font-bold">
+            {new Date(event.eventDate).toLocaleDateString(undefined, {
+              month: 'short',
+            })}
+          </span>
+        </div>
       </div>
 
-      <p className="text-gray-500 text-sm line-clamp-2 mb-4">
+      <p className="text-gray-600 text-sm line-clamp-2 mb-6 font-medium leading-relaxed">
         {event.description}
       </p>
 
-      <div className="flex items-center text-xs text-gray-400 mb-4">
-        <span className="mr-3">
-          📅 {new Date(event.eventDate).toLocaleDateString()}
-        </span>
-        <span>
-          ⏰{' '}
+      <div className="flex items-center gap-4 text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-6">
+        <div className="flex items-center gap-1.5 bg-white/30 px-3 py-1.5 rounded-full">
+          <Calendar className="w-3 h-3 text-[#F28749]" />
+          {new Date(event.eventDate).toLocaleDateString()}
+        </div>
+        <div className="flex items-center gap-1.5 bg-white/30 px-3 py-1.5 rounded-full">
+          <Clock className="w-3 h-3 text-[#F28749]" />
           {new Date(event.eventDate).toLocaleTimeString([], {
             hour: '2-digit',
             minute: '2-digit',
           })}
-        </span>
+        </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-4">
         <button
           onClick={() => onEdit(event)}
-          className="bg-gray-100 text-brand-dark py-3 rounded-xl font-bold text-sm hover:bg-gray-200 transition-colors"
+          className="flex items-center justify-center gap-2 bg-white/50 text-[#2D2D2D] py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-[#F28749] hover:text-white transition-all shadow-sm border border-white"
         >
-          Editar
+          <Edit3 className="w-3 h-3" />
+          {t('common.edit', 'Editar')}
         </button>
         <button
           onClick={() => onDelete(event.id)}
-          className="bg-red-50 text-red-500 py-3 rounded-xl font-bold text-sm hover:bg-red-100 transition-colors"
+          className="flex items-center justify-center gap-2 bg-red-500/10 text-red-600 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all shadow-sm border border-red-100"
         >
-          Eliminar
+          <Trash2 className="w-3 h-3" />
+          {t('common.delete', 'Eliminar')}
         </button>
       </div>
     </div>

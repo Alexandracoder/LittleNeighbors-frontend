@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { familyApi, interestApi } from '../services/api'
 import type {
@@ -17,11 +17,15 @@ import {
   ArrowLeft,
   LayoutDashboard,
   User,
+  Sparkles,
 } from 'lucide-react'
 
 export default function ExplorePage() {
   const navigate = useNavigate()
   const { t } = useTranslation()
+  const [searchParams] = useSearchParams()
+
+
   const [families, setFamilies] = useState<FamilyResponseDTO[]>([])
   const [availableInterests, setAvailableInterests] = useState<
     InterestResponseDTO[]
@@ -30,12 +34,17 @@ export default function ExplorePage() {
   const [loading, setLoading] = useState(false)
   const [, setError] = useState('')
 
-  const [myChildId, setMyChildId] = useState<number | undefined>(undefined)
+  const [myChildId, setMyChildId] = useState<number | undefined>(
+    searchParams.get('childId')
+      ? Number(searchParams.get('childId'))
+      : undefined,
+  )
   const [myChildInterests, setMyChildInterests] = useState<number[]>([])
   const [selectedInterestIds, setSelectedInterestIds] = useState<number[]>([])
   const [ageRange, setAgeRange] = useState<{ min: number; max: number } | null>(
     null,
   )
+
 
   useEffect(() => {
     const initData = async () => {
@@ -48,9 +57,17 @@ export default function ExplorePage() {
 
         if (myProfile?.children?.length > 0) {
           setMyChildren(myProfile.children)
-          setMyChildId(myProfile.children[0].id)
+
+
+          const defaultChild = searchParams.get('childId')
+            ? myProfile.children.find(
+                (c: any) => c.id === Number(searchParams.get('childId')),
+              ) || myProfile.children[0]
+            : myProfile.children[0]
+
+          setMyChildId(defaultChild.id)
           setMyChildInterests(
-            myProfile.children[0].interests?.map((i: any) => i.id) || [],
+            defaultChild.interests?.map((i: any) => i.id) || [],
           )
         }
       } catch (err) {
@@ -59,9 +76,9 @@ export default function ExplorePage() {
       }
     }
     initData()
-  }, [t])
+  }, [t, searchParams])
 
- 
+
   const loadFamilies = useCallback(async () => {
     if (!myChildId) return
     setLoading(true)
@@ -74,9 +91,16 @@ export default function ExplorePage() {
           selectedInterestIds.length > 0 ? selectedInterestIds : undefined,
       }
       const data = await familyApi.explore(filters)
-      setFamilies(data)
+
+
+      const uniqueFamilies = Array.isArray(data)
+        ? Array.from(new Map(data.map(f => [f.id, f])).values())
+        : []
+
+      setFamilies(uniqueFamilies)
     } catch (err: any) {
-      setError(t('explore.errorFamilies')) // Clave del JSON
+      console.error('Error loading families:', err)
+      setError(t('explore.errorFamilies'))
     } finally {
       setLoading(false)
     }
@@ -92,6 +116,11 @@ export default function ExplorePage() {
     )
   }
 
+  const activeChild = useMemo(
+    () => myChildren.find(c => c.id === myChildId),
+    [myChildren, myChildId],
+  )
+
   return (
     <MainLayout
       backgroundImage={bgImage}
@@ -100,11 +129,11 @@ export default function ExplorePage() {
       showGlassCard={false}
     >
       <div className="flex flex-col gap-8">
-        {/* --- NAVEGACIÓN SUPERIOR --- */}
+        {/* NAVEGACIÓN SUPERIOR */}
         <div className="flex items-center justify-between mb-2">
           <button
-            onClick={() => navigate(-1)}
-            className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-white/70 hover:bg-white/20 hover:text-white transition-all group"
+            onClick={() => navigate('/dashboard')}
+            className="flex items-center gap-2 px-5 py-2.5 bg-white/10 backdrop-blur-xl border border-white/20 rounded-full text-white hover:bg-white/20 transition-all group shadow-lg"
           >
             <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
             <span className="text-[10px] font-black uppercase tracking-widest">
@@ -112,7 +141,7 @@ export default function ExplorePage() {
             </span>
           </button>
 
-          <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md p-1.5 rounded-full border border-white/20">
+          <div className="flex items-center gap-2 bg-white/10 backdrop-blur-xl p-1.5 rounded-full border border-white/20 shadow-lg">
             <button
               onClick={() => navigate('/dashboard')}
               className="p-2.5 hover:bg-[#F28749] rounded-full text-white transition-all hover:scale-110"
@@ -131,11 +160,15 @@ export default function ExplorePage() {
           </div>
         </div>
 
-        {/* 1. SELECTOR DE HIJOS */}
-        <div className="flex flex-wrap gap-3 items-center bg-white/10 backdrop-blur-md p-3 rounded-full border border-white/20 w-fit shadow-xl">
-          <span className="text-[10px] font-black uppercase tracking-widest text-white/60 ml-4 mr-2">
-            {t('explore.activeProfile')}
-          </span>
+        {/* 1. SELECTOR DE HIJOS (Estilo mejorado) */}
+        <div className="flex flex-wrap gap-3 items-center bg-white/10 backdrop-blur-md p-3 rounded-[2rem] border border-white/20 w-fit shadow-2xl">
+          <div className="flex items-center gap-2 px-4 py-2 bg-[#F28749]/20 rounded-full border border-[#F28749]/30">
+            <Sparkles className="w-3 h-3 text-[#F28749]" />
+            <span className="text-[9px] font-black uppercase tracking-widest text-white">
+              {t('explore.activeProfile')}
+            </span>
+          </div>
+
           {myChildren.map(child => (
             <button
               key={child.id}
@@ -143,22 +176,22 @@ export default function ExplorePage() {
                 setMyChildId(child.id)
                 setMyChildInterests(child.interests?.map(i => i.id) || [])
               }}
-              className={`px-5 py-2 rounded-full text-xs font-black transition-all ${
+              className={`px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${
                 myChildId === child.id
-                  ? 'bg-[#F28749] text-white shadow-lg'
-                  : 'bg-white/10 text-white/70 hover:bg-white/20 hover:text-white'
+                  ? 'bg-[#F28749] text-white shadow-[0_0_15px_rgba(242,135,73,0.4)] scale-105'
+                  : 'bg-white/5 text-white/50 hover:bg-white/10 hover:text-white'
               }`}
             >
               {child.gender === 'BOY' ? '👦' : '👧'} {child.age}{' '}
-              {t('family.card.yearsOldSuffix').toLowerCase()}
+              {t('family.card.yearsOldSuffix')}
             </button>
           ))}
         </div>
 
         {/* 2. PANEL DE FILTROS */}
         <section className="flex flex-col md:flex-row gap-6 items-stretch">
-          {/* IZQUIERDA: Edad */}
-          <div className="w-full md:w-1/3 bg-white/10 backdrop-blur-xl rounded-[2.5rem] p-7 border border-white/20 shadow-xl flex flex-col justify-between">
+          {/* Edad */}
+          <div className="w-full md:w-1/3 bg-white/10 backdrop-blur-xl rounded-[2.5rem] p-8 border border-white/20 shadow-xl flex flex-col justify-between transition-all hover:border-white/30">
             <div>
               <label className="text-[10px] font-black text-[#F28749] uppercase tracking-[0.2em] mb-4 block">
                 {t('explore.filters.ageRangeLabel')}
@@ -173,7 +206,7 @@ export default function ExplorePage() {
                       setAgeRange({ min, max })
                     }
                   }}
-                  className="w-full bg-white/10 border border-white/20 rounded-2xl px-4 py-3 text-sm font-bold text-white appearance-none cursor-pointer focus:bg-white/20 outline-none transition-all"
+                  className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-sm font-bold text-white appearance-none cursor-pointer focus:bg-white/20 outline-none transition-all"
                 >
                   <option value="" className="text-gray-900">
                     {t('explore.filters.ageRangeAll')}
@@ -198,7 +231,7 @@ export default function ExplorePage() {
                   setAgeRange(null)
                   setSelectedInterestIds([])
                 }}
-                className="mt-6 flex items-center gap-2 text-[9px] font-black uppercase text-[#F28749] hover:text-white transition-colors"
+                className="mt-8 flex items-center gap-2 text-[9px] font-black uppercase text-[#F28749] hover:text-white transition-colors"
               >
                 <FilterX className="w-4 h-4" />
                 {t('explore.filters.clearAll')}
@@ -206,9 +239,9 @@ export default function ExplorePage() {
             )}
           </div>
 
-          {/* DERECHA: Intereses */}
-          <div className="w-full md:w-2/3 bg-white/10 backdrop-blur-xl rounded-[3rem] p-7 border border-white/20 shadow-xl text-white">
-            <label className="text-[10px] font-black text-[#F28749] uppercase tracking-[0.2em] mb-4 block">
+          {/* Intereses */}
+          <div className="w-full md:w-2/3 bg-white/10 backdrop-blur-xl rounded-[3rem] p-8 border border-white/20 shadow-xl text-white transition-all hover:border-white/30">
+            <label className="text-[10px] font-black text-[#F28749] uppercase tracking-[0.2em] mb-5 block">
               {t('explore.filters.interestsLabel')}
             </label>
             <div className="flex flex-wrap gap-2">
@@ -218,14 +251,14 @@ export default function ExplorePage() {
                   <button
                     key={interest.id}
                     onClick={() => toggleInterest(interest.id)}
-                    className={`px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase transition-all flex items-center gap-2 border ${
+                    className={`px-5 py-3 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center gap-2 border ${
                       isSelected
-                        ? 'bg-white text-[#333D47] border-white shadow-lg scale-105'
+                        ? 'bg-white text-gray-900 border-white shadow-xl scale-105'
                         : 'border-white/10 bg-white/5 text-white/60 hover:bg-white/10 hover:text-white'
                     }`}
                   >
                     <Heart
-                      className={`w-3.5 h-3.5 transition-colors ${
+                      className={`w-3.5 h-3.5 ${
                         isSelected
                           ? 'fill-red-500 text-red-500'
                           : 'text-white/20'
@@ -242,24 +275,40 @@ export default function ExplorePage() {
         {/* 3. RESULTADOS */}
         <div className="mt-4">
           {loading ? (
-            <div className="text-center py-20">
-              <div className="animate-spin h-12 w-12 border-4 border-[#F28749] border-t-transparent rounded-full mx-auto mb-4" />
+            <div className="flex flex-col items-center justify-center py-32 bg-white/5 backdrop-blur-sm rounded-[3rem] border-2 border-dashed border-white/10">
+              <div className="animate-spin h-14 w-14 border-4 border-[#F28749] border-t-transparent rounded-full mb-6" />
+              <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">
+                {t('explore.loading', 'Buscando vecinos...')}
+              </span>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 pb-10">
-              {families.map(f => (
-                <div
-                  key={f.id}
-                  className="transform hover:-translate-y-2 transition-transform duration-300"
-                >
-                  <FamilyCard
-                    family={f}
-                    myChildId={myChildId}
-                    myInterestIds={myChildInterests}
-                  />
+            <>
+              {families.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 pb-10">
+                  {families.map(f => (
+                    <div
+                      key={f.id}
+                      className="transform hover:-translate-y-3 transition-all duration-500"
+                    >
+                      <FamilyCard
+                        family={f}
+                        myChildId={myChildId}
+                        myInterestIds={myChildInterests}
+                      />
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              ) : (
+                <div className="text-center py-24 bg-white/5 backdrop-blur-md rounded-[3rem] border-2 border-dashed border-white/10">
+                  <p className="text-white/40 font-black uppercase tracking-widest text-sm">
+                    {t(
+                      'explore.noNeighbors',
+                      'No hay familias que coincidan con estos filtros',
+                    )}
+                  </p>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>

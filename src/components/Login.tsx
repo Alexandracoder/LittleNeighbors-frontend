@@ -7,15 +7,22 @@ import { useTranslation } from 'react-i18next'
 import loginBg from '../assets/playing-together.png'
 
 export default function Login() {
-  const { t, i18n } = useTranslation()
+
+  const { t, i18n, ready } = useTranslation()
+  const { login } = useAuth()
+  const navigate = useNavigate()
+
   const [showForm, setShowForm] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const { login } = useAuth()
-  const navigate = useNavigate()
+
+  if (!ready) {
+    return null
+  }
+
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -38,7 +45,7 @@ export default function Login() {
 
   return (
     <div className="relative min-h-screen w-full flex items-center justify-center p-4 overflow-hidden">
-      {/* --- SELECTOR DE IDIOMAS FLOTANTE --- */}
+      
       <div className="absolute top-6 right-6 z-50 flex gap-2">
         {['en', 'es', 'va'].map(lng => (
           <button
@@ -55,7 +62,7 @@ export default function Login() {
         ))}
       </div>
 
-      {/* EL ALMA VISUAL */}
+      
       <div
         className="absolute inset-0 z-0 transition-all duration-1000 ease-in-out"
         style={{
@@ -71,7 +78,7 @@ export default function Login() {
 
       <div className="relative z-10 w-full max-w-md">
         {!showForm ? (
-          /* PANTALLA DE BIENVENIDA NÍTIDA */
+      
           <div className="text-center animate-in fade-in zoom-in duration-700">
             <h1 className="text-6xl font-black text-white mb-4 drop-shadow-2xl italic">
               {t('auth.login.title')}
@@ -88,7 +95,7 @@ export default function Login() {
             </button>
           </div>
         ) : (
-          /* CARD MÁGICA */
+        
           <div className="bg-white/90 backdrop-blur-xl rounded-[3rem] shadow-2xl p-10 border-t-8 border-brand-orange animate-in slide-in-from-top-10 duration-500">
             <div className="flex justify-center mb-6">
               <div className="bg-brand-orange p-4 rounded-3xl shadow-lg">

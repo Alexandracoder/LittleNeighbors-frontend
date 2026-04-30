@@ -181,24 +181,32 @@
     "errorLoad": "Error al cargar los matches.",
     "errorUpdate": "No se pudo actualizar el estado del match"
   },
-  "events": {
+"events": {
     "page": {
       "title": "Eventos del Barrio",
+      "subtitle": "Encuentra y organiza encuentros en tu barrio",
       "createButton": "Crear Evento",
       "toggleMapShow": "Ver eventos en el mapa",
       "toggleMapHide": "Ocultar mapa",
-      "backToDashboard": "Volver al panel"
+      "backToDashboard": "Volver al panel",
+      "noEventsTitle": "Aún no hay planes",
+      "noEventsSubtitle": "Sé tú quien dé el primer paso. Organiza un encuentro y conecta con tu barrio.",
+      "createFirstButton": "Empezar ahora"
     },
     "form": {
-      "titleCreate": "Crear Nuevo Evento",
-      "titleEdit": "Editar Evento",
-      "titleLabel": "Título",
+      "createTag": "Nuevo encuentro",
+      "editTag": "Editando evento",
+      "createTitle": "Crear Nuevo Evento",
+      "editTitle": "Editar Evento",
+      "nameLabel": "Título",
       "dateLabel": "Fecha",
       "neighborhoodLabel": "Barrio",
       "locationLabel": "Ubicación exacta (haz clic):",
       "descriptionLabel": "Descripción",
-      "submitCreate": "🚀 Publicar Evento",
-      "submitEdit": "💾 Guardar Cambios",
+      "placeholderName": "Ej: Merienda en el parque",
+      "placeholderDescription": "¿Qué vamos a hacer?",
+      "submitButton": "🚀 Publicar Evento",
+      "saveButton": "💾 Guardar Cambios",
       "locationFallback": "Valencia"
     },
     "card": {

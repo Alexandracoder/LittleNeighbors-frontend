@@ -5,13 +5,13 @@ import {
   Navigate,
   useParams,
 } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import Navbar from './components/Navbar'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import ChatWindow from './components/Chat/ChatWindow'
 import AddPlaydatePage from './pages/AddPlaydatePage'
 
-// Pages & Components
 import Login from './components/Login'
 import Register from './components/Register'
 import CreateFamily from './components/CreateFamily'
@@ -23,17 +23,22 @@ import SchedulesPage from './pages/SchedulesPage'
 import Welcome from './pages/Welcome'
 import MySchedulesPage from './pages/MySchedulesPage'
 
-// Estilos
 import 'leaflet/dist/leaflet.css'
+import ChildDashboard from './components/ChildDashboard'
 
-const LoadingScreen = () => (
-  <div className="min-h-screen flex flex-col items-center justify-center bg-[#1a1a1a] text-white">
-    <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-    <p className="text-lg font-medium animate-pulse uppercase tracking-widest text-xs">
-      Loading Neighborhood...
-    </p>
-  </div>
-)
+
+
+const LoadingScreen = () => {
+  const { t } = useTranslation()
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#FDF8F3] text-[#2D2D2D]">
+      <div className="w-12 h-12 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin mb-6"></div>
+      <p className="text-[10px] font-black uppercase tracking-[0.3em] text-orange-600 animate-pulse">
+        {t('loading.verifyingNeighborhood')}
+      </p>
+    </div>
+  )
+}
 
 function ChatWrapper() {
   const { matchId } = useParams()
@@ -46,7 +51,9 @@ function ChatWrapper() {
   }
 
   return (
-    <div className="h-screen w-full bg-[#1a1a1a] p-4">
+   
+    
+    <div className="h-screen w-full bg-[#FDF8F3] p-4">
       <ChatWindow matchId={matchId} currentUser={user} token={token} />
     </div>
   )
@@ -58,14 +65,11 @@ function AppContent() {
   if (loading) return <LoadingScreen />
 
   return (
-    <div className="min-h-screen bg-[#1a1a1a]">
-      {/* El Navbar ahora está envuelto correctamente por el AuthProvider */}
+    <div className="min-h-screen bg-[#FDF8F3]">
       {user && <Navbar />}
 
-      {/* Contenedor con padding para evitar solapamiento visual */}
       <div className={`${user ? 'pt-28' : ''}`}>
         <Routes>
-          {/* --- RUTAS PÚBLICAS --- */}
           <Route
             path="/login"
             element={!user ? <Login /> : <Navigate to="/" replace />}
@@ -75,9 +79,6 @@ function AppContent() {
             element={!user ? <Register /> : <Navigate to="/" replace />}
           />
 
-          {/* --- RUTAS PROTEGIDAS --- */}
-
-          {/* RUTA DE PERFIL - Restaurada correctamente */}
           <Route
             path="/profile"
             element={
@@ -108,7 +109,7 @@ function AppContent() {
           <Route
             path="/dashboard"
             element={
-              <ProtectedRoute allowedRoles={['ROLE_FAMILY']}>
+              <ProtectedRoute allowedRoles={['ROLE_USER', 'ROLE_FAMILY']}>
                 <Dashboard />
               </ProtectedRoute>
             }
@@ -122,6 +123,8 @@ function AppContent() {
               </ProtectedRoute>
             }
           />
+
+          <Route path="/child/:id" element={<ChildDashboard />} />
 
           <Route
             path="/events"

@@ -17,14 +17,14 @@ export default function MainLayout({
 }: MainLayoutProps) {
   return (
     <div className="relative min-h-screen w-full flex flex-col items-center justify-start p-4 md:p-8 overflow-x-hidden font-sans">
-      {/* FONDO: Nítido y vibrante como el Login */}
+    
       <div
         className="fixed inset-0 z-0 transition-all duration-1000 ease-in-out"
         style={{
           backgroundImage: `url(${backgroundImage})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          filter: 'brightness(0.95) saturate(1.1)', // Luz casi total y colores vivos
+          filter: 'brightness(0.95) saturate(1.1)',
         }}
       />
 

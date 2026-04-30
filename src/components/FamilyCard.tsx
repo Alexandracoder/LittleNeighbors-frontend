@@ -53,7 +53,7 @@ export default function FamilyCard({
         <div className="flex justify-between items-start mb-4">
           <div className="flex flex-col gap-1">
             <h3 className="text-3xl font-black text-white uppercase italic tracking-tighter">
-              {/* CORREGIDO: Usando claves exactas de tu JSON */}
+            
               {t('family.card.namePrefix')} {family.familyName}{' '}
               {t('family.card.nameSuffix')}
             </h3>
@@ -98,7 +98,7 @@ export default function FamilyCard({
                       isConnecting ? 'text-[#333D47]' : 'text-white'
                     }`}
                   >
-                    {/* CORREGIDO: Usando claves de children.card */}
+                
                     {child.gender === 'BOY'
                       ? t('children.card.titleBoy')
                       : t('children.card.titleGirl')}
@@ -149,7 +149,7 @@ export default function FamilyCard({
                 {isMatch && (
                   <Heart className="w-2.5 h-2.5 fill-red-500 text-red-500" />
                 )}
-                {/* Busca intereses en tu JSON, si no existen usa el nombre de la DB */}
+                
                 {t(`interests.${interest.name.toLowerCase()}`, {
                   defaultValue: interest.name,
                 })}

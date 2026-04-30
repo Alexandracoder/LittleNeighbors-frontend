@@ -19,23 +19,10 @@ import dashboardBg from '../assets/neighborhood-picnic.png'
 export default function Dashboard() {
   const navigate = useNavigate()
   const { t } = useTranslation()
-  const { familyEntity, loading, logout, token } = useAuth()
+const { familyEntity, status, loading, logout, token } = useAuth()
   const [, setChildren] = useState<ChildResponseDTO[]>([])
   const [fetching, setFetching] = useState(false)
 
-  useEffect(() => {
-    if (!loading && !familyEntity) {
-      navigate('/create-family', { replace: true })
-      return
-    }
-    if (
-      !loading &&
-      familyEntity &&
-      (!familyEntity.children || familyEntity.children.length === 0)
-    ) {
-      navigate('/add-child', { replace: true })
-    }
-  }, [loading, familyEntity, navigate])
 
   useEffect(() => {
     if (familyEntity && token) {
@@ -54,15 +41,17 @@ export default function Dashboard() {
     navigate('/login', { replace: true })
   }
 
+
   if (loading || fetching) {
     return (
-      <div className="flex h-screen w-full items-center justify-center bg-white">
-        <div className="w-8 h-8 border-2 border-[#F28749] border-t-transparent rounded-full animate-spin" />
+      <div className="flex h-screen w-full items-center justify-center bg-[#FDF8F3]">
+        <div className="w-12 h-12 border-4 border-[#F28749] border-t-transparent rounded-full animate-spin" />
       </div>
     )
   }
 
-  if (!familyEntity) return null
+
+if (!status?.hasFamily) return null
 
   return (
     <MainLayout
@@ -71,7 +60,7 @@ export default function Dashboard() {
       subtitle={t('dashboard.subtitle')}
       showGlassCard={false}
     >
-      {/* --- NAVEGACIÓN SUPERIOR --- */}
+    
       <div className="fixed top-8 left-0 w-full px-6 md:px-12 flex justify-between items-center z-50">
         <button
           onClick={() => navigate(-1)}
@@ -94,9 +83,9 @@ export default function Dashboard() {
         </button>
       </div>
 
-      {/* --- CONTENIDO PRINCIPAL --- */}
+      
       <div className="flex flex-col items-center gap-6 mt-20 animate-in fade-in zoom-in duration-1000">
-        {/* ACCIÓN PRINCIPAL: EXPLORAR */}
+        
         <div className="flex flex-wrap justify-center gap-4 w-full">
           <button
             onClick={() => navigate('/explore')}
@@ -109,9 +98,9 @@ export default function Dashboard() {
           </button>
         </div>
 
-        {/* ACCIONES SECUNDARIAS */}
+      
         <div className="flex flex-wrap justify-center gap-4 max-w-2xl">
-          {/* MY PLAYDATES (Schedules) */}
+        
           <button
             onClick={() => navigate('/my-schedules')}
             className="flex items-center gap-3 px-8 py-4 bg-white/10 backdrop-blur-xl text-white rounded-full border-2 border-white/20 shadow-xl transition-all hover:bg-white/20 hover:scale-105 active:scale-95"
@@ -122,7 +111,6 @@ export default function Dashboard() {
             </span>
           </button>
 
-          {/* EVENTS */}
           <button
             onClick={() => navigate('/events')}
             className="flex items-center gap-3 px-8 py-4 bg-white/10 backdrop-blur-xl text-white rounded-full border-2 border-white/20 shadow-xl transition-all hover:bg-white/20 hover:scale-105 active:scale-95"
@@ -133,7 +121,7 @@ export default function Dashboard() {
             </span>
           </button>
 
-          {/* MY PROFILE */}
+          
           <button
             onClick={() => navigate('/add-child')}
             className="flex items-center gap-3 px-8 py-4 bg-white/10 backdrop-blur-xl text-white rounded-full border-2 border-white/20 shadow-xl transition-all hover:bg-white/20 hover:scale-105 active:scale-95"

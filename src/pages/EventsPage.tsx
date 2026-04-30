@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, Plus } from 'lucide-react'
+import { Plus, LayoutDashboard, ArrowLeft } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import dashboardBg from '../assets/parent-meeting.png'
 import { EventList } from '../components/EventList'
 import { EventModal } from '../components/EventModal'
 import { CreateEventForm } from '../components/CreateEventForm'
 import { MapComponent } from './MapComponent'
+import MainLayout from '../components/layout/MainLayout'
 
 export default function EventsPage() {
   const { t } = useTranslation()
@@ -74,80 +75,103 @@ export default function EventsPage() {
   }
 
   return (
-    <div className="relative min-h-screen w-full p-6 text-brand-dark font-sans">
-      <div
-        className="fixed inset-0 z-0"
-        style={{
-          backgroundImage: `url(${dashboardBg})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-        }}
-      />
-      <div className="fixed inset-0 z-10 bg-white/40 pointer-events-none" />
+    <MainLayout
+      backgroundImage={dashboardBg}
+      title={t('events.page.title')}
+      subtitle={t('events.page.subtitle')}
+      showGlassCard={false}
+    >
+      <div className="flex flex-col gap-8">
+        {/* NAVEGACIÓN Y TOGGLE DE MAPA */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
+          <button
+            onClick={() => navigate('/dashboard')}
+            className="flex items-center gap-2 px-5 py-2.5 bg-white/10 backdrop-blur-xl border border-white/20 rounded-full text-white hover:bg-white/20 transition-all group shadow-lg w-fit"
+          >
+            <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+            <span className="text-[10px] font-black uppercase tracking-widest">
+              {t('common.back')}
+            </span>
+          </button>
 
-      {/* Botón Crear */}
-      <button
-        onClick={() => {
-          setEventToEdit(null)
-          setIsModalOpen(true)
-        }}
-        className="fixed bottom-8 right-8 z-40 bg-brand-coral text-white p-4 rounded-full shadow-2xl hover:scale-105 transition-all flex items-center gap-2 font-bold"
-      >
-        <Plus className="w-6 h-6" /> {t('events.page.createButton')}
-      </button>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setIsMapVisible(!isMapVisible)}
+              className="text-white text-[11px] font-black uppercase tracking-[0.2em] hover:text-[#F28749] transition-colors underline decoration-2 underline-offset-8"
+            >
+              {isMapVisible
+                ? t('events.page.toggleMapHide')
+                : t('events.page.toggleMapShow')}
+            </button>
 
-      {/* Modal */}
-      <EventModal isOpen={isModalOpen} onClose={handleCloseModal}>
-        <CreateEventForm
-          eventToEdit={eventToEdit}
-          onSuccess={() => {
-            handleCloseModal()
-            fetchEvents()
-          }}
-        />
-      </EventModal>
-
-      <div className="relative z-20 max-w-4xl mx-auto space-y-8">
-        <button
-          onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-brand-dark hover:text-brand-coral transition-colors font-bold"
-        >
-          <ArrowLeft className="w-6 h-6" /> {t('events.page.backToDashboard')}
-        </button>
-
-        <h1 className="text-5xl font-black uppercase text-brand-dark drop-shadow-sm">
-          {t('events.page.title')}
-        </h1>
-
-        <button
-          onClick={() => setIsMapVisible(!isMapVisible)}
-          className="text-brand-dark font-bold underline hover:text-brand-coral transition-colors"
-        >
-          {isMapVisible
-            ? t('events.page.toggleMapHide')
-            : t('events.page.toggleMapShow')}
-        </button>
+            <div className="flex items-center gap-2 bg-white/10 backdrop-blur-xl p-1.5 rounded-full border border-white/20 shadow-lg">
+              <button
+                onClick={() => setIsMapVisible(!isMapVisible)}
+                className={`p-2.5 rounded-full text-white transition-all hover:scale-110 ${
+                  isMapVisible ? 'bg-[#F28749]' : 'hover:bg-white/10'
+                }`}
+              >
+                <LayoutDashboard className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
 
         {isMapVisible && (
-          <div className="h-[400px] w-full relative overflow-hidden rounded-[2rem] border-4 border-white shadow-2xl transition-all">
+          <div className="h-[400px] w-full relative overflow-hidden rounded-[3rem] border-4 border-white/30 shadow-2xl transition-all animate-in fade-in zoom-in duration-500 mb-8">
             <MapComponent
               key={events.length + (events[0]?.id || 0)}
               events={events}
             />
           </div>
         )}
+        {/* LISTADO DE EVENTOS O EMPTY STATE COMPACTO */}
+        <div className="bg-white/10 backdrop-blur-xl p-6 rounded-[2.5rem] border border-white/20 shadow-2xl min-h-[180px] flex flex-col justify-center">
+          {!loading && events.length === 0 ? (
+            <div className="flex items-center gap-6 py-4 px-4 animate-in fade-in slide-in-from-left-4 duration-700">
+              {/* Ahora este icono es un botón funcional */}
+              <button
+                onClick={() => {
+                  setEventToEdit(null)
+                  setIsModalOpen(true)
+                }}
+                className="bg-white/20 p-4 rounded-2xl border border-white/30 shadow-inner flex-shrink-0 hover:bg-[#F28749] hover:scale-110 transition-all group"
+                title={t('events.page.createButton')}
+              >
+                <Plus className="w-8 h-8 text-white group-hover:rotate-90 transition-transform" />
+              </button>
 
-        <div className="bg-white/70 backdrop-blur-sm p-8 rounded-[2rem] border border-white/50 shadow-xl">
-          <EventList
-            events={events}
-            neighborhoods={neighborhoods}
-            loading={loading}
-            error={error}
-            onRefresh={fetchEvents}
-            onEdit={handleEditClick}
-          />
+              <div className="text-left cursor-default">
+                <h3 className="text-white text-lg font-black uppercase tracking-tight">
+                  {t('events.page.noEventsTitle')}
+                </h3>
+                <p className="text-white/70 text-xs font-medium max-w-[250px] leading-relaxed">
+                  {t('events.page.noEventsSubtitle')}
+                </p>
+              </div>
+            </div>
+          ) : (
+            <EventList
+              events={events}
+              neighborhoods={neighborhoods}
+              loading={loading}
+              error={error}
+              onRefresh={fetchEvents}
+              onEdit={handleEditClick}
+            />
+          )}
         </div>
+
+        <EventModal isOpen={isModalOpen} onClose={handleCloseModal}>
+          <CreateEventForm
+            eventToEdit={eventToEdit}
+            onSuccess={() => {
+              handleCloseModal()
+              fetchEvents()
+            }}
+          />
+        </EventModal>
       </div>
-    </div>
+    </MainLayout>
   )
 }

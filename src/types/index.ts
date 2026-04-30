@@ -47,18 +47,22 @@ export interface FamilyResponseDTO {
 }
 
 export interface ChildRequestDTO {
+  username: string
   birthDate: string
   lifeStage: string
-  gender: 'BOY' | 'GIRL'
+  gender: 'BOY' | 'GIRL' | 'PREGNANT'
   description?: string
+  profilePictureUrl?: string
   interestIds: number[]
   age: number
 }
 
 export interface ChildResponseDTO {
+  username: string
+  profilePictureUrl: string
   lifeStage: string
   id: number
-  gender: 'BOY' | 'GIRL'
+  gender: 'BOY' | 'GIRL' | 'PREGNANT'
   description?: string
   birthDate: string
   age: number
@@ -115,6 +119,7 @@ export interface RegisterRequest {
 }
 
 export interface UserStatusDTO {
+  roles: User | null
   hasFamily: boolean
   hasChildren: boolean
   isRegistrationComplete: boolean

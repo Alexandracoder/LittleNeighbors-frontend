@@ -28,15 +28,15 @@
       "errorConnection": "Error de connexió. Està el servidor actiu?"
     },
     "register": {
-      "title": "Uneix-te al barri",
-      "subtitle": "Llest per a conéixer la teua comunitat?",
+      "title": "Apunta't al barri",
+      "subtitle": "Llest per a conéixer a la teua comunitat?",
       "cta": "CREAR COMPTE",
       "formTitle": "Nou Membre",
       "firstNamePlaceholder": "Nom",
       "lastNamePlaceholder": "Cognoms",
       "emailPlaceholder": "El teu email",
       "passwordPlaceholder": "Contrasenya",
-      "submitIdle": "Unir-se ara",
+      "submitIdle": "Apunta't ara",
       "submitLoading": "Creant...",
       "linkLogin": "Ja eres veí? Inicia sessió",
       "linkBack": "Tornar",
@@ -55,8 +55,8 @@
     "backToDashboard": "Tornar al panell"
   },
   "dashboard": {
-    "hello": "Hola",
-    "subtitle": "El teu barri, simplificat.",
+    "hello": "Hola!",
+    "subtitle": "El teu barri, a un clic.",
     "findNeighbors": "Buscar Veïns",
     "myPlaydates": "Els meus Playdates",
     "events": "Esdeveniments",
@@ -64,15 +64,15 @@
   },
   "family": {
     "create": {
-      "heroTitle": "Ja quasi estem...",
+      "heroTitle": "Ja gairebé estem...",
       "heroSubtitle": "Configura el perfil familiar per a començar a conéixer veïns.",
       "heroCta": "COMENÇAR",
       "formTitle": "Detalls de la Família",
       "representativeNameLabel": "Nom del representant",
-      "representativeNamePlaceholder": "ex. Maria García",
+      "representativeNamePlaceholder": "ex. María García",
       "familyNameLabel": "Nom de la família",
       "familyNamePlaceholder": "ex. Família García Pérez",
-      "neighborhoodLabel": "El Teu Barri",
+      "neighborhoodLabel": "El teu Barri",
       "neighborhoodPlaceholder": "Tria on vius...",
       "bioLabel": "Biografia / Descripció",
       "bioPlaceholder": "Conta'ls alguna cosa als teus veïns sobre la teua família...",
@@ -85,7 +85,7 @@
       "namePrefix": "Família",
       "nameSuffix": "",
       "nearby": "Prop de tu",
-      "descriptionFallback": "Buscant nous amics a la comunitat!",
+      "descriptionFallback": "Buscant nous amics en la comunitat!",
       "selectPlaymate": "Tria algú per a xatejar:",
       "newborn": "RECIÉN NASCUT",
       "yearsOldSuffix": "ANYS"
@@ -93,16 +93,35 @@
   },
   "children": {
     "page": {
-      "title": "Menuts Veïns",
+      "title": "Peques del Barri",
       "subtitle": "Gestiona els membres de la teua família",
       "startExploring": "Començar a explorar",
       "addNewProfile": "Afegir nou perfil"
+    },
+    "form": {
+      "titleNew": "Nou Peque",
+      "titleEdit": "Editar Perfil",
+      "lifeStageLabel": "Etapa de vida",
+      "lifeStagePregnancy": "Embaràs / En espera 🤰",
+      "lifeStageBorn": "Ja ha nascut 👶",
+      "genderLabel": "Gènere",
+      "genderPlaceholder": "Seleccionar gènere",
+      "genderBoy": "Xiquet 👦",
+      "genderGirl": "Xiqueta 👧",
+      "genderSurprise": "Sorpresa ✨",
+      "birthDateLabel": "Data de naixement / Prevista",
+      "descriptionLabel": "Bio / Sobre el xicotet",
+      "descriptionPlaceholder": "Ex: Li encanten els dinosaures, li agrada molt pintar...",
+      "interestsLabel": "Interessos i Hobbies",
+      "submitCreate": "CREAR PERFIL",
+      "submitUpdate": "ACTUALITZAR PERFIL",
+      "errorSave": "Error en guardar el perfil. Torna a intentar-ho."
     },
     "card": {
       "titleBoy": "Xiquet",
       "titleGirl": "Xiqueta",
       "titlePrenatal": "En camí",
-      "titleDefault": "Menut Veí",
+      "titleDefault": "Peque",
       "agePrenatal": "Pròximament",
       "ageNewborn": "Recién nascut",
       "ageSuffix_one": "any",
@@ -112,25 +131,6 @@
       "requestPlaydate": "SOL·LICITAR PLAYDATE",
       "sending": "ENVIANT...",
       "requestSent": "SOL·LICITUD ENVIADA"
-    },
-    "form": {
-      "titleNew": "Nou Menut Veí",
-      "titleEdit": "Editar Perfil",
-      "lifeStageLabel": "Etapa de vida",
-      "lifeStagePregnancy": "En el forn (Embaràs) 🤰",
-      "lifeStageBorn": "Ja ha nascut 👶",
-      "genderLabel": "Gènere",
-      "genderPlaceholder": "Seleccionar gènere",
-      "genderBoy": "Xiquet 👦",
-      "genderGirl": "Xiqueta 👧",
-      "genderSurprise": "Sorpresa ✨",
-      "birthDateLabel": "Data de naixement / Prevista",
-      "descriptionLabel": "Bio / Sobre el menut",
-      "descriptionPlaceholder": "Ex: Li encanten els dinosaures, li agrada molt pintar o estem començant amb el bolquer...",
-      "interestsLabel": "Interessos i Hobbies",
-      "submitCreate": "CREAR PERFIL",
-      "submitUpdate": "ACTUALITZAR PERFIL",
-      "errorSave": "Error en guardar el perfil. Intenta-ho de nou."
     }
   },
   "explore": {
@@ -150,9 +150,9 @@
     "errorFamilies": "No s'han trobat famílies."
   },
   "chat": {
-    "title": "XARRAR",
+    "title": "XATEJAR",
     "matched": "✓",
-    "noMessages": "Encara no hi ha missatges. Saluda al teu veí!",
+    "noMessages": "No hi ha missatges encara. Saluda al teu veí!",
     "inputPlaceholder": "Escriu un missatge...",
     "sendButton": "Enviar",
     "profile": "Perfil",
@@ -161,12 +161,12 @@
     "pending": "PENDENT",
     "saveMatchIdle": "Guardar Match",
     "saveMatchDone": "Connectat",
-    "icebreaker": "Gel",
-    "icebreaker1": "Quin és el vostre parc favorit?",
-    "icebreaker2": "Quins dibuixos preferiu?",
-    "icebreaker3": "Teniu alguna al·lèrgia?",
-    "icebreaker4": "Juguem este cap de setmana?",
-    "icebreaker5": "Quin és el seu joguet estrella?"
+    "icebreaker": "Trenca el gel",
+    "icebreaker1": "Parc favorit?",
+    "icebreaker2": "Dibuixos preferits?",
+    "icebreaker3": "Alguna al·lèrgia?",
+    "icebreaker4": "Juguem este finde?",
+    "icebreaker5": "Joguet estrela?"
   },
   "matches": {
     "title": "Les meues Converses",
@@ -183,22 +183,30 @@
   },
   "events": {
     "page": {
-      "title": "Esdeveniments al Barri",
-      "createButton": "Crear Esdeveniment",
-      "toggleMapShow": "Veure esdeveniments al mapa",
+      "title": "Trobades del Barri",
+      "subtitle": "Troba i organitza trobades al teu barri",
+      "createButton": "Crear Trobada",
+      "toggleMapShow": "Veure trobades al mapa",
       "toggleMapHide": "Amagar mapa",
-      "backToDashboard": "Tornar al panell"
+      "backToDashboard": "Tornar al panell",
+      "noEventsTitle": "Encara no hi ha plans",
+      "noEventsSubtitle": "Sigues tu qui done el primer pas. Organitza una trobada i connecta amb el teu barri.",
+      "createFirstButton": "Començar ara"
     },
     "form": {
-      "titleCreate": "Crear Nou Esdeveniment",
-      "titleEdit": "Editar Esdeveniment",
-      "titleLabel": "Títol",
+      "createTag": "Nova trobada",
+      "editTag": "Editant esdeveniment",
+      "createTitle": "Crear Nova Trobada",
+      "editTitle": "Editar Esdeveniment",
+      "nameLabel": "Títol",
       "dateLabel": "Data",
       "neighborhoodLabel": "Barri",
       "locationLabel": "Ubicació exacta (fes clic):",
       "descriptionLabel": "Descripció",
-      "submitCreate": "🚀 Publicar Esdeveniment",
-      "submitEdit": "💾 Guardar Canvis",
+      "placeholderName": "Ex: Berenar al parc",
+      "placeholderDescription": "Què anem a fer?",
+      "submitButton": "🚀 Publicar Trobada",
+      "saveButton": "💾 Guardar Canvis",
       "locationFallback": "València"
     },
     "card": {
@@ -232,6 +240,9 @@
       "submitIdle": "Enviar Proposta",
       "submitLoading": "Enviant..."
     },
+    "card": {
+      "matchRef": "Ref ID"
+    },
     "status": {
       "accepted": "Acceptat",
       "pending": "Pendent",
@@ -240,15 +251,15 @@
       "emptyAgenda": "La teua agenda està buida",
       "emptySubtitle": "És hora de connectar amb noves famílies!",
       "confirmedLocation": "Ubicació Confirmada",
-      "proposedLocation": "Ubicació Propuesta",
+      "proposedLocation": "Ubicació Proposada",
       "planConfirmed": "Genial! Hi ha pla",
       "tapToSuggest": "Toca per a suggerir el primer"
     }
   },
   "welcome": {
     "title": "Benvinguts a la comunitat!",
-    "body": "Ya eres part d'una cosa més gran. El teu perfil està llest.",
-    "ctaExplore": "Començar a fer match!",
+    "body": "Ja eres part d'alguna cosa més gran. El teu perfil està llest i els teus veïns t'esperen.",
+    "ctaExplore": "A buscar matches!",
     "ctaProfile": "Veure el meu perfil"
   },
   "profile": {
