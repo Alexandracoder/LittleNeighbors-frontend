@@ -18,7 +18,8 @@ import {
 
 export default function AddChildPage() {
   const { t } = useTranslation()
-  const { refreshStatus } = useAuth()
+  
+  const { refreshStatus, refreshProfile } = useAuth()
   const [children, setChildren] = useState<ChildResponseDTO[]>([])
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingChild, setEditingChild] = useState<ChildResponseDTO | null>(
@@ -44,10 +45,31 @@ export default function AddChildPage() {
   }, [])
 
   const handleSuccess = async () => {
+    const wasEditing = !!editingChild
+    console.log('wasEditing:', wasEditing)
+
     setIsFormOpen(false)
     setEditingChild(null)
-    await loadChildren()
+
     await refreshStatus()
+    await refreshProfile()
+
+    const updatedChildren = await childApi.getAll()
+    setChildren(updatedChildren)
+
+    console.log('updatedChildren.length:', updatedChildren.length)
+    console.log(
+      'navigating to:',
+      updatedChildren.length === 1 ? '/explore' : '/dashboard',
+    )
+
+    if (!wasEditing) {
+      if (updatedChildren.length === 1) {
+        navigate('/explore', { replace: true })
+      } else {
+        navigate('/dashboard', { replace: true })
+      }
+    }
   }
 
   const handleDelete = async (id: number) => {
@@ -56,6 +78,7 @@ export default function AddChildPage() {
         await childApi.delete(id)
         await loadChildren()
         await refreshStatus()
+        await refreshProfile()
       } catch (err) {
         alert(t('profile.deleteError'))
       }
@@ -129,37 +152,7 @@ export default function AddChildPage() {
                 </span>
               </button>
             </div>
-
-            <div className="max-w-2xl">
-              <div className="flex items-center gap-2 mb-6 ml-2">
-                <Users className="w-4 h-4 text-[#FF8A5C]" />
-                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">
-                  {t('matches.title')}
-                </h3>
-              </div>
-
-              <button
-                onClick={() => navigate('/matches')}
-                className="w-full flex items-center justify-between p-6 bg-white rounded-[2.5rem] border border-[#FF8A5C]/10 shadow-sm hover:shadow-xl hover:-translate-y-1 active:scale-[0.98] transition-all group"
-              >
-                <div className="flex items-center gap-5">
-                  <div className="w-14 h-14 bg-pink-50 rounded-2xl flex items-center justify-center group-hover:bg-pink-100 transition-colors">
-                    <Heart className="w-7 h-7 text-pink-500 fill-pink-500/10" />
-                  </div>
-                  <div className="text-left">
-                    <span className="block font-black uppercase italic tracking-tighter text-xl text-[#2D2D2D] leading-none mb-1">
-                      {t('dashboard.myPlaydates')}
-                    </span>
-                    <span className="block text-[10px] font-bold uppercase text-gray-400 tracking-wider">
-                      {t('dashboard.subtitle')}
-                    </span>
-                  </div>
-                </div>
-                <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-[#FF8A5C] group-hover:text-white transition-all">
-                  <ChevronRight className="w-6 h-6" />
-                </div>
-              </button>
-            </div>
+            
           </div>
         )}
 

@@ -6,7 +6,15 @@ import type {
   ChildResponseDTO,
   InterestResponseDTO,
 } from '../types'
-import { X, Save, Loader2, Heart, Calendar, MessageSquare } from 'lucide-react'
+import {
+  X,
+  Save,
+  Loader2,
+  Heart,
+  Calendar,
+  MessageSquare,
+  Sparkles,
+} from 'lucide-react'
 
 interface ChildFormProps {
   initialData?: ChildResponseDTO | null
@@ -22,14 +30,36 @@ export default function ChildForm({
   const { t } = useTranslation()
   const [loading, setLoading] = useState(false)
   const [allInterests, setAllInterests] = useState<InterestResponseDTO[]>([])
+
+  // Estado del formulario incluyendo el nuevo campo username
   const [formData, setFormData] = useState<ChildRequestDTO>({
+    username: '', // Nuevo campo
     gender: 'BOY',
     lifeStage: 'PREGNANCY',
     age: 0,
     birthDate: '',
     interestIds: [],
-    description: '', // Nuevo campo
+    description: '',
   })
+
+  // Función para generar nombres mágicos (Alias)
+  const generateMagicNick = () => {
+    const adjectives = [
+      'Explorador',
+      'Artista',
+      'Capità',
+      'Xicotet',
+      'Valent',
+      'Alegre',
+      'Ràpid',
+    ]
+    const icons = ['Lleó', 'Dofí', 'Àguila', 'Gat', 'Esquirol', 'Ós', 'Estel']
+
+    const randomAdj = adjectives[Math.floor(Math.random() * adjectives.length)]
+    const randomIcon = icons[Math.floor(Math.random() * icons.length)]
+
+    setFormData(prev => ({ ...prev, username: `${randomAdj} ${randomIcon}` }))
+  }
 
   useEffect(() => {
     const loadInterests = async () => {
@@ -44,6 +74,7 @@ export default function ChildForm({
 
     if (initialData) {
       setFormData({
+        username: initialData.username || '', // Cargamos el username si existe
         gender: initialData.gender,
         lifeStage: initialData.lifeStage,
         age: initialData.age ?? 0,
@@ -105,6 +136,39 @@ export default function ChildForm({
         >
           <X className="w-6 h-6 text-gray-400" />
         </button>
+      </div>
+
+      {/* SECCIÓN: ALIAS / USERNAME (Prioridad visual) */}
+      <div className="space-y-3">
+        <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">
+          {t('children.form.usernameLabel', "Àlies / Nom d'usuari")}
+        </label>
+        <div className="relative group">
+          <input
+            type="text"
+            required
+            value={formData.username}
+            onChange={e =>
+              setFormData({ ...formData, username: e.target.value })
+            }
+            placeholder="Ex: Explorador Lleó"
+            className="w-full p-5 bg-gray-50 border-2 border-transparent focus:border-[#FF8A5C] focus:bg-white rounded-2xl font-bold transition-all outline-none pr-32 text-lg shadow-inner"
+          />
+          <button
+            type="button"
+            onClick={generateMagicNick}
+            className="absolute right-2 top-2 bottom-2 px-4 bg-[#FF8A5C] text-white rounded-xl font-black text-[10px] uppercase tracking-tighter hover:bg-[#ff7a45] transition-all flex items-center gap-2 shadow-lg active:scale-95"
+          >
+            <Sparkles className="w-3 h-3" />
+            {t('children.form.magicButton', 'Màgic')}
+          </button>
+        </div>
+        <p className="text-[9px] text-gray-400 ml-4 italic font-medium">
+          {t(
+            'children.form.privacyNote',
+            'Per seguretat, no utilitzes noms reals.',
+          )}
+        </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -178,7 +242,6 @@ export default function ChildForm({
         )}
       </div>
 
-      {/* Nuevo Campo: Bio / Descripción */}
       <div className="space-y-3">
         <div className="flex items-center gap-2 ml-1">
           <MessageSquare className="w-4 h-4 text-[#FF8A5C]" />
@@ -193,7 +256,7 @@ export default function ChildForm({
           }
           placeholder={t(
             'children.form.descriptionPlaceholder',
-            'Ej: Le encantan los dinosaurios y estamos empezando con el pañal...',
+            'Ej: Le encantan los dinosaurios...',
           )}
           rows={3}
           className="w-full p-4 bg-gray-50 border-2 border-transparent focus:border-[#FF8A5C] rounded-2xl font-bold transition-all outline-none resize-none"

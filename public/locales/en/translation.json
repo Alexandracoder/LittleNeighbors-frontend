@@ -2,7 +2,7 @@
   "common": {
     "back": "Back",
     "loading": "Loading neighborhood...",
-    "signOut": "Sign Out",
+    "signOut": "Sign out",
     "logout": "Logout",
     "save": "Save",
     "cancel": "Cancel",
@@ -14,18 +14,18 @@
   },
   "auth": {
     "login": {
-      "title": "Welcome back!",
+      "title": "Hello again!",
       "subtitle": "Your neighbors have missed you.",
-      "cta": "ENTER THE NEIGHBORHOOD",
+      "cta": "ENTER NEIGHBORHOOD",
       "formTitle": "Welcome",
       "emailPlaceholder": "Your email",
       "passwordPlaceholder": "Password",
-      "submitIdle": "LOG IN",
+      "submitIdle": "LOGIN",
       "submitLoading": "OPENING DOORS...",
-      "linkRegister": "I'm a new neighbor",
+      "linkRegister": "I am a new neighbor",
       "linkBack": "Back to main page",
       "errorInvalidCredentials": "Invalid email or password.",
-      "errorConnection": "Connection error. Is the server running?"
+      "errorConnection": "Connection error. Is the server active?"
     },
     "register": {
       "title": "Join the neighborhood",
@@ -38,9 +38,9 @@
       "passwordPlaceholder": "Password",
       "submitIdle": "Join now",
       "submitLoading": "Creating...",
-      "linkLogin": "Already a neighbor? Log in",
+      "linkLogin": "Already a neighbor? Login",
       "linkBack": "Back",
-      "errorDefault": "Error during registration."
+      "errorDefault": "Registration error."
     }
   },
   "loading": {
@@ -55,6 +55,7 @@
     "backToDashboard": "Back to dashboard"
   },
   "dashboard": {
+    "hello": "Hello!",
     "subtitle": "Your neighborhood, simplified.",
     "findNeighbors": "Find Neighbors",
     "myPlaydates": "My Playdates",
@@ -65,20 +66,20 @@
     "create": {
       "heroTitle": "Almost there...",
       "heroSubtitle": "Set up your family profile to start meeting neighbors.",
-      "heroCta": "START",
+      "heroCta": "GET STARTED",
       "formTitle": "Family Details",
-      "representativeNameLabel": "Representative name",
-      "representativeNamePlaceholder": "e.g. Mary Smith",
-      "familyNameLabel": "Family name",
-      "familyNamePlaceholder": "e.g. Smith Jones Family",
+      "representativeNameLabel": "Representative Name",
+      "representativeNamePlaceholder": "e.g. Maria Garcia",
+      "familyNameLabel": "Family Name",
+      "familyNamePlaceholder": "e.g. The Garcia Perez Family",
       "neighborhoodLabel": "Your Neighborhood",
       "neighborhoodPlaceholder": "Choose where you live...",
-      "bioLabel": "Biography / Description",
+      "bioLabel": "Bio / Description",
       "bioPlaceholder": "Tell your neighbors something about your family...",
       "submitIdle": "Complete Profile",
       "submitLoading": "Processing...",
       "errorNoNeighborhood": "Please select a neighborhood before continuing.",
-      "errorDefault": "Error initializing family profile"
+      "errorDefault": "Failed to initialize family profile"
     },
     "card": {
       "namePrefix": "Family",
@@ -101,20 +102,20 @@
       "titleNew": "New Little Neighbor",
       "titleEdit": "Edit Profile",
       "lifeStageLabel": "Life Stage",
-      "lifeStagePregnancy": "In the oven (Pregnancy) 🤰",
-      "lifeStageBorn": "Already here (Born) 👶",
+      "lifeStagePregnancy": "Pregnancy / Expecting 🤰",
+      "lifeStageBorn": "Already born 👶",
       "genderLabel": "Gender",
       "genderPlaceholder": "Select gender",
       "genderBoy": "Boy 👦",
       "genderGirl": "Girl 👧",
       "genderSurprise": "Surprise ✨",
-      "birthDateLabel": "Birth date / Due date",
+      "birthDateLabel": "Birth Date / Expected",
       "descriptionLabel": "Bio / About the little one",
-      "descriptionPlaceholder": "e.g. Loves dinosaurs, enjoys painting, or currently potty training...",
-      "interestsLabel": "Interests & Hobbies",
+      "descriptionPlaceholder": "E.g.: Loves dinosaurs, enjoys painting, or we are starting potty training...",
+      "interestsLabel": "Interests and Hobbies",
       "submitCreate": "CREATE PROFILE",
       "submitUpdate": "UPDATE PROFILE",
-      "errorSave": "Error saving profile. Please try again."
+      "errorSave": "Error saving profile. Try again."
     },
     "card": {
       "titleBoy": "Boy",
@@ -151,8 +152,8 @@
   "chat": {
     "title": "CHAT",
     "matched": "✓",
-    "noMessages": "No messages yet. Say hi to your neighbor!",
-    "inputPlaceholder": "Type a message...",
+    "noMessages": "No messages yet. Greet your neighbor!",
+    "inputPlaceholder": "Write a message...",
     "sendButton": "Send",
     "profile": "Profile",
     "agenda": "Agenda",
@@ -162,14 +163,14 @@
     "saveMatchDone": "Connected",
     "icebreaker": "Icebreaker",
     "icebreaker1": "Favorite park?",
-    "icebreaker2": "Favorite cartoons?",
+    "icebreaker2": "Preferred cartoons?",
     "icebreaker3": "Any allergies?",
-    "icebreaker4": "Play this weekend?",
+    "icebreaker4": "Shall we play this weekend?",
     "icebreaker5": "Star toy?"
   },
   "matches": {
     "title": "My Conversations",
-    "empty": "No matches yet. Time to explore the neighborhood!",
+    "empty": "No matches yet. It's time to explore the neighborhood!",
     "statusConnected": "● Connected",
     "statusPending": "● Pending approval",
     "statusDeclined": "● Declined",
@@ -183,21 +184,29 @@
   "events": {
     "page": {
       "title": "Neighborhood Events",
+      "subtitle": "Find and organize meetings in your neighborhood",
       "createButton": "Create Event",
-      "toggleMapShow": "See events on map",
+      "toggleMapShow": "Show events on map",
       "toggleMapHide": "Hide map",
-      "backToDashboard": "Back to dashboard"
+      "backToDashboard": "Back to dashboard",
+      "noEventsTitle": "No plans yet",
+      "noEventsSubtitle": "Be the one to take the first step. Organize a meeting and connect with your neighborhood.",
+      "createFirstButton": "Start now"
     },
     "form": {
-      "titleCreate": "Create New Event",
-      "titleEdit": "Edit Event",
-      "titleLabel": "Title",
+      "createTag": "New event",
+      "editTag": "Editing event",
+      "createTitle": "Create New Event",
+      "editTitle": "Edit Event",
+      "nameLabel": "Title",
       "dateLabel": "Date",
       "neighborhoodLabel": "Neighborhood",
-      "locationLabel": "Exact location (click):",
+      "locationLabel": "Exact location (click map):",
       "descriptionLabel": "Description",
-      "submitCreate": "🚀 Publish Event",
-      "submitEdit": "💾 Save Changes",
+      "placeholderName": "Ex: Picnic in the park",
+      "placeholderDescription": "What are we doing?",
+      "submitButton": "🚀 Publish Event",
+      "saveButton": "💾 Save Changes",
       "locationFallback": "Valencia"
     },
     "card": {
@@ -206,7 +215,7 @@
       "neighborhoodFallback": "Valencia",
       "confirmDelete": "Are you sure you want to delete this event?",
       "errorDelete": "Error deleting event.",
-      "errorLoad": "Could not load events."
+      "errorLoad": "We couldn't load the events."
     },
     "list": {
       "empty": "No upcoming events in Valencia. Create the first one!",
@@ -222,14 +231,17 @@
       "subtitle": "Choose a time to meet your neighbor"
     },
     "form": {
-      "titleLabel": "What's the plan?",
-      "titlePlaceholder": "e.g. Afternoon at the park / Coffee and toys",
+      "titleLabel": "What is the plan?",
+      "titlePlaceholder": "E.g.: Afternoon at the park / Coffee and toys",
       "whenLabel": "When?",
       "detailsLabel": "Extra details",
       "detailsPlaceholder": "Anything else your neighbor should know?",
       "confirmPlan": "Confirm this plan",
       "submitIdle": "Send Proposal",
       "submitLoading": "Sending..."
+    },
+    "card": {
+      "matchRef": "Ref ID"
     },
     "status": {
       "accepted": "Accepted",
@@ -240,13 +252,13 @@
       "emptySubtitle": "It's time to connect with new families!",
       "confirmedLocation": "Confirmed Location",
       "proposedLocation": "Proposed Location",
-      "planConfirmed": "Great! We have a plan",
+      "planConfirmed": "Great! There's a plan",
       "tapToSuggest": "Tap to suggest the first one"
     }
   },
   "welcome": {
     "title": "Welcome to the community!",
-    "body": "You are now part of something bigger. Your profile is ready and your neighbors are waiting.",
+    "body": "You are now part of something bigger. Your profile is ready and your neighbors are waiting for you.",
     "ctaExplore": "Start matching!",
     "ctaProfile": "View my profile"
   },

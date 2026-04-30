@@ -2,14 +2,15 @@ name: Frontend CI (React + TS)
 
 on:
   push:
-    branches: [ "main", "master", "dev", "fix","feature/*" ]
+    branches:
+      - '**'
   pull_request:
-    branches: [ "main", "master",·. "dev", "fix","feature/*" ]
+    branches:
+      - '**'
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -31,5 +32,4 @@ jobs:
         run: npm run build
 
       - name: Run Tests
-        
         run: npm test -- --run
