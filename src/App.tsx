@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next'
 import Navbar from './components/Navbar'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import ProtectedRoute from './components/ProtectedRoute'
+import OnboardingGuard from './components/OnboardingGuard'
 import ChatWindow from './components/Chat/ChatWindow'
 import AddPlaydatePage from './pages/AddPlaydatePage'
 
@@ -25,8 +26,6 @@ import MySchedulesPage from './pages/MySchedulesPage'
 
 import 'leaflet/dist/leaflet.css'
 import ChildDashboard from './components/ChildDashboard'
-
-
 
 const LoadingScreen = () => {
   const { t } = useTranslation()
@@ -51,8 +50,6 @@ function ChatWrapper() {
   }
 
   return (
-   
-    
     <div className="h-screen w-full bg-[#FDF8F3] p-4">
       <ChatWindow matchId={matchId} currentUser={user} token={token} />
     </div>
@@ -83,7 +80,9 @@ function AppContent() {
             path="/profile"
             element={
               <ProtectedRoute allowedRoles={['ROLE_FAMILY']}>
-                <AddChildPage />
+                <OnboardingGuard>
+                  <AddChildPage />
+                </OnboardingGuard>
               </ProtectedRoute>
             }
           />
@@ -110,7 +109,9 @@ function AppContent() {
             path="/dashboard"
             element={
               <ProtectedRoute allowedRoles={['ROLE_USER', 'ROLE_FAMILY']}>
-                <Dashboard />
+                <OnboardingGuard>
+                  <Dashboard />
+                </OnboardingGuard>
               </ProtectedRoute>
             }
           />
@@ -119,7 +120,9 @@ function AppContent() {
             path="/explore"
             element={
               <ProtectedRoute allowedRoles={['ROLE_FAMILY']}>
-                <ExplorePage />
+                <OnboardingGuard>
+                  <ExplorePage />
+                </OnboardingGuard>
               </ProtectedRoute>
             }
           />
@@ -130,7 +133,9 @@ function AppContent() {
             path="/events"
             element={
               <ProtectedRoute allowedRoles={['ROLE_FAMILY']}>
-                <EventsPage />
+                <OnboardingGuard>
+                  <EventsPage />
+                </OnboardingGuard>
               </ProtectedRoute>
             }
           />
@@ -139,7 +144,9 @@ function AppContent() {
             path="/chat/:matchId"
             element={
               <ProtectedRoute allowedRoles={['ROLE_FAMILY']}>
-                <ChatWrapper />
+                <OnboardingGuard>
+                  <ChatWrapper />
+                </OnboardingGuard>
               </ProtectedRoute>
             }
           />
@@ -148,7 +155,9 @@ function AppContent() {
             path="/schedules/:matchId"
             element={
               <ProtectedRoute>
-                <SchedulesPage />
+                <OnboardingGuard>
+                  <SchedulesPage />
+                </OnboardingGuard>
               </ProtectedRoute>
             }
           />
@@ -157,7 +166,9 @@ function AppContent() {
             path="/add-playdate"
             element={
               <ProtectedRoute>
-                <AddPlaydatePage />
+                <OnboardingGuard>
+                  <AddPlaydatePage />
+                </OnboardingGuard>
               </ProtectedRoute>
             }
           />
@@ -166,7 +177,9 @@ function AppContent() {
             path="/welcome"
             element={
               <ProtectedRoute allowedRoles={['ROLE_FAMILY']}>
-                <Welcome />
+                <OnboardingGuard>
+                  <Welcome />
+                </OnboardingGuard>
               </ProtectedRoute>
             }
           />
@@ -175,12 +188,13 @@ function AppContent() {
             path="/my-schedules"
             element={
               <ProtectedRoute>
-                <MySchedulesPage />
+                <OnboardingGuard>
+                  <MySchedulesPage />
+                </OnboardingGuard>
               </ProtectedRoute>
             }
           />
 
-          {/* --- REDIRECCIONES --- */}
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

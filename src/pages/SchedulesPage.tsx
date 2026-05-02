@@ -1,10 +1,20 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Calendar, MapPin, Clock, CheckCircle2 } from 'lucide-react'
+import {
+  ArrowLeft,
+  Calendar,
+  MapPin,
+  Clock,
+  CheckCircle2,
+  Plus,
+} from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import playdateService from '../services/playdateService'
 import dashboardBg from '../assets/new-at-neigborhood.png'
 import { Playdate } from '../types'
+
+// Si decides usar el modal, lo importarías aquí:
+// import AddPlaydateModal from '../components/AddPlaydateModal'
 
 const SchedulesPage: React.FC = () => {
   const { t, i18n } = useTranslation()
@@ -14,21 +24,21 @@ const SchedulesPage: React.FC = () => {
   const [playdates, setPlaydates] = useState<Playdate[]>([])
   const [loading, setLoading] = useState(true)
   const [actionLoading, setActionLoading] = useState<number | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
-  const fetchPlaydates = async () => {
+  // Memorizamos fetch para evitar renders infinitos si se usa en otros useEffect
+  const fetchPlaydates = useCallback(async () => {
+    if (!matchId) return
+
     try {
       const response = await playdateService.getByMatch(Number(matchId))
-      if (Array.isArray(response)) {
-        setPlaydates(response)
-      } else {
-        setPlaydates([])
-      }
+      setPlaydates(Array.isArray(response) ? response : [])
     } catch (error) {
       console.error('Error fetching playdates:', error)
     } finally {
       setLoading(false)
     }
-  }
+  }, [matchId])
 
   useEffect(() => {
     if (!matchId) {
@@ -36,7 +46,7 @@ const SchedulesPage: React.FC = () => {
       return
     }
     fetchPlaydates()
-  }, [matchId, navigate])
+  }, [matchId, navigate, fetchPlaydates])
 
   const handleConfirm = async (playdateId: number) => {
     setActionLoading(playdateId)
@@ -47,6 +57,19 @@ const SchedulesPage: React.FC = () => {
       console.error('Error confirming playdate:', error)
     } finally {
       setActionLoading(null)
+    }
+  }
+
+  // Helper para formatear fechas de forma limpia
+  const formatDateInfo = (dateString: string) => {
+    const dateObj = new Date(dateString)
+    return {
+      day: dateObj.getDate(),
+      month: dateObj.toLocaleString(i18n.language, { month: 'short' }),
+      time: dateObj.toLocaleTimeString(i18n.language, {
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
     }
   }
 
@@ -62,6 +85,7 @@ const SchedulesPage: React.FC = () => {
 
   return (
     <div className="relative min-h-screen w-full p-6 text-white font-sans flex flex-col">
+      {/* BACKGROUND - MANTENIDO ORIGINAL */}
       <div
         className="fixed inset-0 z-0"
         style={{
@@ -72,13 +96,27 @@ const SchedulesPage: React.FC = () => {
       />
       <div className="fixed inset-0 z-10 bg-gradient-to-br from-black/40 via-transparent to-transparent pointer-events-none" />
 
+      {/* CONTENT */}
       <div className="relative z-20 max-w-2xl mx-auto w-full flex flex-grow flex-col">
-        <button
-          onClick={() => navigate(-1)}
-          className="bg-white text-gray-800 mb-8 flex w-fit items-center gap-2 rounded-full px-5 py-2.5 font-black uppercase tracking-widest text-[10px] shadow-lg border border-white transition-all hover:scale-105"
-        >
-          <ArrowLeft className="w-3 h-3" /> {t('common.back')}
-        </button>
+        <div className="flex justify-between items-start mb-8">
+          <button
+            onClick={() => navigate(-1)}
+            className="bg-white text-gray-800 flex items-center gap-2 rounded-full px-5 py-2.5 font-black uppercase tracking-widest text-[10px] shadow-lg border border-white transition-all hover:scale-105"
+          >
+            <ArrowLeft className="w-3 h-3" /> {t('common.back')}
+          </button>
+
+          {/* Botón rápido para proponer si ya hay citas */}
+          {playdates.length > 0 && (
+            <button
+              onClick={() => navigate('/add-playdate', { state: { matchId } })}
+              className="bg-[#F28749] text-white flex items-center gap-2 rounded-full px-5 py-2.5 font-black uppercase tracking-widest text-[10px] shadow-lg transition-all hover:scale-105"
+            >
+              <Plus className="w-3 h-3" />{' '}
+              {t('playdates.form.proposeShort', 'Proponer')}
+            </button>
+          )}
+        </div>
 
         <h1 className="text-5xl font-black uppercase text-white mb-10 italic tracking-tighter drop-shadow-[0_2px_15px_rgba(0,0,0,0.3)]">
           {t('playdates.page.agendaTitle')}{' '}
@@ -90,16 +128,7 @@ const SchedulesPage: React.FC = () => {
         {playdates.length > 0 ? (
           <div className="space-y-4">
             {playdates.map(pd => {
-              const dateObj = new Date(pd.startTime)
-              const day = dateObj.getDate()
-              const month = dateObj.toLocaleString(i18n.language, {
-                month: 'short',
-              })
-              const time = dateObj.toLocaleTimeString(i18n.language, {
-                hour: '2-digit',
-                minute: '2-digit',
-              })
-
+              const { day, month, time } = formatDateInfo(pd.startTime)
               const isAccepted = pd.status === 'ACCEPTED'
 
               return (
@@ -158,7 +187,7 @@ const SchedulesPage: React.FC = () => {
                     </div>
                   </div>
 
-                  {!isAccepted && (
+                  {!isAccepted ? (
                     <button
                       onClick={() => handleConfirm(pd.id)}
                       disabled={actionLoading === pd.id}
@@ -168,9 +197,7 @@ const SchedulesPage: React.FC = () => {
                         ? t('playdates.status.confirming')
                         : t('playdates.form.confirmPlan')}
                     </button>
-                  )}
-
-                  {isAccepted && (
+                  ) : (
                     <div className="mt-6 w-full bg-green-50 border border-green-100 text-green-600 py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] flex items-center justify-center gap-2">
                       <CheckCircle2 size={16} />
                       {t('playdates.status.planConfirmed')}
@@ -183,7 +210,7 @@ const SchedulesPage: React.FC = () => {
         ) : (
           <div
             onClick={() => navigate('/add-playdate', { state: { matchId } })}
-            className="group flex items-center gap-5 px-10 py-8 bg-white/95 backdrop-blur-sm rounded-[3rem] shadow-2xl cursor-pointer border border-white transition-all active:scale-95"
+            className="group flex items-center gap-5 px-10 py-8 bg-white/95 backdrop-blur-sm rounded-[3rem] shadow-2xl cursor-pointer border border-white transition-all active:scale-95 hover:bg-white"
           >
             <div className="w-14 h-14 bg-gray-50 rounded-[1.2rem] flex items-center justify-center shrink-0 shadow-inner group-hover:bg-orange-50 transition-colors">
               <Calendar className="w-7 h-7 text-[#F28749]" />
