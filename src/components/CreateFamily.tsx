@@ -1,6 +1,5 @@
 import { useState, useEffect, FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useTranslation } from 'react-i18next'
 import { familyApi, neighborhoodApi } from '../services/api'
 import type { NeighborhoodResponseDTO, FamilyRequestDTO } from '../types'
 import { Users, MapPin, ArrowRight, Sparkles, User } from 'lucide-react'
@@ -8,7 +7,6 @@ import { useAuth } from '../context/AuthContext'
 import familyBg from '../assets/create-family.png'
 
 export default function CreateFamily() {
-  const { t } = useTranslation()
   const [representativeName, setRepresentativeName] = useState('')
   const [familyName, setFamilyName] = useState('')
   const [description, setDescription] = useState('')
@@ -30,43 +28,45 @@ export default function CreateFamily() {
         setNeighborhoods(data)
       } catch (err) {
         console.error('Error fetching neighborhoods:', err)
-        setError(t('family.create.errorDefault'))
+        setError('Could not load neighborhoods. Please try again later.')
       }
     }
     fetchNeighborhoods()
-  }, [t])
+  }, [])
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
     if (neighborhoodId === 0) {
-      setError(t('family.create.errorNoNeighborhood'))
+      setError('Please select a neighborhood before continuing.')
       return
     }
 
     setLoading(true)
     setError(null)
 
-    try {
-      const familyRequest: FamilyRequestDTO = {
-        representativeName,
-        familyName,
-        description,
-        neighborhoodId,
-        profilePictureUrl: '',
-        status: 'SURPRISE',
-        familyInterests: [],
-      }
+try {
+  const familyRequest: FamilyRequestDTO = {
+    representativeName,
+    familyName,
+    description,
+    neighborhoodId,
+    profilePictureUrl: '',
+    status: 'SURPRISE',
+    familyInterests: [],
+  }
 
-      await familyApi.create(familyRequest)
-      await updateSession()
-      navigate('/add-child', { replace: true })
-    } catch (err: any) {
-      console.error('Error in creation flow:', err)
-      setError(err.response?.data?.message || t('family.create.errorDefault'))
-    } finally {
-      setLoading(false)
-    }
+  await familyApi.create(familyRequest)
+
+  await updateSession()
+
+  navigate('/add-child', { replace: true })
+} catch (err: any) {
+  console.error('Error in creation flow:', err)
+  setError(err.response?.data?.message || 'Failed to initialize family profile')
+} finally {
+  setLoading(false)
+}
   }
 
   return (
@@ -89,16 +89,16 @@ export default function CreateFamily() {
               <Sparkles className="w-16 h-16 text-orange-500 animate-pulse" />
             </div>
             <h1 className="text-5xl md:text-7xl font-black text-white mb-6 drop-shadow-[0_5px_15px_rgba(0,0,0,0.5)] italic uppercase tracking-tighter">
-              {t('family.create.heroTitle')}
+              Almost there...
             </h1>
             <p className="text-xl md:text-2xl text-white font-bold mb-10 drop-shadow-md max-w-md">
-              {t('family.create.heroSubtitle')}
+              Let's set up your family profile to start meeting neighbors.
             </p>
             <button
               onClick={() => setShowForm(true)}
               className="group flex items-center gap-4 px-12 py-6 bg-orange-600 text-white font-black rounded-full text-2xl shadow-xl hover:bg-white hover:text-orange-600 transition-all transform hover:-translate-y-2"
             >
-              <span>{t('family.create.heroCta')}</span>
+              <span>GET STARTED</span>
               <ArrowRight className="group-hover:translate-x-2 transition-transform w-8 h-8" />
             </button>
           </div>
@@ -109,14 +109,14 @@ export default function CreateFamily() {
                 <Users className="text-orange-500 w-10 h-10" />
               </div>
               <h2 className="text-4xl font-black text-gray-900 uppercase tracking-tighter">
-                {t('family.create.formTitle')}
+                Family Details
               </h2>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
                 <label className="text-xs font-black uppercase tracking-widest text-gray-500 ml-2">
-                  {t('family.create.representativeNameLabel')}
+                  Representative Name
                 </label>
                 <div className="relative">
                   <User className="absolute left-5 top-1/2 -translate-y-1/2 text-orange-500 w-5 h-5" />
@@ -124,9 +124,7 @@ export default function CreateFamily() {
                     value={representativeName}
                     onChange={e => setRepresentativeName(e.target.value)}
                     className="w-full pl-14 pr-6 py-5 bg-gray-100 border-2 border-transparent focus:border-orange-500 focus:bg-white rounded-3xl outline-none transition-all font-medium"
-                    placeholder={t(
-                      'family.create.representativeNamePlaceholder',
-                    )}
+                    placeholder="e.g. Jane Doe"
                     required
                   />
                 </div>
@@ -134,20 +132,20 @@ export default function CreateFamily() {
 
               <div className="space-y-2">
                 <label className="text-xs font-black uppercase tracking-widest text-gray-500 ml-2">
-                  {t('family.create.familyNameLabel')}
+                  Family Name
                 </label>
                 <input
                   value={familyName}
                   onChange={e => setFamilyName(e.target.value)}
                   className="w-full p-5 bg-gray-100 border-2 border-transparent focus:border-orange-500 focus:bg-white rounded-3xl outline-none transition-all font-medium"
-                  placeholder={t('family.create.familyNamePlaceholder')}
+                  placeholder="e.g. The Smith Family"
                   required
                 />
               </div>
 
               <div className="space-y-2">
                 <label className="text-xs font-black uppercase tracking-widest text-gray-500 ml-2">
-                  {t('family.create.neighborhoodLabel')}
+                  Your Neighborhood
                 </label>
                 <div className="relative">
                   <MapPin className="absolute left-5 top-1/2 -translate-y-1/2 text-orange-500 w-6 h-6" />
@@ -157,10 +155,8 @@ export default function CreateFamily() {
                     className="w-full pl-14 pr-6 py-5 bg-gray-100 border-2 border-transparent focus:border-orange-500 focus:bg-white rounded-3xl outline-none transition-all font-medium appearance-none"
                     required
                   >
-                    <option value={0}>
-                      {t('family.create.neighborhoodPlaceholder')}
-                    </option>
-                    {(neighborhoods || []).map(n => (
+                    <option value={0}>Choose where you live...</option>
+                    {neighborhoods.map(n => (
                       <option key={n.id} value={n.id}>
                         {n.name} - {n.cityName}
                       </option>
@@ -171,13 +167,13 @@ export default function CreateFamily() {
 
               <div className="space-y-2">
                 <label className="text-xs font-black uppercase tracking-widest text-gray-500 ml-2">
-                  {t('family.create.bioLabel')}
+                  Bio / Description
                 </label>
                 <textarea
                   value={description}
                   onChange={e => setDescription(e.target.value)}
                   className="w-full p-5 bg-gray-100 border-2 border-transparent focus:border-orange-500 focus:bg-white rounded-3xl h-32 outline-none transition-all font-medium resize-none"
-                  placeholder={t('family.create.bioPlaceholder')}
+                  placeholder="Tell neighbors about your family..."
                 />
               </div>
 
@@ -192,9 +188,7 @@ export default function CreateFamily() {
                 disabled={loading}
                 className="w-full bg-gray-900 text-white font-black py-6 rounded-3xl shadow-xl hover:bg-orange-600 transition-all transform hover:-translate-y-1 uppercase tracking-[0.2em] text-sm disabled:opacity-50"
               >
-                {loading
-                  ? t('family.create.submitLoading')
-                  : t('family.create.submitIdle')}
+                {loading ? 'Processing...' : 'Complete Profile'}
               </button>
             </form>
           </div>

@@ -1,22 +1,17 @@
 import { useNavigate, useLocation } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
-import { useTranslation } from 'react-i18next'
-import { Home, Search, User, LogOut, Heart, Languages } from 'lucide-react'
+import { useAuth } from '../../context/AuthContext'
+import { Home, Search, User, LogOut, Heart } from 'lucide-react'
 
 export default function Navbar() {
   const navigate = useNavigate()
   const location = useLocation()
   const { logout } = useAuth()
-  const { t, i18n } = useTranslation()
 
+  // Función para saber si estamos en una página y marcarla como activa
   const isActive = (path: string) => location.pathname === path
 
-  const changeLanguage = (lng: string) => {
-    i18n.changeLanguage(lng)
-  }
-
   return (
-    <nav className="fixed top-0 left-0 w-full z-50 flex items-center justify-between px-8 py-4 bg-slate-950/80 backdrop-blur-xl border-b border-white/10">
+    <nav className="relative z-50 flex items-center justify-between px-8 py-6 bg-transparent">
       {/* ── LOGO ── */}
       <div
         className="text-2xl font-black text-white cursor-pointer flex items-center gap-2 group"
@@ -40,7 +35,7 @@ export default function Navbar() {
               : 'text-white/70 hover:text-white hover:bg-white/5'
           }`}
         >
-          <Home className="w-4 h-4" /> {t('navigation.dashboard')}
+          <Home className="w-4 h-4" /> Dashboard
         </button>
 
         <button
@@ -51,7 +46,7 @@ export default function Navbar() {
               : 'text-white/70 hover:text-white hover:bg-white/5'
           }`}
         >
-          <Search className="w-4 h-4" /> {t('navigation.explore')}
+          <Search className="w-4 h-4" /> Explore
         </button>
 
         <button
@@ -62,36 +57,18 @@ export default function Navbar() {
               : 'text-white/70 hover:text-white hover:bg-white/5'
           }`}
         >
-          <User className="w-4 h-4" /> {t('navigation.profile')}
+          <User className="w-4 h-4" /> Profile
         </button>
       </div>
 
-      {/* ── BOTONES DERECHA & IDIOMA ── */}
-      <div className="flex items-center gap-4">
-        {/* Selector de Idioma Estilizado */}
-        <div className="flex items-center gap-1 bg-white/5 backdrop-blur-sm p-1 rounded-xl border border-white/10">
-          <Languages className="w-4 h-4 text-white/40 ml-2 mr-1" />
-          {['es', 'va', 'en'].map(lng => (
-            <button
-              key={lng}
-              onClick={() => changeLanguage(lng)}
-              className={`px-2 py-1 rounded-lg text-xs font-black transition-all ${
-                i18n.language === lng
-                  ? 'bg-orange-500 text-white'
-                  : 'text-white/40 hover:text-white hover:bg-white/10'
-              }`}
-            >
-              {lng.toUpperCase()}
-            </button>
-          ))}
-        </div>
-
+      {/* ── BOTONES DERECHA ── */}
+      <div className="flex items-center gap-3">
         <button
           onClick={logout}
           className="group flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-red-500/20 text-white/50 hover:text-red-400 rounded-xl border border-white/5 transition-all font-bold text-sm"
         >
           <LogOut className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-          {t('common.logout')}
+          Logout
         </button>
       </div>
     </nav>

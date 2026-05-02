@@ -1,6 +1,3 @@
-import { ReactNode } from 'react'
-import './i18n'
-
 export interface AuthRequest {
   email: string
   password: string
@@ -11,13 +8,8 @@ export interface AuthResponse {
   refreshToken: string
 }
 
-// NUEVA INTERFAZ PARA EL REFRESCO
-export interface RefreshRequest {
-  refreshToken: string
-}
-
 export interface FamilyRequestDTO {
-  status: 'PREGNANT' | 'NEW_PARENTS' | 'ESTABLISHED_FAMILY' | 'SURPRISE'
+  status: "PREGNANT" | "NEW_PARENTS" | "ESTABLISHED_FAMILY" | "SURPRISE"
   familyInterests: string[]
   representativeName: string
   familyName: string
@@ -27,7 +19,6 @@ export interface FamilyRequestDTO {
 }
 
 export interface ChildSummaryDTO {
-  nickname: string
   id: number
   gender: string
   age: number
@@ -36,7 +27,7 @@ export interface ChildSummaryDTO {
 }
 
 export interface FamilyResponseDTO {
-  status: 'PREGNANT' | 'NEW_PARENTS' | 'ESTABLISHED_FAMILY' | 'SURPRISE'
+  status: "PREGNANT" | "NEW_PARENTS" | "ESTABLISHED_FAMILY" | "SURPRISE"
   neighborhood: any
   familyInterests: string[]
   id: number
@@ -53,29 +44,21 @@ export interface FamilyResponseDTO {
 }
 
 export interface ChildRequestDTO {
-  nickname: string
   birthDate: string
   lifeStage: string
-  // Corregido para coincidir con las opciones del formulario
-  gender: 'BOY' | 'GIRL' | 'SURPRISE'
-  description?: string
-  profilePictureUrl?: string
+  gender: 'BOY' | 'GIRL'
   interestIds: number[]
   age: number
 }
 
 export interface ChildResponseDTO {
-  nickname: string
-  profilePictureUrl: string
   lifeStage: string
   id: number
-  gender: 'BOY' | 'GIRL' | 'SURPRISE'
-  description?: string
+  gender: 'BOY' | 'GIRL'
   birthDate: string
   age: number
   interests: InterestResponseDTO[]
   familyId: number
-  avatarUrl?: string
 }
 
 export interface InterestResponseDTO {
@@ -126,7 +109,6 @@ export interface RegisterRequest {
 }
 
 export interface UserStatusDTO {
-  roles: User | null
   hasFamily: boolean
   hasChildren: boolean
   isRegistrationComplete: boolean
@@ -149,27 +131,11 @@ export interface MessageDTO {
 }
 
 export interface MessageService {
-  getHistory: (matchId: number, signal?: AbortSignal) => Promise<MessageDTO[]>
-  sendMessage: (matchId: number, content: string) => Promise<MessageDTO>
-}
-
-export interface Playdate {
-  date: any
-  time: ReactNode
-  neighborName: ReactNode
-  id: number
-  title: string
-  startTime: string
-  description?: string
-  status: 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'CANCELLED'
-  matchId: number
-  createdAt: string
-  updatedAt?: string
-}
-
-export interface PlaydateRequest {
-  title: string
-  startTime: string
-  description?: string
-  matchId: number
+  getHistory: (matchId: string | number, token: string) => Promise<MessageDTO[]>
+  sendMessage: (
+    matchId: string | number,
+    senderId: number,
+    content: string,
+    token: string,
+  ) => Promise<MessageDTO>
 }

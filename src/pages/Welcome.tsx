@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import welcomeVideo from '../assets/video.mp4'
-import backgroundPhoto from '../assets/playing-together.png'
+import backgroundPhoto from '../assets/playing-together.png' // Asegúrate de importar la imagen
 
 export default function Welcome() {
   const navigate = useNavigate()
@@ -44,7 +44,7 @@ export default function Welcome() {
             ¡Empezar a hacer match!
           </button>
           <button
-            onClick={() => navigate('/dashboard')}
+            onClick={() => navigate('/dashboard')} // Cambiado a /dashboard como ejemplo
             className="w-full py-4 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 font-bold hover:bg-white/20 transition-colors"
           >
             Ver mi perfil

@@ -2,7 +2,6 @@ import axios from 'axios'
 import type {
   AuthRequest,
   AuthResponse,
-  RefreshRequest,
   FamilyRequestDTO,
   FamilyResponseDTO,
   ChildRequestDTO,
@@ -22,7 +21,6 @@ const api = axios.create({
   headers: { 'Content-Type': 'application/json' },
 })
 
-// INTERCEPTOR DE PETICIÓN: Añade el token de acceso a las cabeceras
 api.interceptors.request.use(
   config => {
     const token = localStorage.getItem('accessToken')
@@ -32,7 +30,6 @@ api.interceptors.request.use(
   error => Promise.reject(error),
 )
 
-// INTERCEPTOR DE RESPUESTA: Maneja la expiración del token (401) automáticamente
 api.interceptors.response.use(
   response => response,
   async error => {
@@ -42,18 +39,13 @@ api.interceptors.response.use(
       try {
         const refreshToken = localStorage.getItem('refreshToken')
         if (refreshToken) {
-          // Usamos axios básico para evitar bucles infinitos con el interceptor
           const response = await axios.post<AuthResponse>(
             `${API_BASE_URL}/auth/refresh`,
             { refreshToken },
           )
           const { accessToken, refreshToken: newRefreshToken } = response.data
-
           localStorage.setItem('accessToken', accessToken)
-          if (newRefreshToken) {
-            localStorage.setItem('refreshToken', newRefreshToken)
-          }
-
+          localStorage.setItem('refreshToken', newRefreshToken)
           originalRequest.headers.Authorization = `Bearer ${accessToken}`
           return api(originalRequest)
         }
@@ -76,11 +68,6 @@ export const authApi = {
   register: async (userData: RegisterRequest): Promise<void> => {
     await api.post('/auth/register', userData)
   },
-  // MÉTODO AÑADIDO: Permite forzar el refresco desde los componentes (como ChildForm)
-  refresh: async (data: RefreshRequest): Promise<AuthResponse> => {
-    const response = await api.post<AuthResponse>('/auth/refresh', data)
-    return response.data
-  },
 }
 
 export const neighborhoodApi = {
@@ -97,10 +84,12 @@ export const familyApi = {
     const response = await api.post<FamilyResponseDTO>('/families', data)
     return response.data
   },
+
   getMyFamily: async (): Promise<FamilyResponseDTO> => {
     const response = await api.get<FamilyResponseDTO>('/families/my-family')
     return response.data
   },
+
   explore: async (filters: {
     currentChildId: number
     minAge: number
@@ -157,7 +146,6 @@ export const interestApi = {
     return response.data
   },
 }
-
 export const userApi = {
   getStatus: async (): Promise<UserStatusDTO> => {
     const response = await api.get<UserStatusDTO>('/users/me/status')

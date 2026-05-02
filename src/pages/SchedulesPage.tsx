@@ -1,91 +1,13 @@
-import React, { useEffect, useState, useCallback } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
-import {
-  ArrowLeft,
-  Calendar,
-  MapPin,
-  Clock,
-  CheckCircle2,
-  Plus,
-} from 'lucide-react'
-import { useTranslation } from 'react-i18next'
-import playdateService from '../services/playdateService'
+import { ArrowLeft, Calendar } from "lucide-react"
+import { useNavigate } from "react-router-dom"
 import dashboardBg from '../assets/new-at-neigborhood.png'
-import { Playdate } from '../types'
 
-// Si decides usar el modal, lo importarías aquí:
-// import AddPlaydateModal from '../components/AddPlaydateModal'
-
-const SchedulesPage: React.FC = () => {
-  const { t, i18n } = useTranslation()
-  const { matchId } = useParams<{ matchId: string }>()
+export default function SchedulesPage() {
   const navigate = useNavigate()
-
-  const [playdates, setPlaydates] = useState<Playdate[]>([])
-  const [loading, setLoading] = useState(true)
-  const [actionLoading, setActionLoading] = useState<number | null>(null)
-  const [isModalOpen, setIsModalOpen] = useState(false)
-
-  // Memorizamos fetch para evitar renders infinitos si se usa en otros useEffect
-  const fetchPlaydates = useCallback(async () => {
-    if (!matchId) return
-
-    try {
-      const response = await playdateService.getByMatch(Number(matchId))
-      setPlaydates(Array.isArray(response) ? response : [])
-    } catch (error) {
-      console.error('Error fetching playdates:', error)
-    } finally {
-      setLoading(false)
-    }
-  }, [matchId])
-
-  useEffect(() => {
-    if (!matchId) {
-      navigate('/messages')
-      return
-    }
-    fetchPlaydates()
-  }, [matchId, navigate, fetchPlaydates])
-
-  const handleConfirm = async (playdateId: number) => {
-    setActionLoading(playdateId)
-    try {
-      await playdateService.confirm(playdateId)
-      await fetchPlaydates()
-    } catch (error) {
-      console.error('Error confirming playdate:', error)
-    } finally {
-      setActionLoading(null)
-    }
-  }
-
-  // Helper para formatear fechas de forma limpia
-  const formatDateInfo = (dateString: string) => {
-    const dateObj = new Date(dateString)
-    return {
-      day: dateObj.getDate(),
-      month: dateObj.toLocaleString(i18n.language, { month: 'short' }),
-      time: dateObj.toLocaleTimeString(i18n.language, {
-        hour: '2-digit',
-        minute: '2-digit',
-      }),
-    }
-  }
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#1a1a1a]">
-        <div className="text-white font-black uppercase tracking-widest animate-pulse">
-          {t('playdates.status.loadingAgenda')}
-        </div>
-      </div>
-    )
-  }
 
   return (
     <div className="relative min-h-screen w-full p-6 text-white font-sans flex flex-col">
-      {/* BACKGROUND - MANTENIDO ORIGINAL */}
+      {/* Fondo: Imagen clara, sin blur */}
       <div
         className="fixed inset-0 z-0"
         style={{
@@ -94,140 +16,40 @@ const SchedulesPage: React.FC = () => {
           backgroundPosition: 'center',
         }}
       />
-      <div className="fixed inset-0 z-10 bg-gradient-to-br from-black/40 via-transparent to-transparent pointer-events-none" />
+      {/* Overlay más claro para dar sensación de brillo */}
+      <div className="fixed inset-0 z-10 bg-white/30" />
 
-      {/* CONTENT */}
-      <div className="relative z-20 max-w-2xl mx-auto w-full flex flex-grow flex-col">
-        <div className="flex justify-between items-start mb-8">
-          <button
-            onClick={() => navigate(-1)}
-            className="bg-white text-gray-800 flex items-center gap-2 rounded-full px-5 py-2.5 font-black uppercase tracking-widest text-[10px] shadow-lg border border-white transition-all hover:scale-105"
-          >
-            <ArrowLeft className="w-3 h-3" /> {t('common.back')}
-          </button>
+      <div className="relative z-20 max-w-4xl mx-auto w-full flex flex-col flex-grow">
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 text-brand-dark/70 mb-8 font-black uppercase tracking-widest text-xs hover:text-brand-dark transition-all"
+        >
+          <ArrowLeft className="w-4 h-4" /> Back to Dashboard
+        </button>
 
-          {/* Botón rápido para proponer si ya hay citas */}
-          {playdates.length > 0 && (
-            <button
-              onClick={() => navigate('/add-playdate', { state: { matchId } })}
-              className="bg-[#F28749] text-white flex items-center gap-2 rounded-full px-5 py-2.5 font-black uppercase tracking-widest text-[10px] shadow-lg transition-all hover:scale-105"
-            >
-              <Plus className="w-3 h-3" />{' '}
-              {t('playdates.form.proposeShort', 'Proponer')}
-            </button>
-          )}
-        </div>
-
-        <h1 className="text-5xl font-black uppercase text-white mb-10 italic tracking-tighter drop-shadow-[0_2px_15px_rgba(0,0,0,0.3)]">
-          {t('playdates.page.agendaTitle')}{' '}
-          <span className="text-[#F28749]">
-            {t('playdates.page.agendaHighlight')}
-          </span>
+        <h1 className="text-5xl font-black uppercase text-brand-dark drop-shadow-sm">
+          My Playdates
         </h1>
 
-        {playdates.length > 0 ? (
-          <div className="space-y-4">
-            {playdates.map(pd => {
-              const { day, month, time } = formatDateInfo(pd.startTime)
-              const isAccepted = pd.status === 'ACCEPTED'
-
-              return (
-                <div
-                  key={pd.id}
-                  className="bg-white/95 backdrop-blur-sm rounded-[2.5rem] p-6 shadow-2xl border border-white transition-all overflow-hidden"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-5">
-                      <div
-                        className={`w-16 h-16 ${
-                          isAccepted ? 'bg-green-500' : 'bg-[#F28749]'
-                        } rounded-[1.5rem] flex flex-col items-center justify-center text-white shadow-lg transition-colors`}
-                      >
-                        <span className="text-[10px] font-black uppercase leading-none">
-                          {month}
-                        </span>
-                        <span className="text-2xl font-black leading-tight">
-                          {day}
-                        </span>
-                      </div>
-
-                      <div>
-                        <h3 className="text-gray-900 font-black uppercase text-base leading-tight">
-                          {pd.title}
-                        </h3>
-                        <div className="flex flex-col gap-1 mt-1">
-                          <p className="flex items-center gap-1 text-gray-500 text-[10px] font-bold uppercase tracking-widest">
-                            <MapPin
-                              size={12}
-                              className={
-                                isAccepted ? 'text-green-500' : 'text-[#F28749]'
-                              }
-                            />
-                            {isAccepted
-                              ? t('playdates.status.confirmedLocation')
-                              : t('playdates.status.proposedLocation')}
-                          </p>
-                          <p className="flex items-center gap-1 text-gray-400 text-[10px] font-bold uppercase tracking-widest">
-                            <Clock size={12} /> {time}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div
-                      className={`px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-widest ${
-                        isAccepted
-                          ? 'bg-green-100 text-green-600'
-                          : 'bg-orange-100 text-orange-600'
-                      }`}
-                    >
-                      {isAccepted
-                        ? t('playdates.status.accepted')
-                        : t('playdates.status.pending')}
-                    </div>
-                  </div>
-
-                  {!isAccepted ? (
-                    <button
-                      onClick={() => handleConfirm(pd.id)}
-                      disabled={actionLoading === pd.id}
-                      className="mt-6 w-full bg-[#F28749] hover:bg-[#e0763a] disabled:opacity-50 text-white py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] transition-all shadow-lg active:scale-[0.98] flex items-center justify-center gap-2"
-                    >
-                      {actionLoading === pd.id
-                        ? t('playdates.status.confirming')
-                        : t('playdates.form.confirmPlan')}
-                    </button>
-                  ) : (
-                    <div className="mt-6 w-full bg-green-50 border border-green-100 text-green-600 py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] flex items-center justify-center gap-2">
-                      <CheckCircle2 size={16} />
-                      {t('playdates.status.planConfirmed')}
-                    </div>
-                  )}
-                </div>
-              )
-            })}
-          </div>
-        ) : (
-          <div
-            onClick={() => navigate('/add-playdate', { state: { matchId } })}
-            className="group flex items-center gap-5 px-10 py-8 bg-white/95 backdrop-blur-sm rounded-[3rem] shadow-2xl cursor-pointer border border-white transition-all active:scale-95 hover:bg-white"
-          >
-            <div className="w-14 h-14 bg-gray-50 rounded-[1.2rem] flex items-center justify-center shrink-0 shadow-inner group-hover:bg-orange-50 transition-colors">
-              <Calendar className="w-7 h-7 text-[#F28749]" />
-            </div>
-            <div>
-              <h2 className="text-xl font-black text-gray-900 uppercase italic tracking-tighter">
-                {t('playdates.status.emptyAgenda')}
-              </h2>
-              <p className="text-[11px] font-bold text-gray-400 uppercase tracking-[0.2em] leading-none mt-1 group-hover:text-[#F28749] transition-colors">
-                {t('playdates.status.tapToSuggest')}
-              </p>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
+{/* He añadido 'cursor-pointer', 'hover:bg-gray-50' y 'transition-all' */}
+<div 
+  onClick={() => navigate('/add-playdate')} // O la ruta que prefieras
+  className="flex items-center gap-3 px-6 py-3 bg-white border border-gray-100 rounded-full shadow-sm cursor-pointer hover:bg-gray-50 transition-all active:scale-95"
+>
+  <div className="w-8 h-8 bg-gray-50 rounded-full flex items-center justify-center shrink-0">
+    <Calendar className="w-4 h-4 text-gray-400" />
+  </div>
+  
+  <div className="pr-2">
+    <h2 className="text-sm font-black text-gray-900 whitespace-nowrap">
+      No Playdates Yet
+    </h2>
+    <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest leading-none">
+      Get started today
+    </p>
+  </div>
+</div>
+</div>
+        </div>
   )
 }
-
-export default SchedulesPage
