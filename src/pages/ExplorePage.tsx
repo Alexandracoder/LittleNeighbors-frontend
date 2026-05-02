@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { familyApi, interestApi } from '../services/api'
 import type {
   FamilyResponseDTO,
@@ -16,26 +17,42 @@ import {
   ArrowLeft,
   LayoutDashboard,
   User,
+  Sparkles,
+  Users,
+  Share2,
 } from 'lucide-react'
 
 export default function ExplorePage() {
   const navigate = useNavigate()
+  const { t } = useTranslation()
+  const [searchParams] = useSearchParams()
+
+  // Estados de datos
   const [families, setFamilies] = useState<FamilyResponseDTO[]>([])
   const [availableInterests, setAvailableInterests] = useState<
     InterestResponseDTO[]
   >([])
   const [myChildren, setMyChildren] = useState<ChildSummaryDTO[]>([])
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
 
-  const [myChildId, setMyChildId] = useState<number | undefined>(undefined)
+  // Modos de búsqueda: neighborhood (barrio) o city (ciudad)
+  const [searchMode, setSearchMode] = useState<'neighborhood' | 'city'>(
+    'neighborhood',
+  )
+
+  // Filtros
+  const [myChildId, setMyChildId] = useState<number | undefined>(
+    searchParams.get('childId')
+      ? Number(searchParams.get('childId'))
+      : undefined,
+  )
   const [myChildInterests, setMyChildInterests] = useState<number[]>([])
   const [selectedInterestIds, setSelectedInterestIds] = useState<number[]>([])
   const [ageRange, setAgeRange] = useState<{ min: number; max: number } | null>(
     null,
   )
 
-  // 1. Cargar datos iniciales
+  // Inicialización de datos (Intereses y Perfil propio)
   useEffect(() => {
     const initData = async () => {
       try {
@@ -47,21 +64,25 @@ export default function ExplorePage() {
 
         if (myProfile?.children?.length > 0) {
           setMyChildren(myProfile.children)
-          setMyChildId(myProfile.children[0].id)
-          // Opcional: guardar los intereses del hijo actual para resaltar comunes
+          const defaultChild = searchParams.get('childId')
+            ? myProfile.children.find(
+                (c: any) => c.id === Number(searchParams.get('childId')),
+              ) || myProfile.children[0]
+            : myProfile.children[0]
+
+          setMyChildId(defaultChild.id)
           setMyChildInterests(
-            myProfile.children[0].interests?.map((i: any) => i.id) || [],
+            defaultChild.interests?.map((i: any) => i.id) || [],
           )
         }
       } catch (err) {
         console.error('Error initialization data:', err)
-        setError('Please complete your family profile first.')
       }
     }
     initData()
-  }, [])
+  }, [searchParams])
 
-  // 2. Cargar familias según filtros
+  // Carga de familias con lógica de "Scope" (Barrio o Ciudad)
   const loadFamilies = useCallback(async () => {
     if (!myChildId) return
     setLoading(true)
@@ -72,19 +93,40 @@ export default function ExplorePage() {
         maxAge: ageRange ? ageRange.max : 12,
         interestIds:
           selectedInterestIds.length > 0 ? selectedInterestIds : undefined,
+        scope: searchMode, // Enviamos el modo al backend
       }
+
       const data = await familyApi.explore(filters)
-      setFamilies(data)
+      const uniqueFamilies = Array.isArray(data)
+        ? Array.from(new Map(data.map(f => [f.id, f])).values())
+        : []
+
+      setFamilies(uniqueFamilies)
     } catch (err: any) {
-      setError('Could not find families.')
+      console.error('Error loading families:', err)
     } finally {
       setLoading(false)
     }
-  }, [myChildId, ageRange, selectedInterestIds])
+  }, [myChildId, ageRange, selectedInterestIds, searchMode])
 
   useEffect(() => {
     loadFamilies()
   }, [loadFamilies])
+
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator
+        .share({
+          title: 'LittleNeighbors',
+          text: t(
+            'explore.shareText',
+            '¡Únete a mi barrio en LittleNeighbors para que nuestros hijos jueguen juntos!',
+          ),
+          url: window.location.origin,
+        })
+        .catch(console.error)
+    }
+  }
 
   const toggleInterest = (id: number) => {
     setSelectedInterestIds(prev =>
@@ -95,49 +137,66 @@ export default function ExplorePage() {
   return (
     <MainLayout
       backgroundImage={bgImage}
-      title="Explore"
-      subtitle="Find your community playmates"
+      title={t('explore.title')}
+      subtitle={t('explore.subtitle')}
       showGlassCard={false}
     >
       <div className="flex flex-col gap-8">
-        {/* --- NAVEGACIÓN SUPERIOR --- */}
-        <div className="flex items-center justify-between mb-2">
-          {/* Botón Back */}
+        {/* NAVEGACIÓN Y SELECTOR DE MODO */}
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           <button
-            onClick={() => navigate(-1)}
-            className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-white/70 hover:bg-white/20 hover:text-white transition-all group"
+            onClick={() => navigate('/dashboard')}
+            className="flex items-center gap-2 px-5 py-2.5 bg-white/10 backdrop-blur-xl border border-white/20 rounded-full text-white hover:bg-white/20 transition-all group shadow-lg"
           >
             <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
             <span className="text-[10px] font-black uppercase tracking-widest">
-              Back
+              {t('common.back')}
             </span>
           </button>
 
-          {/* Accesos Rápidos: Dashboard y Perfil */}
-          <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md p-1.5 rounded-full border border-white/20">
+          {/* Toggle de Barrio / Ciudad */}
+          <div className="flex bg-black/20 backdrop-blur-md p-1 rounded-2xl border border-white/10">
+            <button
+              onClick={() => setSearchMode('neighborhood')}
+              className={`px-6 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all ${
+                searchMode === 'neighborhood'
+                  ? 'bg-[#F28749] text-white shadow-lg'
+                  : 'text-white/40 hover:text-white'
+              }`}
+            >
+              {t('explore.mode.neighborhood', 'Mi Barrio')}
+            </button>
+            <button
+              onClick={() => setSearchMode('city')}
+              className={`px-6 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all ${
+                searchMode === 'city'
+                  ? 'bg-[#F28749] text-white shadow-lg'
+                  : 'text-white/40 hover:text-white'
+              }`}
+            >
+              {t('explore.mode.city', 'Toda la Ciudad')}
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2 bg-white/10 backdrop-blur-xl p-1.5 rounded-full border border-white/20 shadow-lg">
             <button
               onClick={() => navigate('/dashboard')}
-              className="p-2.5 hover:bg-[#F28749] rounded-full text-white transition-all hover:scale-110"
-              title="Dashboard"
+              className="p-2.5 hover:bg-[#F28749] rounded-full text-white transition-all"
             >
               <LayoutDashboard className="w-4 h-4" />
             </button>
             <div className="w-px h-4 bg-white/20" />
             <button
               onClick={() => navigate('/add-child')}
-              className="p-2.5 hover:bg-[#F28749] rounded-full text-white transition-all hover:scale-110"
-              title="My Profile"
+              className="p-2.5 hover:bg-[#F28749] rounded-full text-white transition-all"
             >
               <User className="w-4 h-4" />
             </button>
           </div>
         </div>
 
-        {/* 1. SELECTOR DE HIJOS */}
-        <div className="flex flex-wrap gap-3 items-center bg-white/10 backdrop-blur-md p-3 rounded-full border border-white/20 w-fit shadow-xl">
-          <span className="text-[10px] font-black uppercase tracking-widest text-white/60 ml-4 mr-2">
-            Active Profile:
-          </span>
+        {/* SELECTOR DE HIJOS */}
+        <div className="flex flex-wrap gap-3 items-center bg-white/10 backdrop-blur-md p-3 rounded-[2rem] border border-white/20 w-fit shadow-2xl">
           {myChildren.map(child => (
             <button
               key={child.id}
@@ -145,73 +204,54 @@ export default function ExplorePage() {
                 setMyChildId(child.id)
                 setMyChildInterests(child.interests?.map(i => i.id) || [])
               }}
-              className={`px-5 py-2 rounded-full text-xs font-black transition-all ${
+              className={`px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${
                 myChildId === child.id
-                  ? 'bg-[#F28749] text-white shadow-lg'
-                  : 'bg-white/10 text-white/70 hover:bg-white/20 hover:text-white'
+                  ? 'bg-[#F28749] text-white scale-105'
+                  : 'bg-white/5 text-white/50 hover:bg-white/10'
               }`}
             >
-              {child.gender === 'BOY' ? '👦' : '👧'} {child.age} yrs
+              <span className="mr-2">
+                {child.gender === 'BOY' ? '👦' : '👧'}
+              </span>
+              {child.nickname ||
+                `${child.age} ${t('family.card.yearsOldSuffix')}`}
             </button>
           ))}
         </div>
 
-        {/* 2. PANEL DE FILTROS */}
+        {/* FILTROS */}
         <section className="flex flex-col md:flex-row gap-6 items-stretch">
-          {/* IZQUIERDA: Edad */}
-          <div className="w-full md:w-1/3 bg-white/10 backdrop-blur-xl rounded-[2.5rem] p-7 border border-white/20 shadow-xl flex flex-col justify-between">
-            <div>
-              <label className="text-[10px] font-black text-[#F28749] uppercase tracking-[0.2em] mb-4 block">
-                Age Range
-              </label>
-              <div className="relative">
-                <select
-                  value={ageRange ? `${ageRange.min}-${ageRange.max}` : ''}
-                  onChange={e => {
-                    if (!e.target.value) setAgeRange(null)
-                    else {
-                      const [min, max] = e.target.value.split('-').map(Number)
-                      setAgeRange({ min, max })
-                    }
-                  }}
-                  className="w-full bg-white/10 border border-white/20 rounded-2xl px-4 py-3 text-sm font-bold text-white appearance-none cursor-pointer focus:bg-white/20 outline-none transition-all"
-                >
-                  <option value="" className="text-gray-900">
-                    All Ages
-                  </option>
-                  <option value="0-2" className="text-gray-900">
-                    Toddlers (0-2)
-                  </option>
-                  <option value="3-5" className="text-gray-900">
-                    Preschoolers (3-5)
-                  </option>
-                  <option value="6-12" className="text-gray-900">
-                    School Age (6+)
-                  </option>
-                </select>
-                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#F28749] pointer-events-none" />
-              </div>
-            </div>
-
-            {(ageRange || selectedInterestIds.length > 0) && (
-              <button
-                onClick={() => {
-                  setAgeRange(null)
-                  setSelectedInterestIds([])
-                }}
-                className="mt-6 flex items-center gap-2 text-[9px] font-black uppercase text-[#F28749] hover:text-white transition-colors"
-              >
-                <FilterX className="w-4 h-4" />
-                Clear all filters
-              </button>
-            )}
+          <div className="w-full md:w-1/3 bg-white/10 backdrop-blur-xl rounded-[2.5rem] p-8 border border-white/20 shadow-xl">
+            <label className="text-[10px] font-black text-[#F28749] uppercase tracking-[0.2em] mb-4 block">
+              {t('explore.filters.ageRangeLabel')}
+            </label>
+            <select
+              value={ageRange ? `${ageRange.min}-${ageRange.max}` : ''}
+              onChange={e => {
+                if (!e.target.value) setAgeRange(null)
+                else {
+                  const [min, max] = e.target.value.split('-').map(Number)
+                  setAgeRange({ min, max })
+                }
+              }}
+              className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-sm font-bold text-white appearance-none outline-none"
+            >
+              <option value="" className="text-gray-900">
+                {t('explore.filters.ageRangeAll')}
+              </option>
+              <option value="0-2" className="text-gray-900">
+                {t('explore.filters.ageRangeToddlers')}
+              </option>
+              <option value="3-5" className="text-gray-900">
+                {t('explore.filters.ageRangePreschoolers')}
+              </option>
+              <option value="6-12" className="text-gray-900">
+                {t('explore.filters.ageRangeSchool')}
+              </option>
+            </select>
           </div>
 
-          {/* DERECHA: Intereses */}
-          <div className="w-full md:w-2/3 bg-white/10 backdrop-blur-xl rounded-[3rem] p-7 border border-white/20 shadow-xl text-white">
-            <label className="text-[10px] font-black text-[#F28749] uppercase tracking-[0.2em] mb-4 block">
-              Interests
-            </label>
+          <div className="w-full md:w-2/3 bg-white/10 backdrop-blur-xl rounded-[3rem] p-8 border border-white/20 shadow-xl">
             <div className="flex flex-wrap gap-2">
               {availableInterests.map(interest => {
                 const isSelected = selectedInterestIds.includes(interest.id)
@@ -219,14 +259,14 @@ export default function ExplorePage() {
                   <button
                     key={interest.id}
                     onClick={() => toggleInterest(interest.id)}
-                    className={`px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase transition-all flex items-center gap-2 border ${
+                    className={`px-4 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center gap-2 border ${
                       isSelected
-                        ? 'bg-white text-[#333D47] border-white shadow-lg scale-105'
-                        : 'border-white/10 bg-white/5 text-white/60 hover:bg-white/10 hover:text-white'
+                        ? 'bg-white text-gray-900 border-white'
+                        : 'border-white/10 bg-white/5 text-white/60'
                     }`}
                   >
                     <Heart
-                      className={`w-3.5 h-3.5 transition-colors ${
+                      className={`w-3 h-3 ${
                         isSelected
                           ? 'fill-red-500 text-red-500'
                           : 'text-white/20'
@@ -240,27 +280,79 @@ export default function ExplorePage() {
           </div>
         </section>
 
-        {/* 3. RESULTADOS */}
+        {/* RESULTADOS */}
         <div className="mt-4">
           {loading ? (
-            <div className="text-center py-20">
-              <div className="animate-spin h-12 w-12 border-4 border-[#F28749] border-t-transparent rounded-full mx-auto mb-4" />
+            <div className="flex flex-col items-center justify-center py-32 bg-white/5 backdrop-blur-sm rounded-[3rem] border-2 border-dashed border-white/10">
+              <div className="animate-spin h-14 w-14 border-4 border-[#F28749] border-t-transparent rounded-full mb-6" />
+              <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">
+                {t('explore.loading')}
+              </span>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {families.map(f => (
-                <div
-                  key={f.id}
-                  className="transform hover:-translate-y-2 transition-transform duration-300"
-                >
-                  <FamilyCard
-                    family={f}
-                    myChildId={myChildId}
-                    myInterestIds={myChildInterests}
-                  />
+            <>
+              {families.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 pb-10">
+                  {families.map(f => (
+                    <div
+                      key={f.id}
+                      className="transform hover:-translate-y-3 transition-all duration-500"
+                    >
+                      <FamilyCard
+                        family={f}
+                        myChildId={myChildId}
+                        myInterestIds={myChildInterests}
+                      />
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              ) : (
+                /* EMPTY STATE PROACTIVO */
+                <div className="text-center py-20 px-6 bg-white/5 backdrop-blur-md rounded-[3rem] border-2 border-dashed border-white/20 animate-in fade-in zoom-in duration-500">
+                  <div className="bg-[#F28749]/20 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <Users className="text-[#F28749] w-10 h-10" />
+                  </div>
+
+                  <h3 className="text-2xl font-black text-white mb-4 uppercase tracking-tighter">
+                    {searchMode === 'neighborhood'
+                      ? t(
+                          'explore.empty.neighborhoodTitle',
+                          '¡Sé el pionero de tu barrio!',
+                        )
+                      : t(
+                          'explore.empty.generalTitle',
+                          'Aún no hay compañeros cerca',
+                        )}
+                  </h3>
+
+                  <p className="text-white/60 max-w-sm mx-auto mb-10 font-medium">
+                    {t(
+                      'explore.empty.description',
+                      'LittleNeighbors crece con familias como la tuya. ¡Ayúdanos a llenar tu barrio de diversión!',
+                    )}
+                  </p>
+
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                    {searchMode === 'neighborhood' && (
+                      <button
+                        onClick={() => setSearchMode('city')}
+                        className="px-8 py-4 bg-white/10 hover:bg-white/20 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all border border-white/20"
+                      >
+                        {t('explore.empty.expandSearch', 'Ver toda la ciudad')}
+                      </button>
+                    )}
+
+                    <button
+                      onClick={handleShare}
+                      className="px-8 py-4 bg-[#F28749] hover:bg-[#e0763d] text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg transition-all flex items-center justify-center gap-3"
+                    >
+                      <Share2 className="w-4 h-4" />
+                      {t('explore.empty.inviteNeighbors', 'Invitar vecinos')}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>

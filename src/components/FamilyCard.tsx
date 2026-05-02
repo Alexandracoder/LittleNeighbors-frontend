@@ -1,6 +1,7 @@
-import { MessageCircle, Loader2, MapPin, Heart } from 'lucide-react'
+import { MessageCircle, Loader2, MapPin, Heart, Sparkles } from 'lucide-react'
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import type { FamilyResponseDTO, InterestResponseDTO } from '../types'
 import matchService from '../services/matchService'
 
@@ -16,30 +17,39 @@ export default function FamilyCard({
   myInterestIds = [],
 }: FamilyCardProps) {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const [connectingChildId, setConnectingChildId] = useState<number | null>(
     null,
   )
 
-  // Extraemos intereses únicos de todos los hijos de esta familia
-  const allFamilyInterests = useMemo(() => {
+  // 1. Lógica de Intereses Mejorada: Ponemos los matches primero
+  const sortedInterests = useMemo(() => {
     const all: InterestResponseDTO[] = family.children.flatMap(
       c => c.interests || [],
     )
     const interestMap = new Map<number, InterestResponseDTO>(
       all.map(item => [item.id, item]),
     )
-    return Array.from(interestMap.values()).slice(0, 5)
-  }, [family.children])
+
+    return Array.from(interestMap.values())
+      .sort((a, b) => {
+        const aMatch = myInterestIds.includes(a.id) ? 1 : 0
+        const bMatch = myInterestIds.includes(b.id) ? 1 : 0
+        return bMatch - aMatch // Los que coinciden van primero
+      })
+      .slice(0, 6)
+  }, [family.children, myInterestIds])
 
   const handleBreakTheIce = async (targetChildId: number) => {
     if (typeof myChildId !== 'number') return
 
+    // Aquí podrías abrir un modal de confirmación antes de disparar
     try {
       setConnectingChildId(targetChildId)
       const newMatch = await matchService.requestMatch(myChildId, targetChildId)
-
-      if (newMatch && newMatch.id) {
-        navigate(`/chat/${newMatch.id}`)
+      if (newMatch?.id) {
+        // Feedback de éxito antes de navegar
+        navigate(`/chat/${newMatch.id}`, { replace: true })
       }
     } catch (error) {
       console.error('Error breaking the ice:', error)
@@ -49,49 +59,59 @@ export default function FamilyCard({
   }
 
   return (
-    <div className="group bg-white/10 backdrop-blur-xl rounded-[3rem] border border-white/20 shadow-2xl transition-all duration-500 hover:bg-white/15 flex flex-col h-full overflow-hidden">
-      {/* HEADER */}
+    <div className="group bg-white/10 backdrop-blur-xl rounded-[3rem] border border-white/20 shadow-2xl transition-all duration-500 hover:bg-white/15 hover:border-white/40 flex flex-col h-full overflow-hidden relative">
+      {/* Badge de "Mismo Barrio" si aplica */}
+      {family.neighborhood && (
+        <div className="absolute top-4 right-6 bg-[#F28749] px-3 py-1 rounded-full shadow-lg z-10">
+          <span className="text-[8px] font-black text-white uppercase tracking-tighter">
+            {t('family.card.sameNeighborhood', 'Vecino')}
+          </span>
+        </div>
+      )}
+
       <div className="p-8 pb-4">
         <div className="flex justify-between items-start mb-4">
           <div className="flex flex-col gap-1">
-            <h3 className="text-3xl font-black text-white uppercase italic tracking-tighter">
-              The {family.familyName}s
+            <h3 className="text-3xl font-black text-white uppercase italic tracking-tighter leading-none">
+              {t('family.card.namePrefix')} {family.familyName}
             </h3>
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 mt-1">
               <MapPin className="w-3 h-3 text-[#F28749]" />
               <span className="text-[10px] font-bold text-white/50 uppercase tracking-widest">
-                {family.neighborhood?.name || 'Nearby'}
+                {family.neighborhood?.name || t('family.card.nearby')}
               </span>
             </div>
           </div>
         </div>
-        <p className="text-white/70 text-sm font-medium italic leading-relaxed line-clamp-2">
-          "{family.description || 'Looking for new community friends!'}"
+
+        <p className="text-white/70 text-sm font-medium italic leading-relaxed line-clamp-2 min-h-[40px]">
+          "{family.description || t('family.card.descriptionFallback')}"
         </p>
       </div>
 
-      {/* LISTA DE HIJOS SELECCIONABLES */}
       <div className="px-6 py-4 flex flex-col gap-3">
-        <span className="text-[9px] font-black text-[#F28749] uppercase tracking-[0.2em] px-2 mb-1">
-          Select a playmate to chat:
-        </span>
+        <div className="flex items-center justify-between px-2 mb-1">
+          <span className="text-[9px] font-black text-[#F28749] uppercase tracking-[0.2em]">
+            {t('family.card.selectPlaymate')}
+          </span>
+          <Sparkles className="w-3 h-3 text-[#F28749]/50" />
+        </div>
 
         {family.children.map(child => {
           const isConnecting = connectingChildId === child.id
-
           return (
             <button
               key={child.id}
               onClick={() => handleBreakTheIce(child.id)}
               disabled={connectingChildId !== null || !myChildId}
-              className={`flex items-center justify-between p-4 rounded-[1.8rem] border transition-all duration-300 group/item ${
+              className={`flex items-center justify-between p-4 rounded-[1.8rem] border transition-all duration-300 group/item relative overflow-hidden ${
                 isConnecting
                   ? 'bg-white border-white scale-[0.98]'
-                  : 'bg-black/20 border-white/5 hover:bg-white/10 hover:border-white/20'
+                  : 'bg-black/30 border-white/5 hover:bg-white/10 hover:border-white/20'
               }`}
             >
-              <div className="flex items-center gap-4">
-                <span className="text-2xl drop-shadow-md">
+              <div className="flex items-center gap-4 z-10">
+                <span className="text-2xl drop-shadow-md group-hover/item:scale-110 transition-transform">
                   {child.gender === 'BOY' ? '👦' : '👧'}
                 </span>
                 <div className="text-left">
@@ -100,23 +120,29 @@ export default function FamilyCard({
                       isConnecting ? 'text-[#333D47]' : 'text-white'
                     }`}
                   >
-                    {child.gender}
+                    {/* USAMOS NICKNAME O TÍTULO GENÉRICO */}
+                    {child.nickname ||
+                      (child.gender === 'BOY'
+                        ? t('children.card.titleBoy')
+                        : t('children.card.titleGirl'))}
                   </div>
                   <div
                     className={`text-[10px] font-bold ${
                       isConnecting ? 'text-[#333D47]/60' : 'text-white/40'
                     }`}
                   >
-                    {child.age === 0 ? 'NEWBORN' : `${child.age} YEARS OLD`}
+                    {child.age === 0
+                      ? t('family.card.newborn')
+                      : `${child.age} ${t('family.card.yearsOldSuffix')}`}
                   </div>
                 </div>
               </div>
 
               <div
-                className={`p-2 rounded-full transition-all ${
+                className={`p-2 rounded-full transition-all z-10 ${
                   isConnecting
                     ? 'bg-[#F28749] text-white'
-                    : 'bg-white/5 text-white/40 group-hover/item:bg-[#F28749] group-hover/item:text-white'
+                    : 'bg-white/10 text-white/40 group-hover/item:bg-[#F28749] group-hover/item:text-white'
                 }`}
               >
                 {isConnecting ? (
@@ -130,24 +156,28 @@ export default function FamilyCard({
         })}
       </div>
 
-      {/* INTERESES COMPARTIDOS (Únicos) */}
-      <div className="px-8 py-6 mt-auto border-t border-white/5">
+      {/* FOOTER: INTERESES CON MATCHES RESALTADOS */}
+      <div className="px-8 py-6 mt-auto border-t border-white/5 bg-black/10">
         <div className="flex flex-wrap gap-2">
-          {allFamilyInterests.map(interest => {
+          {sortedInterests.map(interest => {
             const isMatch = myInterestIds.includes(interest.id)
             return (
               <span
                 key={`int-${interest.id}`}
-                className={`text-[9px] font-black uppercase flex items-center gap-1.5 px-3 py-1.5 rounded-xl border transition-colors ${
+                className={`text-[9px] font-black uppercase flex items-center gap-1.5 px-3 py-1.5 rounded-xl border transition-all ${
                   isMatch
-                    ? 'bg-white text-[#333D47] border-white shadow-lg'
+                    ? 'bg-white text-[#333D47] border-white shadow-[0_0_15px_rgba(255,255,255,0.2)] scale-105'
                     : 'bg-white/5 text-white/30 border-white/5'
                 }`}
               >
-                {isMatch && (
-                  <Heart className="w-2.5 h-2.5 fill-red-500 text-red-500" />
+                {isMatch ? (
+                  <Heart className="w-2.5 h-2.5 fill-red-500 text-red-500 animate-pulse" />
+                ) : (
+                  <div className="w-1 h-1 rounded-full bg-white/20" />
                 )}
-                {interest.name}
+                {t(`interests.${interest.name.toLowerCase()}`, {
+                  defaultValue: interest.name,
+                })}
               </span>
             )
           })}

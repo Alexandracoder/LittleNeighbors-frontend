@@ -1,7 +1,7 @@
 import { Calendar, MapPin, Users } from 'lucide-react'
 
 export default function NeighborhoodEvents() {
-  // Aquí más adelante harás un fetch de tu API
+
 const events = [
     {
     id: 1,

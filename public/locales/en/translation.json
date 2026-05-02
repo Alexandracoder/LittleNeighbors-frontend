@@ -1,0 +1,286 @@
+{
+  "common": {
+    "back": "Back",
+    "loading": "Loading neighborhood...",
+    "signOut": "Sign Out",
+    "logout": "Logout",
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "error": "Error",
+    "send": "Send",
+    "close": "Close"
+  },
+  "auth": {
+    "login": {
+      "title": "Welcome back!",
+      "subtitle": "Your neighbors missed you.",
+      "cta": "ENTER THE NEIGHBORHOOD",
+      "formTitle": "Welcome",
+      "emailPlaceholder": "Your email",
+      "passwordPlaceholder": "Password",
+      "submitIdle": "LOG IN",
+      "submitLoading": "OPENING DOORS...",
+      "linkRegister": "I'm a new neighbor",
+      "linkBack": "Back to home page",
+      "errorInvalidCredentials": "Invalid email or password.",
+      "errorConnection": "Connection error. Is the server running?"
+    },
+    "register": {
+      "title": "Join the neighborhood",
+      "subtitle": "Ready to meet your community?",
+      "cta": "CREATE ACCOUNT",
+      "formTitle": "New Member",
+      "firstNamePlaceholder": "First Name",
+      "lastNamePlaceholder": "Last Name",
+      "emailPlaceholder": "Your email",
+      "passwordPlaceholder": "Password",
+      "submitIdle": "Join now",
+      "submitLoading": "Creating...",
+      "linkLogin": "Already a neighbor? Log in here",
+      "linkBack": "Back",
+      "errorDefault": "Error during registration."
+    }
+  },
+  "loading": {
+    "neighborhood": "Loading Neighborhood...",
+    "verifyingNeighborhood": "Verifying neighborhood...",
+    "searchingNeighbors": "Searching for neighbors..."
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "explore": "Explore",
+    "profile": "Profile",
+    "backToDashboard": "Back to dashboard"
+  },
+  "dashboard": {
+    "hello": "Hello!",
+    "subtitle": "Your neighborhood, simplified.",
+    "findNeighbors": "Find Neighbors",
+    "myPlaydates": "My Playdates",
+    "events": "Events",
+    "myProfile": "My Profile"
+  },
+  "family": {
+    "create": {
+      "heroTitle": "Almost there...",
+      "heroSubtitle": "Set up your family profile to start meeting neighbors.",
+      "heroCta": "START",
+      "formTitle": "Family Details",
+      "representativeNameLabel": "Representative Name",
+      "representativeNamePlaceholder": "e.g. Maria Garcia",
+      "familyNameLabel": "Family Name",
+      "familyNamePlaceholder": "e.g. Garcia Perez Family",
+      "neighborhoodLabel": "Your Neighborhood",
+      "neighborhoodPlaceholder": "Choose where you live...",
+      "bioLabel": "Bio / Description",
+      "bioPlaceholder": "Tell your neighbors something about your family...",
+      "submitIdle": "Complete Profile",
+      "submitLoading": "Processing...",
+      "errorNoNeighborhood": "Please select a neighborhood before continuing.",
+      "errorDefault": "Could not initialize family profile"
+    },
+    "card": {
+      "namePrefix": "Family",
+      "nameSuffix": "",
+      "nearby": "Near you",
+      "descriptionFallback": "Looking for new friends in the community!",
+      "selectPlaymate": "Choose someone to talk to:",
+      "newborn": "NEWBORN RECOMMENDED",
+      "yearsOldSuffix": "YEARS OLD"
+    }
+  },
+  "children": {
+    "page": {
+      "title": "Little Neighbors",
+      "subtitle": "Manage your family members",
+      "startExploring": "Start exploring",
+      "addNewProfile": "Add new profile"
+    },
+    "form": {
+      "titleNew": "New Little Neighbor",
+      "titleEdit": "Edit Profile",
+      "usernameLabel": "Child's nickname",
+      "nicknamePlaceholder": "e.g. Happy Star",
+      "lifeStageLabel": "Life stage",
+      "lifeStagePregnancy": "Pregnancy 🤰",
+      "lifeStageBorn": "Already born 👶",
+      "genderLabel": "Gender",
+      "genderPlaceholder": "Select gender",
+      "genderBoy": "Boy 👦",
+      "genderGirl": "Girl 👧",
+      "genderSurprise": "Surprise ✨",
+      "birthDateLabel": "Birth date / Due date",
+      "descriptionLabel": "Bio / About the little one",
+      "descriptionPlaceholder": "e.g. Loves dinosaurs, painting...",
+      "interestsLabel": "Interests & Hobbies",
+      "magicButton": "MAGIC",
+      "submitCreate": "CREATE PROFILE",
+      "submitUpdate": "UPDATE PROFILE",
+      "errorSave": "Error saving profile. Try again."
+    },
+    "card": {
+      "titleBoy": "Boy",
+      "titleGirl": "Girl",
+      "titlePrenatal": "On the way",
+      "titleDefault": "Little Neighbor",
+      "agePrenatal": "Coming soon",
+      "ageNewborn": "Newborn",
+      "ageSuffix_one": "year",
+      "ageSuffix_other": "years",
+      "ageDefault": "New Neighbor",
+      "interestsLabel": "Interests",
+      "requestPlaydate": "REQUEST PLAYDATE",
+      "sending": "SENDING...",
+      "requestSent": "REQUEST SENT"
+    }
+  },
+  "explore": {
+    "title": "Explore",
+    "subtitle": "Search for playmates",
+    "activeProfile": "Active profile:",
+    "scope": {
+      "my_neighborhood": "My Neighborhood",
+      "entire_city": "Entire City"
+    },
+    "empty": {
+      "neighborhoodTitle": "Be the pioneer of your neighborhood!",
+      "generalTitle": "No playmates nearby yet",
+      "description": "LittleNeighbors grows with families like yours. Help us fill your neighborhood with fun!",
+      "expandSearch": "See the whole city",
+      "inviteNeighbors": "Invite neighbors"
+    },
+    "filters": {
+      "ageRangeLabel": "Age range",
+      "ageRangeAll": "All ages",
+      "ageRangeToddlers": "Babies (0-2)",
+      "ageRangePreschoolers": "Preschool (3-5)",
+      "ageRangeSchool": "School age (6+)",
+      "interestsLabel": "Interests",
+      "clearAll": "Clear filters"
+    },
+    "errorProfile": "Complete your family profile first.",
+    "errorFamilies": "No families found."
+  },
+  "chat": {
+    "title": "CHAT",
+    "matched": "✓",
+    "noMessages": "No messages yet. Say hi to your neighbor!",
+    "inputPlaceholder": "Write a message...",
+    "sendButton": "Send",
+    "profile": "Profile",
+    "agenda": "Agenda",
+    "confirm": "CONFIRM",
+    "pending": "PENDING",
+    "saveMatchIdle": "Save Connection",
+    "saveMatchDone": "Connected",
+    "icebreaker": "Icebreaker",
+    "icebreaker1": "Favorite park?",
+    "icebreaker2": "Favorite cartoons?",
+    "icebreaker3": "Any allergies?",
+    "icebreaker4": "Play this weekend?",
+    "icebreaker5": "Star toy?"
+  },
+  "matches": {
+    "title": "My Conversations",
+    "empty": "No connections yet. Time to explore the neighborhood!",
+    "statusConnected": "● Connected",
+    "statusPending": "● Pending approval",
+    "statusDeclined": "● Declined",
+    "actionAccept": "Accept",
+    "actionIgnore": "Ignore",
+    "familyNamePrefix": "Family",
+    "familyNameFallback": "New Neighbor",
+    "errorLoad": "Error loading connections.",
+    "errorUpdate": "Could not update status"
+  },
+  "events": {
+    "page": {
+      "title": "Neighborhood Events",
+      "subtitle": "Find and organize meetups in your neighborhood",
+      "createButton": "Create Event",
+      "toggleMapShow": "View events on map",
+      "toggleMapHide": "Hide map",
+      "backToDashboard": "Back to dashboard",
+      "noEventsTitle": "No plans yet",
+      "noEventsSubtitle": "Be the first to step up. Organize a meetup and connect with your neighborhood.",
+      "createFirstButton": "Start now"
+    },
+    "form": {
+      "createTag": "New event",
+      "editTag": "Editing event",
+      "createTitle": "Create New Event",
+      "editTitle": "Edit Event",
+      "nameLabel": "Title",
+      "dateLabel": "Date",
+      "neighborhoodLabel": "Neighborhood",
+      "locationLabel": "Exact location (click on map):",
+      "descriptionLabel": "Description",
+      "placeholderName": "e.g. Picnic at the park",
+      "placeholderDescription": "What will we do?",
+      "submitButton": "🚀 Publish Event",
+      "saveButton": "💾 Save Changes",
+      "locationFallback": "Valencia"
+    },
+    "card": {
+      "editButton": "Edit",
+      "deleteButton": "Delete",
+      "neighborhoodFallback": "Valencia",
+      "confirmDelete": "Are you sure you want to delete this event?",
+      "errorDelete": "Error deleting event.",
+      "errorLoad": "We could not load the events."
+    },
+    "list": {
+      "empty": "No upcoming events in Valencia. Create the first one!",
+      "loading": "Loading events..."
+    }
+  },
+  "playdates": {
+    "page": {
+      "agendaTitle": "My",
+      "agendaHighlight": "Agenda",
+      "titleSuggest": "Suggest a",
+      "titleHighlight": "Plan",
+      "subtitle": "Pick a time to meet your neighbor"
+    },
+    "form": {
+      "titleLabel": "What's the plan?",
+      "titlePlaceholder": "e.g. Afternoon at the park / Coffee and toys",
+      "whenLabel": "When?",
+      "detailsLabel": "Extra details",
+      "detailsPlaceholder": "Anything else your neighbor should know?",
+      "confirmPlan": "Confirm this plan",
+      "submitIdle": "Send Proposal",
+      "submitLoading": "Sending..."
+    },
+    "card": {
+      "matchRef": "Ref ID"
+    },
+    "status": {
+      "accepted": "Accepted",
+      "pending": "Pending",
+      "confirming": "Confirming...",
+      "loadingAgenda": "Loading my agenda...",
+      "emptyAgenda": "My agenda is empty",
+      "emptySubtitle": "It's time to connect with new families!",
+      "confirmedLocation": "Location Confirmed",
+      "proposedLocation": "Location Proposed",
+      "planConfirmed": "Great! There is a plan",
+      "tapToSuggest": "Tap to suggest the first one"
+    }
+  },
+  "welcome": {
+    "title": "Welcome to the community!",
+    "body": "Now you are part of something bigger. Your profile is ready and your neighbors are waiting.",
+    "ctaExplore": "Get started!",
+    "ctaProfile": "See my profile"
+  },
+  "profile": {
+    "deleteConfirm": "Are you sure you want to delete this profile?",
+    "deleteError": "Could not delete profile."
+  },
+  "form": {
+    "timeCaption": "Time"
+  }
+}

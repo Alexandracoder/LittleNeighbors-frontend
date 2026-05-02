@@ -49,7 +49,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const decoded = jwtDecode<DecodedToken>(t)
       const currentTime = Date.now() / 1000
       if (decoded.exp && decoded.exp < currentTime) return null
-      return { email: decoded.sub, roles: decoded.roles }
+      return {
+        email: decoded.sub,
+        roles: decoded.roles,
+        id: '',
+        family: null,
+      }
     } catch {
       return null
     }
@@ -59,31 +64,70 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const currentStatus = await userApi.getStatus()
       setStatus(currentStatus)
+
+
+      if (user && currentStatus.roles) {
+        setUser({ ...user, roles: Array.isArray(currentStatus.roles) ? currentStatus.roles : user.roles })
+      }
+
       return currentStatus
     } catch {
       return null
     }
   }
-
 const fetchFamilyFromApi = async (): Promise<FamilyResponseDTO | null> => {
   try {
     const family = await familyApi.getMyFamily()
+    
     setFamilyEntity(family)
     return family
-  } catch {
+  } catch (error: any) {
+  
+    if (error.response?.status === 404) {
+      console.warn(
+        'Aviso: El usuario no tiene familia vinculada (Estado inicial).',
+      )
+      setFamilyEntity(null)
+      return null
+    }
+
+    
+    console.error('Error de conexión al obtener familia:', error)
     setFamilyEntity(null)
     return null
   }
 }
 
-  const updateSession = async () => {
-    setLoading(true)
-    try {
-      await Promise.allSettled([refreshStatus(), fetchFamilyFromApi()])
-    } finally {
-      setLoading(false)
+const updateSession = async () => {
+  setLoading(true)
+  try {
+
+    const currentStatus = await userApi.getStatus()
+    setStatus(currentStatus)
+
+    
+    const family = await familyApi.getMyFamily().catch(() => null)
+    setFamilyEntity(family)
+
+    
+    if (currentStatus && currentStatus.roles) {
+      setUser(prev =>
+        prev
+          ? {
+              ...prev,
+              roles: Array.isArray(currentStatus.roles)
+                ? currentStatus.roles
+                : prev.roles,
+            }
+          : null,
+      )
     }
+  } catch (error) {
+    console.error('Error al sincronizar la sesión:', error)
+  } finally {
+    setLoading(false)
   }
+}
 
   const login = async (credentials: AuthRequest): Promise<User | null> => {
     setLoading(true)
@@ -96,6 +140,7 @@ const fetchFamilyFromApi = async (): Promise<FamilyResponseDTO | null> => {
       const decodedUser = decodeToken(response.accessToken)
       setUser(decodedUser)
 
+      
       await Promise.allSettled([refreshStatus(), fetchFamilyFromApi()])
       return decodedUser
     } finally {
@@ -131,7 +176,12 @@ const fetchFamilyFromApi = async (): Promise<FamilyResponseDTO | null> => {
     initAuth()
   }, [])
 
-  const hasRole = (role: UserRole) => user?.roles.includes(role) || false
+
+  const hasRole = (role: UserRole) => {
+    if (!user) return false
+    const searchRole = role.startsWith('ROLE_') ? role : `ROLE_${role}`
+    return user.roles.some(r => r === searchRole)
+  }
 
   return (
     <AuthContext.Provider

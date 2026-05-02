@@ -1,21 +1,34 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { childApi } from '../services/api'
 import { useAuth } from '../context/AuthContext'
 import type { ChildResponseDTO } from '../types'
 import ChildForm from '../components/ChildForm'
 import ChildCard from '../components/ChildCard'
+import ConfirmModal from '../components/ui/ConfirmModal'
 import { Plus, ArrowRight, Baby, Sparkles } from 'lucide-react'
 
 export default function AddChildPage() {
-  const { refreshStatus } = useAuth()
+  const { t } = useTranslation()
+  const { refreshStatus, refreshProfile } = useAuth()
+  const navigate = useNavigate()
+
   const [children, setChildren] = useState<ChildResponseDTO[]>([])
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingChild, setEditingChild] = useState<ChildResponseDTO | null>(
     null,
   )
   const [loading, setLoading] = useState(true)
-  const navigate = useNavigate()
+
+
+  const [deleteModal, setDeleteModal] = useState<{
+    isOpen: boolean
+    childId: number | null
+  }>({
+    isOpen: false,
+    childId: null,
+  })
 
   const loadChildren = async () => {
     try {
@@ -23,7 +36,7 @@ export default function AddChildPage() {
       const data = await childApi.getAll()
       setChildren(data)
     } catch (err: any) {
-      console.error(err)
+      console.error('Error loading children:', err)
     } finally {
       setLoading(false)
     }
@@ -34,21 +47,43 @@ export default function AddChildPage() {
   }, [])
 
   const handleSuccess = async () => {
+    const wasEditing = !!editingChild
     setIsFormOpen(false)
     setEditingChild(null)
-    await loadChildren()
+
     await refreshStatus()
+    await refreshProfile()
+
+    const updatedChildren = await childApi.getAll()
+    setChildren(updatedChildren)
+
+    if (!wasEditing) {
+      if (updatedChildren.length === 1) {
+        navigate('/explore', { replace: true })
+      } else {
+        navigate('/dashboard', { replace: true })
+      }
+    }
   }
 
-  const handleDelete = async (id: number) => {
-    if (window.confirm('Are you sure you want to remove this profile?')) {
-      try {
-        await childApi.delete(id)
-        await loadChildren()
-        await refreshStatus()
-      } catch (err) {
-        alert('Could not delete profile.')
-      }
+
+  const handleDeleteClick = (id: number) => {
+    setDeleteModal({ isOpen: true, childId: id })
+  }
+
+
+  const executeDelete = async () => {
+    if (!deleteModal.childId) return
+
+    try {
+      await childApi.delete(deleteModal.childId)
+      await loadChildren()
+      await refreshStatus()
+      await refreshProfile()
+    } catch (err) {
+      alert(t('profile.deleteError'))
+    } finally {
+      setDeleteModal({ isOpen: false, childId: null })
     }
   }
 
@@ -71,11 +106,11 @@ export default function AddChildPage() {
                 <Baby className="text-white w-8 h-8" />
               </div>
               <h1 className="text-4xl font-black text-[#2D2D2D] tracking-tight">
-                Little Neighbors
+                {t('children.page.title')}
               </h1>
             </div>
             <p className="text-gray-500 font-bold ml-1 uppercase tracking-widest text-xs">
-              Manage your family members
+              {t('children.page.subtitle')}
             </p>
           </div>
 
@@ -83,7 +118,7 @@ export default function AddChildPage() {
             onClick={() => navigate('/explore')}
             className="group flex items-center gap-3 px-8 py-4 bg-[#FF8A5C] text-white font-black rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all"
           >
-            Start Exploring
+            {t('children.page.startExploring')}
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </button>
         </header>
@@ -93,33 +128,36 @@ export default function AddChildPage() {
             <div className="animate-spin rounded-full h-14 w-14 border-t-4 border-[#FF8A5C] mx-auto"></div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {children.map(child => (
-              <ChildCard
-                key={child.id}
-                child={child}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-              />
-            ))}
+          <div className="space-y-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {children.map(child => (
+                <ChildCard
+                  key={child.id}
+                  child={child}
+                  onEdit={handleEdit}
+                  onDelete={handleDeleteClick}
+                />
+              ))}
 
-            <button
-              onClick={() => {
-                setEditingChild(null)
-                setIsFormOpen(true)
-              }}
-              className="border-4 border-dashed border-[#FF8A5C]/20 rounded-[3rem] p-10 flex flex-col items-center justify-center gap-4 hover:border-[#FF8A5C]/50 hover:bg-white/60 transition-all group min-h-[250px] bg-white/20 backdrop-blur-sm"
-            >
-              <div className="p-5 bg-white rounded-full group-hover:bg-[#FF8A5C] group-hover:text-white transition-all shadow-xl group-hover:rotate-90 duration-500">
-                <Plus className="w-10 h-10" />
-              </div>
-              <span className="font-black text-[#FF8A5C]/40 group-hover:text-[#FF8A5C] uppercase tracking-widest text-xs">
-                Add New Profile
-              </span>
-            </button>
+              <button
+                onClick={() => {
+                  setEditingChild(null)
+                  setIsFormOpen(true)
+                }}
+                className="border-4 border-dashed border-[#FF8A5C]/20 rounded-[3rem] p-10 flex flex-col items-center justify-center gap-4 hover:border-[#FF8A5C]/50 hover:bg-white/60 transition-all group min-h-[250px] bg-white/20 backdrop-blur-sm"
+              >
+                <div className="p-5 bg-white rounded-full group-hover:bg-[#FF8A5C] group-hover:text-white transition-all shadow-xl group-hover:rotate-90 duration-500">
+                  <Plus className="w-10 h-10" />
+                </div>
+                <span className="font-black text-[#FF8A5C]/40 group-hover:text-[#FF8A5C] uppercase tracking-widest text-xs">
+                  {t('children.page.addNewProfile')}
+                </span>
+              </button>
+            </div>
           </div>
         )}
 
+        {/* Modal para Crear/Editar Niño */}
         {isFormOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div
@@ -143,6 +181,19 @@ export default function AddChildPage() {
             </div>
           </div>
         )}
+
+        {/* Modal de Confirmación de Borrado */}
+        <ConfirmModal
+          isOpen={deleteModal.isOpen}
+          title={t('profile.deleteTitle') || '¿Eliminar perfil?'}
+          message={
+            t('profile.deleteConfirm') || 'Esta acción no se puede deshacer.'
+          }
+          confirmText={t('common.delete') || 'Eliminar'}
+          cancelText={t('common.cancel') || 'Cancelar'}
+          onConfirm={executeDelete}
+          onCancel={() => setDeleteModal({ isOpen: false, childId: null })}
+        />
       </div>
     </div>
   )

@@ -1,9 +1,8 @@
-// src/hooks/useMatches.ts
 import { useState, useEffect, useCallback } from 'react'
 import matchService from '../services/matchService'
 
-// Definimos la interfaz exacta del DTO que creamos en Java
 export interface MatchResponseDetailDTO {
+  searcherUserId: any
   matchId: number
   status: 'PENDING' | 'ACCEPTED' | 'REJECTED'
   myChildId: number
@@ -38,7 +37,7 @@ export const useMatches = () => {
   ) => {
     try {
       await matchService.respondToMatch(matchId, status)
-      await fetchMatches() // Recargamos la lista tras la acción
+      await fetchMatches()
     } catch (err: any) {
       alert('Could not update match status: ' + (err.message || 'Error'))
     }
