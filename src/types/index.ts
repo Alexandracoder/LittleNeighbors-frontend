@@ -1,4 +1,4 @@
-import { ReactNode } from "react"
+import { ReactNode } from 'react'
 import './i18n'
 
 export interface AuthRequest {
@@ -11,8 +11,13 @@ export interface AuthResponse {
   refreshToken: string
 }
 
+// NUEVA INTERFAZ PARA EL REFRESCO
+export interface RefreshRequest {
+  refreshToken: string
+}
+
 export interface FamilyRequestDTO {
-  status: "PREGNANT" | "NEW_PARENTS" | "ESTABLISHED_FAMILY" | "SURPRISE"
+  status: 'PREGNANT' | 'NEW_PARENTS' | 'ESTABLISHED_FAMILY' | 'SURPRISE'
   familyInterests: string[]
   representativeName: string
   familyName: string
@@ -22,6 +27,7 @@ export interface FamilyRequestDTO {
 }
 
 export interface ChildSummaryDTO {
+  nickname: string
   id: number
   gender: string
   age: number
@@ -30,7 +36,7 @@ export interface ChildSummaryDTO {
 }
 
 export interface FamilyResponseDTO {
-  status: "PREGNANT" | "NEW_PARENTS" | "ESTABLISHED_FAMILY" | "SURPRISE"
+  status: 'PREGNANT' | 'NEW_PARENTS' | 'ESTABLISHED_FAMILY' | 'SURPRISE'
   neighborhood: any
   familyInterests: string[]
   id: number
@@ -47,10 +53,11 @@ export interface FamilyResponseDTO {
 }
 
 export interface ChildRequestDTO {
-  username: string
+  nickname: string
   birthDate: string
   lifeStage: string
-  gender: 'BOY' | 'GIRL' | 'PREGNANT'
+  // Corregido para coincidir con las opciones del formulario
+  gender: 'BOY' | 'GIRL' | 'SURPRISE'
   description?: string
   profilePictureUrl?: string
   interestIds: number[]
@@ -58,11 +65,11 @@ export interface ChildRequestDTO {
 }
 
 export interface ChildResponseDTO {
-  username: string
+  nickname: string
   profilePictureUrl: string
   lifeStage: string
   id: number
-  gender: 'BOY' | 'GIRL' | 'PREGNANT'
+  gender: 'BOY' | 'GIRL' | 'SURPRISE'
   description?: string
   birthDate: string
   age: number

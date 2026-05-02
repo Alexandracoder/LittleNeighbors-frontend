@@ -1,20 +1,12 @@
 import { useState, useEffect } from 'react'
-import { childApi, interestApi } from '../services/api'
+import { childApi, interestApi, authApi } from '../services/api'
 import { useTranslation } from 'react-i18next'
 import type {
   ChildRequestDTO,
   ChildResponseDTO,
   InterestResponseDTO,
 } from '../types'
-import {
-  X,
-  Save,
-  Loader2,
-  Heart,
-  Calendar,
-  MessageSquare,
-  Sparkles,
-} from 'lucide-react'
+import { X, Save, Loader2, Heart, Sparkles } from 'lucide-react'
 
 interface ChildFormProps {
   initialData?: ChildResponseDTO | null
@@ -31,9 +23,8 @@ export default function ChildForm({
   const [loading, setLoading] = useState(false)
   const [allInterests, setAllInterests] = useState<InterestResponseDTO[]>([])
 
-  // Estado del formulario incluyendo el nuevo campo username
   const [formData, setFormData] = useState<ChildRequestDTO>({
-    username: '', // Nuevo campo
+    nickname: '',
     gender: 'BOY',
     lifeStage: 'PREGNANCY',
     age: 0,
@@ -41,25 +32,6 @@ export default function ChildForm({
     interestIds: [],
     description: '',
   })
-
-  // Función para generar nombres mágicos (Alias)
-  const generateMagicNick = () => {
-    const adjectives = [
-      'Explorador',
-      'Artista',
-      'Capità',
-      'Xicotet',
-      'Valent',
-      'Alegre',
-      'Ràpid',
-    ]
-    const icons = ['Lleó', 'Dofí', 'Àguila', 'Gat', 'Esquirol', 'Ós', 'Estel']
-
-    const randomAdj = adjectives[Math.floor(Math.random() * adjectives.length)]
-    const randomIcon = icons[Math.floor(Math.random() * icons.length)]
-
-    setFormData(prev => ({ ...prev, username: `${randomAdj} ${randomIcon}` }))
-  }
 
   useEffect(() => {
     const loadInterests = async () => {
@@ -74,7 +46,7 @@ export default function ChildForm({
 
     if (initialData) {
       setFormData({
-        username: initialData.username || '', // Cargamos el username si existe
+        nickname: initialData.nickname || '',
         gender: initialData.gender,
         lifeStage: initialData.lifeStage,
         age: initialData.age ?? 0,
@@ -85,8 +57,25 @@ export default function ChildForm({
     }
   }, [initialData])
 
+  const generateMagicNick = () => {
+    const adjectives = [
+      'Explorador',
+      'Artista',
+      'Capità',
+      'Xicotet',
+      'Valent',
+      'Alegre',
+      'Ràpid',
+    ]
+    const icons = ['Lleó', 'Dofí', 'Àguila', 'Gat', 'Esquirol', 'Ós', 'Estel']
+    const randomAdj = adjectives[Math.floor(Math.random() * adjectives.length)]
+    const randomIcon = icons[Math.floor(Math.random() * icons.length)]
+    setFormData(prev => ({ ...prev, nickname: `${randomAdj} ${randomIcon}` }))
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!formData.nickname.trim()) return
     setLoading(true)
 
     const payload: ChildRequestDTO = {
@@ -100,6 +89,18 @@ export default function ChildForm({
         await childApi.update(initialData.id, payload)
       } else {
         await childApi.create(payload)
+        const refreshToken = localStorage.getItem('refreshToken')
+        if (refreshToken) {
+          try {
+            const refreshData = await authApi.refresh({ refreshToken })
+            localStorage.setItem('accessToken', refreshData.accessToken)
+            if (refreshData.refreshToken) {
+              localStorage.setItem('refreshToken', refreshData.refreshToken)
+            }
+          } catch (refreshErr) {
+            console.error(refreshErr)
+          }
+        }
       }
       onSuccess()
     } catch (err) {
@@ -120,6 +121,7 @@ export default function ChildForm({
   }
 
   const today = new Date().toISOString().split('T')[0]
+  const isNicknameEmpty = !formData.nickname.trim()
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8 bg-white p-2">
@@ -132,43 +134,39 @@ export default function ChildForm({
         <button
           type="button"
           onClick={onCancel}
-          className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+          className="p-2 hover:bg-gray-100 rounded-full"
         >
           <X className="w-6 h-6 text-gray-400" />
         </button>
       </div>
 
-      {/* SECCIÓN: ALIAS / USERNAME (Prioridad visual) */}
       <div className="space-y-3">
         <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">
-          {t('children.form.usernameLabel', "Àlies / Nom d'usuari")}
+          {t('children.form.usernameLabel')}
         </label>
         <div className="relative group">
           <input
             type="text"
             required
-            value={formData.username}
+            value={formData.nickname}
             onChange={e =>
-              setFormData({ ...formData, username: e.target.value })
+              setFormData({ ...formData, nickname: e.target.value })
             }
-            placeholder="Ex: Explorador Lleó"
-            className="w-full p-5 bg-gray-50 border-2 border-transparent focus:border-[#FF8A5C] focus:bg-white rounded-2xl font-bold transition-all outline-none pr-32 text-lg shadow-inner"
+            className={`w-full p-5 border-2 rounded-2xl font-bold outline-none pr-32 text-lg ${
+              isNicknameEmpty
+                ? 'bg-red-50 border-red-200'
+                : 'bg-gray-50 border-transparent focus:border-[#FF8A5C]'
+            }`}
           />
           <button
             type="button"
             onClick={generateMagicNick}
-            className="absolute right-2 top-2 bottom-2 px-4 bg-[#FF8A5C] text-white rounded-xl font-black text-[10px] uppercase tracking-tighter hover:bg-[#ff7a45] transition-all flex items-center gap-2 shadow-lg active:scale-95"
+            className="absolute right-2 top-2 bottom-2 px-4 bg-[#FF8A5C] text-white rounded-xl font-black text-[10px] uppercase hover:bg-[#ff7a45] flex items-center gap-2"
           >
             <Sparkles className="w-3 h-3" />
-            {t('children.form.magicButton', 'Màgic')}
+            {t('children.form.magicButton')}
           </button>
         </div>
-        <p className="text-[9px] text-gray-400 ml-4 italic font-medium">
-          {t(
-            'children.form.privacyNote',
-            'Per seguretat, no utilitzes noms reals.',
-          )}
-        </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -178,15 +176,10 @@ export default function ChildForm({
           </label>
           <select
             value={formData.lifeStage}
-            onChange={e => {
-              const newStage = e.target.value as ChildRequestDTO['lifeStage']
-              setFormData({
-                ...formData,
-                lifeStage: newStage,
-                birthDate: newStage === 'PREGNANCY' ? '' : formData.birthDate,
-              })
-            }}
-            className="w-full p-4 bg-gray-50 border-2 border-transparent focus:border-[#FF8A5C] rounded-2xl font-bold transition-all outline-none appearance-none cursor-pointer"
+            onChange={e =>
+              setFormData({ ...formData, lifeStage: e.target.value as any })
+            }
+            className="w-full p-4 bg-gray-50 border-2 border-transparent focus:border-[#FF8A5C] rounded-2xl font-bold appearance-none outline-none"
           >
             <option value="PREGNANCY">
               {t('children.form.lifeStagePregnancy')}
@@ -200,18 +193,12 @@ export default function ChildForm({
             {t('children.form.genderLabel')}
           </label>
           <select
-            value={formData.gender || ''}
+            value={formData.gender}
             onChange={e =>
-              setFormData({
-                ...formData,
-                gender: e.target.value as ChildRequestDTO['gender'],
-              })
+              setFormData({ ...formData, gender: e.target.value as any })
             }
-            className="w-full p-4 bg-gray-50 border-2 border-transparent focus:border-[#FF8A5C] rounded-2xl font-bold transition-all outline-none appearance-none cursor-pointer"
+            className="w-full p-4 bg-gray-50 border-2 border-transparent focus:border-[#FF8A5C] rounded-2xl font-bold appearance-none outline-none"
           >
-            <option value="" disabled>
-              {t('children.form.genderPlaceholder')}
-            </option>
             <option value="BOY">{t('children.form.genderBoy')}</option>
             <option value="GIRL">{t('children.form.genderGirl')}</option>
             <option value="SURPRISE">
@@ -221,46 +208,21 @@ export default function ChildForm({
         </div>
 
         {formData.lifeStage === 'BORN' && (
-          <div className="space-y-3 md:col-span-2 animate-in fade-in slide-in-from-top-2">
-            <div className="flex items-center gap-2 ml-1">
-              <Calendar className="w-4 h-4 text-[#FF8A5C]" />
-              <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">
-                {t('children.form.birthDateLabel')}
-              </label>
-            </div>
+          <div className="space-y-3 md:col-span-2">
+            <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">
+              {t('children.form.birthDateLabel')}
+            </label>
             <input
               type="date"
               max={today}
-              required={formData.lifeStage === 'BORN'}
               value={formData.birthDate}
               onChange={e =>
                 setFormData({ ...formData, birthDate: e.target.value })
               }
-              className="w-full p-4 bg-gray-50 border-2 border-transparent focus:border-[#FF8A5C] rounded-2xl font-bold transition-all outline-none"
+              className="w-full p-4 bg-gray-50 border-2 border-transparent focus:border-[#FF8A5C] rounded-2xl font-bold outline-none"
             />
           </div>
         )}
-      </div>
-
-      <div className="space-y-3">
-        <div className="flex items-center gap-2 ml-1">
-          <MessageSquare className="w-4 h-4 text-[#FF8A5C]" />
-          <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">
-            {t('children.form.descriptionLabel', 'Bio / Sobre el peque')}
-          </label>
-        </div>
-        <textarea
-          value={formData.description}
-          onChange={e =>
-            setFormData({ ...formData, description: e.target.value })
-          }
-          placeholder={t(
-            'children.form.descriptionPlaceholder',
-            'Ej: Le encantan los dinosaurios...',
-          )}
-          rows={3}
-          className="w-full p-4 bg-gray-50 border-2 border-transparent focus:border-[#FF8A5C] rounded-2xl font-bold transition-all outline-none resize-none"
-        />
       </div>
 
       <div className="space-y-4">
@@ -276,9 +238,9 @@ export default function ChildForm({
               key={interest.id}
               type="button"
               onClick={() => toggleInterest(interest.id)}
-              className={`px-5 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all border-2 ${
+              className={`px-5 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest border-2 transition-all ${
                 formData.interestIds.includes(interest.id)
-                  ? 'bg-[#FF8A5C] border-[#FF8A5C] text-white shadow-lg shadow-orange-100'
+                  ? 'bg-[#FF8A5C] border-[#FF8A5C] text-white shadow-lg'
                   : 'bg-white border-gray-100 text-gray-400 hover:border-orange-200'
               }`}
             >
@@ -293,8 +255,8 @@ export default function ChildForm({
       <div className="pt-6">
         <button
           type="submit"
-          disabled={loading}
-          className="w-full py-5 bg-[#2D2D2D] text-white font-black rounded-[1.5rem] hover:bg-black transition-all shadow-xl flex items-center justify-center gap-3 disabled:opacity-50 uppercase tracking-[0.2em] text-xs"
+          disabled={loading || isNicknameEmpty}
+          className="w-full py-5 bg-[#2D2D2D] text-white font-black rounded-[1.5rem] hover:bg-black flex items-center justify-center gap-3 disabled:opacity-50 uppercase tracking-[0.2em] text-xs shadow-xl transition-all"
         >
           {loading ? (
             <Loader2 className="w-6 h-6 animate-spin" />

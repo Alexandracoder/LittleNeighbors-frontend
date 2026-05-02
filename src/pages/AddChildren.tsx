@@ -6,27 +6,29 @@ import { useAuth } from '../context/AuthContext'
 import type { ChildResponseDTO } from '../types'
 import ChildForm from '../components/ChildForm'
 import ChildCard from '../components/ChildCard'
-import {
-  Plus,
-  ArrowRight,
-  Baby,
-  Sparkles,
-  Heart,
-  Users,
-  ChevronRight,
-} from 'lucide-react'
+import ConfirmModal from '../components/ui/ConfirmModal'
+import { Plus, ArrowRight, Baby, Sparkles } from 'lucide-react'
 
 export default function AddChildPage() {
   const { t } = useTranslation()
-  
   const { refreshStatus, refreshProfile } = useAuth()
+  const navigate = useNavigate()
+
   const [children, setChildren] = useState<ChildResponseDTO[]>([])
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingChild, setEditingChild] = useState<ChildResponseDTO | null>(
     null,
   )
   const [loading, setLoading] = useState(true)
-  const navigate = useNavigate()
+
+
+  const [deleteModal, setDeleteModal] = useState<{
+    isOpen: boolean
+    childId: number | null
+  }>({
+    isOpen: false,
+    childId: null,
+  })
 
   const loadChildren = async () => {
     try {
@@ -34,7 +36,7 @@ export default function AddChildPage() {
       const data = await childApi.getAll()
       setChildren(data)
     } catch (err: any) {
-      console.error(err)
+      console.error('Error loading children:', err)
     } finally {
       setLoading(false)
     }
@@ -46,8 +48,6 @@ export default function AddChildPage() {
 
   const handleSuccess = async () => {
     const wasEditing = !!editingChild
-    console.log('wasEditing:', wasEditing)
-
     setIsFormOpen(false)
     setEditingChild(null)
 
@@ -56,12 +56,6 @@ export default function AddChildPage() {
 
     const updatedChildren = await childApi.getAll()
     setChildren(updatedChildren)
-
-    console.log('updatedChildren.length:', updatedChildren.length)
-    console.log(
-      'navigating to:',
-      updatedChildren.length === 1 ? '/explore' : '/dashboard',
-    )
 
     if (!wasEditing) {
       if (updatedChildren.length === 1) {
@@ -72,16 +66,24 @@ export default function AddChildPage() {
     }
   }
 
-  const handleDelete = async (id: number) => {
-    if (window.confirm(t('profile.deleteConfirm'))) {
-      try {
-        await childApi.delete(id)
-        await loadChildren()
-        await refreshStatus()
-        await refreshProfile()
-      } catch (err) {
-        alert(t('profile.deleteError'))
-      }
+
+  const handleDeleteClick = (id: number) => {
+    setDeleteModal({ isOpen: true, childId: id })
+  }
+
+
+  const executeDelete = async () => {
+    if (!deleteModal.childId) return
+
+    try {
+      await childApi.delete(deleteModal.childId)
+      await loadChildren()
+      await refreshStatus()
+      await refreshProfile()
+    } catch (err) {
+      alert(t('profile.deleteError'))
+    } finally {
+      setDeleteModal({ isOpen: false, childId: null })
     }
   }
 
@@ -133,7 +135,7 @@ export default function AddChildPage() {
                   key={child.id}
                   child={child}
                   onEdit={handleEdit}
-                  onDelete={handleDelete}
+                  onDelete={handleDeleteClick}
                 />
               ))}
 
@@ -152,10 +154,10 @@ export default function AddChildPage() {
                 </span>
               </button>
             </div>
-            
           </div>
         )}
 
+        {/* Modal para Crear/Editar Niño */}
         {isFormOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div
@@ -179,6 +181,19 @@ export default function AddChildPage() {
             </div>
           </div>
         )}
+
+        {/* Modal de Confirmación de Borrado */}
+        <ConfirmModal
+          isOpen={deleteModal.isOpen}
+          title={t('profile.deleteTitle') || '¿Eliminar perfil?'}
+          message={
+            t('profile.deleteConfirm') || 'Esta acción no se puede deshacer.'
+          }
+          confirmText={t('common.delete') || 'Eliminar'}
+          cancelText={t('common.cancel') || 'Cancelar'}
+          onConfirm={executeDelete}
+          onCancel={() => setDeleteModal({ isOpen: false, childId: null })}
+        />
       </div>
     </div>
   )
