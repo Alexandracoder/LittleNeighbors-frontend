@@ -1,7 +1,11 @@
 {
+  "loading": {
+    "verifyingNeighborhood": "Verifying neighborhood...",
+    "general": "Loading..."
+  },
   "common": {
     "back": "Back",
-    "loading": "Loading neighborhood...",
+    "loading": "Loading...",
     "signOut": "Sign Out",
     "logout": "Logout",
     "save": "Save",
@@ -42,11 +46,6 @@
       "linkBack": "Back",
       "errorDefault": "Error during registration."
     }
-  },
-  "loading": {
-    "neighborhood": "Loading Neighborhood...",
-    "verifyingNeighborhood": "Verifying neighborhood...",
-    "searchingNeighbors": "Searching for neighbors..."
   },
   "navigation": {
     "dashboard": "Dashboard",
@@ -139,7 +138,12 @@
   "explore": {
     "title": "Explore",
     "subtitle": "Search for playmates",
+    "loading": "Loading neighborhood...",
     "activeProfile": "Active profile:",
+    "mode": {
+      "neighborhood": "My Neighborhood",
+      "city": "Entire City"
+    },
     "scope": {
       "my_neighborhood": "My Neighborhood",
       "entire_city": "Entire City"
@@ -165,6 +169,7 @@
   },
   "chat": {
     "title": "CHAT",
+    "live": "LIVE",
     "matched": "✓",
     "noMessages": "No messages yet. Say hi to your neighbor!",
     "inputPlaceholder": "Write a message...",
@@ -245,6 +250,7 @@
       "subtitle": "Pick a time to meet your neighbor"
     },
     "form": {
+      "proposeShort": "Propose",
       "titleLabel": "What's the plan?",
       "titlePlaceholder": "e.g. Afternoon at the park / Coffee and toys",
       "whenLabel": "When?",

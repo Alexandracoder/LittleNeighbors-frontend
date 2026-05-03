@@ -1,4 +1,4 @@
-import { SetStateAction, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import {
   ArrowLeft,
@@ -10,16 +10,17 @@ import { useTranslation } from 'react-i18next'
 import DatePicker, { registerLocale } from 'react-datepicker'
 import { enUS as en } from 'date-fns/locale'
 import { es } from 'date-fns/locale/es'
+import { ca } from 'date-fns/locale/ca'
 import playdateService from '../services/playdateService'
 import dashboardBg from '../assets/neighborhood-picnic1.png'
 
 import 'react-datepicker/dist/react-datepicker.css'
-import './datepicker-custom.css' 
+import './datepicker-custom.css'
 import i18n from '../i18n'
-
 
 registerLocale('en', en)
 registerLocale('es', es)
+registerLocale('va', ca)
 
 export default function AddPlaydatePage() {
   const { t } = useTranslation()
@@ -94,7 +95,6 @@ export default function AddPlaydatePage() {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="bg-white/95 rounded-[2.5rem] p-8 shadow-2xl space-y-6 text-gray-900">
-            {/* Campo Título */}
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase text-gray-400 ml-4 tracking-widest flex items-center gap-2">
                 <CalendarIcon size={12} className="text-[#F28749]" />{' '}
@@ -110,27 +110,30 @@ export default function AddPlaydatePage() {
               />
             </div>
 
-            <DatePicker
-              selected={startDate}
-              onChange={(date: SetStateAction<Date | null>) => setStartDate(date)}
-              
-              locale={
-                i18n.language.startsWith('va')
-                  ? 'va'
-                  : i18n.language.startsWith('en')
-                  ? 'en'
-                  : 'es'
-              }
-              showTimeSelect
-              timeFormat="HH:mm"
-              timeIntervals={15}
-          
-              timeCaption={t('playdates.form.timeCaption')}
-              dateFormat="dd/MM/yyyy HH:mm"
-              className="w-full bg-gray-50 border-none rounded-2xl px-6 py-4 text-gray-900 font-bold focus:ring-2 focus:ring-[#F28749] transition-all"
-            />
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase text-gray-400 ml-4 tracking-widest flex items-center gap-2">
+                <CalendarIcon size={12} className="text-[#F28749]" />{' '}
+                {t('playdates.form.dateLabel', 'Fecha y Hora')}
+              </label>
+              <DatePicker
+                selected={startDate}
+                onChange={(date: Date | null) => setStartDate(date)}
+                locale={
+                  i18n.language.startsWith('va')
+                    ? 'va'
+                    : i18n.language.startsWith('en')
+                    ? 'en'
+                    : 'es'
+                }
+                showTimeSelect
+                timeFormat="HH:mm"
+                timeIntervals={15}
+                timeCaption={t('playdates.form.timeCaption')}
+                dateFormat="dd/MM/yyyy HH:mm"
+                className="w-full bg-gray-50 border-none rounded-2xl px-6 py-4 text-gray-900 font-bold focus:ring-2 focus:ring-[#F28749] transition-all"
+              />
+            </div>
 
-            {/* Campo Descripción */}
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase text-gray-400 ml-4 tracking-widest flex items-center gap-2">
                 <AlignLeft size={12} className="text-[#F28749]" />{' '}

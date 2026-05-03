@@ -9,12 +9,11 @@ import {
   Plus,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { Client } from '@stomp/stompjs'
+import SockJS from 'sockjs-client'
 import playdateService from '../services/playdateService'
 import dashboardBg from '../assets/new-at-neigborhood.png'
 import { Playdate } from '../types'
-
-// Si decides usar el modal, lo importarías aquí:
-// import AddPlaydateModal from '../components/AddPlaydateModal'
 
 const SchedulesPage: React.FC = () => {
   const { t, i18n } = useTranslation()
@@ -24,9 +23,8 @@ const SchedulesPage: React.FC = () => {
   const [playdates, setPlaydates] = useState<Playdate[]>([])
   const [loading, setLoading] = useState(true)
   const [actionLoading, setActionLoading] = useState<number | null>(null)
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [] = useState(false)
 
-  // Memorizamos fetch para evitar renders infinitos si se usa en otros useEffect
   const fetchPlaydates = useCallback(async () => {
     if (!matchId) return
 
@@ -48,6 +46,26 @@ const SchedulesPage: React.FC = () => {
     fetchPlaydates()
   }, [matchId, navigate, fetchPlaydates])
 
+  useEffect(() => {
+    if (!matchId) return
+
+    const client = new Client({
+      webSocketFactory: () =>
+        new SockJS('http://localhost:8080/ws-little-neighbors'),
+      onConnect: () => {
+        client.subscribe(`/topic/playdates/${matchId}`, () => {
+          fetchPlaydates()
+        })
+      },
+    })
+
+    client.activate()
+
+    return () => {
+      if (client.active) client.deactivate()
+    }
+  }, [matchId, fetchPlaydates])
+
   const handleConfirm = async (playdateId: number) => {
     setActionLoading(playdateId)
     try {
@@ -60,7 +78,6 @@ const SchedulesPage: React.FC = () => {
     }
   }
 
-  // Helper para formatear fechas de forma limpia
   const formatDateInfo = (dateString: string) => {
     const dateObj = new Date(dateString)
     return {
@@ -85,7 +102,6 @@ const SchedulesPage: React.FC = () => {
 
   return (
     <div className="relative min-h-screen w-full p-6 text-white font-sans flex flex-col">
-      {/* BACKGROUND - MANTENIDO ORIGINAL */}
       <div
         className="fixed inset-0 z-0"
         style={{
@@ -96,7 +112,6 @@ const SchedulesPage: React.FC = () => {
       />
       <div className="fixed inset-0 z-10 bg-gradient-to-br from-black/40 via-transparent to-transparent pointer-events-none" />
 
-      {/* CONTENT */}
       <div className="relative z-20 max-w-2xl mx-auto w-full flex flex-grow flex-col">
         <div className="flex justify-between items-start mb-8">
           <button
@@ -106,7 +121,6 @@ const SchedulesPage: React.FC = () => {
             <ArrowLeft className="w-3 h-3" /> {t('common.back')}
           </button>
 
-          {/* Botón rápido para proponer si ya hay citas */}
           {playdates.length > 0 && (
             <button
               onClick={() => navigate('/add-playdate', { state: { matchId } })}

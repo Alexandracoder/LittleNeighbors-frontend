@@ -28,12 +28,13 @@ import 'leaflet/dist/leaflet.css'
 import ChildDashboard from './components/ChildDashboard'
 
 const LoadingScreen = () => {
-  const { t } = useTranslation()
+  const { t, ready } = useTranslation()
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#FDF8F3] text-[#2D2D2D]">
       <div className="w-12 h-12 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin mb-6"></div>
       <p className="text-[10px] font-black uppercase tracking-[0.3em] text-orange-600 animate-pulse">
-        {t('loading.verifyingNeighborhood')}
+        {ready ? t('loading.verifyingNeighborhood') : 'LOADING...'}
       </p>
     </div>
   )
