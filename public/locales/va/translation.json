@@ -1,7 +1,11 @@
 {
+  "loading": {
+    "verifyingNeighborhood": "Verificant barri...",
+    "general": "Carregant..."
+  },
   "common": {
     "back": "Tornar",
-    "loading": "Carregant barri...",
+    "loading": "Carregant...",
     "signOut": "Tancar sessió",
     "logout": "Eixir",
     "save": "Guardar",
@@ -42,11 +46,6 @@
       "linkBack": "Tornar",
       "errorDefault": "Error en el registre."
     }
-  },
-  "loading": {
-    "neighborhood": "Carregant Barri...",
-    "verifyingNeighborhood": "Verificant barri...",
-    "searchingNeighbors": "Busca veïns..."
   },
   "navigation": {
     "dashboard": "Panell",
@@ -117,7 +116,7 @@
       "interestsLabel": "Interessos i Hobbies",
       "magicButton": "MÀGIA",
       "submitCreate": "CREAR PERFIL",
-      "submitUpdate": "ACTUALITZAR PERFIL",
+      "submitUpdate": "ACTUALIZAR PERFIL",
       "errorSave": "Error en guardar el perfil. Torna-ho a intentar."
     },
     "card": {
@@ -139,7 +138,12 @@
   "explore": {
     "title": "Explorar",
     "subtitle": "Busca companys de joc",
+    "loading": "Carregant barri...",
     "activeProfile": "Perfil actiu:",
+    "mode": {
+      "neighborhood": "El meu Barri",
+      "city": "Toda la Ciutat"
+    },
     "scope": {
       "my_neighborhood": "El meu Barri",
       "entire_city": "Tota la Ciutat"
@@ -165,6 +169,7 @@
   },
   "chat": {
     "title": "XAT",
+    "live": "LIVE",
     "matched": "✓",
     "noMessages": "Encara no hi ha missatges. Saluda el teu veí!",
     "inputPlaceholder": "Escriu un missatge...",
@@ -245,6 +250,7 @@
       "subtitle": "Tria un moment per a conéixer el teu veí"
     },
     "form": {
+      "proposeShort": "Proposar",
       "titleLabel": "Quin és el pla?",
       "titlePlaceholder": "Ex: Vesprada al parc / Cafè i joguets",
       "whenLabel": "Quan?",

@@ -1,7 +1,10 @@
 {
+  "loading": {
+    "verifyingNeighborhood": "Verificando el vecindario..."
+  },
   "common": {
     "back": "Volver",
-    "loading": "Cargando barrio...",
+    "loading": "Cargando...",
     "signOut": "Cerrar sesión",
     "logout": "Salir",
     "save": "Guardar",
@@ -42,11 +45,6 @@
       "linkBack": "Volver",
       "errorDefault": "Error en el registro."
     }
-  },
-  "loading": {
-    "neighborhood": "Cargando Barrio...",
-    "verifyingNeighborhood": "Verificando barrio...",
-    "searchingNeighbors": "Buscando vecinos..."
   },
   "navigation": {
     "dashboard": "Panel",
@@ -139,7 +137,12 @@
   "explore": {
     "title": "Explorar",
     "subtitle": "Busca compañeros de juego",
+    "loading": "Cargando barrio...",
     "activeProfile": "Perfil activo:",
+    "mode": {
+      "neighborhood": "Mi Barrio",
+      "city": "Toda la Ciudad"
+    },
     "scope": {
       "my_neighborhood": "Mi Barrio",
       "entire_city": "Toda la Ciudad"
@@ -165,6 +168,7 @@
   },
   "chat": {
     "title": "CHAT",
+    "live": "LIVE",
     "matched": "✓",
     "noMessages": "Aún no hay mensajes. ¡Saluda a tu vecino!",
     "inputPlaceholder": "Escribe un mensaje...",
@@ -245,9 +249,12 @@
       "subtitle": "Elige un momento para conocer a tu vecino"
     },
     "form": {
+      "proposeShort": "Proponer",
       "titleLabel": "¿Cuál es el plan?",
       "titlePlaceholder": "Ej: Tarde en el parque / Café y juguetes",
       "whenLabel": "¿Cuándo?",
+      "dateLabel": "Fecha y Hora",
+      "timeCaption": "Selecciona un horario para el encuentro",
       "detailsLabel": "Detalles extra",
       "detailsPlaceholder": "¿Algo más que tu vecino deba saber?",
       "confirmPlan": "Confirmar este plan",
@@ -280,7 +287,10 @@
     "deleteConfirm": "¿Estás seguro de eliminar este perfil?",
     "deleteError": "No se pudo eliminar el perfil."
   },
-  "form": {
-    "timeCaption": "Hora"
+  
+  "notifications": {
+    "new_message": "Tienes un nuevo mensaje de la Familia {{familyName}}",
+    "playdate_proposed": "¡Te han sugerido un plan!",
+    "playdate_accepted": "¡Plan confirmado! Revisa tu agenda"
   }
 }
