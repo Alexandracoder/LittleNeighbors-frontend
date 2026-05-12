@@ -6,6 +6,8 @@ import {
   HelpCircle,
   ChevronLeft,
   Star,
+  Wifi,
+  WifiOff,
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { Client } from '@stomp/stompjs'
@@ -33,6 +35,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   const [messages, setMessages] = useState<any[]>([])
   const [text, setText] = useState<string>('')
   const [iAccepted, setIAccepted] = useState(false)
+  const [isConnected, setIsConnected] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
   const stompClient = useRef<Client | null>(null)
 
@@ -59,14 +62,16 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
         new SockJS('http://localhost:8080/ws-little-neighbors'),
       connectHeaders: { Authorization: `Bearer ${token}` },
       onConnect: () => {
+        setIsConnected(true)
         client.subscribe(`/topic/messages/${matchId}`, payload => {
           const newMessage = JSON.parse(payload.body)
           setMessages(prev => {
-            if (prev.some(m => m.id === newMessage.id)) return prev
+            if (prev.find(m => m.id === newMessage.id)) return prev
             return [...prev, newMessage]
           })
         })
       },
+      onDisconnect: () => setIsConnected(false),
     })
 
     client.activate()
@@ -114,21 +119,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5L5 25v25h15V35h20v15h15V25L30 5zM10 25l20-16 20 16v23h-11V33H21v15H11V25z' fill='%23F28749' fill-opacity='0.08'/%3E%3Cpath d='M15 45c0-2.5 5-5 5-5s5 2.5 5 5-5 5-5 5-5-2.5-5-5z' fill='%23F28749' fill-opacity='0.05'/%3E%3C/svg%3E")`,
   }
 
-  const generateSmartIcebreaker = (childDescription: string) => {
-    const bio = childDescription.toLowerCase()
-
-    const triggers = [
-      { key: 'dino', msg: t('chat.icebreaker.dinos') },
-      { key: 'pintar', msg: t('chat.icebreaker.art') },
-      { key: 'lego', msg: t('chat.icebreaker.blocks') },
-      { key: 'parque', msg: t('chat.icebreaker.park') },
-    ]
-
-    const match = triggers.find(t => bio.includes(t.key))
-
-    return match ? match.msg : t('chat.icebreaker.generic')
-  }
-
   return (
     <div className="min-h-screen w-full flex items-center justify-center p-2 md:p-6 relative">
       <div
@@ -153,9 +143,15 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                 {t('chat.title', 'LITTLE CHAT')}
               </h2>
               <div className="flex items-center gap-1.5 mt-1">
-                <Star size={12} className="fill-gray-900 text-gray-900" />
+                {isConnected ? (
+                  <Wifi size={12} className="text-green-600" />
+                ) : (
+                  <WifiOff size={12} className="text-red-600" />
+                )}
                 <span className="text-[10px] text-gray-900 font-bold uppercase tracking-widest">
-                  {t('chat.live', 'LIVE')}
+                  {isConnected
+                    ? t('chat.live', 'LIVE')
+                    : t('chat.offline', 'OFFLINE')}
                 </span>
               </div>
             </div>
@@ -275,8 +271,8 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
             />
             <button
               type="submit"
-              disabled={!text.trim()}
-              className="bg-[#FF9E91] text-gray-900 p-3 rounded-xl border border-gray-900 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:translate-y-0.5 transition-all"
+              disabled={!text.trim() || !isConnected}
+              className="bg-[#FF9E91] text-gray-900 p-3 rounded-xl border border-gray-900 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:translate-y-0.5 transition-all disabled:opacity-50"
             >
               <Send size={18} strokeWidth={3} />
             </button>

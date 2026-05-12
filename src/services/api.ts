@@ -22,7 +22,7 @@ const api = axios.create({
   headers: { 'Content-Type': 'application/json' },
 })
 
-// INTERCEPTOR DE PETICIÓN: Añade el token de acceso a las cabeceras
+
 api.interceptors.request.use(
   config => {
     const token = localStorage.getItem('accessToken')
@@ -32,7 +32,7 @@ api.interceptors.request.use(
   error => Promise.reject(error),
 )
 
-// INTERCEPTOR DE RESPUESTA: Maneja la expiración del token (401) automáticamente
+
 api.interceptors.response.use(
   response => response,
   async error => {
@@ -42,7 +42,7 @@ api.interceptors.response.use(
       try {
         const refreshToken = localStorage.getItem('refreshToken')
         if (refreshToken) {
-          // Usamos axios básico para evitar bucles infinitos con el interceptor
+
           const response = await axios.post<AuthResponse>(
             `${API_BASE_URL}/auth/refresh`,
             { refreshToken },
@@ -76,7 +76,6 @@ export const authApi = {
   register: async (userData: RegisterRequest): Promise<void> => {
     await api.post('/auth/register', userData)
   },
-  // MÉTODO AÑADIDO: Permite forzar el refresco desde los componentes (como ChildForm)
   refresh: async (data: RefreshRequest): Promise<AuthResponse> => {
     const response = await api.post<AuthResponse>('/auth/refresh', data)
     return response.data
@@ -169,6 +168,23 @@ export const profileApi = {
   getProfile: async (): Promise<{ family: FamilyResponseDTO | null }> => {
     const response = await api.get<UserProfileDTO>('/auth/profile')
     return { family: response.data.family ?? null }
+  },
+}
+
+export const notificationApi = {
+  getMyNotifications: async () => {
+    const response = await api.get('/notifications/me')
+    return response.data
+  },
+
+  markAsRead: async (id: number) => {
+    const response = await api.patch(`/notifications/${id}/read`)
+    return response.data
+  },
+
+  getUnreadCount: async () => {
+    const response = await api.get('/notifications/unread-count')
+    return response.data
   },
 }
 
