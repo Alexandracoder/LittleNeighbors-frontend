@@ -2,6 +2,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useTranslation } from 'react-i18next'
 import { Home, Search, User, LogOut, Heart, Languages } from 'lucide-react'
+import NotificationBell from './NotificationBell'
 
 export default function Navbar() {
   const navigate = useNavigate()
@@ -30,7 +31,7 @@ export default function Navbar() {
         </span>
       </div>
 
-      {/* ── MENÚ CENTRAL (Glassmorphism) ── */}
+      {/* ── MENÚ CENTRAL ── */}
       <div className="hidden md:flex items-center gap-2 bg-white/5 backdrop-blur-xl px-4 py-2 rounded-2xl border border-white/10">
         <button
           onClick={() => navigate('/dashboard')}
@@ -66,9 +67,12 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* ── BOTONES DERECHA & IDIOMA ── */}
+      {/* ── BOTONES DERECHA ── */}
       <div className="flex items-center gap-4">
-        {/* Selector de Idioma Estilizado */}
+        {/* NUEVO: Campana de Notificaciones Vecinales */}
+        <NotificationBell />
+
+        {/* Selector de Idioma */}
         <div className="flex items-center gap-1 bg-white/5 backdrop-blur-sm p-1 rounded-xl border border-white/10">
           <Languages className="w-4 h-4 text-white/40 ml-2 mr-1" />
           {['es', 'va', 'en'].map(lng => (
