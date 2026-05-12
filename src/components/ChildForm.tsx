@@ -39,7 +39,7 @@ export default function ChildForm({
         const data = await interestApi.getAll()
         setAllInterests(data)
       } catch (err) {
-        console.error(err)
+        console.error('Error loading interests:', err)
       }
     }
     loadInterests()
@@ -58,6 +58,7 @@ export default function ChildForm({
   }, [initialData])
 
   const generateMagicNick = () => {
+    // Adjetivos y sustantivos en Valenciano para puntos extra en la subvención
     const adjectives = [
       'Explorador',
       'Artista',
@@ -78,9 +79,13 @@ export default function ChildForm({
     if (!formData.nickname.trim()) return
     setLoading(true)
 
+    // CORRECCIÓN CRÍTICA: Sincronización con ChildRequestDTO
     const payload: ChildRequestDTO = {
       ...formData,
+      nickname: formData.nickname.trim(),
+      // Si está en PREGNANCY, el backend no debe recibir fecha de nacimiento
       birthDate: formData.lifeStage === 'BORN' ? formData.birthDate : '',
+      // Si está en PREGNANCY, la edad es técnicamente 0 para el DTO
       age: formData.lifeStage === 'PREGNANCY' ? 0 : formData.age,
     }
 
@@ -89,6 +94,9 @@ export default function ChildForm({
         await childApi.update(initialData.id, payload)
       } else {
         await childApi.create(payload)
+
+        // REFRESH DE TOKEN: Necesario porque al añadir el primer hijo,
+        // el rol del usuario cambia de INCOMPLETE a FAMILY completo.
         const refreshToken = localStorage.getItem('refreshToken')
         if (refreshToken) {
           try {
@@ -98,13 +106,15 @@ export default function ChildForm({
               localStorage.setItem('refreshToken', refreshData.refreshToken)
             }
           } catch (refreshErr) {
-            console.error(refreshErr)
+            console.warn(
+              'Token refresh failed, user might need to re-login to see changes.',
+            )
           }
         }
       }
       onSuccess()
     } catch (err) {
-      console.error(err)
+      console.error('Save error:', err)
       alert(t('children.form.errorSave'))
     } finally {
       setLoading(false)
@@ -140,6 +150,7 @@ export default function ChildForm({
         </button>
       </div>
 
+      {/* Input de Nickname */}
       <div className="space-y-3">
         <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">
           {t('children.form.usernameLabel')}
@@ -148,20 +159,21 @@ export default function ChildForm({
           <input
             type="text"
             required
+            placeholder={t('children.form.nicknamePlaceholder')}
             value={formData.nickname}
             onChange={e =>
               setFormData({ ...formData, nickname: e.target.value })
             }
-            className={`w-full p-5 border-2 rounded-2xl font-bold outline-none pr-32 text-lg ${
+            className={`w-full p-5 border-2 rounded-2xl font-bold outline-none pr-32 text-lg transition-all ${
               isNicknameEmpty
                 ? 'bg-red-50 border-red-200'
-                : 'bg-gray-50 border-transparent focus:border-[#FF8A5C]'
+                : 'bg-gray-50 border-transparent focus:border-[#FF8A5C] focus:bg-white'
             }`}
           />
           <button
             type="button"
             onClick={generateMagicNick}
-            className="absolute right-2 top-2 bottom-2 px-4 bg-[#FF8A5C] text-white rounded-xl font-black text-[10px] uppercase hover:bg-[#ff7a45] flex items-center gap-2"
+            className="absolute right-2 top-2 bottom-2 px-4 bg-[#FF8A5C] text-white rounded-xl font-black text-[10px] uppercase hover:bg-[#ff7a45] flex items-center gap-2 shadow-sm transition-transform active:scale-95"
           >
             <Sparkles className="w-3 h-3" />
             {t('children.form.magicButton')}
@@ -170,6 +182,7 @@ export default function ChildForm({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Life Stage Selector */}
         <div className="space-y-3">
           <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">
             {t('children.form.lifeStageLabel')}
@@ -179,7 +192,7 @@ export default function ChildForm({
             onChange={e =>
               setFormData({ ...formData, lifeStage: e.target.value as any })
             }
-            className="w-full p-4 bg-gray-50 border-2 border-transparent focus:border-[#FF8A5C] rounded-2xl font-bold appearance-none outline-none"
+            className="w-full p-4 bg-gray-50 border-2 border-transparent focus:border-[#FF8A5C] rounded-2xl font-bold appearance-none outline-none cursor-pointer"
           >
             <option value="PREGNANCY">
               {t('children.form.lifeStagePregnancy')}
@@ -188,6 +201,7 @@ export default function ChildForm({
           </select>
         </div>
 
+        {/* Gender Selector */}
         <div className="space-y-3">
           <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">
             {t('children.form.genderLabel')}
@@ -197,7 +211,7 @@ export default function ChildForm({
             onChange={e =>
               setFormData({ ...formData, gender: e.target.value as any })
             }
-            className="w-full p-4 bg-gray-50 border-2 border-transparent focus:border-[#FF8A5C] rounded-2xl font-bold appearance-none outline-none"
+            className="w-full p-4 bg-gray-50 border-2 border-transparent focus:border-[#FF8A5C] rounded-2xl font-bold appearance-none outline-none cursor-pointer"
           >
             <option value="BOY">{t('children.form.genderBoy')}</option>
             <option value="GIRL">{t('children.form.genderGirl')}</option>
@@ -207,14 +221,16 @@ export default function ChildForm({
           </select>
         </div>
 
+        {/* Birth Date (Solo si ha nacido) */}
         {formData.lifeStage === 'BORN' && (
-          <div className="space-y-3 md:col-span-2">
+          <div className="space-y-3 md:col-span-2 animate-in fade-in slide-in-from-top-2 duration-300">
             <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">
               {t('children.form.birthDateLabel')}
             </label>
             <input
               type="date"
               max={today}
+              required={formData.lifeStage === 'BORN'}
               value={formData.birthDate}
               onChange={e =>
                 setFormData({ ...formData, birthDate: e.target.value })
@@ -225,6 +241,7 @@ export default function ChildForm({
         )}
       </div>
 
+      {/* Intereses */}
       <div className="space-y-4">
         <div className="flex items-center gap-2">
           <Heart className="w-5 h-5 text-[#FF8A5C]" />
@@ -252,11 +269,12 @@ export default function ChildForm({
         </div>
       </div>
 
+      {/* Submit Button */}
       <div className="pt-6">
         <button
           type="submit"
           disabled={loading || isNicknameEmpty}
-          className="w-full py-5 bg-[#2D2D2D] text-white font-black rounded-[1.5rem] hover:bg-black flex items-center justify-center gap-3 disabled:opacity-50 uppercase tracking-[0.2em] text-xs shadow-xl transition-all"
+          className="w-full py-5 bg-[#2D2D2D] text-white font-black rounded-[1.5rem] hover:bg-black flex items-center justify-center gap-3 disabled:opacity-50 uppercase tracking-[0.2em] text-xs shadow-xl transition-all active:scale-[0.98]"
         >
           {loading ? (
             <Loader2 className="w-6 h-6 animate-spin" />
