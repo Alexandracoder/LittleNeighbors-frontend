@@ -6,7 +6,6 @@ import { childApi } from '../services/api'
 import type { ChildResponseDTO } from '../types'
 import MainLayout from '../components/layout/MainLayout'
 import {
-  Heart,
   MapPin,
   LogOut,
   Search,
@@ -17,11 +16,11 @@ import {
 import dashboardBg from '../assets/neighborhood-picnic.png'
 
 export default function Dashboard() {
-  const navigate = useNavigate()
-  const { t } = useTranslation()
+const navigate = useNavigate()
+const { t } = useTranslation()
 const { familyEntity, status, loading, logout, token } = useAuth()
-  const [, setChildren] = useState<ChildResponseDTO[]>([])
-  const [fetching, setFetching] = useState(false)
+const [, setChildren] = useState<ChildResponseDTO[]>([])
+const [fetching, setFetching] = useState(false)
 
 
   useEffect(() => {

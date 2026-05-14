@@ -9,7 +9,7 @@ interface Notification {
   id: number
   title: string
   message: string
-  type: 'EVENT_CREATED' | 'MATCH_CONFIRMED' | 'CHAT_MESSAGE'
+  type: 'EVENT_CREATED' | 'MATCH_SUCCESS' | 'CHAT_MESSAGE' | 'SYSTEM'
   isRead: boolean
   createdAt: string
 }
@@ -33,9 +33,13 @@ export default function NotificationBell() {
 
     loadInitial()
 
-    const socket = new SockJS('http://localhost:8080/ws')
+    const token = localStorage.getItem('token')
+    const socket = new SockJS('http://localhost:8080/ws-little-neighbors')
     const client = new Client({
       webSocketFactory: () => socket,
+      connectHeaders: {
+        Authorization: `Bearer ${token}`,
+      },
       onConnect: () => {
         client.subscribe('/user/queue/notifications', message => {
           const newNotif = JSON.parse(message.body)
@@ -66,11 +70,15 @@ export default function NotificationBell() {
   const getIcon = (type: string) => {
     switch (type) {
       case 'EVENT_CREATED':
-        return <Calendar className="w-4 h-4 text-orange-400" />
-      case 'MATCH_CONFIRMED':
-        return <Heart className="w-4 h-4 text-pink-400" />
+        return (
+          <Calendar className="w-4 h-4 text-orange-400" aria-hidden="true" />
+        )
+      case 'MATCH_SUCCESS':
+        return <Heart className="w-4 h-4 text-pink-400" aria-hidden="true" />
       default:
-        return <MessageCircle className="w-4 h-4 text-blue-400" />
+        return (
+          <MessageCircle className="w-4 h-4 text-blue-400" aria-hidden="true" />
+        )
     }
   }
 
@@ -78,6 +86,12 @@ export default function NotificationBell() {
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
+        aria-label={
+          unreadCount > 0
+            ? `You have ${unreadCount} notifications`
+            : 'Notifications'
+        }
+        aria-expanded={isOpen}
         className="relative p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all group"
       >
         <Bell
@@ -88,7 +102,11 @@ export default function NotificationBell() {
           }`}
         />
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-slate-950">
+          <span
+            className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-slate-950"
+            role="status"
+            aria-live="polite"
+          >
             {unreadCount}
           </span>
         )}
@@ -100,17 +118,28 @@ export default function NotificationBell() {
             className="fixed inset-0 z-10"
             onClick={() => setIsOpen(false)}
           />
-          <div className="absolute right-0 mt-4 w-80 bg-slate-900/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl z-20 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+          <div
+            className="absolute right-0 mt-4 w-80 bg-slate-900/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl z-20 overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+            role="dialog"
+            aria-label="Notifications panel"
+          >
             <div className="p-4 border-b border-white/5 flex justify-between items-center bg-white/5">
               <h3 className="text-sm font-black text-white uppercase tracking-widest">
                 {t('notifications.title')}
               </h3>
-              <button onClick={() => setIsOpen(false)}>
+              <button
+                onClick={() => setIsOpen(false)}
+                aria-label="Close notifications"
+              >
                 <X className="w-4 h-4 text-white/40" />
               </button>
             </div>
 
-            <div className="max-h-[400px] overflow-y-auto">
+            <div
+              className="max-h-[400px] overflow-y-auto"
+              role="log"
+              aria-live="polite"
+            >
               {notifications.length === 0 ? (
                 <div className="p-8 text-center text-white/30 text-sm italic">
                   {t('notifications.empty')}
@@ -127,12 +156,14 @@ export default function NotificationBell() {
                     <div className="mt-1">{getIcon(notification.type)}</div>
                     <div className="flex-1">
                       <p className="text-xs font-bold text-white mb-1">
+                        <span className="sr-only">Notification:</span>
                         {notification.title}
                       </p>
                       <p className="text-[11px] text-white/60 leading-relaxed">
                         {notification.message}
                       </p>
                       <p className="text-[9px] text-white/30 mt-2 font-mono">
+                        <span className="sr-only">Received at:</span>
                         {new Date(notification.createdAt).toLocaleTimeString(
                           [],
                           { hour: '2-digit', minute: '2-digit' },
@@ -140,7 +171,10 @@ export default function NotificationBell() {
                       </p>
                     </div>
                     {!notification.isRead && (
-                      <div className="w-2 h-2 bg-orange-500 rounded-full mt-2" />
+                      <div
+                        className="w-2 h-2 bg-orange-500 rounded-full mt-2"
+                        aria-label="Unread"
+                      />
                     )}
                   </div>
                 ))
