@@ -12,7 +12,7 @@ import { useNavigate } from 'react-router-dom'
 import { Client } from '@stomp/stompjs'
 import SockJS from 'sockjs-client'
 import { useTranslation } from 'react-i18next'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, m } from 'framer-motion'
 import api from '../../services/api'
 import matchService from '../../services/matchService'
 import { UserProfileDTO } from '../../types'
@@ -34,24 +34,33 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   const [messages, setMessages] = useState<any[]>([])
   const [text, setText] = useState<string>('')
   const [iAccepted, setIAccepted] = useState(false)
+  const [matchStatus, setMatchStatus] = useState<string>('PENDING')
   const [isConnected, setIsConnected] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
   const stompClient = useRef<Client | null>(null)
-
-  useEffect(() => {
-    const loadHistory = async () => {
-      if (!matchId) return
-      try {
-        const response = await api.get(`/messages/history/match/${matchId}`)
-        const data = response.data
-        setMessages(Array.isArray(data) ? data : data.messages || [])
-        setIAccepted(data.userAccepted || false)
-      } catch (err) {
-        console.error(err)
+useEffect(() => {
+  const loadHistory = async () => {
+    if (!matchId) return
+    try {
+      // 1. Carga los mensajes del chat
+      const response = await api.get(`/messages/history/match/${matchId}`)
+      const data = response.data
+      setMessages(Array.isArray(data) ? data : data.messages || [])
+      
+      const myMatches = await matchService.getMyMatches()
+      if (myMatches && Array.isArray(myMatches)) {
+        const currentMatch = myMatches.find((m: any) => m.matchId === Number(matchId))
+        if (currentMatch) {
+          setMatchStatus(currentMatch.status)
+          setIAccepted(currentMatch.status === 'ACCEPTED')
+        }
       }
+    } catch (err) {
+      console.error(err)
     }
-    loadHistory()
-  }, [matchId])
+  }
+  loadHistory()
+}, [matchId])
 
   useEffect(() => {
     if (!matchId || !token) return
@@ -64,6 +73,11 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
         setIsConnected(true)
         client.subscribe(`/topic/messages/${matchId}`, payload => {
           const newMessage = JSON.parse(payload.body)
+
+          if (newMessage.status) {
+            setMatchStatus(newMessage.status)
+          }
+
           setMessages(prev => {
             if (prev.find(m => m.id === newMessage.id)) return prev
             return [...prev, newMessage]
@@ -179,18 +193,38 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
           <button
             onClick={async () => {
               try {
-                await matchService.confirmMatch(Number(matchId))
+                await matchService.confirmMatch(
+                  Number(matchId),
+                  currentUser.email,
+                )
                 setIAccepted(true)
+                if (stompClient.current?.connected) {
+                  stompClient.current.publish({
+                    destination: `/app/chat/${matchId}`,
+                    body: JSON.stringify({
+                      matchId: Number(matchId),
+                      senderId: currentUser.id,
+                      content:
+                        '✅ ' +
+                        t(
+                          'chat.confirmedMessage',
+                          'I have confirmed the match!',
+                        ),
+                    }),
+                  })
+                }
               } catch (e) {
                 console.error(e)
               }
             }}
-            aria-pressed={iAccepted}
+            aria-pressed={iAccepted || matchStatus === 'ACCEPTED'}
             className="bg-gray-800 text-[#FF9E91] px-4 py-2 rounded-2xl text-[10px] font-black border border-[#FF9E91] shadow-sm active:scale-95 transition-all"
           >
-            {iAccepted
+            {matchStatus === 'ACCEPTED'
+              ? t('chat.match_active', 'MATCH! 🌟')
+              : iAccepted
               ? t('chat.pending', 'PENDING')
-              : t('chat.confirm', 'CONFIRM')}
+              : t('chat.confirm', 'MATCH?')}
           </button>
         </header>
 
@@ -302,11 +336,14 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
               onChange={e => setText(e.target.value)}
               placeholder={t('chat.inputPlaceholder', 'Type...')}
               aria-label="Write your message"
-              className="flex-1 bg-transparent border-none outline-none text-gray-800 text-sm font-bold"
+              disabled={matchStatus !== 'ACCEPTED'}
+              className="flex-1 bg-transparent border-none outline-none text-gray-800 text-sm font-bold disabled:cursor-not-allowed"
             />
             <button
               type="submit"
-              disabled={!text.trim() || !isConnected}
+              disabled={
+                !text.trim() || !isConnected || matchStatus !== 'ACCEPTED'
+              }
               aria-label="Send message"
               className="bg-[#FF9E91] text-gray-900 p-3 rounded-xl border border-gray-900 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:translate-y-0.5 transition-all disabled:opacity-50"
             >

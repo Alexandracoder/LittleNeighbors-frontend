@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useTranslation } from 'react-i18next'
 import { childApi } from '../services/api'
+import matchService from '../services/matchService'
 import type { ChildResponseDTO } from '../types'
 import MainLayout from '../components/layout/MainLayout'
 import {
@@ -12,24 +13,30 @@ import {
   ArrowLeft,
   Calendar,
   User,
+  MessageSquare,
+  Sparkles,
 } from 'lucide-react'
 import dashboardBg from '../assets/neighborhood-picnic.png'
 
 export default function Dashboard() {
-const navigate = useNavigate()
-const { t } = useTranslation()
-const { familyEntity, status, loading, logout, token } = useAuth()
-const [, setChildren] = useState<ChildResponseDTO[]>([])
-const [fetching, setFetching] = useState(false)
-
+  const navigate = useNavigate()
+  const { t } = useTranslation()
+  const { familyEntity, status, loading, logout, token } = useAuth()
+  const [, setChildren] = useState<ChildResponseDTO[]>([])
+  const [activeChats, setActiveChats] = useState<any[]>([])
+  const [fetching, setFetching] = useState(false)
 
   useEffect(() => {
     if (familyEntity && token) {
       setFetching(true)
-      childApi
-        .getAll()
-        .then(data => setChildren(Array.isArray(data) ? data : []))
-        .catch(err => console.error('Error loading children:', err))
+
+      // Cargamos los niños y los matches en paralelo
+      Promise.all([childApi.getAll(), matchService.getMyMatches()])
+        .then(([childData, matchData]) => {
+          setChildren(Array.isArray(childData) ? childData : [])
+          setActiveChats(Array.isArray(matchData) ? matchData : [])
+        })
+        .catch(err => console.error('Error loading dashboard data:', err))
         .finally(() => setFetching(false))
     }
   }, [familyEntity, token])
@@ -40,7 +47,6 @@ const [fetching, setFetching] = useState(false)
     navigate('/login', { replace: true })
   }
 
-
   if (loading || fetching) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-[#FDF8F3]">
@@ -49,8 +55,7 @@ const [fetching, setFetching] = useState(false)
     )
   }
 
-
-if (!status?.hasFamily) return null
+  if (!status?.hasFamily) return null
 
   return (
     <MainLayout
@@ -59,7 +64,6 @@ if (!status?.hasFamily) return null
       subtitle={t('dashboard.subtitle')}
       showGlassCard={false}
     >
-    
       <div className="fixed top-8 left-0 w-full px-6 md:px-12 flex justify-between items-center z-50">
         <button
           onClick={() => navigate(-1)}
@@ -82,9 +86,7 @@ if (!status?.hasFamily) return null
         </button>
       </div>
 
-      
       <div className="flex flex-col items-center gap-6 mt-20 animate-in fade-in zoom-in duration-1000">
-        
         <div className="flex flex-wrap justify-center gap-4 w-full">
           <button
             onClick={() => navigate('/explore')}
@@ -97,9 +99,7 @@ if (!status?.hasFamily) return null
           </button>
         </div>
 
-      
         <div className="flex flex-wrap justify-center gap-4 max-w-2xl">
-        
           <button
             onClick={() => navigate('/my-schedules')}
             className="flex items-center gap-3 px-8 py-4 bg-white/10 backdrop-blur-xl text-white rounded-full border-2 border-white/20 shadow-xl transition-all hover:bg-white/20 hover:scale-105 active:scale-95"
@@ -120,7 +120,6 @@ if (!status?.hasFamily) return null
             </span>
           </button>
 
-          
           <button
             onClick={() => navigate('/add-child')}
             className="flex items-center gap-3 px-8 py-4 bg-white/10 backdrop-blur-xl text-white rounded-full border-2 border-white/20 shadow-xl transition-all hover:bg-white/20 hover:scale-105 active:scale-95"
@@ -131,6 +130,61 @@ if (!status?.hasFamily) return null
             </span>
           </button>
         </div>
+
+        {/* Sección de "Mis Chats" integrada */}
+        {activeChats.length > 0 && (
+          <div className="w-full max-w-xl mt-4 px-4">
+            <h2 className="text-white text-[11px] font-black uppercase tracking-widest mb-3 flex items-center gap-2 opacity-90 justify-center md:justify-start">
+              <MessageSquare size={14} className="text-[#F28749]" />
+              {t('dashboard.myChats', 'MIS CONVERSACIONES')}
+            </h2>
+
+            <div className="grid gap-2.5 w-full">
+              {activeChats.map(chat => (
+                <button
+                  key={chat.matchId}
+                  onClick={() => navigate(`/chat/${chat.matchId}`)}
+                  className="w-full flex items-center justify-between p-3.5 bg-white/10 backdrop-blur-md hover:bg-white/20 border border-white/10 rounded-2xl shadow-lg transition-all hover:scale-[1.02] active:scale-95 text-left group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-full bg-[#F28749] text-white flex items-center justify-center font-black text-xs border border-white/20 shadow-inner">
+                      {chat.theirFamilyName
+                        ? chat.theirFamilyName.substring(0, 2).toUpperCase()
+                        : '??'}
+                    </div>
+                    <div>
+                      <h3 className="font-black text-white text-xs uppercase tracking-wider leading-none group-hover:text-[#F28749] transition-colors">
+                        {t('common.family', 'FAMILIA')} {chat.theirFamilyName}
+                      </h3>
+                      <p className="text-[10px] text-white/60 font-bold uppercase tracking-tight mt-1">
+                        {chat.theirNeighborhoodName}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`px-2.5 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border ${
+                        chat.status === 'ACCEPTED'
+                          ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                          : 'bg-amber-500/20 text-amber-300 border-amber-500/30'
+                      }`}
+                    >
+                      {chat.status === 'ACCEPTED' ? (
+                        <span className="flex items-center gap-1">
+                          <Sparkles size={8} />
+                          {t('chat.status.match', 'MATCH!')}
+                        </span>
+                      ) : (
+                        t('chat.status.pending', 'PENDING')
+                      )}
+                    </span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </MainLayout>
   )
