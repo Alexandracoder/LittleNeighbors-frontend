@@ -1,24 +1,32 @@
 import api from './api'
 import axios from 'axios'
 
+export type MatchStatus = 'ACCEPTED' | 'REJECTED'
 
-type MatchStatus = 'ACCEPTED' | 'REJECTED'
+export interface MatchResponseDTO {
+  matchId: number
+  initiatorFamilyId: number
+  targetFamilyId: number
+  theirFamilyName: string
+  theirNeighborhoodName: string
+  status: MatchStatus
+  hasUnread?: boolean
+}
 
 const matchService = {
-  getMyMatches: async () => {
+  getMyMatches: async (): Promise<MatchResponseDTO[]> => {
     try {
-      const response = await api.get('matches/my-matches')
+      const response = await api.get<MatchResponseDTO[]>('matches/my-matches')
       return response.data
     } catch (error: unknown) {
       handleError('Error fetching matches:', error)
     }
   },
 
-  /**
-   * @param initiatorChildId
-   * @param targetChildId
-   */
-  requestMatch: async (initiatorChildId: number, targetChildId: number) => {
+  requestMatch: async (
+    initiatorChildId: number,
+    targetChildId: number,
+  ): Promise<any> => {
     try {
       const response = await api.post('/matches/request', {
         initiatorChildId,
@@ -26,15 +34,14 @@ const matchService = {
       })
       return response.data
     } catch (error: unknown) {
-      handleError('Error requesting match', error)
+      handleError('Error requesting match:', error)
     }
   },
 
-  /**
-   * @param matchId - ID del match
-   * @param status - 'ACCEPTED' o 'REJECTED'
-   */
-  respondToMatch: async (matchId: number, status: MatchStatus) => {
+  respondToMatch: async (
+    matchId: number,
+    status: MatchStatus,
+  ): Promise<any> => {
     try {
       const response = await api.patch(`/matches/${matchId}/respond`, null, {
         params: { status },
@@ -45,12 +52,11 @@ const matchService = {
     }
   },
 
-  /**
-   * @param matchId
-   */
-  confirmMatch: async (matchId: number, email: string) => {
+  confirmMatch: async (matchId: number, email: string): Promise<any> => {
     try {
-const response = await api.post(`/matches/${matchId}/confirm`)
+      const response = await api.post(`/matches/${matchId}/confirm`, null, {
+        params: { email },
+      })
       return response.data
     } catch (error: unknown) {
       handleError('Error confirming match:', error)
@@ -60,7 +66,6 @@ const response = await api.post(`/matches/${matchId}/confirm`)
 
 function handleError(context: string, error: unknown): never {
   if (axios.isAxiosError(error)) {
-  
     const serverMessage = error.response?.data?.message || error.response?.data
     const finalMessage = serverMessage || error.message
     console.error(`${context} ${finalMessage}`)
