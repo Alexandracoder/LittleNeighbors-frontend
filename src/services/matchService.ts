@@ -48,9 +48,9 @@ const matchService = {
   /**
    * @param matchId
    */
-  confirmMatch: async (matchId: number) => {
+  confirmMatch: async (matchId: number, email: string) => {
     try {
-      const response = await api.post(`/matches/${matchId}/confirm`)
+const response = await api.post(`/matches/${matchId}/confirm`)
       return response.data
     } catch (error: unknown) {
       handleError('Error confirming match:', error)

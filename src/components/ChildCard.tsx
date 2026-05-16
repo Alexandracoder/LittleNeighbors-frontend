@@ -40,8 +40,6 @@ export default function ChildCard({
   if (!child) return null
 
   const isPrenatal = child.lifeStage === 'PREGNANCY'
-
-  // URL de Avatar Dinámico (Estilo 'adventurer' para un look de ilustración profesional)
   const avatarUrl = `https://api.dicebear.com/7.x/adventurer/svg?seed=${child.id}&backgroundColor=f8f9fa`
 
   const handleGoToChat = () => {
@@ -65,11 +63,9 @@ export default function ChildCard({
     return t('children.card.ageDefault')
   }
 
+  // MODIFICACIÓN: Priorizamos el Nickname para un look más profesional y personal
   const getTitle = () => {
-    if (isPrenatal) return t('children.card.titlePrenatal')
-    if (child.gender === 'BOY') return t('children.card.titleBoy')
-    if (child.gender === 'GIRL') return t('children.card.titleGirl')
-    return t('children.card.titleDefault')
+    return child.nickname || t('children.card.titleDefault')
   }
 
   const handleMatchRequest = async () => {
@@ -91,7 +87,6 @@ export default function ChildCard({
         isPrenatal ? 'border-purple-400' : 'border-orange-400'
       }`}
     >
-      {/* BOTONES DE ACCIÓN (Esquina superior derecha) */}
       <div className="absolute top-6 right-6 flex gap-2 z-20">
         {!showMatchButton ? (
           <>
@@ -127,23 +122,21 @@ export default function ChildCard({
         )}
       </div>
 
-      {/* CABECERA CON AVATAR E INFO PRINCIPAL */}
       <div
         onClick={() => navigate(`/child/${child.id}`)}
         className="flex flex-col items-center text-center cursor-pointer group mb-6"
       >
-        {/* Contenedor del Avatar */}
         <div className="relative w-28 h-28 mb-4">
           <div className="absolute inset-0 bg-gray-100 rounded-full group-hover:scale-110 group-hover:bg-orange-50 transition-all duration-500"></div>
           <img
             src={avatarUrl}
-            alt="Avatar"
+            alt={child.nickname || 'Avatar'}
             className="relative z-10 w-full h-full rounded-full object-cover border-4 border-white shadow-md bg-white"
           />
         </div>
 
         <div className="space-y-1">
-          <h3 className="text-2xl font-black text-gray-900 uppercase tracking-tighter group-hover:text-[#F28749] transition-colors leading-none">
+          <h3 className="text-2xl font-black text-gray-900 uppercase tracking-tighter group-hover:text-[#F28749] transition-colors leading-none truncate max-w-[220px]">
             {getTitle()}
           </h3>
           <div className="flex items-center justify-center gap-1.5 text-gray-400 font-bold uppercase text-[11px] tracking-widest">
@@ -157,7 +150,14 @@ export default function ChildCard({
         </div>
       </div>
 
-      {/* INTERESES */}
+      {child.description && (
+        <div className="mb-6 px-4 py-3 bg-gray-50 rounded-2xl border-l-4 border-orange-400 italic">
+          <p className="text-xs text-gray-600 leading-relaxed line-clamp-3">
+            "{child.description}"
+          </p>
+        </div>
+      )}
+
       <div
         onClick={() => navigate(`/child/${child.id}`)}
         className="cursor-pointer space-y-3 mb-2"
@@ -184,7 +184,6 @@ export default function ChildCard({
         )}
       </div>
 
-      {/* BOTÓN DE PLAYDATE (Solo si showMatchButton es true) */}
       {showMatchButton && (
         <div className="mt-6 pt-6 border-t border-gray-100 flex flex-col gap-3 relative z-10">
           {status === 'idle' && (
@@ -205,6 +204,11 @@ export default function ChildCard({
             <div className="py-3.5 text-center text-green-500 font-black flex items-center justify-center gap-2">
               <CheckCircle2 className="w-4 h-4" />{' '}
               {t('children.card.requestSent')}
+            </div>
+          )}
+          {status === 'error' && (
+            <div className="text-[10px] text-red-500 text-center font-bold">
+              {errorMessage}
             </div>
           )}
         </div>

@@ -1,16 +1,17 @@
 import { useState, useEffect } from 'react'
 import { childApi, interestApi, authApi } from '../services/api'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 import type {
   ChildRequestDTO,
   ChildResponseDTO,
   InterestResponseDTO,
 } from '../types'
-import { X, Save, Loader2, Heart, Sparkles } from 'lucide-react'
+import { X, Save, Loader2, Heart, Sparkles, AlignLeft } from 'lucide-react'
 
 interface ChildFormProps {
   initialData?: ChildResponseDTO | null
-  onSuccess: () => void
+  onSuccess: (newChildId?: number) => void
   onCancel: () => void
 }
 
@@ -20,6 +21,7 @@ export default function ChildForm({
   onCancel,
 }: ChildFormProps) {
   const { t } = useTranslation()
+  const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
   const [allInterests, setAllInterests] = useState<InterestResponseDTO[]>([])
 
@@ -48,7 +50,7 @@ export default function ChildForm({
       setFormData({
         nickname: initialData.nickname || '',
         gender: initialData.gender,
-        lifeStage: initialData.lifeStage,
+        lifeStage: initialData.lifeStage as any,
         age: initialData.age ?? 0,
         birthDate: initialData.birthDate || '',
         interestIds: initialData.interests?.map(i => i.id) || [],
@@ -58,17 +60,24 @@ export default function ChildForm({
   }, [initialData])
 
   const generateMagicNick = () => {
-    // Adjetivos y sustantivos en Valenciano para puntos extra en la subvención
     const adjectives = [
-      'Explorador',
-      'Artista',
-      'Capità',
-      'Xicotet',
-      'Valent',
-      'Alegre',
-      'Ràpid',
+      'Explorer',
+      'Artist',
+      'Captain',
+      'Little',
+      'Brave',
+      'Cheerful',
+      'Fast',
     ]
-    const icons = ['Lleó', 'Dofí', 'Àguila', 'Gat', 'Esquirol', 'Ós', 'Estel']
+    const icons = [
+      'Lion',
+      'Dolphin',
+      'Eagle',
+      'Cat',
+      'Squirrel',
+      'Bear',
+      'Star',
+    ]
     const randomAdj = adjectives[Math.floor(Math.random() * adjectives.length)]
     const randomIcon = icons[Math.floor(Math.random() * icons.length)]
     setFormData(prev => ({ ...prev, nickname: `${randomAdj} ${randomIcon}` }))
@@ -79,24 +88,21 @@ export default function ChildForm({
     if (!formData.nickname.trim()) return
     setLoading(true)
 
-    // CORRECCIÓN CRÍTICA: Sincronización con ChildRequestDTO
     const payload: ChildRequestDTO = {
       ...formData,
       nickname: formData.nickname.trim(),
-      // Si está en PREGNANCY, el backend no debe recibir fecha de nacimiento
       birthDate: formData.lifeStage === 'BORN' ? formData.birthDate : '',
-      // Si está en PREGNANCY, la edad es técnicamente 0 para el DTO
       age: formData.lifeStage === 'PREGNANCY' ? 0 : formData.age,
     }
 
     try {
-      if (initialData?.id) {
-        await childApi.update(initialData.id, payload)
-      } else {
-        await childApi.create(payload)
+      let savedChild: ChildResponseDTO
 
-        // REFRESH DE TOKEN: Necesario porque al añadir el primer hijo,
-        // el rol del usuario cambia de INCOMPLETE a FAMILY completo.
+      if (initialData?.id) {
+        savedChild = await childApi.update(initialData.id, payload)
+      } else {
+        savedChild = await childApi.create(payload)
+
         const refreshToken = localStorage.getItem('refreshToken')
         if (refreshToken) {
           try {
@@ -106,13 +112,16 @@ export default function ChildForm({
               localStorage.setItem('refreshToken', refreshData.refreshToken)
             }
           } catch (refreshErr) {
-            console.warn(
-              'Token refresh failed, user might need to re-login to see changes.',
-            )
+            console.warn('Token refresh failed')
           }
         }
       }
-      onSuccess()
+
+      if (savedChild && savedChild.id) {
+        navigate(`/child-dashboard/${savedChild.id}`)
+      } else {
+        onSuccess()
+      }
     } catch (err) {
       console.error('Save error:', err)
       alert(t('children.form.errorSave'))
@@ -150,7 +159,6 @@ export default function ChildForm({
         </button>
       </div>
 
-      {/* Input de Nickname */}
       <div className="space-y-3">
         <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">
           {t('children.form.usernameLabel')}
@@ -182,7 +190,6 @@ export default function ChildForm({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Life Stage Selector */}
         <div className="space-y-3">
           <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">
             {t('children.form.lifeStageLabel')}
@@ -201,7 +208,6 @@ export default function ChildForm({
           </select>
         </div>
 
-        {/* Gender Selector */}
         <div className="space-y-3">
           <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">
             {t('children.form.genderLabel')}
@@ -221,7 +227,6 @@ export default function ChildForm({
           </select>
         </div>
 
-        {/* Birth Date (Solo si ha nacido) */}
         {formData.lifeStage === 'BORN' && (
           <div className="space-y-3 md:col-span-2 animate-in fade-in slide-in-from-top-2 duration-300">
             <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">
@@ -241,7 +246,23 @@ export default function ChildForm({
         )}
       </div>
 
-      {/* Intereses */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-2 ml-1">
+          <AlignLeft className="w-4 h-4 text-[#FF8A5C]" />
+          <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">
+            {t('children.form.bioLabel')}
+          </label>
+        </div>
+        <textarea
+          value={formData.description}
+          onChange={e =>
+            setFormData({ ...formData, description: e.target.value })
+          }
+          placeholder={t('children.form.bioPlaceholder')}
+          className="w-full p-5 bg-gray-50 border-2 border-transparent focus:border-[#FF8A5C] focus:bg-white rounded-2xl font-bold outline-none min-h-[120px] transition-all"
+        />
+      </div>
+
       <div className="space-y-4">
         <div className="flex items-center gap-2">
           <Heart className="w-5 h-5 text-[#FF8A5C]" />
@@ -269,7 +290,6 @@ export default function ChildForm({
         </div>
       </div>
 
-      {/* Submit Button */}
       <div className="pt-6">
         <button
           type="submit"

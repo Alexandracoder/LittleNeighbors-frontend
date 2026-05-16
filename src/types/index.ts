@@ -11,7 +11,7 @@ export interface AuthResponse {
   refreshToken: string
 }
 
-// NUEVA INTERFAZ PARA EL REFRESCO
+
 export interface RefreshRequest {
   refreshToken: string
 }
@@ -56,7 +56,6 @@ export interface ChildRequestDTO {
   nickname: string
   birthDate: string
   lifeStage: string
-  // Corregido para coincidir con las opciones del formulario
   gender: 'BOY' | 'GIRL' | 'SURPRISE'
   description?: string
   profilePictureUrl?: string
@@ -64,20 +63,24 @@ export interface ChildRequestDTO {
   age: number
 }
 
-export interface ChildResponseDTO {
-  nickname: string
-  profilePictureUrl: string
-  lifeStage: string
+export interface InterestResponseDTO {
   id: number
+  name: string
+}
+
+export interface ChildResponseDTO {
+  id: number
+  nickname: string
   gender: 'BOY' | 'GIRL' | 'SURPRISE'
+  lifeStage: string
   description?: string
   birthDate: string
   age: number
   interests: InterestResponseDTO[]
   familyId: number
+  profilePictureUrl?: string
   avatarUrl?: string
 }
-
 export interface InterestResponseDTO {
   id: number
   name: string
@@ -133,17 +136,21 @@ export interface UserStatusDTO {
 }
 
 export interface UserProfileDTO {
-  id: any
+  id: number | string
   email: string
+  firstName?: string
+  lastName?: string
   roles: string[]
+  verificationStatus: 'UNVERIFIED' | 'PENDING_REVIEW' | 'VERIFIED' | 'REJECTED'
   family: FamilyResponseDTO | null
 }
 
 export interface MessageDTO {
   id: number
   matchId: number
-  senderId: number
-  senderFirstName: string
+  senderId: number | string
+  senderEmail: string
+  senderAvatar?: string
   content: string
   timestamp: string
 }
