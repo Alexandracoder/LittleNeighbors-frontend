@@ -4,6 +4,9 @@ import axios from 'axios'
 export type MatchStatus = 'ACCEPTED' | 'REJECTED'
 
 export interface MatchResponseDTO {
+  childRequest: any
+  childTarget: any
+  neighborName: any
   matchId: number
   initiatorFamilyId: number
   targetFamilyId: number

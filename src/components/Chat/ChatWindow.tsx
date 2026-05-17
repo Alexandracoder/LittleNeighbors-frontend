@@ -12,7 +12,7 @@ import { useNavigate } from 'react-router-dom'
 import { Client } from '@stomp/stompjs'
 import SockJS from 'sockjs-client'
 import { useTranslation } from 'react-i18next'
-import { motion, AnimatePresence, m } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import api from '../../services/api'
 import matchService from '../../services/matchService'
 import { UserProfileDTO } from '../../types'
@@ -36,31 +36,46 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   const [iAccepted, setIAccepted] = useState(false)
   const [matchStatus, setMatchStatus] = useState<string>('PENDING')
   const [isConnected, setIsConnected] = useState(false)
+
+
+  const [neighborName, setNeighborName] = useState<string>('')
+
   const scrollRef = useRef<HTMLDivElement>(null)
   const stompClient = useRef<Client | null>(null)
+
 useEffect(() => {
   const loadHistory = async () => {
     if (!matchId) return
     try {
-      // 1. Carga los mensajes del chat
+
       const response = await api.get(`/messages/history/match/${matchId}`)
       const data = response.data
       setMessages(Array.isArray(data) ? data : data.messages || [])
-      
+
+
       const myMatches = await matchService.getMyMatches()
       if (myMatches && Array.isArray(myMatches)) {
-        const currentMatch = myMatches.find((m: any) => m.matchId === Number(matchId))
+        const currentMatch = myMatches.find(
+          (m: any) => m.matchId === Number(matchId),
+        )
         if (currentMatch) {
           setMatchStatus(currentMatch.status)
           setIAccepted(currentMatch.status === 'ACCEPTED')
+
+
+          if (currentMatch.theirFamilyName) {
+            setNeighborName(currentMatch.theirFamilyName)
+          } else {
+            setNeighborName(t('chat.defaultNeighbor', 'Familia Vecina'))
+          }
         }
       }
     } catch (err) {
-      console.error(err)
+      console.error('Error loading chat metadata:', err)
     }
   }
   loadHistory()
-}, [matchId])
+}, [matchId, t])
 
   useEffect(() => {
     if (!matchId || !token) return
@@ -162,7 +177,10 @@ useEffect(() => {
                 id="chat-title"
                 className="text-xl font-black text-gray-900 uppercase italic tracking-tighter leading-none"
               >
-                {t('chat.title', 'LITTLE CHAT')}
+
+                {neighborName
+                  ? `CHAT CON ${neighborName}`
+                  : t('chat.title', 'LITTLE CHAT')}
               </h1>
               <div
                 className="flex items-center gap-1.5 mt-1"
