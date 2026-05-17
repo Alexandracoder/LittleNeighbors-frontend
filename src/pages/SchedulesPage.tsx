@@ -23,14 +23,18 @@ const SchedulesPage: React.FC = () => {
   const [playdates, setPlaydates] = useState<Playdate[]>([])
   const [loading, setLoading] = useState(true)
   const [actionLoading, setActionLoading] = useState<number | null>(null)
-  const [] = useState(false)
 
   const fetchPlaydates = useCallback(async () => {
-    if (!matchId) return
-
     try {
-      const response = await playdateService.getByMatch(Number(matchId))
-      setPlaydates(Array.isArray(response) ? response : [])
+      if (matchId) {
+        // Carga contextual de un chat/relación específica
+        const response = await playdateService.getByMatch(Number(matchId))
+        setPlaydates(Array.isArray(response) ? response : [])
+      } else {
+        // Fallback global de playdates para accesos directos desde el Dashboard principal
+        const response = await playdateService.getAllMyPlaydates()
+        setPlaydates(Array.isArray(response) ? response : [])
+      }
     } catch (error) {
       console.error('Error fetching playdates:', error)
     } finally {
@@ -39,13 +43,10 @@ const SchedulesPage: React.FC = () => {
   }, [matchId])
 
   useEffect(() => {
-    if (!matchId) {
-      navigate('/messages')
-      return
-    }
     fetchPlaydates()
-  }, [matchId, navigate, fetchPlaydates])
+  }, [fetchPlaydates])
 
+  // Suscripción en tiempo real vía WebSocket (solo si hay un matchContext activo)
   useEffect(() => {
     if (!matchId) return
 
@@ -94,7 +95,7 @@ const SchedulesPage: React.FC = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#1a1a1a]">
         <div className="text-white font-black uppercase tracking-widest animate-pulse">
-          {t('playdates.status.loadingAgenda')}
+          {t('playdates.status.loadingAgenda', 'Cargando Agenda...')}
         </div>
       </div>
     )
@@ -115,13 +116,13 @@ const SchedulesPage: React.FC = () => {
       <div className="relative z-20 max-w-2xl mx-auto w-full flex flex-grow flex-col">
         <div className="flex justify-between items-start mb-8">
           <button
-            onClick={() => navigate(-1)}
+            onClick={() => navigate('/dashboard')}
             className="bg-white text-gray-800 flex items-center gap-2 rounded-full px-5 py-2.5 font-black uppercase tracking-widest text-[10px] shadow-lg border border-white transition-all hover:scale-105"
           >
             <ArrowLeft className="w-3 h-3" /> {t('common.back')}
           </button>
 
-          {playdates.length > 0 && (
+          {matchId && (
             <button
               onClick={() => navigate('/add-playdate', { state: { matchId } })}
               className="bg-[#F28749] text-white flex items-center gap-2 rounded-full px-5 py-2.5 font-black uppercase tracking-widest text-[10px] shadow-lg transition-all hover:scale-105"
@@ -133,9 +134,9 @@ const SchedulesPage: React.FC = () => {
         </div>
 
         <h1 className="text-5xl font-black uppercase text-white mb-10 italic tracking-tighter drop-shadow-[0_2px_15px_rgba(0,0,0,0.3)]">
-          {t('playdates.page.agendaTitle')}{' '}
+          {t('playdates.page.agendaTitle', 'Citas de')}{' '}
           <span className="text-[#F28749]">
-            {t('playdates.page.agendaHighlight')}
+            {t('playdates.page.agendaHighlight', 'Juego')}
           </span>
         </h1>
 
@@ -178,8 +179,14 @@ const SchedulesPage: React.FC = () => {
                               }
                             />
                             {isAccepted
-                              ? t('playdates.status.confirmedLocation')
-                              : t('playdates.status.proposedLocation')}
+                              ? t(
+                                  'playdates.status.confirmedLocation',
+                                  'Ubicación Confirmada',
+                                )
+                              : t(
+                                  'playdates.status.proposedLocation',
+                                  'Ubicación Propuesta',
+                                )}
                           </p>
                           <p className="flex items-center gap-1 text-gray-400 text-[10px] font-bold uppercase tracking-widest">
                             <Clock size={12} /> {time}
@@ -223,7 +230,11 @@ const SchedulesPage: React.FC = () => {
           </div>
         ) : (
           <div
-            onClick={() => navigate('/add-playdate', { state: { matchId } })}
+            onClick={() =>
+              matchId
+                ? navigate('/add-playdate', { state: { matchId } })
+                : navigate('/explore')
+            }
             className="group flex items-center gap-5 px-10 py-8 bg-white/95 backdrop-blur-sm rounded-[3rem] shadow-2xl cursor-pointer border border-white transition-all active:scale-95 hover:bg-white"
           >
             <div className="w-14 h-14 bg-gray-50 rounded-[1.2rem] flex items-center justify-center shrink-0 shadow-inner group-hover:bg-orange-50 transition-colors">
@@ -234,7 +245,12 @@ const SchedulesPage: React.FC = () => {
                 {t('playdates.status.emptyAgenda')}
               </h2>
               <p className="text-[11px] font-bold text-gray-400 uppercase tracking-[0.2em] leading-none mt-1 group-hover:text-[#F28749] transition-colors">
-                {t('playdates.status.tapToSuggest')}
+                {matchId
+                  ? t('playdates.status.tapToSuggest')
+                  : t(
+                      'playdates.status.exploreToSuggest',
+                      'Explora familias para proponer',
+                    )}
               </p>
             </div>
           </div>

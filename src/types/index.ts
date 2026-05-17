@@ -136,6 +136,7 @@ export interface UserStatusDTO {
 }
 
 export interface UserProfileDTO {
+  name: any
   id: number | string
   email: string
   firstName?: string

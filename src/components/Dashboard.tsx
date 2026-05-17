@@ -6,6 +6,7 @@ import { childApi } from '../services/api'
 import matchService from '../services/matchService'
 import type { ChildResponseDTO } from '../types'
 import MainLayout from '../components/layout/MainLayout'
+import { NeighborhoodImpact } from '../components/NeighborhoodImpact' // Imported metric component
 import {
   MapPin,
   LogOut,
@@ -99,7 +100,7 @@ export default function Dashboard() {
           </button>
         </div>
 
-        <div className="flex flex-wrap justify-center gap-4 max-w-2xl">
+        <div className="flex flex-wrap justify-center gap-4 max-w-2xl mb-4">
           <button
             onClick={() => navigate('/my-schedules')}
             className="flex items-center gap-3 px-8 py-4 bg-white/10 backdrop-blur-xl text-white rounded-full border-2 border-white/20 shadow-xl transition-all hover:bg-white/20 hover:scale-105 active:scale-95"
@@ -129,6 +130,11 @@ export default function Dashboard() {
               {t('dashboard.myProfile')}
             </span>
           </button>
+        </div>
+
+        {/* METRICS DISPLAY HUB */}
+        <div className="w-full max-w-4xl px-4">
+          <NeighborhoodImpact />
         </div>
 
         {/* Sección de "Mis Chats" integrada */}

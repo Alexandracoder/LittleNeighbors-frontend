@@ -1,6 +1,7 @@
 {
   "loading": {
-    "verifyingNeighborhood": "Verificando el vecindario..."
+    "verifyingNeighborhood": "Verificando el vecindario...",
+    "general": "Cargando..."
   },
   "common": {
     "back": "Volver",
@@ -13,7 +14,8 @@
     "delete": "Eliminar",
     "error": "Error",
     "send": "Enviar",
-    "close": "Cerrar"
+    "close": "Cerrar",
+    "family": "FAMILIA"
   },
   "auth": {
     "login": {
@@ -58,7 +60,8 @@
     "findNeighbors": "Buscar Vecinos",
     "myPlaydates": "Mis Quedadas",
     "events": "Eventos",
-    "myProfile": "Mi Perfil"
+    "myProfile": "Mi Perfil",
+    "myChats": "MIS CONVERSACIONES"
   },
   "family": {
     "create": {
@@ -150,7 +153,7 @@
     "empty": {
       "neighborhoodTitle": "¡Sé el pionero de tu barrio!",
       "generalTitle": "Aún no hay compañeros cerca",
-      "description": "LittleNeighbors crece con familias como la tuya. ¡Ayúdanos a llenar tu barrio de diversión!",
+      "description": "LittleNeighbors grows con familias como la tuya. ¡Ayúdanos a llenar tu barrio de diversión!",
       "expandSearch": "Ver toda la ciudad",
       "inviteNeighbors": "Invitar vecinos"
     },
@@ -169,6 +172,7 @@
   "chat": {
     "title": "CHAT",
     "live": "LIVE",
+    "offline": "OFFLINE",
     "matched": "✓",
     "noMessages": "Aún no hay mensajes. ¡Saluda a tu vecino!",
     "inputPlaceholder": "Escribe un mensaje...",
@@ -184,7 +188,13 @@
     "icebreaker2": "¿Dibujos favoritos?",
     "icebreaker3": "¿Alguna alergia?",
     "icebreaker4": "¿Jugamos este finde?",
-    "icebreaker5": "¿Juguete estrella?"
+    "icebreaker5": "¿Juguete estrella?",
+    "defaultNeighbor": "Familia Vecina",
+    "match_active": "MATCH! 🌟",
+    "status": {
+      "pending": "PENDIENTE",
+      "match": "MATCH!"
+    }
   },
   "matches": {
     "title": "Mis Conversaciones",
@@ -287,10 +297,36 @@
     "deleteConfirm": "¿Estás seguro de eliminar este perfil?",
     "deleteError": "No se pudo eliminar el perfil."
   },
-  
   "notifications": {
     "new_message": "Tienes un nuevo mensaje de la Familia {{familyName}}",
     "playdate_proposed": "¡Te han sugerido un plan!",
     "playdate_accepted": "¡Plan confirmado! Revisa tu agenda"
+  },
+  "metrics": {
+    "title": "Métricas de la Plataforma",
+    "totalUsers": "Usuarios Totales",
+    "activeUsers": "Usuarios Activos",
+    "totalConnections": "Conexiones Totales",
+    "conversionRate": "Tasa de Conversión",
+    "averageResponseTime": "Tiempo Medio de Respuesta",
+    "growth": "Crecimiento",
+    "monthlyActive": "Usuarios Activos Mensuales (MAU)",
+    "dailyActive": "Usuarios Activos Diarios (DAU)",
+    "serverStatus": "Estado del Servidor",
+    "databaseStatus": "Estado de la Base de Datos",
+    "uptime": "Tiempo de Actividad (Uptime)"
+  },
+  "impact": {
+    "syncPaused": "Sincronización en Pausa",
+    "errorIndicator": "No se pudieron mapear los indicadores de impacto social para el Ayuntamiento.",
+    "titlePre": "Impacto Social",
+    "titlePost": "en el Barrio",
+    "verifiedReturn": "Retorno Comunitario Verificado",
+    "activeFamiliesTitle": "Familias Activas",
+    "activeFamiliesDesc": "Vecinos registrados en tu zona",
+    "playdatesTitle": "Quedadas",
+    "playdatesDesc": "Conexiones consolidadas",
+    "sharedTimeTitle": "Tiempo Compartido",
+    "sharedTimeDesc": "Horas de conciliación mutua"
   }
 }
