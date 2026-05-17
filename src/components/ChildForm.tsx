@@ -85,14 +85,17 @@ export default function ChildForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!formData.nickname.trim()) return
+
+    const sanitizedNickname = formData.nickname.trim()
+    if (!sanitizedNickname) return
+
     setLoading(true)
 
     const payload: ChildRequestDTO = {
       ...formData,
-      nickname: formData.nickname.trim(),
+      nickname: sanitizedNickname,
       birthDate: formData.lifeStage === 'BORN' ? formData.birthDate : '',
-      age: formData.lifeStage === 'PREGNANCY' ? 0 : formData.age,
+      age: formData.lifeStage === 'PREGNANCY' ? 0 : Number(formData.age),
     }
 
     try {
@@ -112,7 +115,10 @@ export default function ChildForm({
               localStorage.setItem('refreshToken', refreshData.refreshToken)
             }
           } catch (refreshErr) {
-            console.warn('Token refresh failed')
+            console.warn(
+              'Token refresh synchronization side-stepped:',
+              refreshErr,
+            )
           }
         }
       }
@@ -120,10 +126,13 @@ export default function ChildForm({
       if (savedChild && savedChild.id) {
         navigate(`/child-dashboard/${savedChild.id}`)
       } else {
-        onSuccess()
+        onSuccess(savedChild?.id)
       }
     } catch (err) {
-      console.error('Save error:', err)
+      console.error(
+        'Save error occurred during child profile persistence:',
+        err,
+      )
       alert(t('children.form.errorSave'))
     } finally {
       setLoading(false)
