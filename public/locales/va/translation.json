@@ -277,7 +277,10 @@
       "agendaHighlight": "Agenda",
       "titleSuggest": "Sugerir un",
       "titleHighlight": "Plan",
-      "subtitle": "Tria un moment para conéixer al teu veí"
+      "subtitle": "Tria un moment para conéixer al teu veí, Agendes de joc actives",
+      "with": "Trobada amb",
+      "dummy1": { "title": "Berenar i Jocs al Parc" },
+      "dummy2": { "title": "Passeig en Bici i Gronsadors" }
     },
     "form": {
       "proposeShort": "Propondre",
@@ -387,7 +390,8 @@
       "captain": "Capità",
       "happy": "Alegre",
       "shiny": "Brillant",
-      "curious": "Curiós"
+      "curious": "Curiós",
+      "little": "Xicotet"
     },
     "nouns": {
       "lion": "Lleó",
@@ -398,7 +402,21 @@
       "wizard": "Mags",
       "koala": "Koala",
       "astronaut": "Astronauta",
-      "rocket": "Coet"
+      "rocket": "Coet",
+      "eagle": "Àguila"
+    },
+    "groups": {
+      "subtitle": "Comunitat en sintonia",
+      "members": "famílies",
+      "join": "Unir-me al grup",
+      "prefix": { "crianza": "Criança activa" },
+      "dummy1": {
+        "desc": "Grup per a compartir experiències, racons familiars i suport mutu al barri."
+      },
+      "dummy2": {
+        "name": "Rutes familiars de cap de setmana",
+        "desc": "Eixides moteres en cotxet o rutes curtes a l'Albufera i platges de València."
+      }
     }
   }
 }

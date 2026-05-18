@@ -18,7 +18,9 @@
     "family": "FAMILY",
     "explore": "Explore",
     "upcoming": "Upcoming Playdates",
-    "groups": "View Groups"
+    "groups": "Neighborhood Groups",
+    "events": "Events"
+    
   },
   "auth": {
     "login": {
@@ -277,7 +279,11 @@
       "agendaHighlight": "Schedule",
       "titleSuggest": "Suggest a",
       "titleHighlight": "Plan",
-      "subtitle": "Choose a time to meet your neighbor"
+      "subtitle": "Choose a time to meet your neighbor, Active play agendas",
+      "with": "Playdate with",
+    "dummy1": { "title": "Snack & Games at the Park" },
+    "dummy2": { "title": "Bike Ride & Swings"
+    }
     },
     "form": {
       "proposeShort": "Propose",
@@ -387,7 +393,8 @@
       "captain": "Captain",
       "happy": "Happy",
       "shiny": "Shiny",
-      "curious": "Curious"
+      "curious": "Curious",
+      "little": "Little"
     },
     "nouns": {
       "lion": "Lion",
@@ -398,7 +405,21 @@
       "wizard": "Wizard",
       "koala": "Koala",
       "astronaut": "Astronaut",
-      "rocket": "Rocket"
+      "rocket": "Rocket",
+      "eagle": "Eagle"
+    },
+    "groups": {
+      "subtitle": "Community in sync",
+      "members": "families",
+      "join": "Join group",
+      "prefix": { "crianza": "Active Parenting" },
+      "dummy1": {
+        "desc": "Group to share experiences, family corners, and mutual support in the neighborhood."
+      },
+      "dummy2": {
+        "name": "Weekend Family Routes",
+        "desc": "Stroller-friendly walks or short trips to L'Albufera and Valencia beaches."
+      }
     }
   }
 }

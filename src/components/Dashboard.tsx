@@ -6,7 +6,7 @@ import { childApi } from '../services/api'
 import matchService from '../services/matchService'
 import type { ChildResponseDTO } from '../types'
 import MainLayout from '../components/layout/MainLayout'
-import { NeighborhoodImpact } from '../components/NeighborhoodImpact' // Imported metric component
+import { NeighborhoodImpact } from '../components/NeighborhoodImpact'
 import {
   MapPin,
   LogOut,
@@ -31,7 +31,7 @@ export default function Dashboard() {
     if (familyEntity && token) {
       setFetching(true)
 
-      // Cargamos los niños y los matches en paralelo
+
       Promise.all([childApi.getAll(), matchService.getMyMatches()])
         .then(([childData, matchData]) => {
           setChildren(Array.isArray(childData) ? childData : [])

@@ -277,7 +277,10 @@
       "agendaHighlight": "Agenda",
       "titleSuggest": "Sugerir un",
       "titleHighlight": "Plan",
-      "subtitle": "Elige un momento para conocer a tu vecino"
+      "subtitle": "Agendas de juego activas",
+      "with": "Encuentro con",
+      "dummy1": { "title": "Merienda y Juegos en el Parque" },
+      "dummy2": { "title": "Paseo en Bici y Columpios" }
     },
     "form": {
       "proposeShort": "Proponer",
@@ -387,7 +390,8 @@
       "captain": "Capitán",
       "happy": "Alegre",
       "shiny": "Brillante",
-      "curious": "Curioso"
+      "curious": "Curioso",
+      "little": "Pequeña"
     },
     "nouns": {
       "lion": "León",
@@ -398,7 +402,21 @@
       "wizard": "Mago",
       "koala": "Koala",
       "astronaut": "Astronauta",
-      "rocket": "Cohete"
+      "rocket": "Cohete",
+      "eagle": "Águila"
+    },
+    "groups": {
+      "subtitle": "Comunidad en sintonía",
+      "members": "familias",
+      "join": "Unirme al grupo",
+      "prefix": { "crianza": "Crianza Activa" },
+      "dummy1": {
+        "desc": "Grupo para compartir experiencias, rincones familiares y apoyo mutuo en el barrio."
+      },
+      "dummy2": {
+        "name": "Rutas Familiares de Fin de Semana",
+        "desc": "Paseos en cochecito o rutas cortas a la Albufera y playas de Valencia."
+      }
     }
   }
 }

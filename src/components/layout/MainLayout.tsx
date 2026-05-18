@@ -6,6 +6,7 @@ interface MainLayoutProps {
   title?: string
   subtitle?: string
   showGlassCard?: boolean
+  variant?: 'light' | 'dark'
 }
 
 export default function MainLayout({
@@ -13,11 +14,12 @@ export default function MainLayout({
   backgroundImage,
   title,
   subtitle,
+  variant = 'light',
   showGlassCard = true,
 }: MainLayoutProps) {
+const bgClass = variant === 'dark' ? 'bg-transparent text-white' : 'bg-white/90'
   return (
     <div className="relative min-h-screen w-full flex flex-col items-center justify-start p-4 md:p-8 overflow-x-hidden font-sans">
-    
       <div
         className="fixed inset-0 z-0 transition-all duration-1000 ease-in-out"
         style={{
@@ -51,7 +53,9 @@ export default function MainLayout({
 
         {/* EL CARD: El mismo estilo que el Welcome Back del Login */}
         {showGlassCard ? (
-          <div className="bg-white/90 backdrop-blur-xl rounded-[3rem] shadow-2xl p-8 md:p-12 border-t-[12px] border-[#F28749] animate-in slide-in-from-top-10 duration-500">
+          <div
+            className={`${bgClass} backdrop-blur-xl rounded-[3rem] shadow-2xl p-8 md:p-12 border-t-[12px] border-[#F28749] animate-in slide-in-from-top-10 duration-500`}
+          >
             {children}
           </div>
         ) : (
