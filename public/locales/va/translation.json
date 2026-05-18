@@ -15,7 +15,10 @@
     "error": "Error",
     "send": "Enviar",
     "close": "Tancar",
-    "family": "FAMÍLIA"
+    "family": "FAMÍLIA",
+    "explore": "Explorar",
+    "upcoming": "Properes Cites",
+    "groups": "Veure Grups"
   },
   "auth": {
     "login": {
@@ -61,7 +64,10 @@
     "myPlaydates": "Les meues Quedades",
     "events": "Events",
     "myProfile": "El meu Perfil",
-    "myChats": "LES MEUES CONVERSES"
+    "myChats": "LES MEUES CONVERSES",
+    "verifyTitle": "Seguretat primer",
+    "verifyWarning": "Verifica la teua identitat per a connectar amb altres famílies.",
+    "verifyBtn": "VERIFICAR ARA"
   },
   "family": {
     "create": {
@@ -119,7 +125,9 @@
       "magicButton": "MÀGIA",
       "submitCreate": "CREAR PERFIL",
       "submitUpdate": "ACTUALITZAR PERFIL",
-      "errorSave": "Error al guardar el perfil. Intenta-ho de nou."
+      "errorSave": "Error al guardar el perfil. Intenta-ho de nou.",
+      "bioLabel": "Biografia",
+      "bioPlaceholder": "Parla'ns una mica sobre..."
     },
     "card": {
       "titleBoy": "Xiquet",
@@ -135,6 +143,14 @@
       "requestPlaydate": "SOL·LICITAR QUEDADA",
       "sending": "ENVIANT...",
       "requestSent": "SOL·LICITUD ENVIADA"
+    }
+  },
+  "child": {
+    "dashboard": {
+      "title": "Panel de Trobades",
+      "subtitle": "Gestió personalitzada",
+      "profilePrefix": "Perfil de",
+      "matchStatus": "Cercant nous amics..."
     }
   },
   "explore": {
@@ -187,7 +203,7 @@
     "icebreaker1": "¿Parc favorit?",
     "icebreaker2": "¿Dibuixos favorits?",
     "icebreaker3": "¿Alguna al·lèrgia?",
-    "icebreaker4": "¿Juguem este finde?",
+    "icebreaker4": "¿Joguem este finde?",
     "icebreaker5": "¿Joguet estrela?",
     "defaultNeighbor": "Família Veïna",
     "match_active": "MATCH! 🌟",
@@ -207,7 +223,12 @@
     "familyNamePrefix": "Família",
     "familyNameFallback": "Nou Veí",
     "errorLoad": "Error al carregar connexions.",
-    "errorUpdate": "No s'ha pogut actualizar l'estat"
+    "errorUpdate": "No s'ha pogut actualizar l'estat",
+    "profilePrefix": "Perfil de",
+    "matchStatus": "Cercant nous amics..."
+  },
+  "status": {
+    "unverified": "No verificat"
   },
   "events": {
     "page": {
@@ -256,7 +277,10 @@
       "agendaHighlight": "Agenda",
       "titleSuggest": "Sugerir un",
       "titleHighlight": "Plan",
-      "subtitle": "Tria un moment para conéixer al teu veí"
+      "subtitle": "Tria un moment para conéixer al teu veí, Agendes de joc actives",
+      "with": "Trobada amb",
+      "dummy1": { "title": "Berenar i Jocs al Parc" },
+      "dummy2": { "title": "Passeig en Bici i Gronsadors" }
     },
     "form": {
       "proposeShort": "Propondre",
@@ -284,18 +308,20 @@
       "confirmedLocation": "Ubicació Confirmada",
       "proposedLocation": "Ubicació Proposta",
       "planConfirmed": "¡Genial! Hi ha pla",
-      "tapToSuggest": "Pulsa per a sugerir el primer"
+      "tapToSuggest": "Pulsa per a sugerir el primer",
+      "unverified": "No verificat"
     }
   },
   "welcome": {
     "title": "¡Benvingut a la comunitat!",
-    "body": "Ara formes part d'alguna cosa més gran. El teu perfil està llist i els teus veïns t'esperen.",
+    "body": "Ara formes part d'alguna cosa més gran. El teu perfil am llist i els teus veïns t'esperen.",
     "ctaExplore": "¡Començar!",
     "ctaProfile": "Veure el meu perfil"
   },
   "profile": {
     "deleteConfirm": "¿Estàs segur de eliminar este perfil?",
-    "deleteError": "No s'ha pogut eliminar el perfil."
+    "deleteError": "No s'ha pogut eliminar el perfil.",
+    "deleteTitle": "Eliminar Perfil"
   },
   "notifications": {
     "new_message": "Tens un nou missatge de la Família {{familyName}}",
@@ -328,5 +354,69 @@
     "playdatesDesc": "Connexions consolidades",
     "sharedTimeTitle": "Temps Compartit",
     "sharedTimeDesc": "Hores de conciliació mútua"
+  },
+  "interests": {
+    "sensory play": "Joc Sensorial",
+    "lego & building": "Lego i Construcció",
+    "dinosaurs": "Dinosaures",
+    "drawing & painting": "Dibuix i Pintura",
+    "swimming": "Natació",
+    "music & dance": "Música i Dansa",
+    "storytelling": "Contacontes",
+    "outdoor exploration": "Exploració a l'Aire Lliure",
+    "animals & nature": "Animals i Natura",
+    "board games": "Jocs de Taula",
+    "cooking for kids": "Cuina per a Xiquets",
+    "space & planets": "Espai i Planetes",
+    "puzzles": "Puzles",
+    "gardening": "Jardineria",
+    "valencian pilota": "Pilota Valenciana",
+    "fallas artist": "Artista Faller",
+    "local football (amunt!)": "Futbol Local (Amunt!)",
+    "fallas artist workshop": "Taller d'Artista Faller",
+    "traditional muixeranga": "Muixeranga Tradicional",
+    "wind band music": "Música de Banda",
+    "albufera boat trips": "Passejos en barca per l'Albufera",
+    "calderona mountain hiking": "Senderisme per la Serra Calderona",
+    "robotics at city of arts": "Robòtica a la Ciutat de les Arts"
+  },
+  "nicknames": {
+    "adjectives": {
+      "magic": "Màgic",
+      "brave": "Valent",
+      "creative": "Creatiu",
+      "explorer": "Explorador",
+      "artist": "Artista",
+      "captain": "Capità",
+      "happy": "Alegre",
+      "shiny": "Brillant",
+      "curious": "Curiós",
+      "little": "Xicotet"
+    },
+    "nouns": {
+      "lion": "Lleó",
+      "star": "Estrela",
+      "dolphin": "Dofí",
+      "fox": "Guineu",
+      "bear": "Ós",
+      "wizard": "Mags",
+      "koala": "Koala",
+      "astronaut": "Astronauta",
+      "rocket": "Coet",
+      "eagle": "Àguila"
+    },
+    "groups": {
+      "subtitle": "Comunitat en sintonia",
+      "members": "famílies",
+      "join": "Unir-me al grup",
+      "prefix": { "crianza": "Criança activa" },
+      "dummy1": {
+        "desc": "Grup per a compartir experiències, racons familiars i suport mutu al barri."
+      },
+      "dummy2": {
+        "name": "Rutes familiars de cap de setmana",
+        "desc": "Eixides moteres en cotxet o rutes curtes a l'Albufera i platges de València."
+      }
+    }
   }
 }

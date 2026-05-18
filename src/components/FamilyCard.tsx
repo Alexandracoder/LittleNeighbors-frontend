@@ -22,7 +22,7 @@ export default function FamilyCard({
     null,
   )
 
-  // 1. Lógica de Intereses Mejorada: Ponemos los matches primero
+
   const sortedInterests = useMemo(() => {
     const all: InterestResponseDTO[] = family.children.flatMap(
       c => c.interests || [],
@@ -35,7 +35,7 @@ export default function FamilyCard({
       .sort((a, b) => {
         const aMatch = myInterestIds.includes(a.id) ? 1 : 0
         const bMatch = myInterestIds.includes(b.id) ? 1 : 0
-        return bMatch - aMatch // Los que coinciden van primero
+        return bMatch - aMatch
       })
       .slice(0, 6)
   }, [family.children, myInterestIds])
@@ -43,12 +43,11 @@ export default function FamilyCard({
   const handleBreakTheIce = async (targetChildId: number) => {
     if (typeof myChildId !== 'number') return
 
-    // Aquí podrías abrir un modal de confirmación antes de disparar
     try {
       setConnectingChildId(targetChildId)
       const newMatch = await matchService.requestMatch(myChildId, targetChildId)
       if (newMatch?.id) {
-        // Feedback de éxito antes de navegar
+
         navigate(`/chat/${newMatch.id}`, { replace: true })
       }
     } catch (error) {
@@ -120,7 +119,7 @@ export default function FamilyCard({
                       isConnecting ? 'text-[#333D47]' : 'text-white'
                     }`}
                   >
-                    {/* USAMOS NICKNAME O TÍTULO GENÉRICO */}
+                    
                     {child.nickname ||
                       (child.gender === 'BOY'
                         ? t('children.card.titleBoy')

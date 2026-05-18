@@ -29,6 +29,11 @@ interface AuthContextType {
   refreshProfile: () => Promise<FamilyResponseDTO | null>
   refreshStatus: () => Promise<UserStatusDTO | null>
   updateSession: () => Promise<void>
+  handleFamilyCreation: (responseData: {
+    family: FamilyResponseDTO
+    accessToken: string
+    refreshToken: string
+  }) => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -65,9 +70,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const currentStatus = await userApi.getStatus()
       setStatus(currentStatus)
 
-
       if (user && currentStatus.roles) {
-        setUser({ ...user, roles: Array.isArray(currentStatus.roles) ? currentStatus.roles : user.roles })
+        setUser({
+          ...user,
+          roles: Array.isArray(currentStatus.roles)
+            ? currentStatus.roles
+            : user.roles,
+        })
       }
 
       return currentStatus
@@ -75,59 +84,71 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return null
     }
   }
-const fetchFamilyFromApi = async (): Promise<FamilyResponseDTO | null> => {
-  try {
-    const family = await familyApi.getMyFamily()
-    
-    setFamilyEntity(family)
-    return family
-  } catch (error: any) {
-  
-    if (error.response?.status === 404) {
-      console.warn(
-        'Aviso: El usuario no tiene familia vinculada (Estado inicial).',
-      )
+
+  const fetchFamilyFromApi = async (): Promise<FamilyResponseDTO | null> => {
+    try {
+      const family = await familyApi.getMyFamily()
+
+      setFamilyEntity(family)
+      return family
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        console.warn('Notice: User has no linked family yet (Initial state).')
+        setFamilyEntity(null)
+        return null
+      }
+
+      console.error('Connection error retrieving family:', error)
       setFamilyEntity(null)
       return null
     }
-
-    
-    console.error('Error de conexión al obtener familia:', error)
-    setFamilyEntity(null)
-    return null
   }
-}
 
-const updateSession = async () => {
-  setLoading(true)
-  try {
+  const updateSession = async () => {
+    setLoading(true)
+    try {
+      const currentStatus = await userApi.getStatus()
+      setStatus(currentStatus)
 
-    const currentStatus = await userApi.getStatus()
-    setStatus(currentStatus)
+      const family = await familyApi.getMyFamily().catch(() => null)
+      setFamilyEntity(family)
 
-    
-    const family = await familyApi.getMyFamily().catch(() => null)
-    setFamilyEntity(family)
-
-    
-    if (currentStatus && currentStatus.roles) {
-      setUser(prev =>
-        prev
-          ? {
-              ...prev,
-              roles: Array.isArray(currentStatus.roles)
-                ? currentStatus.roles
-                : prev.roles,
-            }
-          : null,
-      )
+      if (currentStatus && currentStatus.roles) {
+        setUser(prev =>
+          prev
+            ? {
+                ...prev,
+                roles: Array.isArray(currentStatus.roles)
+                  ? currentStatus.roles
+                  : prev.roles,
+              }
+            : null,
+        )
+      }
+    } catch (error) {
+      console.error('Error synchronizing session:', error)
+    } finally {
+      setLoading(false)
     }
-  } catch (error) {
-    console.error('Error al sincronizar la sesión:', error)
-  } finally {
-    setLoading(false)
   }
-}
+
+  // Intercepts family creation response to inject the updated accessToken with ROLE_FAMILY immediately
+  const handleFamilyCreation = (responseData: {
+    family: FamilyResponseDTO
+    accessToken: string
+    refreshToken: string
+  }) => {
+    localStorage.setItem('accessToken', responseData.accessToken)
+    localStorage.setItem('refreshToken', responseData.refreshToken)
+    setToken(responseData.accessToken)
+
+    const decodedUser = decodeToken(responseData.accessToken)
+    setUser(decodedUser)
+    setFamilyEntity(responseData.family)
+
+    // Background sync remaining status information
+    refreshStatus()
+  }
 
   const login = async (credentials: AuthRequest): Promise<User | null> => {
     setLoading(true)
@@ -140,7 +161,6 @@ const updateSession = async () => {
       const decodedUser = decodeToken(response.accessToken)
       setUser(decodedUser)
 
-      
       await Promise.allSettled([refreshStatus(), fetchFamilyFromApi()])
       return decodedUser
     } finally {
@@ -152,8 +172,8 @@ const updateSession = async () => {
     localStorage.clear()
     sessionStorage.clear()
     setUser(null)
-    setFamilyEntity(null)
-    setStatus(null)
+    familyEntity && setFamilyEntity(null)
+    status && setStatus(null)
     setToken(null)
     window.location.href = '/login'
   }
@@ -176,7 +196,6 @@ const updateSession = async () => {
     initAuth()
   }, [])
 
-
   const hasRole = (role: UserRole) => {
     if (!user) return false
     const searchRole = role.startsWith('ROLE_') ? role : `ROLE_${role}`
@@ -197,6 +216,7 @@ const updateSession = async () => {
         refreshProfile: fetchFamilyFromApi,
         refreshStatus,
         updateSession,
+        handleFamilyCreation,
       }}
     >
       {children}

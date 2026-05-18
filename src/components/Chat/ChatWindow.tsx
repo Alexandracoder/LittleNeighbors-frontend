@@ -15,12 +15,19 @@ import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import api from '../../services/api'
 import matchService from '../../services/matchService'
-import { UserProfileDTO } from '../../types'
 import forPregnantsBg from '../../assets/for-pregnants.png'
+
+// 1. Ampliamos la interfaz local para que acepte propiedades opcionales o tipos compatibles
+interface ChatUser {
+  id: number | string
+  email: string
+  name?: string
+  verificationStatus?: string
+}
 
 interface ChatWindowProps {
   matchId: string | number
-  currentUser: UserProfileDTO
+  currentUser: ChatUser // 👈 Cambiado aquí para admitir tanto User como UserProfileDTO de forma flexible
   token: string
 }
 
@@ -36,46 +43,41 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   const [iAccepted, setIAccepted] = useState(false)
   const [matchStatus, setMatchStatus] = useState<string>('PENDING')
   const [isConnected, setIsConnected] = useState(false)
-
-
   const [neighborName, setNeighborName] = useState<string>('')
 
   const scrollRef = useRef<HTMLDivElement>(null)
   const stompClient = useRef<Client | null>(null)
 
-useEffect(() => {
-  const loadHistory = async () => {
-    if (!matchId) return
-    try {
+  useEffect(() => {
+    const loadHistory = async () => {
+      if (!matchId) return
+      try {
+        const response = await api.get(`/messages/history/match/${matchId}`)
+        const data = response.data
+        setMessages(Array.isArray(data) ? data : data.messages || [])
 
-      const response = await api.get(`/messages/history/match/${matchId}`)
-      const data = response.data
-      setMessages(Array.isArray(data) ? data : data.messages || [])
+        const myMatches = await matchService.getMyMatches()
+        if (myMatches && Array.isArray(myMatches)) {
+          const currentMatch = myMatches.find(
+            (m: any) => m.matchId === Number(matchId),
+          )
+          if (currentMatch) {
+            setMatchStatus(currentMatch.status)
+            setIAccepted(currentMatch.status === 'ACCEPTED')
 
-
-      const myMatches = await matchService.getMyMatches()
-      if (myMatches && Array.isArray(myMatches)) {
-        const currentMatch = myMatches.find(
-          (m: any) => m.matchId === Number(matchId),
-        )
-        if (currentMatch) {
-          setMatchStatus(currentMatch.status)
-          setIAccepted(currentMatch.status === 'ACCEPTED')
-
-
-          if (currentMatch.theirFamilyName) {
-            setNeighborName(currentMatch.theirFamilyName)
-          } else {
-            setNeighborName(t('chat.defaultNeighbor', 'Familia Vecina'))
+            if (currentMatch.theirFamilyName) {
+              setNeighborName(currentMatch.theirFamilyName)
+            } else {
+              setNeighborName(t('chat.defaultNeighbor', 'Familia Vecina'))
+            }
           }
         }
+      } catch (err) {
+        console.error('Error loading chat metadata:', err)
       }
-    } catch (err) {
-      console.error('Error loading chat metadata:', err)
     }
-  }
-  loadHistory()
-}, [matchId, t])
+    loadHistory()
+  }, [matchId, t])
 
   useEffect(() => {
     if (!matchId || !token) return
@@ -177,7 +179,6 @@ useEffect(() => {
                 id="chat-title"
                 className="text-xl font-black text-gray-900 uppercase italic tracking-tighter leading-none"
               >
-
                 {neighborName
                   ? `CHAT CON ${neighborName}`
                   : t('chat.title', 'LITTLE CHAT')}
@@ -258,8 +259,10 @@ useEffect(() => {
             {messages.length > 0 ? (
               messages.map((msg, idx) => {
                 const isMe =
-                  msg.senderId?.toString() === currentUser.id?.toString() ||
-                  msg.senderEmail === currentUser.email
+                  msg.senderId === currentUser.id ||
+                  msg.senderEmail === currentUser.email ||
+                  msg.senderId?.toString() === currentUser.id?.toString()
+
                 return (
                   <motion.div
                     key={msg.id || idx}
@@ -354,14 +357,11 @@ useEffect(() => {
               onChange={e => setText(e.target.value)}
               placeholder={t('chat.inputPlaceholder', 'Type...')}
               aria-label="Write your message"
-              disabled={matchStatus !== 'ACCEPTED'}
               className="flex-1 bg-transparent border-none outline-none text-gray-800 text-sm font-bold disabled:cursor-not-allowed"
             />
             <button
               type="submit"
-              disabled={
-                !text.trim() || !isConnected || matchStatus !== 'ACCEPTED'
-              }
+              disabled={!text.trim() || !isConnected}
               aria-label="Send message"
               className="bg-[#FF9E91] text-gray-900 p-3 rounded-xl border border-gray-900 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:translate-y-0.5 transition-all disabled:opacity-50"
             >

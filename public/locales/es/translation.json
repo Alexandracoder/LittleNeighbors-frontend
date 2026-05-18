@@ -15,7 +15,10 @@
     "error": "Error",
     "send": "Enviar",
     "close": "Cerrar",
-    "family": "FAMILIA"
+    "family": "FAMILIA",
+    "explore": "Explorar",
+    "upcoming": "Próximas Citas",
+    "groups": "Ver Grupos"
   },
   "auth": {
     "login": {
@@ -34,7 +37,7 @@
     },
     "register": {
       "title": "Únete al barrio",
-      "subtitle": "¿Listo para conocer a tu comunidad?",
+      "subtitle": "¿Preparado para conocer a tu comunidad?",
       "cta": "CREAR CUENTA",
       "formTitle": "Nuevo Miembro",
       "firstNamePlaceholder": "Nombre",
@@ -49,10 +52,10 @@
     }
   },
   "navigation": {
-    "dashboard": "Panel",
+    "dashboard": "Tablero",
     "explore": "Explorar",
     "profile": "Perfil",
-    "backToDashboard": "Volver al panel"
+    "backToDashboard": "Volver al tablero"
   },
   "dashboard": {
     "hello": "¡Hola!",
@@ -61,7 +64,10 @@
     "myPlaydates": "Mis Quedadas",
     "events": "Eventos",
     "myProfile": "Mi Perfil",
-    "myChats": "MIS CONVERSACIONES"
+    "myChats": "MIS CONVERSACIONES",
+    "verifyTitle": "Seguridad primero",
+    "verifyWarning": "Verifica tu identidad para conectar con otras familias.",
+    "verifyBtn": "VERIFICAR AHORA"
   },
   "family": {
     "create": {
@@ -75,12 +81,12 @@
       "familyNamePlaceholder": "Ej. Familia García Pérez",
       "neighborhoodLabel": "Tu Barrio",
       "neighborhoodPlaceholder": "Elige dónde vives...",
-      "bioLabel": "Bio / Descripción",
+      "bioLabel": "Biografía / Descripción",
       "bioPlaceholder": "Cuéntales algo sobre tu familia a los vecinos...",
       "submitIdle": "Completar Perfil",
       "submitLoading": "Procesando...",
       "errorNoNeighborhood": "Por favor selecciona un barrio antes de continuar.",
-      "errorDefault": "No se pudo inicializar el perfil familiar"
+      "errorDefault": "No se ha podido inicializar el perfil familiar"
     },
     "card": {
       "namePrefix": "Familia",
@@ -96,7 +102,7 @@
     "page": {
       "title": "Pequeños Vecinos",
       "subtitle": "Gestiona los miembros de tu familia",
-      "startExploring": "Empezar a explorar",
+      "startExploring": "Comenzar a explorar",
       "addNewProfile": "Añadir nuevo perfil"
     },
     "form": {
@@ -113,13 +119,15 @@
       "genderGirl": "Niña 👧",
       "genderSurprise": "Sorpresa ✨",
       "birthDateLabel": "Fecha de nacimiento / Prevista",
-      "descriptionLabel": "Bio / Sobre el pequeño",
+      "descriptionLabel": "Biografía / Sobre el pequeño",
       "descriptionPlaceholder": "Ej: Le encantan los dinosaurios, pintar...",
-      "interestsLabel": "Intereses y Hobbies",
+      "interestsLabel": "Intereses y Aficiones",
       "magicButton": "MAGIA",
       "submitCreate": "CREAR PERFIL",
       "submitUpdate": "ACTUALIZAR PERFIL",
-      "errorSave": "Error al guardar el perfil. Inténtalo de nuevo."
+      "errorSave": "Error al guardar el perfil. Inténtalo de nuevo.",
+      "bioLabel": "Biografía",
+      "bioPlaceholder": "Háblanos un poco sobre..."
     },
     "card": {
       "titleBoy": "Niño",
@@ -137,6 +145,14 @@
       "requestSent": "SOLICITUD ENVIADA"
     }
   },
+  "child": {
+    "dashboard": {
+      "title": "Panel de Encuentros",
+      "subtitle": "Gestión personalizada",
+      "profilePrefix": "Perfil de",
+      "matchStatus": "Buscando nuevos amigos..."
+    }
+  },
   "explore": {
     "title": "Explorar",
     "subtitle": "Busca compañeros de juego",
@@ -148,12 +164,12 @@
     },
     "scope": {
       "my_neighborhood": "Mi Barrio",
-      "entire_city": "Toda la Ciudad"
+      "entire_city": "Tota la Ciudad"
     },
     "empty": {
       "neighborhoodTitle": "¡Sé el pionero de tu barrio!",
       "generalTitle": "Aún no hay compañeros cerca",
-      "description": "LittleNeighbors grows con familias como la tuya. ¡Ayúdanos a llenar tu barrio de diversión!",
+      "description": "LittleNeighbors crece con familias como la tuya. ¡Ayúdanos a llenar tu barrio de diversión!",
       "expandSearch": "Ver toda la ciudad",
       "inviteNeighbors": "Invitar vecinos"
     },
@@ -183,7 +199,7 @@
     "pending": "PENDIENTE",
     "saveMatchIdle": "Guardar Conexión",
     "saveMatchDone": "Conectados",
-    "icebreaker": "Rompelo Todo",
+    "icebreaker": "Rompe el Hielo",
     "icebreaker1": "¿Parque favorito?",
     "icebreaker2": "¿Dibujos favoritos?",
     "icebreaker3": "¿Alguna alergia?",
@@ -207,16 +223,21 @@
     "familyNamePrefix": "Familia",
     "familyNameFallback": "Nuevo Vecino",
     "errorLoad": "Error al cargar conexiones.",
-    "errorUpdate": "No se pudo actualizar el estado"
+    "errorUpdate": "No se ha podido actualizar el estado",
+    "profilePrefix": "Perfil de",
+    "matchStatus": "Buscando nuevos amigos..."
+  },
+  "status": {
+    "unverified": "No verificado"
   },
   "events": {
     "page": {
       "title": "Eventos del Barrio",
-      "subtitle": "Busca y organiza encuentros en tu barrio",
+      "subtitle": "Busca y organiza encuentros al tu barrio",
       "createButton": "Crear Evento",
       "toggleMapShow": "Ver eventos en el mapa",
       "toggleMapHide": "Ocultar mapa",
-      "backToDashboard": "Volver al panel",
+      "backToDashboard": "Volver al tablero",
       "noEventsTitle": "Sin planes aún",
       "noEventsSubtitle": "Sé el primero en dar el paso. Organiza un encuentro y conecta con tu barrio.",
       "createFirstButton": "Comenzar ahora"
@@ -256,12 +277,15 @@
       "agendaHighlight": "Agenda",
       "titleSuggest": "Sugerir un",
       "titleHighlight": "Plan",
-      "subtitle": "Elige un momento para conocer a tu vecino"
+      "subtitle": "Agendas de juego activas",
+      "with": "Encuentro con",
+      "dummy1": { "title": "Merienda y Juegos en el Parque" },
+      "dummy2": { "title": "Paseo en Bici y Columpios" }
     },
     "form": {
       "proposeShort": "Proponer",
       "titleLabel": "¿Cuál es el plan?",
-      "titlePlaceholder": "Ej: Tarde en el parque / Café y juguetes",
+      "titlePlaceholder": "Ej: Tarde al parque / Café y juguetes",
       "whenLabel": "¿Cuándo?",
       "dateLabel": "Fecha y Hora",
       "timeCaption": "Selecciona un horario para el encuentro",
@@ -284,18 +308,20 @@
       "confirmedLocation": "Ubicación Confirmada",
       "proposedLocation": "Ubicación Propuesta",
       "planConfirmed": "¡Genial! Hay plan",
-      "tapToSuggest": "Pulsa para sugerir el primero"
+      "tapToSuggest": "Pulsa para sugerir el primero",
+      "unverified": "No verificado"
     }
   },
   "welcome": {
     "title": "¡Bienvenido a la comunidad!",
     "body": "Ahora formas parte de algo más grande. Tu perfil está listo y tus vecinos te esperan.",
-    "ctaExplore": "¡Empezar!",
+    "ctaExplore": "¡Comenzar!",
     "ctaProfile": "Ver mi perfil"
   },
   "profile": {
     "deleteConfirm": "¿Estás seguro de eliminar este perfil?",
-    "deleteError": "No se pudo eliminar el perfil."
+    "deleteError": "No se ha podido eliminar el perfil.",
+    "deleteTitle": "Eliminar Perfil"
   },
   "notifications": {
     "new_message": "Tienes un nuevo mensaje de la Familia {{familyName}}",
@@ -312,13 +338,13 @@
     "growth": "Crecimiento",
     "monthlyActive": "Usuarios Activos Mensuales (MAU)",
     "dailyActive": "Usuarios Activos Diarios (DAU)",
-    "serverStatus": "Estado del Servidor",
-    "databaseStatus": "Estado de la Base de Datos",
+    "serverStatus": "Estatus del Servidor",
+    "databaseStatus": "Estatus de la Base de Datos",
     "uptime": "Tiempo de Actividad (Uptime)"
   },
   "impact": {
     "syncPaused": "Sincronización en Pausa",
-    "errorIndicator": "No se pudieron mapear los indicadores de impacto social para el Ayuntamiento.",
+    "errorIndicator": "No se han podido mapear los indicadores de impacto social para el Ayuntamiento.",
     "titlePre": "Impacto Social",
     "titlePost": "en el Barrio",
     "verifiedReturn": "Retorno Comunitario Verificado",
@@ -328,5 +354,69 @@
     "playdatesDesc": "Conexiones consolidadas",
     "sharedTimeTitle": "Tiempo Compartido",
     "sharedTimeDesc": "Horas de conciliación mutua"
+  },
+  "interests": {
+    "sensory play": "Juego Sensorial",
+    "lego & building": "Lego y Construcción",
+    "dinosaurs": "Dinosaurios",
+    "drawing & painting": "Dibujo y Pintura",
+    "swimming": "Natación",
+    "music & dance": "Música y Danza",
+    "storytelling": "Cuentacuentos",
+    "outdoor exploration": "Exploración al Aire Libre",
+    "animals & nature": "Animales y Naturaleza",
+    "board games": "Juegos de Mesa",
+    "cooking for kids": "Cocina para Niños",
+    "space & planets": "Espacio y Planetas",
+    "puzzles": "Puzles",
+    "gardening": "Jardinería",
+    "valencian pilota": "Pelota Valenciana",
+    "fallas artist": "Artista Fallero",
+    "local football (amunt!)": "Fútbol Local (¡Amunt!)",
+    "fallas artist workshop": "Taller de Artista Fallero",
+    "traditional muixeranga": "Muixeranga Tradicional",
+    "wind band music": "Música de Banda",
+    "albufera boat trips": "Paseos en barca por la Albufera",
+    "calderona mountain hiking": "Senderismo por la Sierra Calderona",
+    "robotics at city of arts": "Robótica en la Ciudad de las Arts"
+  },
+  "nicknames": {
+    "adjectives": {
+      "magic": "Mágico",
+      "brave": "Valiente",
+      "creative": "Creativo",
+      "explorer": "Explorador",
+      "artist": "Artista",
+      "captain": "Capitán",
+      "happy": "Alegre",
+      "shiny": "Brillante",
+      "curious": "Curioso",
+      "little": "Pequeña"
+    },
+    "nouns": {
+      "lion": "León",
+      "star": "Estrella",
+      "dolphin": "Delfín",
+      "fox": "Zorro",
+      "bear": "Oso",
+      "wizard": "Mago",
+      "koala": "Koala",
+      "astronaut": "Astronauta",
+      "rocket": "Cohete",
+      "eagle": "Águila"
+    },
+    "groups": {
+      "subtitle": "Comunidad en sintonía",
+      "members": "familias",
+      "join": "Unirme al grupo",
+      "prefix": { "crianza": "Crianza Activa" },
+      "dummy1": {
+        "desc": "Grupo para compartir experiencias, rincones familiares y apoyo mutuo en el barrio."
+      },
+      "dummy2": {
+        "name": "Rutas Familiares de Fin de Semana",
+        "desc": "Paseos en cochecito o rutas cortas a la Albufera y playas de Valencia."
+      }
+    }
   }
 }

@@ -27,11 +27,9 @@ const SchedulesPage: React.FC = () => {
   const fetchPlaydates = useCallback(async () => {
     try {
       if (matchId) {
-        // Carga contextual de un chat/relación específica
         const response = await playdateService.getByMatch(Number(matchId))
         setPlaydates(Array.isArray(response) ? response : [])
       } else {
-        // Fallback global de playdates para accesos directos desde el Dashboard principal
         const response = await playdateService.getAllMyPlaydates()
         setPlaydates(Array.isArray(response) ? response : [])
       }
@@ -46,17 +44,25 @@ const SchedulesPage: React.FC = () => {
     fetchPlaydates()
   }, [fetchPlaydates])
 
-  // Suscripción en tiempo real vía WebSocket (solo si hay un matchContext activo)
   useEffect(() => {
     if (!matchId) return
+
+    const token = localStorage.getItem('token') || ''
 
     const client = new Client({
       webSocketFactory: () =>
         new SockJS('http://localhost:8080/ws-little-neighbors'),
+      connectHeaders: {
+        Authorization: token.startsWith('Bearer ') ? token : `Bearer ${token}`,
+      },
       onConnect: () => {
         client.subscribe(`/topic/playdates/${matchId}`, () => {
           fetchPlaydates()
         })
+      },
+      onStompError: frame => {
+        console.error('Broker reported error: ' + frame.headers['message'])
+        console.error('Additional details: ' + frame.body)
       },
     })
 
@@ -76,6 +82,14 @@ const SchedulesPage: React.FC = () => {
       console.error('Error confirming playdate:', error)
     } finally {
       setActionLoading(null)
+    }
+  }
+
+  const handleEmptyStateClick = () => {
+    if (matchId) {
+      navigate('/add-playdate', { state: { matchId } })
+    } else {
+      navigate('/explore')
     }
   }
 
@@ -230,11 +244,7 @@ const SchedulesPage: React.FC = () => {
           </div>
         ) : (
           <div
-            onClick={() =>
-              matchId
-                ? navigate('/add-playdate', { state: { matchId } })
-                : navigate('/explore')
-            }
+            onClick={handleEmptyStateClick}
             className="group flex items-center gap-5 px-10 py-8 bg-white/95 backdrop-blur-sm rounded-[3rem] shadow-2xl cursor-pointer border border-white transition-all active:scale-95 hover:bg-white"
           >
             <div className="w-14 h-14 bg-gray-50 rounded-[1.2rem] flex items-center justify-center shrink-0 shadow-inner group-hover:bg-orange-50 transition-colors">
