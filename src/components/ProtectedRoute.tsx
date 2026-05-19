@@ -1,7 +1,7 @@
 import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import type { UserRole } from '../types'
-import { t } from 'i18next'
+import { useTranslation } from 'react-i18next'
 
 interface ProtectedRouteProps {
   children: React.ReactNode
@@ -12,15 +12,16 @@ export default function ProtectedRoute({
   children,
   allowedRoles,
 }: ProtectedRouteProps) {
-  const { user, familyEntity, status, loading } = useAuth()
+  const { user, loading } = useAuth()
   const location = useLocation()
+  const { t } = useTranslation()
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#1a1a1a] flex flex-col items-center justify-center text-white">
+      <div className="min-h-screen bg-[#FDF8F3] flex flex-col items-center justify-center text-[#2D2D2D]">
         <div className="animate-spin rounded-full h-12 w-12 border-4 border-orange-500 border-t-transparent mb-4" />
-        <p className="font-medium animate-pulse uppercase tracking-widest text-xs">
-          {t('loading.verifyingNeighborhood')}
+        <p className="font-black animate-pulse uppercase tracking-[0.3em] text-orange-600 text-xs">
+          {t('loading.verifyingNeighborhood') || 'LOADING...'}
         </p>
       </div>
     )
@@ -29,6 +30,7 @@ export default function ProtectedRoute({
   if (!user) {
     return <Navigate to="/login" state={{ from: location }} replace />
   }
+
 
   if (allowedRoles && allowedRoles.length > 0) {
     const userRoles = user.roles || []
@@ -40,34 +42,6 @@ export default function ProtectedRoute({
     if (!hasPermission) {
       return <Navigate to="/dashboard" replace />
     }
-  }
-
-  const path = location.pathname
-  const hasFamily = status?.hasFamily ?? !!familyEntity
-  const hasChildren = status?.hasChildren ?? !!familyEntity?.children?.length
-
-  console.log(
-    'ProtectedRoute execution — Path:',
-    path,
-    '| Has Family:',
-    hasFamily,
-    '| Has Children:',
-    hasChildren,
-  )
-
-
-  if (!hasFamily) {
-    if (path !== '/create-family') {
-      return <Navigate to="/create-family" replace />
-    }
-    return <>{children}</>
-  }
-
-  if (!hasChildren) {
-    if (path !== '/add-child') {
-      return <Navigate to="/add-child" replace />
-    }
-    return <>{children}</>
   }
 
   return <>{children}</>

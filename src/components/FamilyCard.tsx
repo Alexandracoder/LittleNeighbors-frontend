@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import type { FamilyResponseDTO, InterestResponseDTO } from '../types'
 import matchService from '../services/matchService'
+import { toast } from 'react-hot-toast'
 
 interface FamilyCardProps {
   family: FamilyResponseDTO
@@ -17,11 +18,42 @@ export default function FamilyCard({
   myInterestIds = [],
 }: FamilyCardProps) {
   const navigate = useNavigate()
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [connectingChildId, setConnectingChildId] = useState<number | null>(
     null,
   )
 
+
+  const getTranslatedNickname = (nickname: string, gender: string) => {
+    if (!nickname) {
+      return gender === 'BOY'
+        ? t('children.card.titleBoy')
+        : t('children.card.titleGirl')
+    }
+
+    const parts = nickname.split(' ')
+    if (parts.length === 2) {
+      const [adj, noun] = parts
+      const adjKey = adj.toLowerCase()
+      const nounKey = noun.toLowerCase()
+
+      const hasAdj =
+        i18n.hasResourceBundle(i18n.language, 'translation') &&
+        i18n.exists(`nicknames.adjectives.${adjKey}`)
+      const hasNoun =
+        i18n.hasResourceBundle(i18n.language, 'translation') &&
+        i18n.exists(`nicknames.nouns.${nounKey}`)
+
+      if (hasAdj && hasNoun) {
+        const translatedAdj = t(`nicknames.adjectives.${adjKey}`)
+        const translatedNoun = t(`nicknames.nouns.${nounKey}`)
+        return `${
+          translatedAdj.charAt(0).toUpperCase() + translatedAdj.slice(1)
+        } ${translatedNoun.charAt(0).toUpperCase() + translatedNoun.slice(1)}`
+      }
+    }
+    return nickname
+  }
 
   const sortedInterests = useMemo(() => {
     const all: InterestResponseDTO[] = family.children.flatMap(
@@ -41,17 +73,39 @@ export default function FamilyCard({
   }, [family.children, myInterestIds])
 
   const handleBreakTheIce = async (targetChildId: number) => {
-    if (typeof myChildId !== 'number') return
+    if (typeof myChildId !== 'number') {
+      toast.error('Selecciona tu perfil de hijo primero para conectar', {
+        icon: '👶',
+      })
+      return
+    }
 
     try {
       setConnectingChildId(targetChildId)
       const newMatch = await matchService.requestMatch(myChildId, targetChildId)
       if (newMatch?.id) {
-
+        toast.success('¡Hielo roto! Abriendo chat de barrio...', { icon: '🎉' })
         navigate(`/chat/${newMatch.id}`, { replace: true })
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error breaking the ice:', error)
+
+      const backendMessage = error.response?.data?.message
+
+      toast.error(
+        backendMessage ||
+          t('common.error') ||
+          'No se pudo enviar la solicitud de conexión',
+        {
+          icon: '🔒',
+          style: {
+            border: '2px solid #EF4444',
+            padding: '16px',
+            color: '#B91C1C',
+            backgroundColor: '#FEF2F2',
+          },
+        },
+      )
     } finally {
       setConnectingChildId(null)
     }
@@ -119,11 +173,8 @@ export default function FamilyCard({
                       isConnecting ? 'text-[#333D47]' : 'text-white'
                     }`}
                   >
-                    
-                    {child.nickname ||
-                      (child.gender === 'BOY'
-                        ? t('children.card.titleBoy')
-                        : t('children.card.titleGirl'))}
+                    {/* APLICAMOS TRADUCCIÓN MÁGICA DE APODOS EN TIEMPO REAL */}
+                    {getTranslatedNickname(child.nickname, child.gender)}
                   </div>
                   <div
                     className={`text-[10px] font-bold ${

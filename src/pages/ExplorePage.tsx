@@ -10,35 +10,57 @@ import type {
 import FamilyCard from '../components/FamilyCard'
 import MainLayout from '../components/layout/MainLayout'
 import bgImage from '../assets/littleneighbor_playing.png'
+
+// 🗺️ Importaciones de Leaflet
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
+import L from 'leaflet'
+import markerIcon from 'leaflet/dist/images/marker-icon.png'
+import markerShadow from 'leaflet/dist/images/marker-shadow.png'
+
 import {
   Heart,
-  FilterX,
-  ChevronDown,
   ArrowLeft,
   LayoutDashboard,
   User,
-  Sparkles,
   Users,
   Share2,
+  SlidersHorizontal,
+  X,
+  Map, // 👈 Nuevo Icono
+  Grid, // 👈 Nuevo Icono
 } from 'lucide-react'
+
+// 📌 Arreglo de bug de iconos de Leaflet en entornos como Vite/Webpack
+const DefaultIcon = L.icon({
+  iconUrl: markerIcon,
+  shadowUrl: markerShadow,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+})
+L.Marker.prototype.options.icon = DefaultIcon
 
 export default function ExplorePage() {
   const navigate = useNavigate()
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [searchParams] = useSearchParams()
 
-  // Estados de datos
   const [families, setFamilies] = useState<FamilyResponseDTO[]>([])
   const [availableInterests, setAvailableInterests] = useState<
     InterestResponseDTO[]
   >([])
   const [myChildren, setMyChildren] = useState<ChildSummaryDTO[]>([])
   const [loading, setLoading] = useState(false)
-
-  // Modos de búsqueda: neighborhood (barrio) o city (ciudad)
+  const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false)
   const [searchMode, setSearchMode] = useState<'neighborhood' | 'city'>(
     'neighborhood',
   )
+
+  // 🗺️ Estado para alternar entre vista de Tarjetas (Grid) o Mapa
+  const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid')
+
+  // Coordenadas por defecto (Centro de Valencia: Plaza del Ayuntamiento)
+  const valenciaCenter: [number, number] = [39.4699, -0.3763]
 
   // Filtros
   const [myChildId, setMyChildId] = useState<number | undefined>(
@@ -52,7 +74,36 @@ export default function ExplorePage() {
     null,
   )
 
-  // Inicialización de datos (Intereses y Perfil propio)
+  const getTranslatedNickname = (nickname: string, gender: string) => {
+    if (!nickname) {
+      return gender === 'BOY'
+        ? t('children.card.titleBoy')
+        : t('children.card.titleGirl')
+    }
+    const parts = nickname.split(' ')
+    if (parts.length === 2) {
+      const [adj, noun] = parts
+      const adjKey = adj.toLowerCase()
+      const nounKey = noun.toLowerCase()
+
+      const hasAdj =
+        i18n.hasResourceBundle(i18n.language, 'translation') &&
+        i18n.exists(`nicknames.adjectives.${adjKey}`)
+      const hasNoun =
+        i18n.hasResourceBundle(i18n.language, 'translation') &&
+        i18n.exists(`nicknames.nouns.${nounKey}`)
+
+      if (hasAdj && hasNoun) {
+        const translatedAdj = t(`nicknames.adjectives.${adjKey}`)
+        const translatedNoun = t(`nicknames.nouns.${nounKey}`)
+        return `${
+          translatedAdj.charAt(0).toUpperCase() + translatedAdj.slice(1)
+        } ${translatedNoun.charAt(0).toUpperCase() + translatedNoun.slice(1)}`
+      }
+    }
+    return nickname
+  }
+
   useEffect(() => {
     const initData = async () => {
       try {
@@ -82,7 +133,6 @@ export default function ExplorePage() {
     initData()
   }, [searchParams])
 
-  // Carga de familias con lógica de "Scope" (Barrio o Ciudad)
   const loadFamilies = useCallback(async () => {
     if (!myChildId) return
     setLoading(true)
@@ -93,15 +143,20 @@ export default function ExplorePage() {
         maxAge: ageRange ? ageRange.max : 12,
         interestIds:
           selectedInterestIds.length > 0 ? selectedInterestIds : undefined,
-        scope: searchMode, // Enviamos el modo al backend
+        scope: searchMode,
       }
 
       const data = await familyApi.explore(filters)
-      const uniqueFamilies = Array.isArray(data)
-        ? Array.from(new Map(data.map(f => [f.id, f])).values())
-        : []
+const seenIds = new Set()
+const uniqueFamilies = Array.isArray(data)
+  ? data.filter(f => {
+      if (seenIds.has(f.id)) return false
+      seenIds.add(f.id)
+      return true
+    })
+  : []
 
-      setFamilies(uniqueFamilies)
+setFamilies(uniqueFamilies)
     } catch (err: any) {
       console.error('Error loading families:', err)
     } finally {
@@ -134,6 +189,24 @@ export default function ExplorePage() {
     )
   }
 
+  const activeFiltersCount = useMemo(() => {
+    let count = 0
+    if (ageRange) count++
+    if (selectedInterestIds.length > 0) count += selectedInterestIds.length
+    return count
+  }, [ageRange, selectedInterestIds])
+
+  // 🗺️ Filtrar familias que tienen coordenadas válidas para el mapa
+  const familiesWithCoordinates = useMemo(() => {
+    return families.filter(
+      f =>
+        f.latitude !== null &&
+        f.longitude !== null &&
+        f.latitude !== undefined &&
+        f.longitude !== undefined,
+    )
+  }, [families])
+
   return (
     <MainLayout
       backgroundImage={bgImage}
@@ -141,24 +214,24 @@ export default function ExplorePage() {
       subtitle={t('explore.subtitle')}
       showGlassCard={false}
     >
-      <div className="flex flex-col gap-8">
-        {/* NAVEGACIÓN Y SELECTOR DE MODO */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+      <div className="flex flex-col gap-6 relative">
+        {/* NAVEGACIÓN Y BARRA DE CONTROL SUPERIOR */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 w-full">
           <button
             onClick={() => navigate('/dashboard')}
-            className="flex items-center gap-2 px-5 py-2.5 bg-white/10 backdrop-blur-xl border border-white/20 rounded-full text-white hover:bg-white/20 transition-all group shadow-lg"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-3 bg-white/10 backdrop-blur-xl border border-white/20 rounded-full text-white hover:bg-white/20 transition-all min-h-[44px]"
           >
-            <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+            <ArrowLeft className="w-4 h-4" />
             <span className="text-[10px] font-black uppercase tracking-widest">
               {t('common.back')}
             </span>
           </button>
 
-          {/* Toggle de Barrio / Ciudad */}
-          <div className="flex bg-black/20 backdrop-blur-md p-1 rounded-2xl border border-white/10">
+          {/* Toggle Core: Barrio / Ciudad */}
+          <div className="w-full sm:w-auto flex bg-black/20 backdrop-blur-md p-1 rounded-2xl border border-white/10 shadow-inner">
             <button
               onClick={() => setSearchMode('neighborhood')}
-              className={`px-6 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all ${
+              className={`flex-1 sm:flex-none px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all min-h-[44px] ${
                 searchMode === 'neighborhood'
                   ? 'bg-[#F28749] text-white shadow-lg'
                   : 'text-white/40 hover:text-white'
@@ -168,7 +241,7 @@ export default function ExplorePage() {
             </button>
             <button
               onClick={() => setSearchMode('city')}
-              className={`px-6 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all ${
+              className={`flex-1 sm:flex-none px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all min-h-[44px] ${
                 searchMode === 'city'
                   ? 'bg-[#F28749] text-white shadow-lg'
                   : 'text-white/40 hover:text-white'
@@ -178,7 +251,8 @@ export default function ExplorePage() {
             </button>
           </div>
 
-          <div className="flex items-center gap-2 bg-white/10 backdrop-blur-xl p-1.5 rounded-full border border-white/20 shadow-lg">
+          {/* Botonera de Acceso Rápido */}
+          <div className="hidden sm:flex items-center gap-2 bg-white/10 backdrop-blur-xl p-1.5 rounded-full border border-white/20 shadow-lg">
             <button
               onClick={() => navigate('/dashboard')}
               className="p-2.5 hover:bg-[#F28749] rounded-full text-white transition-all"
@@ -195,93 +269,183 @@ export default function ExplorePage() {
           </div>
         </div>
 
-        {/* SELECTOR DE HIJOS */}
-        <div className="flex flex-wrap gap-3 items-center bg-white/10 backdrop-blur-md p-3 rounded-[2rem] border border-white/20 w-fit shadow-2xl">
-          {myChildren.map(child => (
+        {/* SELECTOR DE PERFIL DE HIJO ACTIVO, TOGGLE VISTA Y FILTROS */}
+        <div className="flex items-center justify-between gap-4 w-full bg-white/10 backdrop-blur-md p-2 rounded-[2rem] border border-white/20 shadow-xl">
+          <div className="flex flex-wrap gap-2 items-center">
+            {myChildren.map(child => (
+              <button
+                key={child.id}
+                onClick={() => {
+                  setMyChildId(child.id)
+                  setMyChildInterests(child.interests?.map(i => i.id) || [])
+                }}
+                className={`px-4 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all min-h-[40px] flex items-center ${
+                  myChildId === child.id
+                    ? 'bg-[#F28749] text-white scale-105 shadow-md'
+                    : 'bg-white/5 text-white/50 hover:bg-white/10'
+                }`}
+              >
+                <span className="mr-1.5">
+                  {child.gender === 'BOY' ? '👦' : '👧'}
+                </span>
+                {getTranslatedNickname(child.nickname, child.gender)}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-2">
+            {/* 🗺️ BOTÓN TOGGLE MAPA / GRID */}
             <button
-              key={child.id}
-              onClick={() => {
-                setMyChildId(child.id)
-                setMyChildInterests(child.interests?.map(i => i.id) || [])
-              }}
-              className={`px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${
-                myChildId === child.id
-                  ? 'bg-[#F28749] text-white scale-105'
-                  : 'bg-white/5 text-white/50 hover:bg-white/10'
+              onClick={() =>
+                setViewMode(prev => (prev === 'grid' ? 'map' : 'grid'))
+              }
+              className="flex items-center gap-2 px-4 py-2.5 rounded-full border border-white/10 bg-white/5 text-white text-[10px] font-black uppercase tracking-wider transition-all min-h-[40px] hover:bg-white/10"
+            >
+              {viewMode === 'grid' ? (
+                <>
+                  <Map className="w-3.5 h-3.5 text-[#F28749]" />
+                  <span className="hidden xs:inline">Ver Mapa</span>
+                </>
+              ) : (
+                <>
+                  <Grid className="w-3.5 h-3.5 text-[#F28749]" />
+                  <span className="hidden xs:inline">Ver Lista</span>
+                </>
+              )}
+            </button>
+
+            {/* Botón Controlador de Filtros */}
+            <button
+              onClick={() => setIsFilterDrawerOpen(true)}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-full border text-[10px] font-black uppercase tracking-wider transition-all min-h-[40px] ${
+                activeFiltersCount > 0
+                  ? 'bg-white text-gray-900 border-white shadow-lg'
+                  : 'bg-white/5 text-white border-white/10'
               }`}
             >
-              <span className="mr-2">
-                {child.gender === 'BOY' ? '👦' : '👧'}
+              <SlidersHorizontal className="w-3.5 h-3.5" />
+              <span className="hidden xs:inline">
+                {t('explore.filters.title', 'Filtros')}
               </span>
-              {child.nickname ||
-                `${child.age} ${t('family.card.yearsOldSuffix')}`}
+              {activeFiltersCount > 0 && (
+                <span className="bg-[#F28749] text-white text-[9px] w-5 h-5 rounded-full flex items-center justify-center font-bold">
+                  {activeFiltersCount}
+                </span>
+              )}
             </button>
-          ))}
+          </div>
         </div>
 
-        {/* FILTROS */}
-        <section className="flex flex-col md:flex-row gap-6 items-stretch">
-          <div className="w-full md:w-1/3 bg-white/10 backdrop-blur-xl rounded-[2.5rem] p-8 border border-white/20 shadow-xl">
-            <label className="text-[10px] font-black text-[#F28749] uppercase tracking-[0.2em] mb-4 block">
-              {t('explore.filters.ageRangeLabel')}
-            </label>
-            <select
-              value={ageRange ? `${ageRange.min}-${ageRange.max}` : ''}
-              onChange={e => {
-                if (!e.target.value) setAgeRange(null)
-                else {
-                  const [min, max] = e.target.value.split('-').map(Number)
-                  setAgeRange({ min, max })
-                }
-              }}
-              className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-sm font-bold text-white appearance-none outline-none"
-            >
-              <option value="" className="text-gray-900">
-                {t('explore.filters.ageRangeAll')}
-              </option>
-              <option value="0-2" className="text-gray-900">
-                {t('explore.filters.ageRangeToddlers')}
-              </option>
-              <option value="3-5" className="text-gray-900">
-                {t('explore.filters.ageRangePreschoolers')}
-              </option>
-              <option value="6-12" className="text-gray-900">
-                {t('explore.filters.ageRangeSchool')}
-              </option>
-            </select>
-          </div>
-
-          <div className="w-full md:w-2/3 bg-white/10 backdrop-blur-xl rounded-[3rem] p-8 border border-white/20 shadow-xl">
-            <div className="flex flex-wrap gap-2">
-              {availableInterests.map(interest => {
-                const isSelected = selectedInterestIds.includes(interest.id)
-                return (
-                  <button
-                    key={interest.id}
-                    onClick={() => toggleInterest(interest.id)}
-                    className={`px-4 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center gap-2 border ${
-                      isSelected
-                        ? 'bg-white text-gray-900 border-white'
-                        : 'border-white/10 bg-white/5 text-white/60'
-                    }`}
-                  >
-                    <Heart
-                      className={`w-3 h-3 ${
-                        isSelected
-                          ? 'fill-red-500 text-red-500'
-                          : 'text-white/20'
-                      }`}
-                    />
-                    {interest.name}
-                  </button>
-                )
-              })}
+        {/* --- DRAWER DE FILTROS (Código original intacto) --- */}
+        <div
+          className={`fixed inset-0 z-50 transition-all duration-500 ${
+            isFilterDrawerOpen
+              ? 'visible pointer-events-auto'
+              : 'invisible pointer-events-none'
+          }`}
+        >
+          <div
+            onClick={() => setIsFilterDrawerOpen(false)}
+            className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-500 ${
+              isFilterDrawerOpen ? 'opacity-100' : 'opacity-0'
+            }`}
+          />
+          <div
+            className={`absolute bottom-0 left-0 right-0 max-h-[85vh] overflow-y-auto bg-[#2D2D2D] rounded-t-[2.5rem] p-8 border-t border-white/10 shadow-2xl transition-transform duration-500 md:left-auto md:right-0 md:top-0 md:bottom-0 md:w-[450px] md:max-h-screen md:rounded-t-none md:rounded-l-[3rem] md:border-l md:border-t-0 ${
+              isFilterDrawerOpen
+                ? 'translate-y-0 md:translate-x-0'
+                : 'translate-y-full md:translate-x-full'
+            }`}
+          >
+            <div className="flex justify-between items-center mb-6 pb-4 border-b border-white/10">
+              <div className="flex items-center gap-2">
+                <SlidersHorizontal className="w-4 h-4 text-[#F28749]" />
+                <h3 className="text-sm font-black uppercase tracking-widest text-white">
+                  {t('explore.filters.title', 'Filtros Avanzados')}
+                </h3>
+              </div>
+              <button
+                onClick={() => setIsFilterDrawerOpen(false)}
+                className="p-2 hover:bg-white/10 rounded-full text-white/60 hover:text-white transition-all min-h-[44px] min-w-[44px] flex items-center justify-center"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="flex flex-col gap-6">
+              <div>
+                <label className="text-[9px] font-black text-[#F28749] uppercase tracking-[0.2em] mb-2 block">
+                  {t('explore.filters.ageRangeLabel')}
+                </label>
+                <select
+                  value={ageRange ? `${ageRange.min}-${ageRange.max}` : ''}
+                  onChange={e => {
+                    if (!e.target.value) setAgeRange(null)
+                    else {
+                      const [min, max] = e.target.value.split('-').map(Number)
+                      setAgeRange({ min, max })
+                    }
+                  }}
+                  className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3.5 text-xs font-bold text-white appearance-none outline-none focus:border-[#F28749]"
+                >
+                  <option value="" className="text-gray-900">
+                    {t('explore.filters.ageRangeAll')}
+                  </option>
+                  <option value="0-2" className="text-gray-900">
+                    {t('explore.filters.ageRangeToddlers')}
+                  </option>
+                  <option value="3-5" className="text-gray-900">
+                    {t('explore.filters.ageRangePreschoolers')}
+                  </option>
+                  <option value="6-12" className="text-gray-900">
+                    {t('explore.filters.ageRangeSchool')}
+                  </option>
+                </select>
+              </div>
+              <div>
+                <label className="text-[9px] font-black text-[#F28749] uppercase tracking-[0.2em] mb-3 block">
+                  {t(
+                    'explore.filters.interestsLabel',
+                    'Filtrar por gustos comunes',
+                  )}
+                </label>
+                <div className="flex flex-wrap gap-2 max-h-[250px] overflow-y-auto pr-1">
+                  {availableInterests.map(interest => {
+                    const isSelected = selectedInterestIds.includes(interest.id)
+                    return (
+                      <button
+                        key={interest.id}
+                        onClick={() => toggleInterest(interest.id)}
+                        className={`px-3 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center gap-1.5 border min-h-[36px] ${
+                          isSelected
+                            ? 'bg-white text-gray-900 border-white'
+                            : 'border-white/10 bg-white/5 text-white/60 hover:bg-white/10'
+                        }`}
+                      >
+                        <Heart
+                          className={`w-3 h-3 ${
+                            isSelected
+                              ? 'fill-red-500 text-red-500'
+                              : 'text-white/20'
+                          }`}
+                        />
+                        {interest.name}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+              <button
+                onClick={() => setIsFilterDrawerOpen(false)}
+                className="w-full py-4 mt-4 bg-[#F28749] text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-[#e0763d] transition-all shadow-lg min-h-[48px]"
+              >
+                {t('explore.filters.apply', 'Ver resultados')}
+              </button>
             </div>
           </div>
-        </section>
+        </div>
 
-        {/* RESULTADOS */}
-        <div className="mt-4">
+        {/* SECCIÓN DE RESULTADOS: RENDERIZADO CONDICIONAL MAPA / GRID */}
+        <div className="mt-2">
           {loading ? (
             <div className="flex flex-col items-center justify-center py-32 bg-white/5 backdrop-blur-sm rounded-[3rem] border-2 border-dashed border-white/10">
               <div className="animate-spin h-14 w-14 border-4 border-[#F28749] border-t-transparent rounded-full mb-6" />
@@ -289,70 +453,103 @@ export default function ExplorePage() {
                 {t('explore.loading')}
               </span>
             </div>
-          ) : (
-            <>
-              {families.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 pb-10">
-                  {families.map(f => (
-                    <div
-                      key={f.id}
-                      className="transform hover:-translate-y-3 transition-all duration-500"
-                    >
-                      <FamilyCard
-                        family={f}
-                        myChildId={myChildId}
-                        myInterestIds={myChildInterests}
-                      />
-                    </div>
+          ) : families.length > 0 ? (
+            viewMode === 'grid' ? (
+              /* 🟩 VISTA A: TU GRID DE TARJETAS ORIGINAL */
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-10">
+                {families.map(f => (
+                  <div
+                    key={f.id}
+                    className="transform hover:-translate-y-2 transition-all duration-500"
+                  >
+                    <FamilyCard
+                      family={f}
+                      myChildId={myChildId}
+                      myInterestIds={myChildInterests}
+                    />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              /* 🗺️ VISTA B: EL NUEVO MAPA INTERACTIVO DE LEAFLET */
+              <div className="w-full h-[500px] rounded-[2.5rem] overflow-hidden border border-white/20 shadow-2xl backdrop-blur-md relative z-10">
+                <MapContainer
+                  center={valenciaCenter}
+                  zoom={13}
+                  className="w-full h-full"
+                >
+                  <TileLayer
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  />
+                  {familiesWithCoordinates.map(f => (
+                    <Marker key={f.id} position={[f.latitude!, f.longitude!]}>
+                      <Popup>
+                        <div className="text-center p-1 text-slate-800">
+                          {f.profilePictureUrl && (
+                            <img
+                              src={f.profilePictureUrl}
+                              alt={f.familyName}
+                              className="w-12 h-12 rounded-full mx-auto object-cover border border-[#F28749] mb-1"
+                            />
+                          )}
+                          <h4 className="font-bold text-sm text-gray-900 m-0">
+                            Familia {f.familyName}
+                          </h4>
+                          <p className="text-[11px] text-gray-600 my-1 line-clamp-2">
+                            {f.description}
+                          </p>
+                          <div className="text-[10px] bg-[#F28749]/10 text-[#F28749] px-2 py-0.5 rounded-md inline-block font-semibold">
+                            📍 {f.neighborhoodName}
+                          </div>
+                        </div>
+                      </Popup>
+                    </Marker>
                   ))}
-                </div>
-              ) : (
-                /* EMPTY STATE PROACTIVO */
-                <div className="text-center py-20 px-6 bg-white/5 backdrop-blur-md rounded-[3rem] border-2 border-dashed border-white/20 animate-in fade-in zoom-in duration-500">
-                  <div className="bg-[#F28749]/20 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <Users className="text-[#F28749] w-10 h-10" />
-                  </div>
-
-                  <h3 className="text-2xl font-black text-white mb-4 uppercase tracking-tighter">
-                    {searchMode === 'neighborhood'
-                      ? t(
-                          'explore.empty.neighborhoodTitle',
-                          '¡Sé el pionero de tu barrio!',
-                        )
-                      : t(
-                          'explore.empty.generalTitle',
-                          'Aún no hay compañeros cerca',
-                        )}
-                  </h3>
-
-                  <p className="text-white/60 max-w-sm mx-auto mb-10 font-medium">
-                    {t(
-                      'explore.empty.description',
-                      'LittleNeighbors crece con familias como la tuya. ¡Ayúdanos a llenar tu barrio de diversión!',
+                </MapContainer>
+              </div>
+            )
+          ) : (
+            /* EMPTY STATE PROACTIVO ORIGINAL */
+            <div className="text-center py-16 px-6 bg-white/5 backdrop-blur-md rounded-[3rem] border-2 border-dashed border-white/20 animate-in fade-in zoom-in duration-500">
+              <div className="bg-[#F28749]/20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Users className="text-[#F28749] w-8 h-8" />
+              </div>
+              <h3 className="text-xl font-black text-white mb-2 uppercase tracking-tighter">
+                {searchMode === 'neighborhood'
+                  ? t(
+                      'explore.empty.neighborhoodTitle',
+                      '¡Sé el pionero de tu barrio!',
+                    )
+                  : t(
+                      'explore.empty.generalTitle',
+                      'Aún no hay compañeros cerca',
                     )}
-                  </p>
-
-                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    {searchMode === 'neighborhood' && (
-                      <button
-                        onClick={() => setSearchMode('city')}
-                        className="px-8 py-4 bg-white/10 hover:bg-white/20 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all border border-white/20"
-                      >
-                        {t('explore.empty.expandSearch', 'Ver toda la ciudad')}
-                      </button>
-                    )}
-
-                    <button
-                      onClick={handleShare}
-                      className="px-8 py-4 bg-[#F28749] hover:bg-[#e0763d] text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg transition-all flex items-center justify-center gap-3"
-                    >
-                      <Share2 className="w-4 h-4" />
-                      {t('explore.empty.inviteNeighbors', 'Invitar vecinos')}
-                    </button>
-                  </div>
-                </div>
-              )}
-            </>
+              </h3>
+              <p className="text-white/60 max-w-sm mx-auto mb-8 text-xs font-medium">
+                {t(
+                  'explore.empty.description',
+                  'LittleNeighbors crece con familias como la tuya. ¡Ayúdanos a llenar tu barrio de diversión!',
+                )}
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                {searchMode === 'neighborhood' && (
+                  <button
+                    onClick={() => setSearchMode('city')}
+                    className="px-6 py-3.5 bg-white/10 hover:bg-white/20 text-white rounded-2xl font-black uppercase tracking-widest text-[9px] transition-all border border-white/20 min-h-[44px]"
+                  >
+                    {t('explore.empty.expandSearch', 'Ver toda la ciudad')}
+                  </button>
+                )}
+                <button
+                  onClick={handleShare}
+                  className="px-6 py-3.5 bg-[#F28749] hover:bg-[#e0763d] text-white rounded-2xl font-black uppercase tracking-widest text-[9px] shadow-lg transition-all flex items-center justify-center gap-2 min-h-[44px]"
+                >
+                  <Share2 className="w-4 h-4" />
+                  {t('explore.empty.inviteNeighbors', 'Invitar vecinos')}
+                </button>
+              </div>
+            </div>
           )}
         </div>
       </div>

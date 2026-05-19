@@ -176,9 +176,13 @@
       "inviteNeighbors": "Invite neighbors"
     },
     "filters": {
+"filters": {
+      "title": "Filters",
+      "advancedTitle": "Advanced Filters",
+      "apply": "Apply filters",
       "ageRangeLabel": "Age range",
       "ageRangeAll": "All ages",
-      "ageRangeToddlers": "Toddlers (0-2)",
+      "ageRangeToddlers": "Babies (0-2)",
       "ageRangePreschoolers": "Preschool (3-5)",
       "ageRangeSchool": "School age (6+)",
       "interestsLabel": "Interests",
@@ -211,7 +215,8 @@
     "match_active": "MATCH! 🌟",
     "status": {
       "pending": "PENDING",
-      "match": "MATCH!"
+      "match": "MATCH!",
+      "aiThinking": "AI Thinking..."
     }
   },
   "matches": {

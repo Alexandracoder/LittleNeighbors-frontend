@@ -174,6 +174,9 @@
       "inviteNeighbors": "Convidar veïns"
     },
     "filters": {
+      "title": "Filtres",
+      "advancedTitle": "Filtres Avançats",
+      "apply": "Veure resultats",
       "ageRangeLabel": "Rang d'edat",
       "ageRangeAll": "Totes les edats",
       "ageRangeToddlers": "Bebés (0-2)",
@@ -209,7 +212,8 @@
     "match_active": "MATCH! 🌟",
     "status": {
       "pending": "PENDENT",
-      "match": "MATCH!"
+      "match": "MATCH!",
+      "aiThinking": "IA Pensant..."
     }
   },
   "matches": {

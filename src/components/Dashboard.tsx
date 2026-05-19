@@ -102,7 +102,7 @@ export default function Dashboard() {
 
         <div className="flex flex-wrap justify-center gap-4 max-w-2xl mb-4">
           <button
-            onClick={() => navigate('/my-schedules')}
+            onClick={() => navigate('/schedules')}
             className="flex items-center gap-3 px-8 py-4 bg-white/10 backdrop-blur-xl text-white rounded-full border-2 border-white/20 shadow-xl transition-all hover:bg-white/20 hover:scale-105 active:scale-95"
           >
             <Calendar className="w-5 h-5 text-[#F28749]" />

@@ -36,6 +36,9 @@ export interface ChildSummaryDTO {
 }
 
 export interface FamilyResponseDTO {
+  longitude: number
+  latitude: number
+  neighborhoodName: ReactI18NextChildren | Iterable<ReactI18NextChildren>
   status: 'PREGNANT' | 'NEW_PARENTS' | 'ESTABLISHED_FAMILY' | 'SURPRISE'
   neighborhood: any
   familyInterests: string[]
@@ -162,6 +165,7 @@ export interface MessageService {
 }
 
 export interface Playdate {
+  location: string
   date: any
   time: ReactNode
   neighborName: ReactNode

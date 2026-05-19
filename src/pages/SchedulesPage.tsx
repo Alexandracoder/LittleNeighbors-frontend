@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useEffect, useState, useCallback, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import {
   ArrowLeft,
@@ -23,7 +23,9 @@ const SchedulesPage: React.FC = () => {
   const [playdates, setPlaydates] = useState<Playdate[]>([])
   const [loading, setLoading] = useState(true)
   const [actionLoading, setActionLoading] = useState<number | null>(null)
+  const stompClient = useRef<Client | null>(null)
 
+  // Carga de citas (Contextual si hay matchId, Global si no lo hay)
   const fetchPlaydates = useCallback(async () => {
     try {
       if (matchId) {
@@ -44,6 +46,7 @@ const SchedulesPage: React.FC = () => {
     fetchPlaydates()
   }, [fetchPlaydates])
 
+  // Suscripción WebSocket en tiempo real si estamos en la agenda cruzada de un Match
   useEffect(() => {
     if (!matchId) return
 
@@ -67,12 +70,14 @@ const SchedulesPage: React.FC = () => {
     })
 
     client.activate()
+    stompClient.current = client
 
     return () => {
       if (client.active) client.deactivate()
     }
   }, [matchId, fetchPlaydates])
 
+  // ¡Corregido y completamente limpio aquí!
   const handleConfirm = async (playdateId: number) => {
     setActionLoading(playdateId)
     try {
@@ -97,11 +102,17 @@ const SchedulesPage: React.FC = () => {
     const dateObj = new Date(dateString)
     return {
       day: dateObj.getDate(),
-      month: dateObj.toLocaleString(i18n.language, { month: 'short' }),
-      time: dateObj.toLocaleTimeString(i18n.language, {
-        hour: '2-digit',
-        minute: '2-digit',
-      }),
+      month: dateObj.toLocaleString(
+        i18n.language === 'es' ? 'es-ES' : 'en-US',
+        { month: 'short' },
+      ),
+      time: dateObj.toLocaleTimeString(
+        i18n.language === 'es' ? 'es-ES' : 'en-US',
+        {
+          hour: '2-digit',
+          minute: '2-digit',
+        },
+      ),
     }
   }
 
@@ -124,22 +135,24 @@ const SchedulesPage: React.FC = () => {
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
+        aria-hidden="true"
       />
       <div className="fixed inset-0 z-10 bg-gradient-to-br from-black/40 via-transparent to-transparent pointer-events-none" />
 
       <div className="relative z-20 max-w-2xl mx-auto w-full flex flex-grow flex-col">
+        {/* BOTONES DE NAVEGACIÓN SUPERIOR */}
         <div className="flex justify-between items-start mb-8">
           <button
-            onClick={() => navigate('/dashboard')}
-            className="bg-white text-gray-800 flex items-center gap-2 rounded-full px-5 py-2.5 font-black uppercase tracking-widest text-[10px] shadow-lg border border-white transition-all hover:scale-105"
+            onClick={() => navigate(-1)}
+            className="bg-white text-gray-800 flex items-center gap-2 rounded-full px-5 py-2.5 font-black uppercase tracking-widest text-[10px] shadow-lg border border-white transition-all active:scale-95"
           >
-            <ArrowLeft className="w-3 h-3" /> {t('common.back')}
+            <ArrowLeft className="w-3 h-3" /> {t('common.back', 'Volver')}
           </button>
 
           {matchId && (
             <button
               onClick={() => navigate('/add-playdate', { state: { matchId } })}
-              className="bg-[#F28749] text-white flex items-center gap-2 rounded-full px-5 py-2.5 font-black uppercase tracking-widest text-[10px] shadow-lg transition-all hover:scale-105"
+              className="bg-[#F28749] text-white flex items-center gap-2 rounded-full px-5 py-2.5 font-black uppercase tracking-widest text-[10px] shadow-lg transition-all active:scale-95 border border-[#F28749]"
             >
               <Plus className="w-3 h-3" />{' '}
               {t('playdates.form.proposeShort', 'Proponer')}
@@ -147,13 +160,17 @@ const SchedulesPage: React.FC = () => {
           )}
         </div>
 
+        {/* TÍTULO PRINCIPAL DE LA AGENDA */}
         <h1 className="text-5xl font-black uppercase text-white mb-10 italic tracking-tighter drop-shadow-[0_2px_15px_rgba(0,0,0,0.3)]">
-          {t('playdates.page.agendaTitle', 'Citas de')}{' '}
+          {matchId
+            ? t('playdates.page.agendaTitleMatch', 'Agenda de')
+            : t('playdates.page.agendaTitle', 'Mis Citas de')}{' '}
           <span className="text-[#F28749]">
             {t('playdates.page.agendaHighlight', 'Juego')}
           </span>
         </h1>
 
+        {/* LISTADO DE CITAS */}
         {playdates.length > 0 ? (
           <div className="space-y-4">
             {playdates.map(pd => {
@@ -165,10 +182,11 @@ const SchedulesPage: React.FC = () => {
                   key={pd.id}
                   className="bg-white/95 backdrop-blur-sm rounded-[2.5rem] p-6 shadow-2xl border border-white transition-all overflow-hidden"
                 >
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between gap-4">
                     <div className="flex items-center gap-5">
+                      {/* BLOQUE DE FECHA ESTILO CALENDARIO */}
                       <div
-                        className={`w-16 h-16 ${
+                        className={`w-16 h-16 shrink-0 ${
                           isAccepted ? 'bg-green-500' : 'bg-[#F28749]'
                         } rounded-[1.5rem] flex flex-col items-center justify-center text-white shadow-lg transition-colors`}
                       >
@@ -180,10 +198,17 @@ const SchedulesPage: React.FC = () => {
                         </span>
                       </div>
 
+                      {/* DETALLES DEL CONTENIDO */}
                       <div>
                         <h3 className="text-gray-900 font-black uppercase text-base leading-tight">
                           {pd.title}
                         </h3>
+                        {!matchId && pd.matchId && (
+                          <p className="text-gray-400 text-[9px] font-bold uppercase tracking-widest my-0.5">
+                            {t('playdates.card.matchRef', 'Vecino Ref')}: #
+                            {pd.matchId}
+                          </p>
+                        )}
                         <div className="flex flex-col gap-1 mt-1">
                           <p className="flex items-center gap-1 text-gray-500 text-[10px] font-bold uppercase tracking-widest">
                             <MapPin
@@ -192,15 +217,16 @@ const SchedulesPage: React.FC = () => {
                                 isAccepted ? 'text-green-500' : 'text-[#F28749]'
                               }
                             />
-                            {isAccepted
-                              ? t(
-                                  'playdates.status.confirmedLocation',
-                                  'Ubicación Confirmada',
-                                )
-                              : t(
-                                  'playdates.status.proposedLocation',
-                                  'Ubicación Propuesta',
-                                )}
+                            {pd.location ||
+                              (isAccepted
+                                ? t(
+                                    'playdates.status.confirmedLocation',
+                                    'Ubicación Confirmada',
+                                  )
+                                : t(
+                                    'playdates.status.proposedLocation',
+                                    'Ubicación Propuesta',
+                                  ))}
                           </p>
                           <p className="flex items-center gap-1 text-gray-400 text-[10px] font-bold uppercase tracking-widest">
                             <Clock size={12} /> {time}
@@ -209,19 +235,21 @@ const SchedulesPage: React.FC = () => {
                       </div>
                     </div>
 
+                    {/* BADGE DE ESTADO */}
                     <div
-                      className={`px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-widest ${
+                      className={`px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-widest shrink-0 ${
                         isAccepted
                           ? 'bg-green-100 text-green-600'
                           : 'bg-orange-100 text-orange-600'
                       }`}
                     >
                       {isAccepted
-                        ? t('playdates.status.accepted')
-                        : t('playdates.status.pending')}
+                        ? t('playdates.status.accepted', 'ACEPTADO')
+                        : t('playdates.status.pending', 'PENDIENTE')}
                     </div>
                   </div>
 
+                  {/* ACCIÓN DE CONFIRMACIÓN */}
                   {!isAccepted ? (
                     <button
                       onClick={() => handleConfirm(pd.id)}
@@ -229,13 +257,16 @@ const SchedulesPage: React.FC = () => {
                       className="mt-6 w-full bg-[#F28749] hover:bg-[#e0763a] disabled:opacity-50 text-white py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] transition-all shadow-lg active:scale-[0.98] flex items-center justify-center gap-2"
                     >
                       {actionLoading === pd.id
-                        ? t('playdates.status.confirming')
-                        : t('playdates.form.confirmPlan')}
+                        ? t('playdates.status.confirming', 'Confirmando...')
+                        : t('playdates.form.confirmPlan', 'Confirmar Plan')}
                     </button>
                   ) : (
                     <div className="mt-6 w-full bg-green-50 border border-green-100 text-green-600 py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] flex items-center justify-center gap-2">
                       <CheckCircle2 size={16} />
-                      {t('playdates.status.planConfirmed')}
+                      {t(
+                        'playdates.status.planConfirmed',
+                        '¡Plan Confirmado! 🚀',
+                      )}
                     </div>
                   )}
                 </div>
@@ -243,6 +274,7 @@ const SchedulesPage: React.FC = () => {
             })}
           </div>
         ) : (
+          /* EMPTY STATE INTELIGENTE */
           <div
             onClick={handleEmptyStateClick}
             className="group flex items-center gap-5 px-10 py-8 bg-white/95 backdrop-blur-sm rounded-[3rem] shadow-2xl cursor-pointer border border-white transition-all active:scale-95 hover:bg-white"
@@ -252,11 +284,14 @@ const SchedulesPage: React.FC = () => {
             </div>
             <div>
               <h2 className="text-xl font-black text-gray-900 uppercase italic tracking-tighter">
-                {t('playdates.status.emptyAgenda')}
+                {t('playdates.status.emptyAgenda', 'No hay citas planificadas')}
               </h2>
               <p className="text-[11px] font-bold text-gray-400 uppercase tracking-[0.2em] leading-none mt-1 group-hover:text-[#F28749] transition-colors">
                 {matchId
-                  ? t('playdates.status.tapToSuggest')
+                  ? t(
+                      'playdates.status.tapToSuggest',
+                      'Toca aquí para proponer un plan',
+                    )
                   : t(
                       'playdates.status.exploreToSuggest',
                       'Explora familias para proponer',
