@@ -22,7 +22,6 @@ import ExplorePage from './pages/ExplorePage'
 import EventsPage from './pages/EventsPage'
 import SchedulesPage from './pages/SchedulesPage'
 import Welcome from './pages/Welcome'
-import MySchedulesPage from './pages/MySchedulesPage'
 
 import 'leaflet/dist/leaflet.css'
 import ChildDashboard from './components/ChildDashboard'
@@ -152,8 +151,21 @@ function AppContent() {
             }
           />
 
+          {/* 1. Vista Contextual (La agenda compartida de un chat específico) */}
           <Route
             path="/schedules/:matchId"
+            element={
+              <ProtectedRoute>
+                <OnboardingGuard>
+                  <SchedulesPage />
+                </OnboardingGuard>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* 2. Vista Global (Todas las citas que tienes en la App) */}
+          <Route
+            path="/schedules"
             element={
               <ProtectedRoute>
                 <OnboardingGuard>
@@ -180,17 +192,6 @@ function AppContent() {
               <ProtectedRoute allowedRoles={['ROLE_FAMILY']}>
                 <OnboardingGuard>
                   <Welcome />
-                </OnboardingGuard>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/my-schedules"
-            element={
-              <ProtectedRoute>
-                <OnboardingGuard>
-                  <MySchedulesPage />
                 </OnboardingGuard>
               </ProtectedRoute>
             }

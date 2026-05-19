@@ -3,7 +3,7 @@ import {
   Send,
   UserCircle,
   Calendar,
-  HelpCircle,
+  Sparkles,
   ChevronLeft,
   Wifi,
   WifiOff,
@@ -17,7 +17,6 @@ import api from '../../services/api'
 import matchService from '../../services/matchService'
 import forPregnantsBg from '../../assets/for-pregnants.png'
 
-// 1. Ampliamos la interfaz local para que acepte propiedades opcionales o tipos compatibles
 interface ChatUser {
   id: number | string
   email: string
@@ -27,7 +26,7 @@ interface ChatUser {
 
 interface ChatWindowProps {
   matchId: string | number
-  currentUser: ChatUser // 👈 Cambiado aquí para admitir tanto User como UserProfileDTO de forma flexible
+  currentUser: ChatUser
   token: string
 }
 
@@ -36,7 +35,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   currentUser,
   token,
 }) => {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const navigate = useNavigate()
   const [messages, setMessages] = useState<any[]>([])
   const [text, setText] = useState<string>('')
@@ -45,9 +44,14 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   const [isConnected, setIsConnected] = useState(false)
   const [neighborName, setNeighborName] = useState<string>('')
 
+  // Metadatos de contexto para la simulación de IA
+  const [matchInterests, setMatchInterests] = useState<string[]>([])
+  const [isGeneratingIcebreaker, setIsGeneratingIcebreaker] = useState(false)
+
   const scrollRef = useRef<HTMLDivElement>(null)
   const stompClient = useRef<Client | null>(null)
 
+  // 1. Carga de Historial y Metadatos de Contexto
   useEffect(() => {
     const loadHistory = async () => {
       if (!matchId) return
@@ -64,11 +68,17 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
           if (currentMatch) {
             setMatchStatus(currentMatch.status)
             setIAccepted(currentMatch.status === 'ACCEPTED')
+            setNeighborName(
+              currentMatch.theirFamilyName ||
+                t('chat.defaultNeighbor', 'Familia Vecina'),
+            )
 
-            if (currentMatch.theirFamilyName) {
-              setNeighborName(currentMatch.theirFamilyName)
+            if (currentMatch.sharedInterests) {
+              setMatchInterests(
+                currentMatch.sharedInterests.map((i: any) => i.name || i),
+              )
             } else {
-              setNeighborName(t('chat.defaultNeighbor', 'Familia Vecina'))
+              setMatchInterests(['Bici', 'Naturaleza', 'Lego'])
             }
           }
         }
@@ -79,6 +89,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     loadHistory()
   }, [matchId, t])
 
+  // 2. Conexión WebSocket (STOMP) - ¡Totalmente Corregido!
   useEffect(() => {
     if (!matchId || !token) return
 
@@ -112,12 +123,28 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     }
   }, [matchId, token])
 
+  // 3. Control Inteligente de Scroll Automático
   useEffect(() => {
     if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+      const timer = setTimeout(() => {
+        if (scrollRef.current) {
+          scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+        }
+      }, 50)
+      return () => clearTimeout(timer)
     }
   }, [messages])
 
+  // 4. Formateador de tiempo internacionalizado
+  const formatTime = (dateInput: any) => {
+    const date = new Date(dateInput)
+    return date.toLocaleTimeString(i18n.language === 'es' ? 'es-ES' : 'en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+    })
+  }
+
+  // 5. Envío de Mensajes por WS
   const handleSend = (e: FormEvent) => {
     e.preventDefault()
     if (!text.trim() || !stompClient.current?.connected) return
@@ -133,15 +160,31 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     setText('')
   }
 
+  // 6. Generador de Rompehielos con IA Contextual Realista
   const handleIcebreaker = () => {
-    const icebreakers = [
-      t('chat.icebreaker1', 'Favorite park?'),
-      t('chat.icebreaker2', 'Preferred cartoons?'),
-      t('chat.icebreaker3', 'Any allergies?'),
-      t('chat.icebreaker4', 'Play this weekend?'),
-      t('chat.icebreaker5', 'Star toy?'),
-    ]
-    setText(icebreakers[Math.floor(Math.random() * icebreakers.length)])
+    setIsGeneratingIcebreaker(true)
+
+    setTimeout(() => {
+      const isEs = i18n.language === 'es'
+      const topics =
+        matchInterests.length > 0 ? matchInterests.join(', ') : 'juegos'
+
+      const promptsEs = [
+        `¡Hola ${neighborName}! Veo que compartimos el gusto por: ${topics}. ¿Os apetece que quedemos este finde con los peques para dar una vuelta en bici o ir a jugar al río Turia?`,
+        `¡Qué bueno conectar! Como a nuestros peques les encanta el mundo de (${topics}), ¿conocéis algún parque chulo por la zona para organizar una tarde de juegos?`,
+        `¡Hola vecinos! Un pajarito me ha dicho que os gusta: ${topics}. ¿Hacemos un plan de juego este sábado por la mañana?`,
+      ]
+
+      const promptsEn = [
+        `Hi ${neighborName}! I see we share interests in: ${topics}. Would you like to meet up with the kids this weekend for a bike ride or to play around the Turia park?`,
+        `Great connecting with you! Since our little ones love (${topics}), do you know any cool playground nearby to set up a quick playdate?`,
+        `Hey neighbors! A little bird told me that you enjoy: ${topics}. Should we arrange a fun outdoor morning game this Saturday?`,
+      ]
+
+      const selection = isEs ? promptsEs : promptsEn
+      setText(selection[Math.floor(Math.random() * selection.length)])
+      setIsGeneratingIcebreaker(false)
+    }, 800)
   }
 
   const backgroundPattern = {
@@ -209,6 +252,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
               </div>
             </div>
           </div>
+
           <button
             onClick={async () => {
               try {
@@ -247,6 +291,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
           </button>
         </header>
 
+        {/* LOG DE MENSAJES */}
         <div
           ref={scrollRef}
           className="flex-1 overflow-y-auto p-6 space-y-5"
@@ -285,17 +330,28 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                         )}
                       </div>
                     </div>
-                    <div
-                      className={`max-w-[75%] px-5 py-3 rounded-[1.5rem] text-sm font-bold border shadow-sm ${
-                        isMe
-                          ? 'bg-[#FF9E91] text-gray-900 border-gray-900 rounded-br-none'
-                          : 'bg-white text-gray-700 border-gray-200 rounded-tl-none'
-                      }`}
-                    >
-                      <span className="sr-only">
-                        {isMe ? 'You sent' : 'Neighbor sent'}:
+                    <div className="flex flex-col max-w-[75%] gap-0.5">
+                      <div
+                        className={`px-5 py-3 rounded-[1.5rem] text-sm font-bold border shadow-sm ${
+                          isMe
+                            ? 'bg-[#FF9E91] text-gray-900 border-gray-900 rounded-br-none'
+                            : 'bg-white text-gray-700 border-gray-200 rounded-tl-none'
+                        }`}
+                      >
+                        <span className="sr-only">
+                          {isMe ? 'You sent' : 'Neighbor sent'}:
+                        </span>
+                        {msg.content}
+                      </div>
+                      <span
+                        className={`text-[9px] font-medium text-gray-400 px-2 ${
+                          isMe ? 'text-right' : 'text-left'
+                        }`}
+                      >
+                        {msg.timestamp
+                          ? formatTime(msg.timestamp)
+                          : formatTime(new Date())}
                       </span>
-                      {msg.content}
                     </div>
                   </motion.div>
                 )
@@ -308,64 +364,76 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
           </AnimatePresence>
         </div>
 
+        {/* MENÚ DE ACCIONES */}
         <nav
           className="px-4 py-3 bg-white border-t border-gray-100 flex items-center justify-around z-10 relative"
           aria-label="Chat actions"
         >
           <button
             onClick={() => navigate('/profile')}
-            aria-label="Go to Profile"
             className="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-900 transition-colors"
           >
-            <UserCircle size={26} aria-hidden="true" />
+            <UserCircle size={26} />
             <span className="text-[9px] font-black uppercase tracking-tighter">
               {t('navigation.profile', 'Profile')}
             </span>
           </button>
-          <div className="h-8 w-[1px] bg-gray-100" aria-hidden="true"></div>
+
+          <div className="h-8 w-[1px] bg-gray-100" />
+
           <button
             onClick={() => navigate(`/schedules/${matchId}`)}
-            aria-label="View Agenda"
             className="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-900 transition-colors"
           >
-            <Calendar size={26} aria-hidden="true" />
+            <Calendar size={26} />
             <span className="text-[9px] font-black uppercase tracking-tighter">
               {t('playdates.page.agendaHighlight', 'Agenda')}
             </span>
           </button>
-          <div className="h-8 w-[1px] bg-gray-100" aria-hidden="true"></div>
+
+          <div className="h-8 w-[1px] bg-gray-100" />
+
           <button
             onClick={handleIcebreaker}
-            aria-label="Get an Icebreaker suggestion"
-            className="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-900 transition-colors"
+            disabled={isGeneratingIcebreaker}
+            className={`flex flex-col items-center gap-1 transition-all ${
+              isGeneratingIcebreaker
+                ? 'text-[#F28749] animate-pulse scale-105'
+                : 'text-gray-400 hover:text-[#F28749]'
+            }`}
           >
-            <HelpCircle size={26} aria-hidden="true" />
+            <Sparkles
+              size={26}
+              className={
+                isGeneratingIcebreaker ? 'animate-spin text-[#F28749]' : ''
+              }
+            />
             <span className="text-[9px] font-black uppercase tracking-tighter">
-              {t('chat.icebreaker', 'Icebreaker')}
+              {isGeneratingIcebreaker
+                ? t('chat.aiThinking', 'IA Pensando...')
+                : t('chat.icebreaker', 'Icebreaker IA')}
             </span>
           </button>
         </nav>
 
+        {/* INPUT FOOTER */}
         <footer className="p-4 bg-white border-t border-gray-100 z-10 relative">
           <form
             onSubmit={handleSend}
             className="flex items-center gap-2 bg-gray-50 rounded-2xl p-1.5 pl-4 border border-gray-200 focus-within:border-[#F28749] transition-colors"
-            aria-label="Compose message"
           >
             <input
               value={text}
               onChange={e => setText(e.target.value)}
               placeholder={t('chat.inputPlaceholder', 'Type...')}
-              aria-label="Write your message"
               className="flex-1 bg-transparent border-none outline-none text-gray-800 text-sm font-bold disabled:cursor-not-allowed"
             />
             <button
               type="submit"
               disabled={!text.trim() || !isConnected}
-              aria-label="Send message"
               className="bg-[#FF9E91] text-gray-900 p-3 rounded-xl border border-gray-900 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:translate-y-0.5 transition-all disabled:opacity-50"
             >
-              <Send size={18} strokeWidth={3} aria-hidden="true" />
+              <Send size={18} strokeWidth={3} />
             </button>
           </form>
         </footer>

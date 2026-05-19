@@ -174,6 +174,9 @@
       "inviteNeighbors": "Invitar vecinos"
     },
     "filters": {
+      "title": "Filtros",
+      "advancedTitle": "Filtros Avanzados",
+      "apply": "Ver resultados",
       "ageRangeLabel": "Rango de edad",
       "ageRangeAll": "Todas las edades",
       "ageRangeToddlers": "Bebés (0-2)",
@@ -210,7 +213,8 @@
     "status": {
       "pending": "PENDIENTE",
       "match": "MATCH!"
-    }
+    },
+    "aiThinking": "IA Pensando..."
   },
   "matches": {
     "title": "Mis Conversaciones",
@@ -266,7 +270,7 @@
       "errorDelete": "Error al eliminar el evento.",
       "errorLoad": "No hemos podido cargar los eventos."
     },
-    "list": {
+    "version": {
       "empty": "No hay eventos próximos en Valencia. ¡Crea el primero!",
       "loading": "Cargando eventos..."
     }

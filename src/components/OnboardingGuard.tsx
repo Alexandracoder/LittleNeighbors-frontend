@@ -1,67 +1,81 @@
 import React, { useEffect, useState } from 'react'
-import { Navigate } from 'react-router-dom'
+import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useTranslation } from 'react-i18next'
 
 interface UserStatusDTO {
-hasFamily: boolean
-hasChildren: boolean
-isRegistrationComplete: boolean
+  hasFamily: boolean
+  hasChildren: boolean
+  isRegistrationComplete: boolean
 }
 
 interface OnboardingGuardProps {
-children: React.ReactNode
+  children: React.ReactNode
 }
 
 const OnboardingGuard: React.FC<OnboardingGuardProps> = ({ children }) => {
-const { user, token } = useAuth()
-const [status, setStatus] = useState<UserStatusDTO | null>(null)
-const [loading, setLoading] = useState(true)
+  const { user, token } = useAuth()
+  const location = useLocation()
+  const { t } = useTranslation()
+  const [status, setStatus] = useState<UserStatusDTO | null>(null)
+  const [loading, setLoading] = useState(true)
 
-useEffect(() => {
+  useEffect(() => {
     const checkStatus = async () => {
-    if (user && token) {
+      if (user && token) {
         try {
-        const response = await fetch('/api/users/me/status', {
+          const baseUrl = import.meta.env.VITE_API_URL || ''
+          const response = await fetch(`${baseUrl}/api/users/me/status`, {
             headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
             },
-        })
-        const data = await response.json()
-        setStatus(data)
+          })
+          if (response.ok) {
+            const data = await response.json()
+            setStatus(data)
+          }
         } catch (error) {
-        console.error('Error verificando estado de onboarding:', error)
+          console.error('Error verificando estado de onboarding:', error)
         } finally {
-        setLoading(false)
+          setLoading(false)
         }
-    } else {
+      } else {
         setLoading(false)
-    }
+      }
     }
 
     checkStatus()
-}, [user, token])
+  }, [user, token])
 
-if (loading) {
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#FDF8F3] flex flex-col items-center justify-center text-[#2D2D2D]">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-orange-500 border-t-transparent mb-4" />
+        <p className="font-black animate-pulse uppercase tracking-[0.3em] text-orange-600 text-xs">
+          {t('loading.verifyingNeighborhood') || 'LOADING PROFILE...'}
+        </p>
+      </div>
+    )
+  }
 
-    return <div className="p-10 text-center">Cargando perfil...</div>
-}
+
+  if (!user) return <Navigate to="/login" replace />
 
 
-if (!user) return <Navigate to="/login" replace />
-
-
-if (status) {
+  if (status) {
     if (!status.hasFamily) {
-    return <Navigate to="/create-family" replace />
+      if (location.pathname !== '/create-family') {
+        return <Navigate to="/create-family" replace />
+      }
+    } else if (!status.hasChildren) {
+      if (location.pathname !== '/add-child') {
+        return <Navigate to="/add-child" replace />
+      }
     }
-    if (!status.hasChildren) {
-    return <Navigate to="/add-child" replace />
-    }
-}
+  }
 
-
-return <>{children}</>
+  return <>{children}</>
 }
 
 export default OnboardingGuard
