@@ -15,6 +15,10 @@ import playdateService from '../services/playdateService'
 import dashboardBg from '../assets/new-at-neigborhood.png'
 import { Playdate } from '../types'
 
+const ENV_API_URL =
+  import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'
+const WS_BASE_URL = ENV_API_URL.replace('/api', '') 
+
 const SchedulesPage: React.FC = () => {
   const { t, i18n } = useTranslation()
   const { matchId } = useParams<{ matchId: string }>()
@@ -25,7 +29,7 @@ const SchedulesPage: React.FC = () => {
   const [actionLoading, setActionLoading] = useState<number | null>(null)
   const stompClient = useRef<Client | null>(null)
 
-  // Carga de citas (Contextual si hay matchId, Global si no lo hay)
+
   const fetchPlaydates = useCallback(async () => {
     try {
       if (matchId) {
@@ -46,15 +50,17 @@ const SchedulesPage: React.FC = () => {
     fetchPlaydates()
   }, [fetchPlaydates])
 
-  // Suscripción WebSocket en tiempo real si estamos en la agenda cruzada de un Match
+
   useEffect(() => {
     if (!matchId) return
 
-    const token = localStorage.getItem('token') || ''
+
+    const token = localStorage.getItem('accessToken') || ''
 
     const client = new Client({
       webSocketFactory: () =>
-        new SockJS('http://localhost:8080/ws-little-neighbors'),
+      
+        new SockJS(`${WS_BASE_URL}/ws-little-neighbors`),
       connectHeaders: {
         Authorization: token.startsWith('Bearer ') ? token : `Bearer ${token}`,
       },
@@ -77,7 +83,6 @@ const SchedulesPage: React.FC = () => {
     }
   }, [matchId, fetchPlaydates])
 
-  // ¡Corregido y completamente limpio aquí!
   const handleConfirm = async (playdateId: number) => {
     setActionLoading(playdateId)
     try {

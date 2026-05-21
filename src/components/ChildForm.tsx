@@ -123,8 +123,8 @@ export default function ChildForm({
         }
       }
 
-      if (savedChild && savedChild.id) {
-        navigate(`/child-dashboard/${savedChild.id}`)
+if (savedChild && savedChild.id) {
+        navigate(`/child/${savedChild.id}`)
       } else {
         onSuccess(savedChild?.id)
       }
