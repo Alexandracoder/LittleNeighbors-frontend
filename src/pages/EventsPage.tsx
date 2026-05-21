@@ -8,6 +8,7 @@ import { EventModal } from '../components/EventModal'
 import { CreateEventForm } from '../components/CreateEventForm'
 import { MapComponent } from './MapComponent'
 import MainLayout from '../components/layout/MainLayout'
+import api from '../services/api'
 
 export default function EventsPage() {
   const { t } = useTranslation()
@@ -21,47 +22,47 @@ export default function EventsPage() {
   const [eventToEdit, setEventToEdit] = useState<any>(null)
 
   useEffect(() => {
-    fetchEvents()
-    fetchNeighborhoods()
+    // Ejecutamos ambas cargas de forma paralela y limpia
+    const loadData = async () => {
+      try {
+        await Promise.all([fetchEvents(), fetchNeighborhoods()])
+      } catch (err) {
+        console.error('Error inicializando datos de la página:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadData()
   }, [])
 
   const fetchNeighborhoods = async () => {
-    const token = localStorage.getItem('accessToken')
     try {
-      const res = await fetch('http://localhost:8080/api/neighborhoods', {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      const data = await res.json()
-      setNeighborhoods(data.content || [])
+      // ✅ Eliminamos fetch nativo, localhost y cabecera manual del token.
+      // Modificado para coincidir con la estructura de paginación que vimos en api.ts
+      const res = await api.get('/neighborhoods')
+      setNeighborhoods(res.data.content || [])
     } catch (err) {
       console.error('Error cargando barrios:', err)
     }
   }
 
-  const fetchEvents = () => {
-    const token = localStorage.getItem('accessToken')
-    fetch(
-      'http://localhost:8080/api/events/map?minLat=-90&maxLat=90&minLon=-180&maxLon=180',
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
+  const fetchEvents = async () => {
+    try {
+      // ✅ Migrado a async/await usando la instancia centralizada.
+      // Los query params se pasan de forma limpia e inmune a errores de strings.
+      const res = await api.get('/events/map', {
+        params: {
+          minLat: -90,
+          maxLat: 90,
+          minLon: -180,
+          maxLon: 180,
         },
-      },
-    )
-      .then(res => {
-        if (!res.ok) throw new Error(t('events.card.errorLoad'))
-        return res.json()
       })
-      .then(data => {
-        setEvents(data)
-        setLoading(false)
-      })
-      .catch(err => {
-        console.error(err)
-        setError(t('events.card.errorLoad'))
-        setLoading(false)
-      })
+      setEvents(res.data)
+    } catch (err) {
+      console.error('Error de Axios al cargar eventos:', err)
+      setError(t('events.card.errorLoad'))
+    }
   }
 
   const handleEditClick = (event: any) => {
@@ -125,11 +126,11 @@ export default function EventsPage() {
             />
           </div>
         )}
+
         {/* LISTADO DE EVENTOS O EMPTY STATE COMPACTO */}
         <div className="bg-white/10 backdrop-blur-xl p-6 rounded-[2.5rem] border border-white/20 shadow-2xl min-h-[180px] flex flex-col justify-center">
           {!loading && events.length === 0 ? (
             <div className="flex items-center gap-6 py-4 px-4 animate-in fade-in slide-in-from-left-4 duration-700">
-              {/* Ahora este icono es un botón funcional */}
               <button
                 onClick={() => {
                   setEventToEdit(null)

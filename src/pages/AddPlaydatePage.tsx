@@ -8,6 +8,7 @@ import {
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import DatePicker, { registerLocale } from 'react-datepicker'
+import { format } from 'date-fns'
 import { enUS as en } from 'date-fns/locale'
 import { es } from 'date-fns/locale/es'
 import { ca } from 'date-fns/locale/ca'
@@ -40,12 +41,8 @@ export default function AddPlaydatePage() {
 
     setLoading(true)
     try {
-      const year = startDate.getFullYear()
-      const month = String(startDate.getMonth() + 1).padStart(2, '0')
-      const day = String(startDate.getDate()).padStart(2, '0')
-      const hours = String(startDate.getHours()).padStart(2, '0')
-      const minutes = String(startDate.getMinutes()).padStart(2, '0')
-      const formattedDate = `${year}-${month}-${day} ${hours}:${minutes}:00`
+
+      const formattedDate = format(startDate, 'yyyy-MM-dd HH:mm:ss')
 
       await playdateService.create({
         title,
@@ -58,6 +55,7 @@ export default function AddPlaydatePage() {
     } catch (error) {
       console.error('Error:', error)
     } finally {
+
       setLoading(false)
     }
   }
@@ -166,3 +164,4 @@ export default function AddPlaydatePage() {
     </div>
   )
 }
+

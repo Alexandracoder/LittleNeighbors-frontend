@@ -15,13 +15,13 @@ import type {
   Page,
 } from '../types'
 
-const API_BASE_URL = 'http://localhost:8080/api'
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'
 
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: { 'Content-Type': 'application/json' },
 })
-
 
 api.interceptors.request.use(
   config => {
@@ -32,17 +32,25 @@ api.interceptors.request.use(
   error => Promise.reject(error),
 )
 
-
 api.interceptors.response.use(
   response => response,
   async error => {
     const originalRequest = error.config
+
+
+    if (
+      originalRequest.url?.includes('/auth/login') ||
+      originalRequest.url?.includes('/auth/register')
+    ) {
+      return Promise.reject(error)
+    }
+
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true
       try {
         const refreshToken = localStorage.getItem('refreshToken')
         if (refreshToken) {
-
+          
           const response = await axios.post<AuthResponse>(
             `${API_BASE_URL}/auth/refresh`,
             { refreshToken },
@@ -70,13 +78,16 @@ api.interceptors.response.use(
 
 export const authApi = {
   login: async (data: AuthRequest): Promise<AuthResponse> => {
+
     const response = await api.post<AuthResponse>('/auth/login', data)
     return response.data
   },
   register: async (userData: RegisterRequest): Promise<void> => {
+
     await api.post('/auth/register', userData)
   },
   refresh: async (data: RefreshRequest): Promise<AuthResponse> => {
+
     const response = await api.post<AuthResponse>('/auth/refresh', data)
     return response.data
   },
