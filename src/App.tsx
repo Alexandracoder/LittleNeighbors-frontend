@@ -22,6 +22,7 @@ import ExplorePage from './pages/ExplorePage'
 import EventsPage from './pages/EventsPage'
 import SchedulesPage from './pages/SchedulesPage'
 import Welcome from './pages/Welcome'
+import { QrLandingPage } from './pages/QrLandingPage'
 
 import 'leaflet/dist/leaflet.css'
 import ChildDashboard from './components/ChildDashboard'
@@ -196,6 +197,9 @@ function AppContent() {
               </ProtectedRoute>
             }
           />
+
+          {/* 🔓 La nueva landing del QR de la calle (Totalmente pública y libre) */}
+          <Route path="/qr-pilot" element={<QrLandingPage />} />
 
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="*" element={<Navigate to="/" replace />} />
