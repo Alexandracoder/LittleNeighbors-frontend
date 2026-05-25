@@ -11,8 +11,12 @@ export interface AuthRequest {
 export interface AuthResponse {
   accessToken: string
   refreshToken: string
+  id: number
+  email: string
+  firstName: string
+  lastName: string
+  roles: UserRole[]
 }
-
 export interface RefreshRequest {
   refreshToken: string
 }
@@ -32,12 +36,13 @@ export interface DecodedToken {
   roles: UserRole[]
   exp: number
 }
-
 export interface User {
   id: string
-  family: null
   email: string
+  firstName: string
+  lastName: string
   roles: UserRole[]
+  family: null
 }
 
 export interface UserStatusDTO {

@@ -54,10 +54,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const decoded = jwtDecode<DecodedToken>(t)
       const currentTime = Date.now() / 1000
       if (decoded.exp && decoded.exp < currentTime) return null
+
       return {
+        id: decoded.id ? decoded.id.toString() : '',
         email: decoded.sub,
+        firstName: 'Neighbor', // Fallback seguro al recargar la página (F5)
+        lastName: '',
         roles: decoded.roles,
-        id: '',
         family: null,
       }
     } catch {
@@ -132,7 +135,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }
 
-  // Intercepts family creation response to inject the updated accessToken with ROLE_FAMILY immediately
   const handleFamilyCreation = (responseData: {
     family: FamilyResponseDTO
     accessToken: string
@@ -146,7 +148,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(decodedUser)
     setFamilyEntity(responseData.family)
 
-    // Background sync remaining status information
     refreshStatus()
   }
 
@@ -154,15 +155,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true)
     try {
       const response: AuthResponse = await authApi.login(credentials)
+
       localStorage.setItem('accessToken', response.accessToken)
       localStorage.setItem('refreshToken', response.refreshToken)
       setToken(response.accessToken)
 
-      const decodedUser = decodeToken(response.accessToken)
-      setUser(decodedUser)
+      const fullUser: User = {
+        id: response.id.toString(),
+        email: response.email,
+        firstName: response.firstName,
+        lastName: response.lastName,
+        roles: response.roles,
+        family: null,
+      }
+
+      setUser(fullUser)
 
       await Promise.allSettled([refreshStatus(), fetchFamilyFromApi()])
-      return decodedUser
+      return fullUser
     } finally {
       setLoading(false)
     }
