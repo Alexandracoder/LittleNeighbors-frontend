@@ -26,6 +26,7 @@ import { QrLandingPage } from './pages/QrLandingPage'
 
 import 'leaflet/dist/leaflet.css'
 import ChildDashboard from './components/ChildDashboard'
+import { AdminDashboard } from './components/AdminDashboard'
 
 const LoadingScreen = () => {
   const { t, ready } = useTranslation()
@@ -164,7 +165,7 @@ function AppContent() {
             }
           />
 
-          {/* 2. Vista Global (Todas las citas que tienes en la App) */}
+          {/* 2. Vista Global*/}
           <Route
             path="/schedules"
             element={
@@ -203,6 +204,7 @@ function AppContent() {
 
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="/admin/stats" element={<AdminDashboard />} />
         </Routes>
       </div>
     </div>
