@@ -46,26 +46,30 @@ export default function AddChildPage() {
     loadChildren()
   }, [])
 
-  const handleSuccess = async () => {
-    const wasEditing = !!editingChild
-    setIsFormOpen(false)
-    setEditingChild(null)
+const handleSuccess = async () => {
+  const wasEditing = !!editingChild
+  setIsFormOpen(false)
+  setEditingChild(null)
 
-    await refreshStatus()
-    await refreshProfile()
+  try {
+    setLoading(true)
+
+    
+    await updateSession()
 
     const updatedChildren = await childApi.getAll()
     setChildren(updatedChildren)
 
-    if (!wasEditing) {
-      if (updatedChildren.length === 1) {
-        navigate('/explore', { replace: true })
-      } else {
-        navigate('/dashboard', { replace: true })
-      }
-    }
-  }
 
+    if (!wasEditing) {
+      navigate('/explore', { replace: true })
+    }
+  } catch (err) {
+    console.error('Error in post-save child session sync:', err)
+  } finally {
+    setLoading(false)
+  }
+}
 
   const handleDeleteClick = (id: number) => {
     setDeleteModal({ isOpen: true, childId: id })
@@ -198,3 +202,7 @@ export default function AddChildPage() {
     </div>
   )
 }
+function updateSession() {
+  throw new Error('Function not implemented.')
+}
+

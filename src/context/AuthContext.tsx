@@ -54,11 +54,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const decoded = jwtDecode<DecodedToken>(t)
       const currentTime = Date.now() / 1000
       if (decoded.exp && decoded.exp < currentTime) return null
+
+      const extractedRoles: UserRole[] = Array.isArray(decoded.roles)
+        ? (decoded.roles as UserRole[])
+        : []
+
       return {
-        email: decoded.sub,
-        roles: decoded.roles,
-        id: '',
+        id: decoded.id ? decoded.id.toString() : '',
+        email: decoded.sub || '',
+        firstName: 'Neighbor',
+        lastName: '',
+        roles: extractedRoles,
         family: null,
+        children: false,
+        hasFamily: false,
+        hasChildren: false,
       }
     } catch {
       return null
@@ -71,12 +81,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setStatus(currentStatus)
 
       if (user && currentStatus.roles) {
-        setUser({
-          ...user,
-          roles: Array.isArray(currentStatus.roles)
-            ? currentStatus.roles
-            : user.roles,
-        })
+        setUser(prev =>
+          prev
+            ? {
+                ...prev,
+                roles: Array.isArray(currentStatus.roles)
+                  ? (currentStatus.roles as unknown as UserRole[])
+                  : prev.roles,
+              }
+            : null,
+        )
       }
 
       return currentStatus
@@ -85,20 +99,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }
 
-  const fetchFamilyFromApi = async (): Promise<FamilyResponseDTO | null> => {
+  const refreshProfile = async (): Promise<FamilyResponseDTO | null> => {
     try {
       const family = await familyApi.getMyFamily()
-
       setFamilyEntity(family)
       return family
     } catch (error: any) {
       if (error.response?.status === 404) {
-        console.warn('Notice: User has no linked family yet (Initial state).')
         setFamilyEntity(null)
         return null
       }
-
-      console.error('Connection error retrieving family:', error)
       setFamilyEntity(null)
       return null
     }
@@ -119,20 +129,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             ? {
                 ...prev,
                 roles: Array.isArray(currentStatus.roles)
-                  ? currentStatus.roles
+                  ? (currentStatus.roles as unknown as UserRole[])
                   : prev.roles,
               }
             : null,
         )
       }
     } catch (error) {
-      console.error('Error synchronizing session:', error)
+      console.error(error)
     } finally {
       setLoading(false)
     }
   }
 
-  // Intercepts family creation response to inject the updated accessToken with ROLE_FAMILY immediately
   const handleFamilyCreation = (responseData: {
     family: FamilyResponseDTO
     accessToken: string
@@ -142,27 +151,68 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem('refreshToken', responseData.refreshToken)
     setToken(responseData.accessToken)
 
-    const decodedUser = decodeToken(responseData.accessToken)
-    setUser(decodedUser)
+    let extractedRoles: UserRole[] = ['ROLE_FAMILY']
+    let email = ''
+    let id = ''
+
+    try {
+      const decoded = jwtDecode<DecodedToken>(responseData.accessToken)
+      if (decoded.roles && Array.isArray(decoded.roles)) {
+        extractedRoles = decoded.roles as UserRole[]
+      }
+      if (decoded.sub) email = decoded.sub
+      if (decoded.id) id = decoded.id.toString()
+    } catch (e) {
+      console.error(e)
+    }
+
+    const updatedUser: User = {
+      id: id,
+      email: email,
+      firstName: user?.firstName || 'Neighbor',
+      lastName: user?.lastName || '',
+      roles: extractedRoles,
+      family: null,
+      children: false,
+      hasFamily: true,
+      hasChildren: false,
+    }
+
+    setUser(updatedUser)
     setFamilyEntity(responseData.family)
 
-    // Background sync remaining status information
-    refreshStatus()
+    setStatus({
+      hasFamily: true,
+      hasChildren: false,
+      isRegistrationComplete: false,
+      roles: extractedRoles as unknown as User,
+    })
   }
 
   const login = async (credentials: AuthRequest): Promise<User | null> => {
     setLoading(true)
     try {
       const response: AuthResponse = await authApi.login(credentials)
+
       localStorage.setItem('accessToken', response.accessToken)
       localStorage.setItem('refreshToken', response.refreshToken)
       setToken(response.accessToken)
 
-      const decodedUser = decodeToken(response.accessToken)
-      setUser(decodedUser)
+      const fullUser: User = {
+        id: response.id.toString(),
+        email: response.email,
+        firstName: response.firstName,
+        lastName: response.lastName,
+        roles: response.roles,
+        family: null,
+        hasChildren: false,
+        hasFamily: false,
+        children: false,
+      }
 
-      await Promise.allSettled([refreshStatus(), fetchFamilyFromApi()])
-      return decodedUser
+      setUser(fullUser)
+      await Promise.allSettled([refreshStatus(), refreshProfile()])
+      return fullUser
     } finally {
       setLoading(false)
     }
@@ -186,7 +236,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (decodedUser) {
           setUser(decodedUser)
           setToken(savedToken)
-          await Promise.allSettled([refreshStatus(), fetchFamilyFromApi()])
+          await Promise.allSettled([refreshStatus(), refreshProfile()])
         } else {
           logout()
         }
@@ -199,7 +249,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const hasRole = (role: UserRole) => {
     if (!user) return false
     const searchRole = role.startsWith('ROLE_') ? role : `ROLE_${role}`
-    return user.roles.some(r => r === searchRole)
+    return user.roles.some(r => (r as string) === searchRole)
   }
 
   return (
@@ -213,7 +263,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         login,
         logout,
         hasRole,
-        refreshProfile: fetchFamilyFromApi,
+        refreshProfile,
         refreshStatus,
         updateSession,
         handleFamilyCreation,
