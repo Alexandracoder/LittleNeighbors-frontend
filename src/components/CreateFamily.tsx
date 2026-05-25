@@ -21,7 +21,7 @@ export default function CreateFamily() {
   const [error, setError] = useState<string | null>(null)
 
   const navigate = useNavigate()
-  const { updateSession } = useAuth()
+  const { handleFamilyCreation } = useAuth()
 
   useEffect(() => {
     const fetchNeighborhoods = async () => {
@@ -58,12 +58,17 @@ export default function CreateFamily() {
         familyInterests: [],
       }
 
-      await familyApi.create(familyRequest)
-      await updateSession()
+      const response = await familyApi.create(familyRequest)
+
+      handleFamilyCreation({
+        family: response.family,
+        accessToken: response.accessToken,
+        refreshToken: response.refreshToken,
+      })
+
       navigate('/add-child', { replace: true })
     } catch (err: any) {
-      console.error('Error in creation flow:', err)
-      setError(err.response?.data?.message || t('family.create.errorDefault'))
+      setError(t('family.create.errorDefault'))
     } finally {
       setLoading(false)
     }

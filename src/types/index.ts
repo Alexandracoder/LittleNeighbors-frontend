@@ -37,6 +37,9 @@ export interface DecodedToken {
   exp: number
 }
 export interface User {
+  hasChildren: boolean
+  hasFamily: boolean
+  children: boolean
   id: string
   email: string
   firstName: string
@@ -147,6 +150,9 @@ export interface FamilyRequestDTO {
 }
 
 export interface FamilyResponseDTO {
+  refreshToken: any
+  accessToken: any
+  family: any
   id: number
   familyName: string
   representativeName: string

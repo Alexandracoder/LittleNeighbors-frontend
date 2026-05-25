@@ -167,6 +167,7 @@ export const QrLandingPage: React.FC = () => {
                       Arrancapins (Finca Roja)
                     </option>
                     <option value="Cabañal">El Cabañal</option>
+                    <option value="Velluters">Velluters</option>
                   </select>
                 </div>
               )}
@@ -181,7 +182,6 @@ export const QrLandingPage: React.FC = () => {
         ) : (
           <div style={styles.successMessage}>
             {mensajeError ? (
-              
               <p style={{ color: '#e67e22', fontWeight: '500' }}>
                 {mensajeError}
               </p>
