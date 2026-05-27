@@ -20,12 +20,13 @@
     "upcoming": "Upcoming Playdates",
     "groups": "Neighborhood Groups",
     "events": "Events"
-    
   },
   "auth": {
     "login": {
       "title": "Welcome back!",
       "subtitle": "Your neighbors missed you.",
+      "formSubtitle": "LittleNeighbors is your trusted community. Enter your credentials to continue.",
+      "linkForgotPassword": "Forgot your credentials?",
       "cta": "ENTER THE NEIGHBORHOOD",
       "formTitle": "Welcome",
       "emailPlaceholder": "Your email",
@@ -176,7 +177,6 @@
       "inviteNeighbors": "Invite neighbors"
     },
     "filters": {
-"filters": {
       "title": "Filters",
       "advancedTitle": "Advanced Filters",
       "apply": "Apply filters",
@@ -286,9 +286,8 @@
       "titleHighlight": "Plan",
       "subtitle": "Choose a time to meet your neighbor, Active play agendas",
       "with": "Playdate with",
-    "dummy1": { "title": "Snack & Games at the Park" },
-    "dummy2": { "title": "Bike Ride & Swings"
-    }
+      "dummy1": { "title": "Snack & Games at the Park" },
+      "dummy2": { "title": "Bike Ride & Swings" }
     },
     "form": {
       "proposeShort": "Propose",
@@ -332,6 +331,8 @@
     "deleteTitle": "Delete Profile"
   },
   "notifications": {
+    "title": "Notifications",
+    "viewAll": "View all",
     "new_message": "You have a new message from the {{familyName}} Family",
     "playdate_proposed": "A plan has been suggested to you!",
     "playdate_accepted": "Plan confirmed! Check your schedule"

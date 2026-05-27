@@ -24,6 +24,8 @@
     "login": {
       "title": "¡Hola de nou!",
       "subtitle": "Els teus veïns t'han trobat a faltar.",
+      "formSubtitle": "LittleNeighbors és la teua comunitat de confiança. Introdueix les teues credencials per a continuar.",
+      "linkForgotPassword": "Has oblidat les teues credencials?",
       "cta": "ENTRAR AL BARRI",
       "formTitle": "Benvingut",
       "emailPlaceholder": "El teu email",
@@ -328,6 +330,8 @@
     "deleteTitle": "Eliminar Perfil"
   },
   "notifications": {
+    "title": "Notificacions",
+    "viewAll": "Veure totes",
     "new_message": "Tens un nou missatge de la Família {{familyName}}",
     "playdate_proposed": "¡T'han sugerit un pla!",
     "playdate_accepted": "¡Pla confirmat! Revisa la teua agenda"

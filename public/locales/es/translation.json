@@ -24,6 +24,8 @@
     "login": {
       "title": "¡Hola de nuevo!",
       "subtitle": "Tus vecinos te han echado de menos.",
+      "formSubtitle": "LittleNeighbors es tu comunidad de confianza. Ingresa tus credenciales para continuar.",
+      "linkForgotPassword": "¿Has olvidado tus credenciales?",
       "cta": "ENTRAR AL BARRIO",
       "formTitle": "Bienvenido",
       "emailPlaceholder": "Tu email",
@@ -164,7 +166,7 @@
     },
     "scope": {
       "my_neighborhood": "Mi Barrio",
-      "entire_city": "Tota la Ciudad"
+      "entire_city": "Toda la Ciudad"
     },
     "empty": {
       "neighborhoodTitle": "¡Sé el pionero de tu barrio!",
@@ -212,9 +214,9 @@
     "match_active": "MATCH! 🌟",
     "status": {
       "pending": "PENDIENTE",
-      "match": "MATCH!"
-    },
-    "aiThinking": "IA Pensando..."
+      "match": "MATCH!",
+      "aiThinking": "IA Pensando..."
+    }
   },
   "matches": {
     "title": "Mis Conversaciones",
@@ -270,7 +272,7 @@
       "errorDelete": "Error al eliminar el evento.",
       "errorLoad": "No hemos podido cargar los eventos."
     },
-    "version": {
+    "list": {
       "empty": "No hay eventos próximos en Valencia. ¡Crea el primero!",
       "loading": "Cargando eventos..."
     }
@@ -328,6 +330,8 @@
     "deleteTitle": "Eliminar Perfil"
   },
   "notifications": {
+    "title": "Notificaciones",
+    "viewAll": "Ver todas",
     "new_message": "Tienes un nuevo mensaje de la Familia {{familyName}}",
     "playdate_proposed": "¡Te han sugerido un plan!",
     "playdate_accepted": "¡Plan confirmado! Revisa tu agenda"
@@ -371,7 +375,7 @@
     "animals & nature": "Animales y Naturaleza",
     "board games": "Juegos de Mesa",
     "cooking for kids": "Cocina para Niños",
-    "space & planets": "Espacio y Planetas",
+    "space & planets": "Espacio y Planetes",
     "puzzles": "Puzles",
     "gardening": "Jardinería",
     "valencian pilota": "Pelota Valenciana",
