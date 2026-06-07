@@ -32,17 +32,26 @@ export default function ProtectedRoute({
   }
 
 
-  if (allowedRoles && allowedRoles.length > 0) {
-    const userRoles = user.roles || []
-    const hasPermission = allowedRoles.some(allowed =>
-      userRoles.some(
-        ur => ur.replace('ROLE_', '') === allowed.replace('ROLE_', ''),
-      ),
-    )
-    if (!hasPermission) {
-      return <Navigate to="/dashboard" replace />
-    }
+if (allowedRoles && allowedRoles.length > 0) {
+  const userRoles = user.roles || []
+
+  const hasPermission = allowedRoles.some(allowed => {
+
+    const normalizedAllowed = allowed.replace('ROLE_', '').toUpperCase()
+
+    return userRoles.some(ur => {
+
+      const normalizedUserRole = (ur as string)
+        .replace('ROLE_', '')
+        .toUpperCase()
+      return normalizedUserRole === normalizedAllowed
+    })
+  })
+
+  if (!hasPermission) {
+    return <Navigate to="/dashboard" replace />
   }
+}
 
   return <>{children}</>
 }

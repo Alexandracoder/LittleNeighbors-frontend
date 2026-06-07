@@ -63,21 +63,48 @@ function AppContent() {
 
   if (loading) return <LoadingScreen />
 
+  // Función auxiliar para determinar la home según el rol
+  const getHomeRoute = (roles: string[] = []) => {
+    return roles.includes('ADMIN') || roles.includes('ROLE_ADMIN')
+      ? '/admin/stats'
+      : '/dashboard'
+  }
+
   return (
     <div className="min-h-screen bg-[#FDF8F3]">
       {user && <Navbar />}
 
       <div className={`${user ? 'pt-28' : ''}`}>
         <Routes>
+          {/* Redirección raíz inteligente */}
+          <Route
+            path="/"
+            element={
+              user ? (
+                <Navigate to={getHomeRoute(user.roles)} replace />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
+
           <Route
             path="/login"
-            element={!user ? <Login /> : <Navigate to="/" replace />}
+            element={
+              !user ? (
+                <Login />
+              ) : (
+                <Navigate to={getHomeRoute(user.roles)} replace />
+              )
+            }
           />
+
           <Route
             path="/register"
             element={!user ? <Register /> : <Navigate to="/" replace />}
           />
 
+          {/* Rutas Protegidas */}
           <Route
             path="/profile"
             element={
@@ -153,7 +180,6 @@ function AppContent() {
             }
           />
 
-          {/* 1. Vista Contextual (La agenda compartida de un chat específico) */}
           <Route
             path="/schedules/:matchId"
             element={
@@ -165,7 +191,6 @@ function AppContent() {
             }
           />
 
-          {/* 2. Vista Global*/}
           <Route
             path="/schedules"
             element={
@@ -199,12 +224,20 @@ function AppContent() {
             }
           />
 
-          {/* 🔓 La nueva landing del QR de la calle (Totalmente pública y libre) */}
-          <Route path="/qr-pilot" element={<QrLandingPage />} />
+          {/* Ruta Admin */}
+          <Route
+            path="/admin/stats"
+            element={
+              <ProtectedRoute allowedRoles={['ADMIN', 'ROLE_ADMIN']}>
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
 
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/qr-landing" element={<QrLandingPage />} />
+
+          {/* Catch-all para rutas no encontradas */}
           <Route path="*" element={<Navigate to="/" replace />} />
-          <Route path="/admin/stats" element={<AdminDashboard />} />
         </Routes>
       </div>
     </div>
