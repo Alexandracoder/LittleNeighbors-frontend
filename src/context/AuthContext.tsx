@@ -49,6 +49,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   )
   const [loading, setLoading] = useState(true)
 
+  const isAdmin = (roles: UserRole[] = []) => {
+    return (
+      roles.includes('ADMIN' as UserRole) ||
+      roles.includes('ROLE_ADMIN' as UserRole)
+    )
+  }
+
   const decodeToken = (t: string): User | null => {
     try {
       const decoded = jwtDecode<DecodedToken>(t)
@@ -99,15 +106,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }
 
   const refreshProfile = async (): Promise<FamilyResponseDTO | null> => {
+    if (user && isAdmin(user.roles)) {
+      setFamilyEntity(null)
+      return null
+    }
     try {
       const family = await familyApi.getMyFamily()
       setFamilyEntity(family)
       return family
     } catch (error: any) {
-      if (error.response?.status === 404) {
-        setFamilyEntity(null)
-        return null
-      }
       setFamilyEntity(null)
       return null
     }
@@ -115,26 +122,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const updateSession = async () => {
     try {
-      const [currentStatus, family] = await Promise.all([
-        userApi.getStatus(),
-        familyApi.getMyFamily().catch(() => null),
-      ])
-
+      const currentStatus = await userApi.getStatus()
       setStatus(currentStatus)
-      setFamilyEntity(family)
 
-      if (currentStatus && currentStatus.roles) {
-        setUser(prev =>
-          prev
-            ? {
-                ...prev,
-                roles: Array.isArray(currentStatus.roles)
-                  ? (currentStatus.roles as unknown as UserRole[])
-                  : prev.roles,
-              }
-            : null,
-        )
+      const roles = Array.isArray(currentStatus.roles)
+        ? (currentStatus.roles as unknown as UserRole[])
+        : []
+
+      if (!isAdmin(roles)) {
+        const family = await familyApi.getMyFamily().catch(() => null)
+        setFamilyEntity(family)
+      } else {
+        setFamilyEntity(null)
       }
+
+      setUser(prev => (prev ? { ...prev, roles } : null))
     } catch (error) {
       console.error('Error updating session:', error)
     }
@@ -191,7 +193,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true)
     try {
       const response: AuthResponse = await authApi.login(credentials)
-
       localStorage.setItem('accessToken', response.accessToken)
       localStorage.setItem('refreshToken', response.refreshToken)
       setToken(response.accessToken)
@@ -209,7 +210,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
 
       setUser(fullUser)
-      await Promise.allSettled([refreshStatus(), refreshProfile()])
+      await refreshStatus()
+      if (!isAdmin(fullUser.roles)) {
+        await refreshProfile()
+      }
       return fullUser
     } finally {
       setLoading(false)
@@ -220,8 +224,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.clear()
     sessionStorage.clear()
     setUser(null)
-    familyEntity && setFamilyEntity(null)
-    status && setStatus(null)
+    setFamilyEntity(null)
+    setStatus(null)
     setToken(null)
     window.location.href = '/login'
   }
@@ -234,7 +238,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (decodedUser) {
           setUser(decodedUser)
           setToken(savedToken)
-          await Promise.allSettled([refreshStatus(), refreshProfile()])
+          await refreshStatus()
+          if (!isAdmin(decodedUser.roles)) {
+            await refreshProfile()
+          }
         } else {
           logout()
         }
