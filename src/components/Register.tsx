@@ -1,5 +1,5 @@
-import { useState, FormEvent } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, FormEvent, useEffect } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { UserPlus, Mail, Lock, ArrowRight } from 'lucide-react'
 import { authApi } from '../services/api'
 import { useAuth } from '../context/AuthContext'
@@ -8,17 +8,30 @@ import registerBg from '../assets/moving.png'
 
 export default function Register() {
   const { t, i18n } = useTranslation()
+  const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
+  const { login } = useAuth()
+
+  // Extraer el token de la URL: ?invite=TOKEN
+  const inviteToken = searchParams.get('invite')
+
   const [showForm, setShowForm] = useState(false)
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     email: '',
     password: '',
+    inviteToken: inviteToken || '',
   })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const { login } = useAuth()
-  const navigate = useNavigate()
+
+  // Si hay token, mostramos el formulario automáticamente
+  useEffect(() => {
+    if (inviteToken) {
+      setShowForm(true)
+    }
+  }, [inviteToken])
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -58,7 +71,7 @@ export default function Register() {
 
   return (
     <div className="relative min-h-screen w-full flex items-center justify-center p-4 overflow-hidden font-sans">
-      {/* --- SELECTOR DE IDIOMAS FLOTANTE --- */}
+      {/* SELECTOR DE IDIOMAS */}
       <div className="absolute top-6 right-6 z-50 flex gap-2">
         {['en', 'es', 'va'].map(lng => (
           <button
@@ -91,7 +104,6 @@ export default function Register() {
 
       <div className="relative z-10 w-full max-w-md">
         {!showForm ? (
-          /* PANTALLA DE BIENVENIDA ESTILO "SOUL" */
           <div className="text-center animate-in fade-in zoom-in duration-700">
             <h1 className="text-6xl font-black text-white mb-4 drop-shadow-2xl italic tracking-tighter">
               {t('auth.register.title')}
@@ -108,7 +120,6 @@ export default function Register() {
             </button>
           </div>
         ) : (
-          /* CARD DE REGISTRO */
           <div className="bg-white/90 backdrop-blur-xl rounded-[3rem] shadow-2xl p-10 border-t-[10px] border-[#F28749] animate-in slide-in-from-top-10 duration-500">
             <div className="flex justify-center mb-6">
               <div className="bg-[#F28749] p-4 rounded-3xl shadow-lg">
@@ -122,30 +133,25 @@ export default function Register() {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <input
-                    name="firstName"
-                    type="text"
-                    placeholder={t('auth.register.firstNamePlaceholder')}
-                    value={formData.firstName}
-                    onChange={handleChange}
-                    className="w-full p-4 border border-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-[#F28749] bg-white/50"
-                    required
-                  />
-                </div>
-                <div>
-                  <input
-                    name="lastName"
-                    type="text"
-                    placeholder={t('auth.register.lastNamePlaceholder')}
-                    value={formData.lastName}
-                    onChange={handleChange}
-                    className="w-full p-4 border border-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-[#F28749] bg-white/50"
-                    required
-                  />
-                </div>
+                <input
+                  name="firstName"
+                  type="text"
+                  placeholder={t('auth.register.firstNamePlaceholder')}
+                  value={formData.firstName}
+                  onChange={handleChange}
+                  className="w-full p-4 border border-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-[#F28749] bg-white/50"
+                  required
+                />
+                <input
+                  name="lastName"
+                  type="text"
+                  placeholder={t('auth.register.lastNamePlaceholder')}
+                  value={formData.lastName}
+                  onChange={handleChange}
+                  className="w-full p-4 border border-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-[#F28749] bg-white/50"
+                  required
+                />
               </div>
-
               <div className="relative">
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-[#F28749] w-5 h-5" />
                 <input
@@ -158,7 +164,6 @@ export default function Register() {
                   required
                 />
               </div>
-
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-[#F28749] w-5 h-5" />
                 <input
