@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { adminApi } from '../services/api'
 
 interface DetailedStats {
   leadsCaptados: number
@@ -17,21 +18,21 @@ export const AdminDashboard: React.FC = () => {
   useEffect(() => {
     const fetchAdminData = async () => {
       try {
-        const [resBase, resDetailed] = await Promise.all([
-          fetch('http://localhost:8080/api/admin/stats'),
-          fetch('http://localhost:8080/api/admin/stats/detailed'),
+        // Usamos la instancia autorizada de axios a través de adminApi
+        const [statsData, detailedData] = await Promise.all([
+          adminApi.getStats(),
+          adminApi.getDetailedStats(),
         ])
 
-        if (resBase.ok && resDetailed.ok) {
-          setStats(await resBase.json())
-          setDetailedStats(await resDetailed.json())
-        }
+        setStats(statsData)
+        setDetailedStats(detailedData)
       } catch (error) {
         console.error('Error fetching admin stats:', error)
       } finally {
         setLoading(false)
       }
     }
+
     fetchAdminData()
   }, [])
 

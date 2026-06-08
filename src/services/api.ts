@@ -198,5 +198,15 @@ export const notificationApi = {
     return response.data
   },
 }
+export const adminApi = {
+  getStats: async () => {
+    const response = await api.get('/admin/stats');
+    return response.data;
+  },
+  getDetailedStats: async () => {
+    const response = await api.get('/admin/stats/detailed');
+    return response.data;
+  }
+};
 
-export default api
+export default api;
