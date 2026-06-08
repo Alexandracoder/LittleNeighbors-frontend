@@ -1,33 +1,46 @@
 import { useEffect, useState } from 'react'
 
+interface DetailedStats {
+  leadsCaptados: number
+  leadsConvertidos: number
+  tasaConversion: number
+}
+
 export const AdminDashboard: React.FC = () => {
   const [stats, setStats] = useState<Record<string, number>>({})
+  const [detailedStats, setDetailedStats] = useState<
+    Record<string, DetailedStats>
+  >({})
   const [loading, setLoading] = useState(true)
   const GOAL = 20
 
   useEffect(() => {
-    const fetchAllStats = async () => {
+    const fetchAdminData = async () => {
       try {
-        const response = await fetch('http://localhost:8080/api/admin/stats')
-        if (response.ok) {
-          const data = await response.json()
-          setStats(data)
+        const [resBase, resDetailed] = await Promise.all([
+          fetch('http://localhost:8080/api/admin/stats'),
+          fetch('http://localhost:8080/api/admin/stats/detailed'),
+        ])
+
+        if (resBase.ok && resDetailed.ok) {
+          setStats(await resBase.json())
+          setDetailedStats(await resDetailed.json())
         }
       } catch (error) {
-        console.error('Error fetching stats:', error)
+        console.error('Error fetching admin stats:', error)
       } finally {
         setLoading(false)
       }
     }
-    fetchAllStats()
+    fetchAdminData()
   }, [])
 
-  if (loading) return <div>Cargando datos del piloto...</div>
+  if (loading) return <div>Cargando panel de control...</div>
 
   return (
     <div style={{ padding: '40px', fontFamily: 'system-ui, sans-serif' }}>
       <h1 style={{ marginBottom: '30px' }}>
-        Panel de Seguimiento - Ayuntamiento 📊
+        Panel de Seguimiento - Administrador 📊
       </h1>
 
       <table
@@ -40,13 +53,16 @@ export const AdminDashboard: React.FC = () => {
         <thead>
           <tr style={{ color: '#7f8c8d', textAlign: 'left' }}>
             <th style={{ padding: '10px' }}>Barrio</th>
-            <th style={{ padding: '10px' }}>Inscritos</th>
-            <th style={{ padding: '10px' }}>Progreso (Meta: {GOAL})</th>
+            <th style={{ padding: '10px' }}>Captados</th>
+            <th style={{ padding: '10px' }}>Convertidos</th>
+            <th style={{ padding: '10px' }}>Progreso</th>
           </tr>
         </thead>
         <tbody>
           {Object.entries(stats).map(([barrio, count]) => {
+            const detail = detailedStats[barrio]
             const percentage = Math.min(Math.round((count / GOAL) * 100), 100)
+
             return (
               <tr
                 key={barrio}
@@ -58,13 +74,16 @@ export const AdminDashboard: React.FC = () => {
                 <td style={{ padding: '15px', fontWeight: 'bold' }}>
                   {barrio}
                 </td>
-                <td style={{ padding: '15px' }}>{count} familias</td>
-                <td style={{ padding: '15px', width: '300px' }}>
+                <td style={{ padding: '15px' }}>{count}</td>
+                <td style={{ padding: '15px', color: '#27ae60' }}>
+                  {detail?.leadsConvertidos || 0}
+                </td>
+                <td style={{ padding: '15px', width: '200px' }}>
                   <div
                     style={{
                       backgroundColor: '#eee',
-                      height: '10px',
-                      borderRadius: '5px',
+                      height: '8px',
+                      borderRadius: '4px',
                     }}
                   >
                     <div
@@ -73,7 +92,7 @@ export const AdminDashboard: React.FC = () => {
                         height: '100%',
                         backgroundColor:
                           percentage >= 100 ? '#27ae60' : '#3498db',
-                        borderRadius: '5px',
+                        borderRadius: '4px',
                       }}
                     />
                   </div>

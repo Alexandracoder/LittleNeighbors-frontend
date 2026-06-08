@@ -11,7 +11,7 @@ import { Plus, ArrowRight, Baby, Sparkles } from 'lucide-react'
 
 export default function AddChildPage() {
   const { t } = useTranslation()
-  const { refreshStatus, refreshProfile } = useAuth()
+const { refreshStatus, refreshProfile, updateSession } = useAuth()
   const navigate = useNavigate()
 
   const [children, setChildren] = useState<ChildResponseDTO[]>([])
@@ -201,8 +201,5 @@ const handleSuccess = async () => {
       </div>
     </div>
   )
-}
-function updateSession() {
-  throw new Error('Function not implemented.')
 }
 

@@ -13,14 +13,21 @@ const OnboardingGuard: React.FC<OnboardingGuardProps> = ({ children }) => {
     familyEntity,
     updateSession,
     loading: authLoading,
+    hasRole,
   } = useAuth()
+
+
+  if (user && hasRole('ADMIN')) {
+    return <>{children}</>
+  }
+
+
   const location = useLocation()
   const [checking, setChecking] = useState(true)
 
   useEffect(() => {
     const verifyRealStatus = async () => {
       try {
-        // ⚡ Solución limpia: Solo sincronizamos si no tenemos el status poblado en el contexto
         if (!status) {
           await updateSession()
         }
@@ -34,13 +41,12 @@ const OnboardingGuard: React.FC<OnboardingGuardProps> = ({ children }) => {
       }
     }
 
-    if (user) {
+    if (user && !hasRole('ADMIN')) {
       verifyRealStatus()
     } else {
       setChecking(false)
     }
-    // Quitamos updateSession de las dependencias para evitar re-ejecuciones y bucles infinitos
-  }, [user, status])
+  }, [user, status, hasRole])
 
   if (authLoading || checking) {
     return (
@@ -54,6 +60,10 @@ const OnboardingGuard: React.FC<OnboardingGuardProps> = ({ children }) => {
   }
 
   if (!user) return <Navigate to="/login" replace state={{ from: location }} />
+
+  if (hasRole('ADMIN')) {
+    return <>{children}</>
+  }
 
   const hasFamily =
     status?.hasFamily === true ||

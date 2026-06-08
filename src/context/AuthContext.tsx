@@ -62,7 +62,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return {
         id: decoded.id ? decoded.id.toString() : '',
         email: decoded.sub || '',
-        firstName: 'Neighbor',
+        firstName: '',
         lastName: '',
         roles: extractedRoles,
         family: null,
@@ -92,7 +92,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             : null,
         )
       }
-
       return currentStatus
     } catch {
       return null
@@ -115,12 +114,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }
 
   const updateSession = async () => {
-    setLoading(true)
     try {
-      const currentStatus = await userApi.getStatus()
-      setStatus(currentStatus)
+      const [currentStatus, family] = await Promise.all([
+        userApi.getStatus(),
+        familyApi.getMyFamily().catch(() => null),
+      ])
 
-      const family = await familyApi.getMyFamily().catch(() => null)
+      setStatus(currentStatus)
       setFamilyEntity(family)
 
       if (currentStatus && currentStatus.roles) {
@@ -136,9 +136,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         )
       }
     } catch (error) {
-      console.error(error)
-    } finally {
-      setLoading(false)
+      console.error('Error updating session:', error)
     }
   }
 
@@ -247,9 +245,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [])
 
   const hasRole = (role: UserRole) => {
-    if (!user) return false
-    const searchRole = role.startsWith('ROLE_') ? role : `ROLE_${role}`
-    return user.roles.some(r => (r as string) === searchRole)
+    if (!user || !user.roles) return false
+    const searchRole = role.toUpperCase()
+    return user.roles.some(r => {
+      const roleString = (r as string).toUpperCase()
+      return roleString === searchRole || roleString === `ROLE_${searchRole}`
+    })
   }
 
   return (

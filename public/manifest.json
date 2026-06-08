@@ -1,0 +1,38 @@
+{
+  "id": "/index.html",
+  "name": "Little Neighbors",
+  "short_name": "Neighbors",
+  "description": "Plataforma de conexión vecinal para familias",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#FDF8F3",
+  "icons": [
+    {
+      "src": "/icons/logo-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/icons/logo-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/mobile1.png",
+      "sizes": "365x667",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Vista móvil"
+    },
+    {
+      "src": "/screenshots/desktop1.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Vista escritorio"
+    }
+  ]
+}
