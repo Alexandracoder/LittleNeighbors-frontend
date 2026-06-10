@@ -1,4 +1,3 @@
-import React from 'react'
 import { ShieldCheck, ShieldAlert, Clock, XCircle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 

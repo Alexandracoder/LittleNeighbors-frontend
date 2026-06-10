@@ -53,7 +53,7 @@ async function createI18n(language: 'en' | 'es' | 'va') {
 }
 
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 const MAX_DESCRIPTION_LENGTH = 500

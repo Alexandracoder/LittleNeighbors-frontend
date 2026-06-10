@@ -1,4 +1,3 @@
-import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useMatches, MatchResponseDetailDTO } from '../../hooks/useMatches'
 import './MatchesList.css'
