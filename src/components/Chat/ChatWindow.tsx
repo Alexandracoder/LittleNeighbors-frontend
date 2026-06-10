@@ -44,14 +44,14 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   const [isConnected, setIsConnected] = useState(false)
   const [neighborName, setNeighborName] = useState<string>('')
 
-  // Metadatos de contexto para la simulación de IA
+
   const [matchInterests, setMatchInterests] = useState<string[]>([])
   const [isGeneratingIcebreaker, setIsGeneratingIcebreaker] = useState(false)
 
   const scrollRef = useRef<HTMLDivElement>(null)
   const stompClient = useRef<Client | null>(null)
 
-  // 1. Carga de Historial y Metadatos de Contexto
+
   useEffect(() => {
     const loadHistory = async () => {
       if (!matchId) return
@@ -89,13 +89,15 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     loadHistory()
   }, [matchId, t])
 
-  // 2. Conexión WebSocket (STOMP) - ¡Totalmente Corregido!
+
   useEffect(() => {
     if (!matchId || !token) return
 
     const client = new Client({
-      webSocketFactory: () =>
-        new SockJS('http://localhost:8080/ws-little-neighbors'),
+      webSocketFactory: () => {
+        const WS_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+        return new SockJS(`${WS_BASE_URL}/ws-little-neighbors`);
+      },
       connectHeaders: { Authorization: `Bearer ${token}` },
       onConnect: () => {
         setIsConnected(true)

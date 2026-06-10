@@ -11,7 +11,9 @@ export const useChatSocket = (
 
   useEffect(() => {
 
-    const socket = new SockJS('http://localhost:8080')
+    const WS_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080'
+
+    const socket = new SockJS(`${WS_BASE_URL}/ws-little-neighbors`)
     stompClient.current = Stomp.over(socket)
 
     stompClient.current.connect(
