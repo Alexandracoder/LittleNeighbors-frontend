@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Calendar, Clock } from 'lucide-react'
 import { useTranslation } from 'react-i18next'

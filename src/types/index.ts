@@ -28,7 +28,7 @@ export interface RegisterRequest {
   password?: string
 }
 
-export type UserRole = 'ROLE_USER' | 'ROLE_FAMILY' | 'ROLE_ADMIN' | 'ADMIN'
+export type UserRole = 'ROLE_USER' | 'ROLE_FAMILY' | 'ROLE_ADMIN' | 'ADMIN' | 'FAMILY'
 
 export interface DecodedToken {
   id: number
