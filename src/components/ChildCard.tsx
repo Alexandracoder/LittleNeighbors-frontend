@@ -15,14 +15,14 @@ import { useTranslation } from 'react-i18next'
 import type { ChildResponseDTO } from '../types'
 import { childApi } from '../services/api'
 
-// IMPORTAMOS TUS NUEVOS AVATARES LOCALES 3D
+
 import avatar1 from '../assets/Avatar1.jpg'
 import avatar2 from '../assets/Avatar2.jpg'
 import avatar3 from '../assets/Avatar3.jpg'
 import avatar4 from '../assets/Avatar4.jpg'
 import i18n from '../i18n'
 
-// Los metemos en un array para seleccionarlos dinámicamente
+
 const localAvatars = [avatar1, avatar2, avatar3, avatar4]
 
 interface ChildCardProps {
@@ -51,8 +51,7 @@ export default function ChildCard({
 
   const isPrenatal = child.lifeStage === 'PREGNANCY'
 
-  // SELECCIÓN DINÁMICA DEL AVATAR LOCAL:
-  // Usamos el ID del niño para asignarle siempre el mismo avatar (del 1 al 4) de forma matemática uniforme
+
   const avatarIndex = child.id ? child.id % localAvatars.length : 0
   const avatarUrl = localAvatars[avatarIndex]
 
@@ -82,7 +81,7 @@ export default function ChildCard({
 const getTitle = () => {
   if (!child.nickname) return t('children.card.titleDefault')
 
-  // Separamos el apodo en dos palabras (adjetivo y sustantivo)
+
   const parts = child.nickname.split(' ')
 
   if (parts.length === 2) {

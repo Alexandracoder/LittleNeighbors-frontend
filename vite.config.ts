@@ -26,6 +26,6 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
-    // Asegúrate de que el orden de renderizado en tus tests sea el correcto
+    
   },
 })

@@ -3,7 +3,7 @@ import { Marker } from 'react-leaflet'
 
 const createCustomIcon = (count: number) => {
   return L.divIcon({
-    className: 'custom-pin', // Clase vacía para evitar estilos por defecto de Leaflet
+    className: 'custom-pin',
     html: `
       <div style="position: relative;">
         <div style="

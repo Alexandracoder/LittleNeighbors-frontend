@@ -129,8 +129,7 @@ export default function ChildDashboard() {
     },
   ]
 
-  // 2. SELECCIÓN DINÁMICA BASADA EN EL ID
-  // Convertimos el ID a número y usamos el módulo (%) para asegurar que siempre devuelva un índice válido del array (0 a 3)
+
   const currentAvatarIndex = Math.abs(Number(id || 0)) % localAvatars.length
   const currentAvatar = localAvatars[currentAvatarIndex]
 
