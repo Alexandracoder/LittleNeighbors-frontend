@@ -1,3 +1,19 @@
+// ==========================================
+// CENTRALIZED TYPES & CONSTANTS
+// ==========================================
+
+export type UserStatusType =
+  | 'UNVERIFIED'
+  | 'PENDING_REVIEW'
+  | 'VERIFIED'
+  | 'REJECTED'
+  | 'BLOCKED'
+export type UserRole =
+  | 'ROLE_USER'
+  | 'ROLE_FAMILY'
+  | 'ROLE_ADMIN'
+  | 'ADMIN'
+  | 'FAMILY'
 
 // ==========================================
 // AUTHENTICATION TYPES
@@ -11,12 +27,13 @@ export interface AuthRequest {
 export interface AuthResponse {
   accessToken: string
   refreshToken: string
-  id: number
+  id: number | string
   email: string
   firstName: string
   lastName: string
   roles: UserRole[]
 }
+
 export interface RefreshRequest {
   refreshToken: string
 }
@@ -28,24 +45,26 @@ export interface RegisterRequest {
   password?: string
 }
 
-export type UserRole = 'ROLE_USER' | 'ROLE_FAMILY' | 'ROLE_ADMIN' | 'ADMIN' | 'FAMILY'
-
 export interface DecodedToken {
-  id: number
+  id: number | string
   sub: string
   roles: UserRole[]
   exp: number
 }
+
 export interface User {
-  hasChildren: boolean
-  hasFamily: boolean
-  children: boolean
-  id: string
+  id: number | string
   email: string
   firstName: string
   lastName: string
   roles: UserRole[]
+  hasChildren: boolean
+  hasFamily: boolean
+  children: boolean
   family: null
+  verificationStatus?: UserStatusType
+  rejectionReason?: string
+  userRoles?: string
 }
 
 export interface UserStatusDTO {
@@ -53,6 +72,7 @@ export interface UserStatusDTO {
   hasFamily: boolean
   hasChildren: boolean
   isRegistrationComplete: boolean
+  verificationStatus: UserStatusType
 }
 
 export interface UserProfileDTO {
@@ -62,8 +82,15 @@ export interface UserProfileDTO {
   lastName?: string
   displayName?: string
   roles: string[]
-  verificationStatus: 'UNVERIFIED' | 'PENDING_REVIEW' | 'VERIFIED' | 'REJECTED'
+  verificationStatus: UserStatusType
   family: FamilyResponseDTO | null
+}
+
+export interface AdminServiceInterface {
+  getPendingUsers: () => Promise<User[]>
+  verifyUser: (userId: number | string) => Promise<void>
+  blockUser: (userId: number | string) => Promise<void>
+  rejectUser: (userId: number | string, reason: string) => Promise<void>
 }
 
 // ==========================================
@@ -159,19 +186,14 @@ export interface FamilyResponseDTO {
   displayName: string
   description: string
   profilePictureUrl: string
-
-
   latitude: number
   longitude: number
-
-
   neighborhoodId: number
   neighborhoodName: string
   neighborhood: NeighborhoodDTO
   streetName: string
   postalCode: string
   cityName: string
-
   status: 'PREGNANT' | 'NEW_PARENTS' | 'ESTABLISHED_FAMILY' | 'SURPRISE'
   familyInterests: string[]
   children: ChildSummaryDTO[]
@@ -211,7 +233,6 @@ export interface Playdate {
   matchId: number
   createdAt: string
   updatedAt?: string
-
   neighborName?: string
 }
 

@@ -2,7 +2,7 @@ import { ShieldCheck, ShieldAlert, Clock, XCircle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 interface UserStatusProps {
-  status: 'UNVERIFIED' | 'PENDING_REVIEW' | 'VERIFIED' | 'REJECTED'
+  status: 'UNVERIFIED' | 'PENDING_REVIEW' | 'VERIFIED' | 'REJECTED' | 'BLOCKED'
 }
 
 const UserStatus: React.FC<UserStatusProps> = ({ status }) => {

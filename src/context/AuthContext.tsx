@@ -311,10 +311,9 @@ export const AuthProvider = ({
     setStatus({
       hasFamily: true,
       hasChildren: false,
-      isRegistrationComplete:
-        false,
-      roles:
-        extractedRoles as any,
+      isRegistrationComplete: false,
+      roles: extractedRoles as any,
+      verificationStatus: 'PENDING_REVIEW',
     })
   }
 
