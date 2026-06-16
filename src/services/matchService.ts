@@ -5,7 +5,6 @@ export type MatchStatus = 'ACCEPTED' | 'REJECTED'
 
 export interface MatchResponseDTO {
   sharedInterests: any
-  sharedInterests: any
   childRequest: any
   childTarget: any
   neighborName: any

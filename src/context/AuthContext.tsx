@@ -39,66 +39,55 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-export const AuthProvider = ({
-  children,
-}: {
-  children: ReactNode
-}) => {
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null)
 
-  const [familyEntity, setFamilyEntity] =
-    useState<FamilyResponseDTO | null>(null)
+  const [familyEntity, setFamilyEntity] = useState<FamilyResponseDTO | null>(
+    null,
+  )
 
-  const [status, setStatus] =
-    useState<UserStatusDTO | null>(null)
+  const [status, setStatus] = useState<UserStatusDTO | null>(null)
 
-  const [token, setToken] =
-    useState<string | null>(
-      localStorage.getItem('accessToken'),
-    )
+  const [token, setToken] = useState<string | null>(
+    localStorage.getItem('accessToken'),
+  )
 
-  const [loading, setLoading] =
-    useState(true)
+  const [loading, setLoading] = useState(true)
 
-  const isAdmin = (
-    roles: UserRole[] = [],
-  ) => {
+  const isAdmin = (roles: UserRole[] = []) => {
     return (
-      roles.includes(
-        'ADMIN' as UserRole,
-      ) ||
-      roles.includes(
-        'ROLE_ADMIN' as UserRole,
-      )
+      roles.includes('ADMIN' as UserRole) ||
+      roles.includes('ROLE_ADMIN' as UserRole)
     )
   }
 
-  const decodeToken = (
-    t: string,
-  ): User | null => {
+  // Comprueba un rol contra una lista de roles ya extraída.
+  // La comparten hasRole() y refreshProfile() para no duplicar la lógica
+  // de comparación (con o sin prefijo ROLE_).
+  const roleListHas = (roles: UserRole[] = [], role: UserRole) => {
+    const searchRole = role.toUpperCase()
+    return roles.some(r => {
+      const roleString = (r as string).toUpperCase()
+      return roleString === searchRole || roleString === `ROLE_${searchRole}`
+    })
+  }
+
+  const decodeToken = (t: string): User | null => {
     try {
-      const decoded =
-        jwtDecode<DecodedToken>(t)
+      const decoded = jwtDecode<DecodedToken>(t)
 
-      const currentTime =
-        Date.now() / 1000
+      const currentTime = Date.now() / 1000
 
-      if (
-        decoded.exp &&
-        decoded.exp < currentTime
-      ) {
+      if (decoded.exp && decoded.exp < currentTime) {
         return null
       }
 
-      const extractedRoles: UserRole[] =
-        Array.isArray(decoded.roles)
-          ? (decoded.roles as UserRole[])
-          : []
+      const extractedRoles: UserRole[] = Array.isArray(decoded.roles)
+        ? (decoded.roles as UserRole[])
+        : []
 
       return {
-        id: decoded.id
-          ? decoded.id.toString()
-          : '',
+        id: decoded.id ? decoded.id.toString() : '',
         email: decoded.sub || '',
         firstName: '',
         lastName: '',
@@ -113,165 +102,133 @@ export const AuthProvider = ({
     }
   }
 
-  const refreshStatus =
-    async (): Promise<UserStatusDTO | null> => {
-      try {
-        const currentStatus =
-          await userApi.getStatus()
+  // Lee y decodifica el token directamente desde localStorage en el
+  // momento de la llamada. Evita depender del estado `user` del closure,
+  // que puede estar desactualizado cuando se encadenan varias llamadas
+  // async seguidas (p.ej. refreshStatus() seguido de refreshProfile()
+  // dentro de initAuth(), antes de que React re-renderice entre medias).
+  const getRolesFromStoredToken = (): UserRole[] => {
+    const storedToken = localStorage.getItem('accessToken')
+    if (!storedToken) return []
 
-        setStatus(currentStatus)
+    const decodedUser = decodeToken(storedToken)
+    return decodedUser?.roles ?? []
+  }
 
-        if (
-          user &&
-          currentStatus.roles
-        ) {
-          setUser(prev =>
-            prev
-              ? {
-                  ...prev,
-                  roles: Array.isArray(
-                    currentStatus.roles,
-                  )
-                    ? (currentStatus.roles as UserRole[])
-                    : prev.roles,
-                }
-              : null,
-          )
-        }
+  const refreshStatus = async (): Promise<UserStatusDTO | null> => {
+    try {
+      const currentStatus = await userApi.getStatus()
 
-        return currentStatus
-      } catch (error) {
-        console.error(
-          'Error refreshing status:',
-          error,
-        )
-        return null
-      }
-    }
+      setStatus(currentStatus)
 
-  const refreshProfile =
-    async (): Promise<FamilyResponseDTO | null> => {
-      if (!user) return null
-
-      if (
-        isAdmin(user.roles) ||
-        !hasRole('FAMILY' as UserRole)
-      ) {
-        setFamilyEntity(null)
-        return null
-      }
-
-      try {
-        const family =
-          await familyApi.getMyFamily()
-
-        setFamilyEntity(family)
-
-        return family
-      } catch (error) {
-        console.error(
-          'Error loading family:',
-          error,
-        )
-
-        setFamilyEntity(null)
-
-        return null
-      }
-    }
-
-  const updateSession =
-    async () => {
-      try {
-        const currentStatus =
-          await userApi.getStatus()
-
-        setStatus(currentStatus)
-
-        const roles =
-          Array.isArray(
-            currentStatus.roles,
-          )
-            ? (currentStatus.roles as UserRole[])
-            : []
-
-
-        if (
-          !isAdmin(roles) &&
-          (roles.includes(
-            'FAMILY' as UserRole,
-          ) ||
-            roles.includes(
-              'ROLE_FAMILY' as UserRole,
-            ))
-        ) {
-          const family =
-            await familyApi
-              .getMyFamily()
-              .catch(() => null)
-
-          setFamilyEntity(family)
-        } else {
-          setFamilyEntity(null)
-        }
+      if (currentStatus.roles) {
+        const normalizedRoles = Array.isArray(currentStatus.roles)
+          ? (currentStatus.roles as UserRole[])
+          : []
 
         setUser(prev =>
           prev
             ? {
                 ...prev,
-                roles,
+                roles: normalizedRoles,
               }
-            : null,
-        )
-      } catch (error) {
-        console.error(
-          'Error updating session:',
-          error,
+            : prev,
         )
       }
+
+      return currentStatus
+    } catch (error) {
+      console.error('Error refreshing status:', error)
+      return null
+    }
+  }
+
+  const refreshProfile = async (): Promise<FamilyResponseDTO | null> => {
+    // Usamos el token guardado como fuente de verdad en lugar del
+    // estado `user`, que puede no estar actualizado todavía si esta
+    // función se llama justo después de refreshStatus() o login().
+    const roles = getRolesFromStoredToken()
+
+    if (
+      roles.length === 0 ||
+      isAdmin(roles) ||
+      !roleListHas(roles, 'FAMILY' as UserRole)
+    ) {
+      setFamilyEntity(null)
+      return null
     }
 
-  const handleFamilyCreation = (
-    responseData: {
-      family: FamilyResponseDTO
-      accessToken: string
-      refreshToken: string
-    },
-  ) => {
-    localStorage.setItem(
-      'accessToken',
-      responseData.accessToken,
-    )
+    try {
+      const family = await familyApi.getMyFamily()
 
-    localStorage.setItem(
-      'refreshToken',
-      responseData.refreshToken,
-    )
+      setFamilyEntity(family)
 
-    setToken(
-      responseData.accessToken,
-    )
+      return family
+    } catch (error) {
+      console.error('Error loading family:', error)
 
-    let extractedRoles: UserRole[] =
-      ['ROLE_FAMILY']
+      setFamilyEntity(null)
+
+      return null
+    }
+  }
+
+  const updateSession = async () => {
+    try {
+      const currentStatus = await userApi.getStatus()
+
+      setStatus(currentStatus)
+
+      const roles = Array.isArray(currentStatus.roles)
+        ? (currentStatus.roles as UserRole[])
+        : []
+
+      if (
+        !isAdmin(roles) &&
+        (roles.includes('FAMILY' as UserRole) ||
+          roles.includes('ROLE_FAMILY' as UserRole))
+      ) {
+        const family = await familyApi.getMyFamily().catch(() => null)
+
+        setFamilyEntity(family)
+      } else {
+        setFamilyEntity(null)
+      }
+
+      setUser(prev =>
+        prev
+          ? {
+              ...prev,
+              roles,
+            }
+          : null,
+      )
+    } catch (error) {
+      console.error('Error updating session:', error)
+    }
+  }
+
+  const handleFamilyCreation = (responseData: {
+    family: FamilyResponseDTO
+    accessToken: string
+    refreshToken: string
+  }) => {
+    localStorage.setItem('accessToken', responseData.accessToken)
+
+    localStorage.setItem('refreshToken', responseData.refreshToken)
+
+    setToken(responseData.accessToken)
+
+    let extractedRoles: UserRole[] = ['ROLE_FAMILY']
 
     let email = ''
     let id = ''
 
     try {
-      const decoded =
-        jwtDecode<DecodedToken>(
-          responseData.accessToken,
-        )
+      const decoded = jwtDecode<DecodedToken>(responseData.accessToken)
 
-      if (
-        decoded.roles &&
-        Array.isArray(
-          decoded.roles,
-        )
-      ) {
-        extractedRoles =
-          decoded.roles as UserRole[]
+      if (decoded.roles && Array.isArray(decoded.roles)) {
+        extractedRoles = decoded.roles as UserRole[]
       }
 
       if (decoded.sub) {
@@ -279,8 +236,7 @@ export const AuthProvider = ({
       }
 
       if (decoded.id) {
-        id =
-          decoded.id.toString()
+        id = decoded.id.toString()
       }
     } catch (e) {
       console.error(e)
@@ -289,13 +245,9 @@ export const AuthProvider = ({
     const updatedUser: User = {
       id,
       email,
-      firstName:
-        user?.firstName ||
-        'Neighbor',
-      lastName:
-        user?.lastName || '',
-      roles:
-        extractedRoles,
+      firstName: user?.firstName || 'Neighbor',
+      lastName: user?.lastName || '',
+      roles: extractedRoles,
       family: null,
       children: false,
       hasFamily: true,
@@ -304,56 +256,35 @@ export const AuthProvider = ({
 
     setUser(updatedUser)
 
-    setFamilyEntity(
-      responseData.family,
-    )
+    setFamilyEntity(responseData.family)
 
     setStatus({
       hasFamily: true,
       hasChildren: false,
-      isRegistrationComplete:
-        false,
-      roles:
-        extractedRoles as any,
+      isRegistrationComplete: false,
+      roles: extractedRoles as any,
+      verificationStatus: 'PENDING_REVIEW',
     })
   }
 
-  const login = async (
-    credentials: AuthRequest,
-  ): Promise<User | null> => {
+  const login = async (credentials: AuthRequest): Promise<User | null> => {
     setLoading(true)
 
     try {
-      const response: AuthResponse =
-        await authApi.login(
-          credentials,
-        )
+      const response: AuthResponse = await authApi.login(credentials)
 
-      localStorage.setItem(
-        'accessToken',
-        response.accessToken,
-      )
+      localStorage.setItem('accessToken', response.accessToken)
 
-      localStorage.setItem(
-        'refreshToken',
-        response.refreshToken,
-      )
+      localStorage.setItem('refreshToken', response.refreshToken)
 
-      setToken(
-        response.accessToken,
-      )
+      setToken(response.accessToken)
 
       const fullUser: User = {
-        id:
-          response.id.toString(),
-        email:
-          response.email,
-        firstName:
-          response.firstName,
-        lastName:
-          response.lastName,
-        roles:
-          response.roles,
+        id: response.id.toString(),
+        email: response.email,
+        firstName: response.firstName,
+        lastName: response.lastName,
+        roles: response.roles,
         family: null,
         hasChildren: false,
         hasFamily: false,
@@ -363,14 +294,7 @@ export const AuthProvider = ({
       setUser(fullUser)
 
       await refreshStatus()
-
-      if (
-        !isAdmin(
-          fullUser.roles,
-        )
-      ) {
-        await refreshProfile()
-      }
+      await refreshProfile()
 
       return fullUser
     } finally {
@@ -391,78 +315,37 @@ export const AuthProvider = ({
   }
 
   useEffect(() => {
-    const initAuth =
-      async () => {
-        const savedToken =
-          localStorage.getItem(
-            'accessToken',
-          )
-
+    const initAuth = async () => {
+      try {
+        const savedToken = localStorage.getItem('accessToken')
         if (savedToken) {
-          const decodedUser =
-            decodeToken(
-              savedToken,
-            )
-
-          if (
-            decodedUser
-          ) {
-            setUser(
-              decodedUser,
-            )
-
-            setToken(
-              savedToken,
-            )
+          const decodedUser = decodeToken(savedToken)
+          if (decodedUser) {
+            setUser(decodedUser)
+            setToken(savedToken)
 
             await refreshStatus()
-
-            if (
-              !isAdmin(
-                decodedUser.roles,
-              )
-            ) {
-              await refreshProfile()
-            }
+            await refreshProfile()
           } else {
             logout()
           }
         }
-
+      } catch (error) {
+        console.error('Error initializing auth session:', error)
+      } finally {
         setLoading(false)
       }
+    }
 
     initAuth()
   }, [])
 
-  const hasRole = (
-    role: UserRole,
-  ) => {
-    if (
-      !user ||
-      !user.roles
-    ) {
+  const hasRole = (role: UserRole) => {
+    if (!user || !user.roles) {
       return false
     }
 
-    const searchRole =
-      role.toUpperCase()
-
-    return user.roles.some(
-      r => {
-        const roleString =
-          (
-            r as string
-          ).toUpperCase()
-
-        return (
-          roleString ===
-            searchRole ||
-          roleString ===
-            `ROLE_${searchRole}`
-        )
-      },
-    )
+    return roleListHas(user.roles, role)
   }
 
   return (
@@ -487,21 +370,12 @@ export const AuthProvider = ({
   )
 }
 
-export const useAuth =
-  () => {
-    const context =
-      useContext(
-        AuthContext,
-      )
+export const useAuth = () => {
+  const context = useContext(AuthContext)
 
-    if (
-      context ===
-      undefined
-    ) {
-      throw new Error(
-        'useAuth must be used within an AuthProvider',
-      )
-    }
-
-    return context
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider')
   }
+
+  return context
+}

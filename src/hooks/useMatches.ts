@@ -22,7 +22,18 @@ export const useMatches = () => {
     try {
       setLoading(true)
       const data = await matchService.getMyMatches()
-      setMatches(data)
+      const mappedData = data.map((match: any) => ({
+        searcherUserId: match.searcherUserId,
+        matchId: match.matchId,
+        status: match.status,
+        myChildId: match.myChildId,
+        myChildGender: match.myChildGender,
+        theirChildId: match.theirChildId,
+        theirChildGender: match.theirChildGender,
+        theirFamilyName: match.theirFamilyName,
+        theirNeighborhoodName: match.theirNeighborhoodName,
+      }))
+      setMatches(mappedData)
       setError(null)
     } catch (err) {
       setError('Failed to load matches. Please try again later.')

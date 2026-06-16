@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { adminApi } from '../services/api'
+import MainLayout from '../components/layout/MainLayout'
+import dashboardBg from '../assets/Stats_image.png'
 
 interface DetailedStats {
   leadsCaptados: number
@@ -8,6 +11,7 @@ interface DetailedStats {
 }
 
 export const AdminDashboard: React.FC = () => {
+  const { t } = useTranslation()
   const [stats, setStats] = useState<Record<string, number>>({})
   const [detailedStats, setDetailedStats] = useState<
     Record<string, DetailedStats>
@@ -18,7 +22,6 @@ export const AdminDashboard: React.FC = () => {
   useEffect(() => {
     const fetchAdminData = async () => {
       try {
-        // Usamos la instancia autorizada de axios a través de adminApi
         const [statsData, detailedData] = await Promise.all([
           adminApi.getStats(),
           adminApi.getDetailedStats(),
@@ -36,73 +39,85 @@ export const AdminDashboard: React.FC = () => {
     fetchAdminData()
   }, [])
 
-  if (loading) return <div>Cargando panel de control...</div>
+  if (loading) return <div>{t('common.loading')}</div>
 
   return (
-    <div style={{ padding: '40px', fontFamily: 'system-ui, sans-serif' }}>
-      <h1 style={{ marginBottom: '30px' }}>
-        Panel de Seguimiento - Administrador 📊
-      </h1>
+    <MainLayout
+      backgroundImage={dashboardBg}
+      title={t('admin.dashboard.title')}
+      subtitle={t('admin.dashboard.subtitle')}
+    >
+      <div style={{ padding: '40px', fontFamily: 'system-ui, sans-serif' }}>
+        <h1 style={{ marginBottom: '30px' }}>
+          {t('admin.dashboard.heading')} 📊
+        </h1>
 
-      <table
-        style={{
-          width: '100%',
-          borderCollapse: 'separate',
-          borderSpacing: '0 10px',
-        }}
-      >
-        <thead>
-          <tr style={{ color: '#7f8c8d', textAlign: 'left' }}>
-            <th style={{ padding: '10px' }}>Barrio</th>
-            <th style={{ padding: '10px' }}>Captados</th>
-            <th style={{ padding: '10px' }}>Convertidos</th>
-            <th style={{ padding: '10px' }}>Progreso</th>
-          </tr>
-        </thead>
-        <tbody>
-          {Object.entries(stats).map(([barrio, count]) => {
-            const detail = detailedStats[barrio]
-            const percentage = Math.min(Math.round((count / GOAL) * 100), 100)
+        <table
+          style={{
+            width: '100%',
+            borderCollapse: 'separate',
+            borderSpacing: '0 10px',
+          }}
+        >
+          <thead>
+            <tr style={{ color: '#7f8c8d', textAlign: 'left' }}>
+              <th style={{ padding: '10px' }}>
+                {t('admin.table.neighborhood')}
+              </th>
+              <th style={{ padding: '10px' }}>{t('admin.table.captured')}</th>
+              <th style={{ padding: '10px' }}>{t('admin.table.converted')}</th>
+              <th style={{ padding: '10px' }}>{t('admin.table.progress')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {stats &&
+              Object.entries(stats).map(([barrio, count]) => {
+                const detail = detailedStats[barrio]
+                const percentage = Math.min(
+                  Math.round((count / GOAL) * 100),
+                  100,
+                )
 
-            return (
-              <tr
-                key={barrio}
-                style={{
-                  backgroundColor: '#fff',
-                  boxShadow: '0 2px 5px rgba(0,0,0,0.05)',
-                }}
-              >
-                <td style={{ padding: '15px', fontWeight: 'bold' }}>
-                  {barrio}
-                </td>
-                <td style={{ padding: '15px' }}>{count}</td>
-                <td style={{ padding: '15px', color: '#27ae60' }}>
-                  {detail?.leadsConvertidos || 0}
-                </td>
-                <td style={{ padding: '15px', width: '200px' }}>
-                  <div
+                return (
+                  <tr
+                    key={barrio}
                     style={{
-                      backgroundColor: '#eee',
-                      height: '8px',
-                      borderRadius: '4px',
+                      backgroundColor: '#fff',
+                      boxShadow: '0 2px 5px rgba(0,0,0,0.05)',
                     }}
                   >
-                    <div
-                      style={{
-                        width: `${percentage}%`,
-                        height: '100%',
-                        backgroundColor:
-                          percentage >= 100 ? '#27ae60' : '#3498db',
-                        borderRadius: '4px',
-                      }}
-                    />
-                  </div>
-                </td>
-              </tr>
-            )
-          })}
-        </tbody>
-      </table>
-    </div>
+                    <td style={{ padding: '15px', fontWeight: 'bold' }}>
+                      {barrio}
+                    </td>
+                    <td style={{ padding: '15px' }}>{count}</td>
+                    <td style={{ padding: '15px', color: '#27ae60' }}>
+                      {detail?.leadsConvertidos || 0}
+                    </td>
+                    <td style={{ padding: '15px', width: '200px' }}>
+                      <div
+                        style={{
+                          backgroundColor: '#eee',
+                          height: '8px',
+                          borderRadius: '4px',
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: `${percentage}%`,
+                            height: '100%',
+                            backgroundColor:
+                              percentage >= 100 ? '#27ae60' : '#3498db',
+                            borderRadius: '4px',
+                          }}
+                        />
+                      </div>
+                    </td>
+                  </tr>
+                )
+              })}
+          </tbody>
+        </table>
+      </div>
+    </MainLayout>
   )
 }
