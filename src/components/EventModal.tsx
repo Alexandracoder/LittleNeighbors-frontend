@@ -14,7 +14,7 @@ export const EventModal = ({
 
   if (!isOpen) return null
 
-  // Cerramos al hacer clic en el fondo oscuro
+
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) onClose()
   }

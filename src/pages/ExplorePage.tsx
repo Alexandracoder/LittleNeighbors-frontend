@@ -11,7 +11,7 @@ import FamilyCard from '../components/FamilyCard'
 import MainLayout from '../components/layout/MainLayout'
 import bgImage from '../assets/littleneighbor_playing.png'
 
-// 🗺️ Importaciones de Leaflet
+
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import L from 'leaflet'
 import markerIcon from 'leaflet/dist/images/marker-icon.png'
@@ -26,11 +26,11 @@ import {
   Share2,
   SlidersHorizontal,
   X,
-  Map, // 👈 Nuevo Icono
-  Grid, // 👈 Nuevo Icono
+  Map,
+  Grid,
 } from 'lucide-react'
 
-// 📌 Arreglo de bug de iconos de Leaflet en entornos como Vite/Webpack
+
 const DefaultIcon = L.icon({
   iconUrl: markerIcon,
   shadowUrl: markerShadow,
@@ -56,13 +56,13 @@ export default function ExplorePage() {
     'neighborhood',
   )
 
-  // 🗺️ Estado para alternar entre vista de Tarjetas (Grid) o Mapa
+
   const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid')
 
-  // Coordenadas por defecto (Centro de Valencia: Plaza del Ayuntamiento)
+
   const valenciaCenter: [number, number] = [39.4699, -0.3763]
 
-  // Filtros
+
   const [myChildId, setMyChildId] = useState<number | undefined>(
     searchParams.get('childId')
       ? Number(searchParams.get('childId'))
@@ -196,7 +196,7 @@ setFamilies(uniqueFamilies)
     return count
   }, [ageRange, selectedInterestIds])
 
-  // 🗺️ Filtrar familias que tienen coordenadas válidas para el mapa
+  
   const familiesWithCoordinates = useMemo(() => {
     return families.filter(
       f =>
@@ -455,7 +455,7 @@ setFamilies(uniqueFamilies)
             </div>
           ) : families.length > 0 ? (
             viewMode === 'grid' ? (
-              /* 🟩 VISTA A: TU GRID DE TARJETAS ORIGINAL */
+              
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-10">
                 {families.map(f => (
                   <div

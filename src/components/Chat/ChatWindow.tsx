@@ -125,7 +125,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     }
   }, [matchId, token])
 
-  // 3. Control Inteligente de Scroll Automático
+
   useEffect(() => {
     if (scrollRef.current) {
       const timer = setTimeout(() => {
@@ -137,7 +137,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     }
   }, [messages])
 
-  // 4. Formateador de tiempo internacionalizado
+
   const formatTime = (dateInput: any) => {
     const date = new Date(dateInput)
     return date.toLocaleTimeString(i18n.language === 'es' ? 'es-ES' : 'en-US', {
@@ -146,7 +146,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     })
   }
 
-  // 5. Envío de Mensajes por WS
+
   const handleSend = (e: FormEvent) => {
     e.preventDefault()
     if (!text.trim() || !stompClient.current?.connected) return
@@ -162,14 +162,13 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     setText('')
   }
 
-  // 6. Generador de Rompehielos con IA Contextual Realista
   const handleIcebreaker = () => {
     setIsGeneratingIcebreaker(true)
 
     setTimeout(() => {
       const isEs = i18n.language === 'es'
       const topics =
-        matchInterests.length > 0 ? matchInterests.join(', ') : 'juegos'
+        matchInterests.length > 0 ? matchInterests.join(', ') : 'games and fun activities'
 
       const promptsEs = [
         `¡Hola ${neighborName}! Veo que compartimos el gusto por: ${topics}. ¿Os apetece que quedemos este finde con los peques para dar una vuelta en bici o ir a jugar al río Turia?`,

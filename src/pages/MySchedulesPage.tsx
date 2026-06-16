@@ -84,7 +84,7 @@ const MySchedulesPage: React.FC = () => {
             {playdates.map(pd => {
               const dateObj = new Date(pd.startTime)
 
-              // Formato dinámico según el idioma seleccionado
+              
               const day = dateObj.getDate()
               const month = dateObj.toLocaleString(i18n.language, {
                 month: 'short',

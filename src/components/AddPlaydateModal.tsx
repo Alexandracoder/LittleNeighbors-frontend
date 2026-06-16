@@ -23,7 +23,7 @@ const AddPlaydateModal: React.FC<Props> = ({ matchId, onSuccess, onClose }) => {
     e.preventDefault()
     setLoading(true)
     try {
-      // Combinamos fecha y hora para el backend
+
       const startTime = `${formData.date}T${formData.time}:00`
       await playdateService.create({
         matchId,

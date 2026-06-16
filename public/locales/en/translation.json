@@ -58,7 +58,8 @@
     "dashboard": "Dashboard",
     "explore": "Explore",
     "profile": "Profile",
-    "backToDashboard": "Back to Dashboard"
+    "backToDashboard": "Back to Dashboard",
+    "adminStats": "Statistics"
   },
   "dashboard": {
     "hello": "Hello!",
@@ -161,10 +162,7 @@
     "subtitle": "Find playmates",
     "loading": "Loading neighborhood...",
     "activeProfile": "Active profile:",
-    "mode": {
-      "neighborhood": "My Neighborhood",
-      "city": "Entire City"
-    },
+    "mode": { "neighborhood": "My Neighborhood", "city": "Entire City" },
     "scope": {
       "my_neighborhood": "My Neighborhood",
       "entire_city": "Entire City"
@@ -234,9 +232,7 @@
     "profilePrefix": "Profile of",
     "matchStatus": "Looking for new friends..."
   },
-  "status": {
-    "unverified": "Unverified"
-  },
+  "status": { "unverified": "Unverified" },
   "events": {
     "page": {
       "title": "Neighborhood Events",
@@ -302,9 +298,7 @@
       "submitIdle": "Send Proposal",
       "submitLoading": "Sending..."
     },
-    "card": {
-      "matchRef": "Ref ID"
-    },
+    "card": { "matchRef": "Ref ID" },
     "status": {
       "accepted": "Accepted",
       "pending": "Pending",
@@ -426,6 +420,19 @@
         "name": "Weekend Family Routes",
         "desc": "Stroller-friendly walks or short trips to L'Albufera and Valencia beaches."
       }
+    }
+  },
+  "admin": {
+    "dashboard": {
+      "title": "Tracking Dashboard",
+      "subtitle": "Administrator",
+      "heading": "Tracking Dashboard - Admin"
+    },
+    "table": {
+      "neighborhood": "Neighborhood",
+      "captured": "Captured",
+      "converted": "Converted",
+      "progress": "Progress"
     }
   }
 }

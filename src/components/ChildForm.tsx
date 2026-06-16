@@ -35,6 +35,16 @@ export default function ChildForm({
     description: '',
   })
 
+  // Función para traducir las claves "adjective_noun" para mostrar al usuario
+  const getTranslatedNickname = (nick: string) => {
+    if (!nick || !nick.includes('_')) return nick
+    const [adj, icon] = nick.split('_')
+    return `${t(`nicknames.adjectives.${adj}`, { defaultValue: adj })} ${t(
+      `nicknames.nouns.${icon}`,
+      { defaultValue: icon },
+    )}`
+  }
+
   useEffect(() => {
     const loadInterests = async () => {
       try {
@@ -61,26 +71,38 @@ export default function ChildForm({
 
   const generateMagicNick = () => {
     const adjectives = [
-      'Explorer',
-      'Artist',
-      'Captain',
-      'Little',
-      'Brave',
-      'Cheerful',
-      'Fast',
+      'magic',
+      'brave',
+      'creative',
+      'explorer',
+      'artist',
+      'captain',
+      'happy',
+      'shiny',
+      'curious',
+      'little',
     ]
     const icons = [
-      'Lion',
-      'Dolphin',
-      'Eagle',
-      'Cat',
-      'Squirrel',
-      'Bear',
-      'Star',
+      'lion',
+      'star',
+      'dolphin',
+      'fox',
+      'bear',
+      'wizard',
+      'koala',
+      'astronaut',
+      'rocket',
+      'eagle',
     ]
+
     const randomAdj = adjectives[Math.floor(Math.random() * adjectives.length)]
     const randomIcon = icons[Math.floor(Math.random() * icons.length)]
-    setFormData(prev => ({ ...prev, nickname: `${randomAdj} ${randomIcon}` }))
+
+    // Guardamos la clave técnica en el estado
+    setFormData(prev => ({
+      ...prev,
+      nickname: `${randomAdj}_${randomIcon}`,
+    }))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -123,7 +145,7 @@ export default function ChildForm({
         }
       }
 
-if (savedChild && savedChild.id) {
+      if (savedChild && savedChild.id) {
         navigate(`/child/${savedChild.id}`)
       } else {
         onSuccess(savedChild?.id)
@@ -177,7 +199,8 @@ if (savedChild && savedChild.id) {
             type="text"
             required
             placeholder={t('children.form.nicknamePlaceholder')}
-            value={formData.nickname}
+            // Mostramos el nombre traducido, pero el valor real sigue siendo la clave técnica
+            value={getTranslatedNickname(formData.nickname)}
             onChange={e =>
               setFormData({ ...formData, nickname: e.target.value })
             }

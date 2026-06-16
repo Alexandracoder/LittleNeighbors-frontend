@@ -6,13 +6,23 @@ export interface DashboardImpactDTO {
   totalConciliationMinutes: number
 }
 
-const dashboardService = {
+export const dashboardService = {
   getImpactStats: async (): Promise<DashboardImpactDTO> => {
-    const response = await api.get<DashboardImpactDTO>(
-      '/dashboard/impact-stats',
-    )
-    return response.data
+
+  
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+    try {
+      const response = await api.get<DashboardImpactDTO>('/dashboard/impact-stats', {
+        signal: controller.signal
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error cargando estadísticas de impacto:", error);
+      throw error;
+    } finally {
+      clearTimeout(timeoutId);
+    }
   },
 }
-
-export default dashboardService

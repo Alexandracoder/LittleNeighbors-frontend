@@ -241,6 +241,8 @@ export interface PlaydateRequest {
   startTime: string
   description?: string
   matchId: number
+  location: string
+  status: 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'CANCELLED'
 }
 
 // ==========================================
