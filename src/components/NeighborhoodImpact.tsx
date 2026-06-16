@@ -29,8 +29,7 @@ export const NeighborhoodImpact: React.FC = () => {
       .finally(() => setLoading(false))
   }, [])
   useEffect(() => {
-    console.log('Stats actuales:', stats)
-    console.log('Estado de error:', error)
+
   }, [stats, error])
 
   if (loading) {
