@@ -7,9 +7,7 @@ import {
   AlertCircle,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import dashboardService, {
-  DashboardImpactDTO,
-} from '../services/dashboardService'
+import { dashboardService, DashboardImpactDTO } from '../services/dashboardService'
 
 export const NeighborhoodImpact: React.FC = () => {
   const { t } = useTranslation()
@@ -20,18 +18,20 @@ export const NeighborhoodImpact: React.FC = () => {
   useEffect(() => {
     dashboardService
       .getImpactStats()
-      .then(data => {
+      .then((data: DashboardImpactDTO) => {
         setStats(data)
         setError(false)
       })
-      .catch(err => {
+      .catch((err: unknown) => {
         console.error('Error retrieving real neighborhood metrics:', err)
         setError(true)
       })
       .finally(() => setLoading(false))
   }, [])
+  useEffect(() => {
 
-  // 1. Loading State (Animated Skeleton)
+  }, [stats, error])
+
   if (loading) {
     return (
       <div className="bg-white/95 backdrop-blur-sm rounded-[2.5rem] p-8 shadow-2xl border border-white mb-8 animate-pulse">
@@ -44,8 +44,6 @@ export const NeighborhoodImpact: React.FC = () => {
       </div>
     )
   }
-
-  // 2. Error Handling Fallback
   if (error || !stats) {
     return (
       <div className="bg-red-50 border border-red-100 text-red-700 rounded-3xl p-5 mb-8 flex items-center gap-3">
@@ -62,7 +60,6 @@ export const NeighborhoodImpact: React.FC = () => {
     )
   }
 
-  // Convert aggregated minutes from database to full hours
   const hoursOfConciliation = Math.round(stats.totalConciliationMinutes / 60)
 
   return (
@@ -70,7 +67,7 @@ export const NeighborhoodImpact: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
           <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#F28749] bg-orange-50 px-3 py-1 rounded-full">
-            Valencia Innovation Missions 2026
+            Valencia Innovation Capital 2026
           </span>
           <h2 className="text-3xl font-black text-gray-900 uppercase italic tracking-tighter mt-2">
             {t('impact.titlePre')}{' '}

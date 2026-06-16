@@ -22,7 +22,7 @@ export default function EventsPage() {
   const [eventToEdit, setEventToEdit] = useState<any>(null)
 
   useEffect(() => {
-    // Ejecutamos ambas cargas de forma paralela y limpia
+    
     const loadData = async () => {
       try {
         await Promise.all([fetchEvents(), fetchNeighborhoods()])
@@ -37,8 +37,7 @@ export default function EventsPage() {
 
   const fetchNeighborhoods = async () => {
     try {
-      // ✅ Eliminamos fetch nativo, localhost y cabecera manual del token.
-      // Modificado para coincidir con la estructura de paginación que vimos en api.ts
+
       const res = await api.get('/neighborhoods')
       setNeighborhoods(res.data.content || [])
     } catch (err) {
@@ -48,8 +47,7 @@ export default function EventsPage() {
 
   const fetchEvents = async () => {
     try {
-      // ✅ Migrado a async/await usando la instancia centralizada.
-      // Los query params se pasan de forma limpia e inmune a errores de strings.
+
       const res = await api.get('/events/map', {
         params: {
           minLat: -90,

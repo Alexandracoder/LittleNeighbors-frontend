@@ -19,12 +19,10 @@ import dashboardBg from '../assets/parent-meeting.png'
 import api from '../services/api'
 import { UserProfileDTO } from '../types'
 
-
 import avatar1 from '../assets/Avatar1.jpg'
 import avatar2 from '../assets/Avatar2.jpg'
 import avatar3 from '../assets/Avatar3.jpg'
 import avatar4 from '../assets/Avatar4.jpg'
-
 
 const localAvatars = [avatar1, avatar2, avatar3, avatar4]
 
@@ -50,32 +48,21 @@ export default function ChildDashboard() {
     loadData()
   }, [loadData])
 
-  const translateNickname = (
-    nickname: string | undefined,
-    fallbackId: string | number,
-  ) => {
-    if (!nickname)
-      return `${t(
-        'child.dashboard.profilePrefix',
-        'Profile of',
-      )} #${fallbackId}`
+  // Función unificada para traducir el nickname técnico (ej: magic_lion)
+  const getTranslatedNickname = (nick: string | undefined) => {
+    if (!nick) return ''
+    if (!nick.includes('_')) return nick
 
-    const parts = nickname.trim().split(/\s+/)
-    if (parts.length !== 2) return nickname
-
-    const [adj, noun] = parts
-    const cleanAdj = adj.toLowerCase().replace(/[^a-zñáéíóúü]/g, '')
-    const cleanNoun = noun.toLowerCase().replace(/[^a-zñáéíóúü]/g, '')
-
-    const translatedAdj = t(`nicknames.adjectives.${cleanAdj}`, {
+    const [adj, icon] = nick.split('_')
+    const translatedAdj = t(`nicknames.adjectives.${adj.toLowerCase()}`, {
       defaultValue: adj,
     })
-    const translatedNoun = t(`nicknames.nouns.${cleanNoun}`, {
-      defaultValue: noun,
+    const translatedIcon = t(`nicknames.nouns.${icon.toLowerCase()}`, {
+      defaultValue: icon,
     })
 
     return `${translatedAdj.charAt(0).toUpperCase() + translatedAdj.slice(1)} ${
-      translatedNoun.charAt(0).toUpperCase() + translatedNoun.slice(1)
+      translatedIcon.charAt(0).toUpperCase() + translatedIcon.slice(1)
     }`
   }
 
@@ -93,7 +80,7 @@ export default function ChildDashboard() {
       location: 'Parc de Capçalera, València',
       time: '23/05/2026 - 17:30',
       status: 'ACCEPTED',
-      partner: 'Plucky Otter',
+      partner: 'magic_lion', // Ejemplo de formato técnico
     },
     {
       id: 2,
@@ -101,7 +88,7 @@ export default function ChildDashboard() {
       location: 'Jardins del Túria (Tram XI), València',
       time: '30/05/2026 - 11:00',
       status: 'PENDING',
-      partner: 'Gentle Panda',
+      partner: 'brave_fox', // Ejemplo de formato técnico
     },
   ]
 
@@ -129,7 +116,6 @@ export default function ChildDashboard() {
     },
   ]
 
-
   const currentAvatarIndex = Math.abs(Number(id || 0)) % localAvatars.length
   const currentAvatar = localAvatars[currentAvatarIndex]
 
@@ -140,7 +126,6 @@ export default function ChildDashboard() {
       subtitle={t('child.dashboard.subtitle', 'Personalized management')}
       variant="dark"
     >
-      {/* SECCIÓN SUPERIOR DE CONTROL (FLECHA VISIBLE Y VERIFICACIÓN) */}
       <div className="flex justify-between items-center mb-6 w-full px-2">
         <button
           onClick={() => navigate(-1)}
@@ -149,7 +134,6 @@ export default function ChildDashboard() {
           <ArrowLeft className="w-4 h-4 stroke-[3]" />{' '}
           {t('common.back', 'Back')}
         </button>
-
         {currentUser && <UserStatus status={currentUser.verificationStatus} />}
       </div>
 
@@ -178,9 +162,7 @@ export default function ChildDashboard() {
         </section>
       )}
 
-      {/* CONTENEDOR INSPIRADO EN LA TARJETA DE REFERENCIA */}
       <div className="w-full bg-[#c87a4b] rounded-[3.5rem] p-8 shadow-2xl border-4 border-white/10 relative overflow-hidden flex flex-col items-center">
-        {/* DISEÑO ARQUEADO DE LA SOLAPA DEL AVATAR */}
         <div className="absolute top-0 w-56 h-12 bg-transparent rounded-b-[3rem] pointer-events-none"></div>
         <div className="bg-[#b36638] absolute top-0 px-12 py-3 rounded-b-[2.5rem] shadow-inner border-x border-b border-white/5 flex items-center justify-center">
           <span className="text-white text-[11px] font-black uppercase tracking-widest opacity-90">
@@ -188,10 +170,8 @@ export default function ChildDashboard() {
           </span>
         </div>
 
-        {/* CONTENEDOR CENTRAL DEL AVATAR */}
         <div className="flex flex-col items-center mt-10 mb-8 w-full relative z-10">
           <div className="relative w-32 h-32 mb-4">
-            {/* 3. CAMBIAMOS EL SRC POR NUESTRO NUEVO AVATAR LOCAL */}
             <img
               src={currentAvatar}
               className="w-full h-full rounded-full border-4 border-white shadow-2xl bg-white p-1 object-cover"
@@ -203,13 +183,13 @@ export default function ChildDashboard() {
           </div>
 
           <h2 className="text-3xl font-black text-white uppercase tracking-tight drop-shadow-md bg-black/10 px-6 py-1.5 rounded-full backdrop-blur-sm border border-white/10">
-            {translateNickname(currentChild?.nickname, id ?? '')}
+            {currentChild?.nickname
+              ? getTranslatedNickname(currentChild.nickname)
+              : `${t('child.dashboard.profilePrefix', 'Profile of')} #${id}`}
           </h2>
         </div>
 
-        {/* REJILLA DE CARDS INFERIORES ESTILO VIDRIO ESMERILADO */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full relative z-10 mt-2">
-          {/* CARD 1: MATCHES */}
           <div className="bg-white/10 backdrop-blur-xl p-6 rounded-[2.5rem] border border-white/20 shadow-xl flex flex-col items-center text-center justify-between min-h-[220px]">
             <div className="flex flex-col items-center">
               <div className="bg-white/20 p-3 rounded-2xl mb-3">
@@ -231,7 +211,6 @@ export default function ChildDashboard() {
             </button>
           </div>
 
-          {/* CARD 2: PLAYDATES */}
           <div className="bg-white/10 backdrop-blur-xl p-6 rounded-[2.5rem] border border-white/20 shadow-xl flex flex-col items-center text-center justify-between min-h-[220px]">
             <div className="flex flex-col items-center">
               <div className="bg-white/20 p-3 rounded-2xl mb-3">
@@ -252,7 +231,6 @@ export default function ChildDashboard() {
             </button>
           </div>
 
-          {/* CARD 3: COMMUNITY */}
           <div className="bg-white/10 backdrop-blur-xl p-6 rounded-[2.5rem] border border-white/20 shadow-xl flex flex-col items-center text-center justify-between min-h-[220px]">
             <div className="flex flex-col items-center">
               <div className="bg-white/20 p-3 rounded-2xl mb-3">
@@ -275,7 +253,6 @@ export default function ChildDashboard() {
         </div>
       </div>
 
-      {/* MODAL CITES - ESTILO GLASSMORPHISM URBANO */}
       {isPlaydatesModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-fade-in">
           <div className="bg-slate-900/80 backdrop-blur-2xl rounded-[3rem] w-full max-w-xl p-8 relative shadow-2xl border border-white/10 text-white transform transition-all animate-zoom-in">
@@ -323,7 +300,7 @@ export default function ChildDashboard() {
                   <p className="text-xs text-white/60 font-medium mb-4">
                     {t('playdates.with', 'Playdate with')}:{' '}
                     <span className="font-black text-[#F28749] uppercase tracking-wide">
-                      {translateNickname(date.partner, '')}
+                      {getTranslatedNickname(date.partner)}
                     </span>
                   </p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-bold text-white/80 bg-black/20 p-3 rounded-xl">
@@ -343,7 +320,6 @@ export default function ChildDashboard() {
         </div>
       )}
 
-      {/* MODAL COMUNITAT - ESTILO GLASSMORPHISM URBANO */}
       {isCommunityModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-fade-in">
           <div className="bg-slate-900/80 backdrop-blur-2xl rounded-[3rem] w-full max-w-xl p-8 relative shadow-2xl border border-white/10 text-white transform transition-all animate-zoom-in">

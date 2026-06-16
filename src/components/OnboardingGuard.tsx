@@ -33,7 +33,7 @@ const OnboardingGuard: React.FC<OnboardingGuardProps> = ({ children }) => {
         }
       } catch (err) {
         console.error(
-          'Error en la sincronización de seguridad del onboarding:',
+          'Error sync security in Onboarding:',
           err,
         )
       } finally {

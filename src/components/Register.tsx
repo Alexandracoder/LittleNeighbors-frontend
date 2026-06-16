@@ -26,7 +26,6 @@ export default function Register() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  // Si hay token, mostramos el formulario automáticamente
   useEffect(() => {
     if (inviteToken) {
       setShowForm(true)

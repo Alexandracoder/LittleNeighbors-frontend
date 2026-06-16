@@ -20,7 +20,7 @@ export default function Navbar() {
 
   const isActive = (path: string) => location.pathname === path
 
-  // Detectar si el usuario es Admin
+
   const isAdmin =
     user?.roles?.includes('ADMIN') || user?.roles?.includes('ROLE_ADMIN')
 

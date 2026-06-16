@@ -27,6 +27,7 @@ import { QrLandingPage } from './pages/QrLandingPage'
 import 'leaflet/dist/leaflet.css'
 import ChildDashboard from './components/ChildDashboard'
 import { AdminDashboard } from './components/AdminDashboard'
+import AdminModerationTable from './components/AdminModerationTable'
 
 const LoadingScreen = () => {
   const { t, ready } = useTranslation()
@@ -63,7 +64,7 @@ function AppContent() {
 
   if (loading) return <LoadingScreen />
 
-  // Función auxiliar para determinar la home según el rol
+
   const getHomeRoute = (roles: string[] = []) => {
     return roles.includes('ADMIN') || roles.includes('ROLE_ADMIN')
       ? '/admin/stats'
@@ -224,12 +225,21 @@ function AppContent() {
             }
           />
 
-          {/* Ruta Admin */}
+          {/* Ruta Admin Stats */}
           <Route
             path="/admin/stats"
             element={
               <ProtectedRoute allowedRoles={['ADMIN', 'ROLE_ADMIN']}>
                 <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/moderation"
+            element={
+              <ProtectedRoute allowedRoles={['ADMIN', 'ROLE_ADMIN']}>
+                <AdminModerationTable />
               </ProtectedRoute>
             }
           />
@@ -243,6 +253,8 @@ function AppContent() {
     </div>
   )
 }
+
+
 
 function App() {
   return (
