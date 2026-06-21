@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react'
 import { Bell, Calendar, Heart, MessageCircle, X } from 'lucide-react'
 import { Client } from '@stomp/stompjs'
 import SockJS from 'sockjs-client'
-import { notificationApi } from '../services/api'
+// Importamos WS_BASE_URL directamente desde api.ts
+import { notificationApi, WS_BASE_URL } from '../services/api'
 import { useTranslation } from 'react-i18next'
 
 interface Notification {
@@ -33,8 +34,7 @@ export default function NotificationBell() {
 
     loadInitial()
 
-    const token = localStorage.getItem('token')
-    const WS_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080'
+    const token = localStorage.getItem('accessToken')
 
     const client = new Client({
       webSocketFactory: () => new SockJS(`${WS_BASE_URL}/ws-little-neighbors`),
@@ -47,6 +47,12 @@ export default function NotificationBell() {
           setNotifications(prev => [newNotif, ...prev])
           setUnreadCount(prev => prev + 1)
         })
+      },
+      onStompError: frame => {
+        console.error(
+          'Error en notificaciones STOMP:',
+          frame.headers['message'],
+        )
       },
     })
 

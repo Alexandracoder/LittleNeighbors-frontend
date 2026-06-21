@@ -15,11 +15,16 @@ import type {
   Page,
 } from '../types'
 
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'
 export const WS_BASE_URL = API_BASE_URL.replace(/\/api\/?$/, '')
 
 const api = axios.create({
+  baseURL: API_BASE_URL,
+  headers: { 'Content-Type': 'application/json' },
+})
+
+const refreshApi = axios.create({
   baseURL: API_BASE_URL,
   headers: { 'Content-Type': 'application/json' },
 })
@@ -38,7 +43,6 @@ api.interceptors.response.use(
   async error => {
     const originalRequest = error.config
 
-
     if (
       originalRequest.url?.includes('/auth/login') ||
       originalRequest.url?.includes('/auth/register')
@@ -50,25 +54,21 @@ api.interceptors.response.use(
       originalRequest._retry = true
       try {
         const refreshToken = localStorage.getItem('refreshToken')
-        if (refreshToken) {
-          
-          const response = await axios.post<AuthResponse>(
-            `${API_BASE_URL}/auth/refresh`,
-            { refreshToken },
-          )
-          const { accessToken, refreshToken: newRefreshToken } = response.data
+        if (!refreshToken) throw new Error()
 
-          localStorage.setItem('accessToken', accessToken)
-          if (newRefreshToken) {
-            localStorage.setItem('refreshToken', newRefreshToken)
-          }
+        const response = await refreshApi.post<AuthResponse>('/auth/refresh', {
+          refreshToken,
+        })
+        const { accessToken, refreshToken: newRefreshToken } = response.data
 
-          originalRequest.headers.Authorization = `Bearer ${accessToken}`
-          return api(originalRequest)
-        }
+        localStorage.setItem('accessToken', accessToken)
+        if (newRefreshToken)
+          localStorage.setItem('refreshToken', newRefreshToken)
+
+        originalRequest.headers.Authorization = `Bearer ${accessToken}`
+        return api(originalRequest)
       } catch (refreshError) {
-        localStorage.removeItem('accessToken')
-        localStorage.removeItem('refreshToken')
+        localStorage.clear()
         window.location.href = '/login'
         return Promise.reject(refreshError)
       }
@@ -79,16 +79,13 @@ api.interceptors.response.use(
 
 export const authApi = {
   login: async (data: AuthRequest): Promise<AuthResponse> => {
-
     const response = await api.post<AuthResponse>('/auth/login', data)
     return response.data
   },
   register: async (userData: RegisterRequest): Promise<void> => {
-
     await api.post('/auth/register', userData)
   },
   refresh: async (data: RefreshRequest): Promise<AuthResponse> => {
-
     const response = await api.post<AuthResponse>('/auth/refresh', data)
     return response.data
   },
@@ -188,26 +185,25 @@ export const notificationApi = {
     const response = await api.get('/notifications/me')
     return response.data
   },
-
   markAsRead: async (id: number) => {
     const response = await api.patch(`/notifications/${id}/read`)
     return response.data
   },
-
   getUnreadCount: async () => {
     const response = await api.get('/notifications/unread-count')
     return response.data
   },
 }
+
 export const adminApi = {
   getStats: async () => {
-    const response = await api.get('/admin/stats');
-    return response.data;
+    const response = await api.get('/admin/stats')
+    return response.data
   },
   getDetailedStats: async () => {
-    const response = await api.get('/admin/stats/detailed');
-    return response.data;
-  }
-};
+    const response = await api.get('/admin/stats/detailed')
+    return response.data
+  },
+}
 
-export default api;
+export default api

@@ -89,8 +89,11 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   useEffect(() => {
     if (!matchId || !token) return
 
+
+    const socketUrl = `${WS_BASE_URL}/ws-little-neighbors`
+
     const client = new Client({
-      webSocketFactory: () => new SockJS(`${WS_BASE_URL}/ws-little-neighbors`),
+      webSocketFactory: () => new SockJS(socketUrl),
       connectHeaders: { Authorization: `Bearer ${token}` },
       onConnect: () => {
         setIsConnected(true)
@@ -108,6 +111,10 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
         })
       },
       onDisconnect: () => setIsConnected(false),
+      onStompError: frame => {
+        console.error('Broker reported error: ' + frame.headers['message'])
+        setIsConnected(false)
+      },
     })
 
     client.activate()

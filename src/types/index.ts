@@ -2,6 +2,8 @@
 // CENTRALIZED TYPES & CONSTANTS
 // ==========================================
 
+import { ReactNode } from "react"
+
 export type UserStatusType =
   | 'UNVERIFIED'
   | 'PENDING_REVIEW'
@@ -255,4 +257,12 @@ export interface Page<T> {
   totalPages: number
   size: number
   number: number
+}
+export interface MainLayoutProps {
+  children: ReactNode
+  backgroundImage: string
+  title?: string
+  subtitle?: string
+  showGlassCard?: boolean
+  variant?: 'light' | 'dark'
 }
