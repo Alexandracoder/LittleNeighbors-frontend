@@ -22,7 +22,6 @@ export default function EventsPage() {
   const [eventToEdit, setEventToEdit] = useState<any>(null)
 
   useEffect(() => {
-    
     const loadData = async () => {
       try {
         await Promise.all([fetchEvents(), fetchNeighborhoods()])
@@ -37,7 +36,6 @@ export default function EventsPage() {
 
   const fetchNeighborhoods = async () => {
     try {
-
       const res = await api.get('/neighborhoods')
       setNeighborhoods(res.data.content || [])
     } catch (err) {
@@ -47,7 +45,6 @@ export default function EventsPage() {
 
   const fetchEvents = async () => {
     try {
-
       const res = await api.get('/events/map', {
         params: {
           minLat: -90,
@@ -81,7 +78,7 @@ export default function EventsPage() {
       showGlassCard={false}
     >
       <div className="flex flex-col gap-8">
-        {/* NAVEGACIÓN Y TOGGLE DE MAPA */}
+        {/* NAVEGACIÓN Y ACCIONES */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
           <button
             onClick={() => navigate('/dashboard')}
@@ -95,12 +92,14 @@ export default function EventsPage() {
 
           <div className="flex items-center gap-4">
             <button
-              onClick={() => setIsMapVisible(!isMapVisible)}
-              className="text-white text-[11px] font-black uppercase tracking-[0.2em] hover:text-[#F28749] transition-colors underline decoration-2 underline-offset-8"
+              onClick={() => {
+                setEventToEdit(null)
+                setIsModalOpen(true)
+              }}
+              className="flex items-center gap-2 bg-[#F28749] text-white px-5 py-2.5 rounded-full font-black uppercase tracking-widest text-[10px] hover:scale-105 transition-all shadow-lg"
             >
-              {isMapVisible
-                ? t('events.page.toggleMapHide')
-                : t('events.page.toggleMapShow')}
+              <Plus className="w-4 h-4" />
+              {t('events.page.createButton', 'Nou esdeveniment')}
             </button>
 
             <div className="flex items-center gap-2 bg-white/10 backdrop-blur-xl p-1.5 rounded-full border border-white/20 shadow-lg">
@@ -125,29 +124,16 @@ export default function EventsPage() {
           </div>
         )}
 
-        {/* LISTADO DE EVENTOS O EMPTY STATE COMPACTO */}
-        <div className="bg-white/10 backdrop-blur-xl p-6 rounded-[2.5rem] border border-white/20 shadow-2xl min-h-[180px] flex flex-col justify-center">
+        {/* LISTADO DE EVENTOS */}
+        <div className="bg-white/10 backdrop-blur-xl p-6 rounded-[2.5rem] border border-white/20 shadow-2xl min-h-[180px]">
           {!loading && events.length === 0 ? (
-            <div className="flex items-center gap-6 py-4 px-4 animate-in fade-in slide-in-from-left-4 duration-700">
-              <button
-                onClick={() => {
-                  setEventToEdit(null)
-                  setIsModalOpen(true)
-                }}
-                className="bg-white/20 p-4 rounded-2xl border border-white/30 shadow-inner flex-shrink-0 hover:bg-[#F28749] hover:scale-110 transition-all group"
-                title={t('events.page.createButton')}
-              >
-                <Plus className="w-8 h-8 text-white group-hover:rotate-90 transition-transform" />
-              </button>
-
-              <div className="text-left cursor-default">
-                <h3 className="text-white text-lg font-black uppercase tracking-tight">
-                  {t('events.page.noEventsTitle')}
-                </h3>
-                <p className="text-white/70 text-xs font-medium max-w-[250px] leading-relaxed">
-                  {t('events.page.noEventsSubtitle')}
-                </p>
-              </div>
+            <div className="text-center py-10">
+              <h3 className="text-white text-lg font-black uppercase">
+                {t('events.page.noEventsTitle')}
+              </h3>
+              <p className="text-white/70 text-xs">
+                {t('events.page.noEventsSubtitle')}
+              </p>
             </div>
           ) : (
             <EventList
