@@ -36,9 +36,8 @@ export default function NotificationBell() {
     const token = localStorage.getItem('token')
     const WS_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080'
 
-    const socket = new SockJS(`${WS_BASE_URL}/ws-little-neighbors`)
     const client = new Client({
-      webSocketFactory: () => socket,
+      webSocketFactory: () => new SockJS(`${WS_BASE_URL}/ws-little-neighbors`),
       connectHeaders: {
         Authorization: `Bearer ${token}`,
       },
@@ -52,6 +51,7 @@ export default function NotificationBell() {
     })
 
     client.activate()
+
     return () => {
       client.deactivate()
     }
@@ -158,17 +158,18 @@ export default function NotificationBell() {
                     <div className="mt-1">{getIcon(notification.type)}</div>
                     <div className="flex-1">
                       <p className="text-xs font-bold text-white mb-1">
-                        <span className="sr-only">Notification:</span>
                         {notification.title}
                       </p>
                       <p className="text-[11px] text-white/60 leading-relaxed">
                         {notification.message}
                       </p>
                       <p className="text-[9px] text-white/30 mt-2 font-mono">
-                        <span className="sr-only">Received at:</span>
                         {new Date(notification.createdAt).toLocaleTimeString(
                           [],
-                          { hour: '2-digit', minute: '2-digit' },
+                          {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          },
                         )}
                       </p>
                     </div>
