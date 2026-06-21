@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
-import { childApi, interestApi, authApi } from '../services/api'
+import { childApi, interestApi } from '../services/api'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
 import type {
   ChildRequestDTO,
   ChildResponseDTO,
@@ -11,7 +10,7 @@ import { X, Save, Loader2, Heart, Sparkles, AlignLeft } from 'lucide-react'
 
 interface ChildFormProps {
   initialData?: ChildResponseDTO | null
-  onSuccess: (newChildId?: number) => void
+  onSuccess: (savedChild: ChildResponseDTO) => void
   onCancel: () => void
 }
 
@@ -21,7 +20,6 @@ export default function ChildForm({
   onCancel,
 }: ChildFormProps) {
   const { t } = useTranslation()
-  const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
   const [allInterests, setAllInterests] = useState<InterestResponseDTO[]>([])
 
@@ -35,7 +33,6 @@ export default function ChildForm({
     description: '',
   })
 
-  // Función para traducir las claves "adjective_noun" para mostrar al usuario
   const getTranslatedNickname = (nick: string) => {
     if (!nick || !nick.includes('_')) return nick
     const [adj, icon] = nick.split('_')
@@ -98,7 +95,6 @@ export default function ChildForm({
     const randomAdj = adjectives[Math.floor(Math.random() * adjectives.length)]
     const randomIcon = icons[Math.floor(Math.random() * icons.length)]
 
-    // Guardamos la clave técnica en el estado
     setFormData(prev => ({
       ...prev,
       nickname: `${randomAdj}_${randomIcon}`,
@@ -107,7 +103,6 @@ export default function ChildForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-
     const sanitizedNickname = formData.nickname.trim()
     if (!sanitizedNickname) return
 
@@ -122,39 +117,14 @@ export default function ChildForm({
 
     try {
       let savedChild: ChildResponseDTO
-
       if (initialData?.id) {
         savedChild = await childApi.update(initialData.id, payload)
       } else {
         savedChild = await childApi.create(payload)
-
-        const refreshToken = localStorage.getItem('refreshToken')
-        if (refreshToken) {
-          try {
-            const refreshData = await authApi.refresh({ refreshToken })
-            localStorage.setItem('accessToken', refreshData.accessToken)
-            if (refreshData.refreshToken) {
-              localStorage.setItem('refreshToken', refreshData.refreshToken)
-            }
-          } catch (refreshErr) {
-            console.warn(
-              'Token refresh synchronization side-stepped:',
-              refreshErr,
-            )
-          }
-        }
       }
-
-      if (savedChild && savedChild.id) {
-        navigate(`/child/${savedChild.id}`)
-      } else {
-        onSuccess(savedChild?.id)
-      }
+      onSuccess(savedChild)
     } catch (err) {
-      console.error(
-        'Save error occurred during child profile persistence:',
-        err,
-      )
+      console.error('Persistence error:', err)
       alert(t('children.form.errorSave'))
     } finally {
       setLoading(false)
@@ -199,7 +169,6 @@ export default function ChildForm({
             type="text"
             required
             placeholder={t('children.form.nicknamePlaceholder')}
-            // Mostramos el nombre traducido, pero el valor real sigue siendo la clave técnica
             value={getTranslatedNickname(formData.nickname)}
             onChange={e =>
               setFormData({ ...formData, nickname: e.target.value })

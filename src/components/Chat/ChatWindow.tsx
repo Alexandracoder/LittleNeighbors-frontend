@@ -13,7 +13,7 @@ import { Client } from '@stomp/stompjs'
 import SockJS from 'sockjs-client'
 import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
-import api from '../../services/api'
+import api, { WS_BASE_URL } from '../../services/api'
 import matchService from '../../services/matchService'
 import forPregnantsBg from '../../assets/for-pregnants.png'
 
@@ -43,14 +43,11 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   const [matchStatus, setMatchStatus] = useState<string>('PENDING')
   const [isConnected, setIsConnected] = useState(false)
   const [neighborName, setNeighborName] = useState<string>('')
-
-
   const [matchInterests, setMatchInterests] = useState<string[]>([])
   const [isGeneratingIcebreaker, setIsGeneratingIcebreaker] = useState(false)
 
   const scrollRef = useRef<HTMLDivElement>(null)
   const stompClient = useRef<Client | null>(null)
-
 
   useEffect(() => {
     const loadHistory = async () => {
@@ -89,15 +86,14 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     loadHistory()
   }, [matchId, t])
 
-
   useEffect(() => {
     if (!matchId || !token) return
 
+
+    const socketUrl = `${WS_BASE_URL}/ws-little-neighbors`
+
     const client = new Client({
-      webSocketFactory: () => {
-        const WS_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
-        return new SockJS(`${WS_BASE_URL}/ws-little-neighbors`);
-      },
+      webSocketFactory: () => new SockJS(socketUrl),
       connectHeaders: { Authorization: `Bearer ${token}` },
       onConnect: () => {
         setIsConnected(true)
@@ -115,6 +111,10 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
         })
       },
       onDisconnect: () => setIsConnected(false),
+      onStompError: frame => {
+        console.error('Broker reported error: ' + frame.headers['message'])
+        setIsConnected(false)
+      },
     })
 
     client.activate()
@@ -124,7 +124,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
       if (client.active) client.deactivate()
     }
   }, [matchId, token])
-
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -137,7 +136,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     }
   }, [messages])
 
-
   const formatTime = (dateInput: any) => {
     const date = new Date(dateInput)
     return date.toLocaleTimeString(i18n.language === 'es' ? 'es-ES' : 'en-US', {
@@ -145,7 +143,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
       minute: '2-digit',
     })
   }
-
 
   const handleSend = (e: FormEvent) => {
     e.preventDefault()
@@ -164,11 +161,12 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
 
   const handleIcebreaker = () => {
     setIsGeneratingIcebreaker(true)
-
     setTimeout(() => {
       const isEs = i18n.language === 'es'
       const topics =
-        matchInterests.length > 0 ? matchInterests.join(', ') : 'games and fun activities'
+        matchInterests.length > 0
+          ? matchInterests.join(', ')
+          : 'games and fun activities'
 
       const promptsEs = [
         `¡Hola ${neighborName}! Veo que compartimos el gusto por: ${topics}. ¿Os apetece que quedemos este finde con los peques para dar una vuelta en bici o ir a jugar al río Turia?`,
@@ -207,43 +205,26 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
       <main
         className="relative w-full max-w-2xl bg-white rounded-[3rem] shadow-2xl flex flex-col h-[90vh] border-[6px] border-white overflow-hidden z-20"
         role="main"
-        aria-labelledby="chat-title"
       >
         <header className="bg-[#FF9E91] px-6 py-5 flex items-center justify-between z-10 border-b border-gray-100 shadow-sm">
           <div className="flex items-center gap-3">
             <button
               onClick={() => navigate(-1)}
-              aria-label="Go back"
               className="p-2 hover:bg-black/5 rounded-full transition-colors"
             >
               <ChevronLeft size={24} className="text-gray-900" />
             </button>
             <div>
-              <h1
-                id="chat-title"
-                className="text-xl font-black text-gray-900 uppercase italic tracking-tighter leading-none"
-              >
+              <h1 className="text-xl font-black text-gray-900 uppercase italic tracking-tighter leading-none">
                 {neighborName
                   ? `CHAT CON ${neighborName}`
                   : t('chat.title', 'LITTLE CHAT')}
               </h1>
-              <div
-                className="flex items-center gap-1.5 mt-1"
-                role="status"
-                aria-live="polite"
-              >
+              <div className="flex items-center gap-1.5 mt-1" role="status">
                 {isConnected ? (
-                  <Wifi
-                    size={12}
-                    className="text-green-600"
-                    aria-hidden="true"
-                  />
+                  <Wifi size={12} className="text-green-600" />
                 ) : (
-                  <WifiOff
-                    size={12}
-                    className="text-red-600"
-                    aria-hidden="true"
-                  />
+                  <WifiOff size={12} className="text-red-600" />
                 )}
                 <span className="text-[10px] text-gray-900 font-bold uppercase tracking-widest">
                   {isConnected
@@ -253,7 +234,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
               </div>
             </div>
           </div>
-
           <button
             onClick={async () => {
               try {
@@ -281,7 +261,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                 console.error(e)
               }
             }}
-            aria-pressed={iAccepted || matchStatus === 'ACCEPTED'}
             className="bg-gray-800 text-[#FF9E91] px-4 py-2 rounded-2xl text-[10px] font-black border border-[#FF9E91] shadow-sm active:scale-95 transition-all"
           >
             {matchStatus === 'ACCEPTED'
@@ -291,15 +270,10 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
               : t('chat.confirm', 'MATCH?')}
           </button>
         </header>
-
-        {/* LOG DE MENSAJES */}
         <div
           ref={scrollRef}
           className="flex-1 overflow-y-auto p-6 space-y-5"
           style={backgroundPattern}
-          role="log"
-          aria-live="polite"
-          aria-relevant="additions"
         >
           <AnimatePresence initial={false}>
             {messages.length > 0 ? (
@@ -308,7 +282,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                   msg.senderId === currentUser.id ||
                   msg.senderEmail === currentUser.email ||
                   msg.senderId?.toString() === currentUser.id?.toString()
-
                 return (
                   <motion.div
                     key={msg.id || idx}
@@ -318,7 +291,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                       isMe ? 'flex-row-reverse' : 'flex-row'
                     }`}
                   >
-                    <div className="flex-shrink-0 mb-1" aria-hidden="true">
+                    <div className="flex-shrink-0 mb-1">
                       <div className="w-9 h-9 rounded-full bg-white border border-gray-300 flex items-center justify-center overflow-hidden shadow-sm">
                         {msg.senderAvatar ? (
                           <img
@@ -339,9 +312,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                             : 'bg-white text-gray-700 border-gray-200 rounded-tl-none'
                         }`}
                       >
-                        <span className="sr-only">
-                          {isMe ? 'You sent' : 'Neighbor sent'}:
-                        </span>
                         {msg.content}
                       </div>
                       <span
@@ -364,12 +334,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
             )}
           </AnimatePresence>
         </div>
-
-        {/* MENÚ DE ACCIONES */}
-        <nav
-          className="px-4 py-3 bg-white border-t border-gray-100 flex items-center justify-around z-10 relative"
-          aria-label="Chat actions"
-        >
+        <nav className="px-4 py-3 bg-white border-t border-gray-100 flex items-center justify-around z-10 relative">
           <button
             onClick={() => navigate('/profile')}
             className="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-900 transition-colors"
@@ -379,9 +344,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
               {t('navigation.profile', 'Profile')}
             </span>
           </button>
-
           <div className="h-8 w-[1px] bg-gray-100" />
-
           <button
             onClick={() => navigate(`/schedules/${matchId}`)}
             className="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-900 transition-colors"
@@ -391,9 +354,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
               {t('playdates.page.agendaHighlight', 'Agenda')}
             </span>
           </button>
-
           <div className="h-8 w-[1px] bg-gray-100" />
-
           <button
             onClick={handleIcebreaker}
             disabled={isGeneratingIcebreaker}
@@ -416,8 +377,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
             </span>
           </button>
         </nav>
-
-        {/* INPUT FOOTER */}
         <footer className="p-4 bg-white border-t border-gray-100 z-10 relative">
           <form
             onSubmit={handleSend}

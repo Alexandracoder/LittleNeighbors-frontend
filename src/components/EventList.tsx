@@ -1,4 +1,5 @@
 import { EventCard } from './EventCard'
+import api from '../services/api'
 
 interface EventListProps {
   events: any[]
@@ -17,40 +18,27 @@ export const EventList = ({
   onRefresh,
   onEdit,
 }: EventListProps) => {
-  const token = localStorage.getItem('accessToken')
-
   const handleDelete = async (id: number) => {
-    if (!window.confirm('¿Estás seguro de que quieres eliminar este evento?'))
-      return
+    if (!window.confirm('Are you sure you want to delete this event?')) return
 
     try {
-      const response = await fetch(`http://localhost:8080/api/events/${id}`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      })
-
-      if (response.ok) {
-        onRefresh()
-      } else {
-        alert('Error al eliminar el evento.')
-      }
+      await api.delete(`/events/${id}`)
+      onRefresh()
     } catch (err) {
-      console.error('Error en la petición DELETE:', err)
+      console.error('Error during DELETE request:', err)
+      alert('Error deleting the event.')
     }
   }
 
   if (loading)
-    return <p className="text-center font-bold p-10">Cargando eventos...</p>
+    return <p className="text-center font-bold p-10">Loading events...</p>
   if (error) return <p className="text-red-500 text-center p-10">{error}</p>
 
   return (
     <div className="grid gap-4">
       {events.length === 0 ? (
         <p className="text-center text-gray-500 py-10">
-          No hay eventos próximos en Valencia. ¡Crea el primero!
+          No upcoming events in Valencia. Create the first one!
         </p>
       ) : (
         events.map(event => (

@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react'
 import { Bell, Calendar, Heart, MessageCircle, X } from 'lucide-react'
 import { Client } from '@stomp/stompjs'
 import SockJS from 'sockjs-client'
-import { notificationApi } from '../services/api'
+// Importamos WS_BASE_URL directamente desde api.ts
+import { notificationApi, WS_BASE_URL } from '../services/api'
 import { useTranslation } from 'react-i18next'
 
 interface Notification {
@@ -33,12 +34,10 @@ export default function NotificationBell() {
 
     loadInitial()
 
-    const token = localStorage.getItem('token')
-    const WS_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080'
+    const token = localStorage.getItem('accessToken')
 
-    const socket = new SockJS(`${WS_BASE_URL}/ws-little-neighbors`)
     const client = new Client({
-      webSocketFactory: () => socket,
+      webSocketFactory: () => new SockJS(`${WS_BASE_URL}/ws-little-neighbors`),
       connectHeaders: {
         Authorization: `Bearer ${token}`,
       },
@@ -49,9 +48,16 @@ export default function NotificationBell() {
           setUnreadCount(prev => prev + 1)
         })
       },
+      onStompError: frame => {
+        console.error(
+          'Error en notificaciones STOMP:',
+          frame.headers['message'],
+        )
+      },
     })
 
     client.activate()
+
     return () => {
       client.deactivate()
     }
@@ -158,17 +164,18 @@ export default function NotificationBell() {
                     <div className="mt-1">{getIcon(notification.type)}</div>
                     <div className="flex-1">
                       <p className="text-xs font-bold text-white mb-1">
-                        <span className="sr-only">Notification:</span>
                         {notification.title}
                       </p>
                       <p className="text-[11px] text-white/60 leading-relaxed">
                         {notification.message}
                       </p>
                       <p className="text-[9px] text-white/30 mt-2 font-mono">
-                        <span className="sr-only">Received at:</span>
                         {new Date(notification.createdAt).toLocaleTimeString(
                           [],
-                          { hour: '2-digit', minute: '2-digit' },
+                          {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          },
                         )}
                       </p>
                     </div>
