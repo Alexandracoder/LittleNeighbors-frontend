@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Calendar, AlignLeft, MapPin, Save, Send, Info } from 'lucide-react'
 import { MapComponent } from '../pages/MapComponent'
+import api from '../services/api'
 
 const NEIGHBORHOOD_LOCATIONS: Record<string, { lat: number; lng: number }> = {
   'Ciutat Vella': { lat: 39.475, lng: -0.375 },
@@ -44,16 +45,9 @@ export const CreateEventForm = ({
 
   useEffect(() => {
     const fetchNeighborhoods = async () => {
-      const token = localStorage.getItem('accessToken')
       try {
-        const response = await fetch(
-          'http://localhost:8080/api/neighborhoods',
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          },
-        )
-        const data = await response.json()
-        const list = data.content || []
+        const response = await api.get('/neighborhoods')
+        const list = response.data.content || response.data || []
         setNeighborhoods(list)
 
         if (!eventToEdit && list.length > 0) {
@@ -131,28 +125,21 @@ export const CreateEventForm = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    const token = localStorage.getItem('accessToken')
-    const url = eventToEdit
-      ? `http://localhost:8080/api/events/${eventToEdit.id}`
-      : 'http://localhost:8080/api/events'
-    const method = eventToEdit ? 'PUT' : 'POST'
-
     try {
-      const response = await fetch(url, {
-        method: method,
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...formData,
-          latitude: Number(formData.latitude),
-          longitude: Number(formData.longitude),
-          eventDate: new Date(formData.eventDate).toISOString(),
-          neighborhoodId: Number(formData.neighborhoodId),
-        }),
-      })
-      if (response.ok) onSuccess()
+      const payload = {
+        ...formData,
+        latitude: Number(formData.latitude),
+        longitude: Number(formData.longitude),
+        eventDate: new Date(formData.eventDate).toISOString(),
+        neighborhoodId: Number(formData.neighborhoodId),
+      }
+
+      if (eventToEdit) {
+        await api.put(`/events/${eventToEdit.id}`, payload)
+      } else {
+        await api.post('/events', payload)
+      }
+      onSuccess()
     } catch (err) {
       console.error('Error en la petición:', err)
     }
@@ -163,7 +150,6 @@ export const CreateEventForm = ({
       onSubmit={handleSubmit}
       className="space-y-6 max-h-[75vh] overflow-y-auto px-4 custom-scrollbar"
     >
-      {/* CABECERA FORMULARIO */}
       <div className="flex flex-col gap-2 mb-6">
         <div className="flex items-center gap-2 text-[#F28749]">
           <Info className="w-4 h-4" />
@@ -180,7 +166,6 @@ export const CreateEventForm = ({
         </h2>
       </div>
 
-      {/* TÍTULO */}
       <div className="space-y-2">
         <label className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest">
           <AlignLeft className="w-3 h-3" /> {t('events.form.nameLabel')}
@@ -194,7 +179,6 @@ export const CreateEventForm = ({
         />
       </div>
 
-      {/* FECHA Y BARRIO */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <label className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest">
@@ -229,7 +213,6 @@ export const CreateEventForm = ({
         </div>
       </div>
 
-      {/* MAPA SELECTOR */}
       <div className="space-y-3">
         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block">
           {t('events.form.locationLabel', 'Ubicació exacta (fes clic)')}
@@ -251,7 +234,6 @@ export const CreateEventForm = ({
         </div>
       </div>
 
-      {/* DESCRIPCIÓN */}
       <div className="space-y-2">
         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block">
           {t('events.form.descriptionLabel')}
@@ -267,7 +249,6 @@ export const CreateEventForm = ({
         />
       </div>
 
-      {/* BOTÓN SUBMIT */}
       <button
         type="submit"
         className="w-full bg-[#F28749] text-white py-5 rounded-[2rem] font-black uppercase tracking-[0.2em] text-xs hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_10px_25px_rgba(242,135,73,0.3)] flex items-center justify-center gap-3"

@@ -3,7 +3,30 @@
 @tailwind utilities;
 
 @layer base {
+
+    /* Respetamos tu configuración base */
     body {
         @apply bg-brand-cream text-brand-dark;
+        margin: 0;
+        padding: 0;
+        /* Evita que la web "rebote" al hacer scroll en iOS */
+        overscroll-behavior: none;
+        /* Garantiza que no haya scroll horizontal accidental */
+        overflow-x: hidden;
+    }
+
+    /* Blindaje total para que los elementos no se salgan del layout */
+    * {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Previene el zoom automático de Safari en los inputs de tus formularios */
+    input,
+    select,
+    textarea,
+    button {
+        font-family: inherit;
+        font-size: 16px;
     }
 }
