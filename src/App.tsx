@@ -27,6 +27,8 @@ import ChildDashboard from './components/ChildDashboard'
 import { AdminDashboard } from './components/AdminDashboard'
 import AdminModerationTable from './components/AdminModerationTable'
 import 'leaflet/dist/leaflet.css'
+import ForgotPassword from './components/ForgotPassword'
+import ResetPasswordPage from './pages/ResetPasswordPage'
 
 const LoadingScreen = () => {
   const { t, ready } = useTranslation()
@@ -96,6 +98,9 @@ function AppContent() {
             )
           }
         />
+
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
 
         <Route
           path="/profile"
