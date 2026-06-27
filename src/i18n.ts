@@ -9,11 +9,10 @@ i18n
   .use(initReactI18next)
   .init({
     fallbackLng: 'es',
-  
+
     load: 'languageOnly',
 
     backend: {
-
       loadPath: '/locales/{{lng}}/translation.json',
     },
 
@@ -25,7 +24,7 @@ i18n
       useSuspense: false,
     },
 
-    debug: true,
+    debug: false,
   })
 
 export default i18n

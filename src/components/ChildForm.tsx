@@ -225,6 +225,9 @@ export default function ChildForm({
             <option value="SURPRISE">
               {t('children.form.genderSurprise')}
             </option>
+            <option value="PREGNANT">
+              {t('children.form.genderPregnant', 'Embarazada')}
+            </option>
           </select>
         </div>
 
