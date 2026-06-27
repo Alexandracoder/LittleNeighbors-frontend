@@ -70,7 +70,7 @@ export interface User {
 }
 
 export interface UserStatusDTO {
-  roles: User | null
+  roles: UserRole[] | null
   hasFamily: boolean
   hasChildren: boolean
   isRegistrationComplete: boolean
@@ -143,7 +143,7 @@ export interface ChildRequestDTO {
   nickname: string
   birthDate: string
   lifeStage: string
-  gender: 'BOY' | 'GIRL' | 'SURPRISE'
+  gender: 'BOY' | 'GIRL' | 'SURPRISE' | 'PREGNANT'
   description?: string
   profilePictureUrl?: string
   interestIds: number[]
@@ -153,7 +153,7 @@ export interface ChildRequestDTO {
 export interface ChildResponseDTO {
   id: number
   nickname: string
-  gender: 'BOY' | 'GIRL' | 'SURPRISE'
+  gender: 'BOY' | 'GIRL' | 'SURPRISE' | 'PREGNANT'
   lifeStage: string
   description?: string
   birthDate: string

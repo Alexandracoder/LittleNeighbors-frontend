@@ -28,6 +28,7 @@ import { AdminDashboard } from './components/AdminDashboard'
 import AdminModerationTable from './components/AdminModerationTable'
 import 'leaflet/dist/leaflet.css'
 import ForgotPassword from './components/ForgotPassword'
+import MessagesPage from './components/MessagesPage'
 import ResetPasswordPage from './pages/ResetPasswordPage'
 
 const LoadingScreen = () => {
@@ -226,6 +227,16 @@ function AppContent() {
           }
         />
 
+        <Route
+          path="/messages/:recipientId"
+          element={
+            <ProtectedRoute allowedRoles={['ROLE_FAMILY']}>
+              <OnboardingGuard>
+                <MessagesPage />
+              </OnboardingGuard>
+            </ProtectedRoute>
+          }
+        />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

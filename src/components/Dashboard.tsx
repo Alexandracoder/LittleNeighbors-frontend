@@ -170,7 +170,7 @@ return (
                   </div>
                   <div>
                     <h3 className="font-black text-white text-xs uppercase tracking-wider leading-none group-hover:text-[#F28749] transition-colors">
-                      {t('common.family', 'FAMILIA')} {chat.theirFamilyName}
+                      {t('common.family', 'FAMILY')} {chat.theirFamilyName}
                     </h3>
                     <p className="text-[10px] text-white/60 font-bold uppercase tracking-tight mt-1">
                       {chat.theirNeighborhoodName}
