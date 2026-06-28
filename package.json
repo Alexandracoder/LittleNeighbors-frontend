@@ -15,7 +15,6 @@
     "@dicebear/collection": "^9.4.2",
     "@dicebear/core": "^9.4.2",
     "@stomp/stompjs": "^7.3.0",
-    "@supabase/supabase-js": "^2.57.4",
     "axios": "^1.13.5",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.38.0",
