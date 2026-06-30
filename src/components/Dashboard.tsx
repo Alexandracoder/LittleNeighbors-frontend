@@ -9,11 +9,11 @@ import MainLayout from '../components/layout/MainLayout'
 import { NeighborhoodImpact } from '../components/NeighborhoodImpact'
 import {
   MapPin,
-  LogOut,
   Search,
   ArrowLeft,
   Calendar,
   User,
+  Baby,
   MessageSquare,
   Sparkles,
 } from 'lucide-react'
@@ -75,7 +75,7 @@ return (
     subtitle={t('dashboard.subtitle')}
     showGlassCard={false}
   >
-    <div className="fixed top-8 left-0 w-full px-6 md:px-12 flex justify-between items-center z-50">
+    <div className="fixed top-20 left-0 w-full px-6 md:px-12 flex justify-between items-center z-[60]">
       <button
         onClick={() => navigate(-1)}
         className="flex items-center gap-2 px-5 py-2.5 bg-white/10 backdrop-blur-xl text-white rounded-full border border-white/20 hover:bg-white/20 transition-all active:scale-95 group shadow-xl"
@@ -86,15 +86,17 @@ return (
         </span>
       </button>
 
-      <button
-        onClick={handleLogout}
-        className="flex items-center gap-2 px-5 py-2.5 bg-white/10 backdrop-blur-xl text-white/80 hover:text-red-400 rounded-full border border-white/20 hover:bg-white/20 transition-all active:scale-95 group shadow-xl"
-      >
-        <span className="font-black uppercase tracking-widest text-[10px]">
-          {t('common.signOut')}
-        </span>
-        <LogOut className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-      </button>
+      <div className="flex items-center gap-3">
+        <button
+          onClick={() => navigate('/profile')}
+          className="flex items-center gap-2 px-5 py-2.5 bg-white/10 backdrop-blur-xl text-white/80 hover:text-white rounded-full border border-white/20 hover:bg-white/20 transition-all active:scale-95 group shadow-xl"
+        >
+          <User className="w-4 h-4" />
+          <span className="font-black uppercase tracking-widest text-[10px]">
+            {t('dashboard.myProfile', 'Mi perfil')}
+          </span>
+        </button>
+      </div>
     </div>
 
     <div className="flex flex-col items-center gap-6 mt-20 animate-in fade-in zoom-in duration-1000">
@@ -135,9 +137,9 @@ return (
           onClick={() => navigate('/add-child')}
           className="flex items-center gap-3 px-8 py-4 bg-white/10 backdrop-blur-xl text-white rounded-full border-2 border-white/20 shadow-xl transition-all hover:bg-white/20 hover:scale-105 active:scale-95"
         >
-          <User className="w-5 h-5 text-[#F28749]" />
+          <Baby className="w-5 h-5 text-[#F28749]" />
           <span className="font-black uppercase tracking-widest text-xs">
-            {t('dashboard.myProfile')}
+            {t('dashboard.myChildren', 'Mis peques')}
           </span>
         </button>
       </div>
@@ -170,7 +172,7 @@ return (
                   </div>
                   <div>
                     <h3 className="font-black text-white text-xs uppercase tracking-wider leading-none group-hover:text-[#F28749] transition-colors">
-                      {t('common.family', 'FAMILY')} {chat.theirFamilyName}
+                      {t('common.family', 'FAMILIA')} {chat.theirFamilyName}
                     </h3>
                     <p className="text-[10px] text-white/60 font-bold uppercase tracking-tight mt-1">
                       {chat.theirNeighborhoodName}

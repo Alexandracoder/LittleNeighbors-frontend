@@ -22,7 +22,6 @@ export default function EventsPage() {
   const [eventToEdit, setEventToEdit] = useState<any>(null)
 
   useEffect(() => {
-    
     const loadData = async () => {
       try {
         await Promise.all([fetchEvents(), fetchNeighborhoods()])
@@ -37,7 +36,6 @@ export default function EventsPage() {
 
   const fetchNeighborhoods = async () => {
     try {
-
       const res = await api.get('/neighborhoods')
       setNeighborhoods(res.data.content || [])
     } catch (err) {
@@ -47,7 +45,6 @@ export default function EventsPage() {
 
   const fetchEvents = async () => {
     try {
-
       const res = await api.get('/events/map', {
         params: {
           minLat: -90,
@@ -150,14 +147,31 @@ export default function EventsPage() {
               </div>
             </div>
           ) : (
-            <EventList
-              events={events}
-              neighborhoods={neighborhoods}
-              loading={loading}
-              error={error}
-              onRefresh={fetchEvents}
-              onEdit={handleEditClick}
-            />
+            <>
+              <div className="flex justify-end mb-4">
+                <button
+                  onClick={() => {
+                    setEventToEdit(null)
+                    setIsModalOpen(true)
+                  }}
+                  className="flex items-center gap-2 px-5 py-2.5 bg-[#F28749] text-white rounded-full shadow-lg hover:scale-105 hover:brightness-110 active:scale-95 transition-all"
+                  title={t('events.page.createButton')}
+                >
+                  <Plus className="w-4 h-4" />
+                  <span className="text-[10px] font-black uppercase tracking-widest">
+                    {t('events.page.createButton', 'Crear evento')}
+                  </span>
+                </button>
+              </div>
+              <EventList
+                events={events}
+                neighborhoods={neighborhoods}
+                loading={loading}
+                error={error}
+                onRefresh={fetchEvents}
+                onEdit={handleEditClick}
+              />
+            </>
           )}
         </div>
 

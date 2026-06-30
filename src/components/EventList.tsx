@@ -19,14 +19,21 @@ export const EventList = ({
   onEdit,
 }: EventListProps) => {
   const handleDelete = async (id: number) => {
-    if (!window.confirm('Are you sure you want to delete this event?')) return
+    if (!window.confirm('¿Seguro que quieres eliminar este evento?')) return
 
     try {
       await api.delete(`/events/${id}`)
       onRefresh()
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error during DELETE request:', err)
-      alert('Error deleting the event.')
+      if (err.response?.status === 403) {
+        alert('Solo la familia que creó este evento puede eliminarlo.')
+      } else if (err.response?.status === 404) {
+        alert('Este evento ya no existe.')
+        onRefresh()
+      } else {
+        alert('No se pudo eliminar el evento. Inténtalo de nuevo.')
+      }
     }
   }
 
