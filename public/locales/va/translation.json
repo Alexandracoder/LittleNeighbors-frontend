@@ -68,10 +68,11 @@
     "myPlaydates": "Els meus plans",
     "events": "Esdeveniments",
     "myProfile": "El meu perfil",
-    "myChats": "ELS MEUS XATS",
+    "myChats": "LES MEUES CONVERSES",
     "verifyTitle": "La seguretat primer",
-    "verifyWarning": "Verifica la teua identitat per a connectar de forma segura amb altres famílies.",
-    "verifyBtn": "VERIFICAR ARA"
+    "verifyWarning": "Verifica la teua identitat per connectar de forma segura amb altres famílies.",
+    "verifyBtn": "VERIFICAR ARA",
+    "myChildren": "Els meus xiquets"
   },
   "family": {
     "create": {
@@ -162,7 +163,10 @@
     "subtitle": "Trobar companys de joc",
     "loading": "Carregant barri...",
     "activeProfile": "Perfil actiu:",
-    "mode": { "neighborhood": "El meu Barri", "city": "Tota la ciutat" },
+    "mode": {
+      "neighborhood": "El meu Barri",
+      "city": "Tota la ciutat"
+    },
     "scope": {
       "my_neighborhood": "El meu Barri",
       "entire_city": "Tota la ciutat"
@@ -232,17 +236,19 @@
     "profilePrefix": "Perfil de",
     "matchStatus": "Buscant nous amics..."
   },
-  "status": { "unverified": "Sense verificar" },
+  "status": {
+    "unverified": "Sense verificar"
+  },
   "events": {
     "page": {
       "title": "Esdeveniments del Barri",
-      "subtitle": "Troba i organitza reunions al teu barri",
+      "subtitle": "Troba i organitza trobades al teu barri",
       "createButton": "Crear Esdeveniment",
       "toggleMapShow": "Veure esdeveniments al mapa",
-      "toggleMapHide": "Ocultar mapa",
+      "toggleMapHide": "Amagar mapa",
       "backToDashboard": "Tornar al tauler",
       "noEventsTitle": "Sense plans encara",
-      "noEventsSubtitle": "Sigues el primer a fer el pas. Organitza una reunió i connecta amb la teua zona.",
+      "noEventsSubtitle": "Sigues el primer a fer el pas. Organitza una trobada i connecta amb la teua zona.",
       "createFirstButton": "Començar ara"
     },
     "form": {
@@ -253,6 +259,7 @@
       "nameLabel": "Títol",
       "dateLabel": "Data",
       "neighborhoodLabel": "Barri",
+      "neighborhoodHint": "Només les famílies d'este barri rebran la notificació.",
       "locationLabel": "Ubicació exacta (fes clic al mapa):",
       "descriptionLabel": "Descripció",
       "placeholderName": "ex., Pícnic al parc",
@@ -265,8 +272,10 @@
       "editButton": "Editar",
       "deleteButton": "Eliminar",
       "neighborhoodFallback": "València",
-      "confirmDelete": "Estàs segur que vols eliminar este esdeveniment?",
-      "errorDelete": "Error en eliminar l'esdeveniment.",
+      "confirmDelete": "Segur que vols eliminar este esdeveniment?",
+      "errorDeleteOwnership": "Només la família que va crear este esdeveniment pot eliminar-lo.",
+      "errorDeleteNotFound": "Este esdeveniment ja no existix.",
+      "errorDelete": "No s'ha pogut eliminar l'esdeveniment. Torna-ho a intentar.",
       "errorLoad": "No hem pogut carregar els esdeveniments."
     },
     "list": {
@@ -282,8 +291,12 @@
       "titleHighlight": "Pla",
       "subtitle": "Tria una hora per a conéixer al teu veí, Agendes de joc actives",
       "with": "Pla amb",
-      "dummy1": { "title": "Berenar i jocs al parc" },
-      "dummy2": { "title": "Passeig en bici i gronxadors" }
+      "dummy1": {
+        "title": "Berenar i jocs al parc"
+      },
+      "dummy2": {
+        "title": "Passeig en bici i gronxadors"
+      }
     },
     "form": {
       "proposeShort": "Proposar",
@@ -298,7 +311,9 @@
       "submitIdle": "Enviar Proposta",
       "submitLoading": "Enviant..."
     },
-    "card": { "matchRef": "ID Ref" },
+    "card": {
+      "matchRef": "ID Ref"
+    },
     "status": {
       "accepted": "Acceptat",
       "pending": "Pendent",
@@ -320,16 +335,33 @@
     "ctaProfile": "Veure el meu perfil"
   },
   "profile": {
-    "deleteConfirm": "Estàs segur que vols eliminar este perfil?",
+    "deleteConfirm": "Estàs segur que vols eliminar aquest perfil?",
     "deleteError": "No s'ha pogut eliminar el perfil.",
-    "deleteTitle": "Eliminar Perfil"
+    "deleteTitle": "Eliminar Perfil",
+    "title": "El meu Perfil",
+    "subtitle": "Dades de la teua família",
+    "notFound": "No s'ha trobat el perfil familiar.",
+    "representative": "Representant familiar",
+    "neighborhood": "Barri",
+    "aboutUs": "Sobre nosaltres",
+    "familyName": "Nom de família",
+    "editButton": "Editar perfil",
+    "neighborhoodLockedNote": "El barri no es pot canviar des d'ací — contacta amb suport si necessites actualitzar-lo.",
+    "savedToast": "Perfil actualitzat correctament",
+    "status": {
+      "pregnant": "Embaràs",
+      "newParents": "Nous pares",
+      "established": "Família establerta",
+      "surprise": "Sorpresa en camí"
+    }
   },
   "notifications": {
     "title": "Notificacions",
     "viewAll": "Veure totes",
     "new_message": "Tens un missatge nou de la Família {{familyName}}",
     "playdate_proposed": "T'han suggerit un pla!",
-    "playdate_accepted": "Pla confirmat! Revisa la teua agenda"
+    "playdate_accepted": "Pla confirmat! Revisa la teua agenda",
+    "empty": "No tens notificacions noves."
   },
   "metrics": {
     "title": "Mètriques de la Plataforma",
@@ -412,7 +444,9 @@
       "subtitle": "Comunitat en sintonia",
       "members": "famílies",
       "join": "Unir-se al grup",
-      "prefix": { "crianza": "Criança Activa" },
+      "prefix": {
+        "crianza": "Criança Activa"
+      },
       "dummy1": {
         "desc": "Grup per a compartir experiències, racons familiars i suport mutu al barri."
       },
@@ -430,9 +464,51 @@
     },
     "table": {
       "neighborhood": "Barri",
-      "captured": "Captats",
+      "captured": "Capturats",
       "converted": "Convertits",
-      "progress": "Progrés"
+      "progress": "Progrés",
+      "email": "Correu",
+      "actions": "Accions",
+      "id": "ID",
+      "verifyBtn": "Verificar",
+      "rejectBtn": "Rebutjar",
+      "rejectTitle": "Rebutjar sol·licitud",
+      "rejectSubtitle": "L'usuari rebrà aquest motiu per correu.",
+      "rejectPlaceholder": "Motiu del rebuig...",
+      "rejectConfirm": "Confirmar rebuig",
+      "noPending": "Sense famílies pendents",
+      "loading": "Carregant sol·licituds...",
+      "errorVerify": "Error en verificar l'usuari.",
+      "errorReject": "Error en rebutjar l'usuari."
     }
+  },
+  "resetPassword": {
+    "title": "Nova contrasenya",
+    "subtitle": "Tria una contrasenya segura",
+    "newPassword": "Nova contrasenya",
+    "confirmPassword": "Confirmar contrasenya",
+    "submit": "Actualitzar contrasenya",
+    "success": "Contrasenya actualitzada! Redirigint...",
+    "errorMatch": "Les contrasenyes no coincidixen",
+    "errorLength": "Mínim 8 caràcters",
+    "errorExpired": "L'enllaç ha caducat o no és vàlid"
+  },
+  "qr": {
+    "emailPlaceholder": "exemple@correu.com",
+    "neighborhoodPlaceholder": "Selecciona el teu barri...",
+    "sending": "Enviant...",
+    "voteButton": "Vote pel {{neighborhood}}!",
+    "successTitle": "Registrat!",
+    "successBody": "T'avisarem quan el pilot a {{neighborhood}} estiga llest.",
+    "goalText": "Falten {{count}} famílies per activar el pilot!",
+    "goalReached": "🎉 Pilot activat!",
+    "consentText": "He llegit i accepte la política de privacitat. Entenc que el meu correu s'usarà únicament per contactar-me sobre el pilot de LittleNeighbors i serà eliminat o anonimitzat en 12 mesos si no complete el registre.",
+    "privacyLink": "política de privacitat",
+    "privacyTitle": "Política de Privacitat",
+    "privacyClose": "Entés",
+    "privacyFooter": "Les teues dades es tracten d'acord amb el RGPD (UE) 2016/679.",
+    "errorConflict": "Aquesta família ja ha votat per este barri!",
+    "errorRate": "Massa intents. Per favor, espera uns minuts.",
+    "errorGeneric": "No s'ha pogut connectar amb el servidor. Torna-ho a intentar."
   }
 }

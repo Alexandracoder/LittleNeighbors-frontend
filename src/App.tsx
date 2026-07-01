@@ -29,6 +29,7 @@ import AdminModerationTable from './components/AdminModerationTable'
 import 'leaflet/dist/leaflet.css'
 import ForgotPassword from './components/ForgotPassword'
 import MessagesPage from './components/MessagesPage'
+import ProfilePage from './pages/ProfilePage'
 import ResetPasswordPage from './pages/ResetPasswordPage'
 
 const LoadingScreen = () => {
@@ -103,16 +104,6 @@ function AppContent() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
 
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute allowedRoles={['ROLE_FAMILY']}>
-              <OnboardingGuard>
-                <AddChildPage />
-              </OnboardingGuard>
-            </ProtectedRoute>
-          }
-        />
         <Route
           path="/create-family"
           element={
@@ -233,6 +224,16 @@ function AppContent() {
             <ProtectedRoute allowedRoles={['ROLE_FAMILY']}>
               <OnboardingGuard>
                 <MessagesPage />
+              </OnboardingGuard>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute allowedRoles={['ROLE_FAMILY']}>
+              <OnboardingGuard>
+                <ProfilePage />
               </OnboardingGuard>
             </ProtectedRoute>
           }

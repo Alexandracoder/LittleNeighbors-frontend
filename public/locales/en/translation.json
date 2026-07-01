@@ -64,14 +64,15 @@
   "dashboard": {
     "hello": "Hello!",
     "subtitle": "Your neighborhood, simplified.",
-    "findNeighbors": "Find Neighbors",
-    "myPlaydates": "My Playdates",
+    "findNeighbors": "Find neighbors",
+    "myPlaydates": "My playdates",
     "events": "Events",
-    "myProfile": "My Profile",
+    "myProfile": "My profile",
     "myChats": "MY CHATS",
     "verifyTitle": "Safety first",
     "verifyWarning": "Verify your identity to connect safely with other families.",
-    "verifyBtn": "VERIFY NOW"
+    "verifyBtn": "VERIFY NOW",
+    "myChildren": "My kids"
   },
   "family": {
     "create": {
@@ -162,7 +163,10 @@
     "subtitle": "Find playmates",
     "loading": "Loading neighborhood...",
     "activeProfile": "Active profile:",
-    "mode": { "neighborhood": "My Neighborhood", "city": "Entire City" },
+    "mode": {
+      "neighborhood": "My Neighborhood",
+      "city": "Entire City"
+    },
     "scope": {
       "my_neighborhood": "My Neighborhood",
       "entire_city": "Entire City"
@@ -232,17 +236,19 @@
     "profilePrefix": "Profile of",
     "matchStatus": "Looking for new friends..."
   },
-  "status": { "unverified": "Unverified" },
+  "status": {
+    "unverified": "Unverified"
+  },
   "events": {
     "page": {
       "title": "Neighborhood Events",
-      "subtitle": "Find and organize get-togethers in your neighborhood",
+      "subtitle": "Find and organize meetups in your neighborhood",
       "createButton": "Create Event",
       "toggleMapShow": "View events on map",
       "toggleMapHide": "Hide map",
       "backToDashboard": "Back to dashboard",
-      "noEventsTitle": "No plans yet",
-      "noEventsSubtitle": "Be the first to make a move. Organize a meeting and connect with your area.",
+      "noEventsTitle": "No events yet",
+      "noEventsSubtitle": "Be the first to take the step. Organize a meetup and connect with your area.",
       "createFirstButton": "Start now"
     },
     "form": {
@@ -253,10 +259,11 @@
       "nameLabel": "Title",
       "dateLabel": "Date",
       "neighborhoodLabel": "Neighborhood",
+      "neighborhoodHint": "Only families in this neighborhood will receive the notification.",
       "locationLabel": "Exact location (click on the map):",
       "descriptionLabel": "Description",
-      "placeholderName": "e.g., Picnic at the park",
-      "placeholderDescription": "What will we do?",
+      "placeholderName": "e.g., Picnic in the park",
+      "placeholderDescription": "What are we going to do?",
       "submitButton": "🚀 Publish Event",
       "saveButton": "💾 Save Changes",
       "locationFallback": "Valencia"
@@ -266,8 +273,10 @@
       "deleteButton": "Delete",
       "neighborhoodFallback": "Valencia",
       "confirmDelete": "Are you sure you want to delete this event?",
-      "errorDelete": "Error deleting event.",
-      "errorLoad": "We couldn't load the events."
+      "errorDeleteOwnership": "Only the family that created this event can delete it.",
+      "errorDeleteNotFound": "This event no longer exists.",
+      "errorDelete": "Could not delete the event. Please try again.",
+      "errorLoad": "Could not load events."
     },
     "list": {
       "empty": "No upcoming events in Valencia. Create the first one!",
@@ -282,8 +291,12 @@
       "titleHighlight": "Plan",
       "subtitle": "Choose a time to meet your neighbor, Active play agendas",
       "with": "Playdate with",
-      "dummy1": { "title": "Snack & Games at the Park" },
-      "dummy2": { "title": "Bike Ride & Swings" }
+      "dummy1": {
+        "title": "Snack & Games at the Park"
+      },
+      "dummy2": {
+        "title": "Bike Ride & Swings"
+      }
     },
     "form": {
       "proposeShort": "Propose",
@@ -298,7 +311,9 @@
       "submitIdle": "Send Proposal",
       "submitLoading": "Sending..."
     },
-    "card": { "matchRef": "Ref ID" },
+    "card": {
+      "matchRef": "Ref ID"
+    },
     "status": {
       "accepted": "Accepted",
       "pending": "Pending",
@@ -321,15 +336,32 @@
   },
   "profile": {
     "deleteConfirm": "Are you sure you want to delete this profile?",
-    "deleteError": "Could not delete profile.",
-    "deleteTitle": "Delete Profile"
+    "deleteError": "Could not delete the profile.",
+    "deleteTitle": "Delete Profile",
+    "title": "My Profile",
+    "subtitle": "Your family details",
+    "notFound": "Family profile not found.",
+    "representative": "Family representative",
+    "neighborhood": "Neighborhood",
+    "aboutUs": "About us",
+    "familyName": "Family name",
+    "editButton": "Edit profile",
+    "neighborhoodLockedNote": "Neighborhood cannot be changed here — contact support if you need to update it.",
+    "savedToast": "Profile updated successfully",
+    "status": {
+      "pregnant": "Pregnancy",
+      "newParents": "New parents",
+      "established": "Established family",
+      "surprise": "Surprise on the way"
+    }
   },
   "notifications": {
     "title": "Notifications",
     "viewAll": "View all",
-    "new_message": "You have a new message from the {{familyName}} Family",
-    "playdate_proposed": "A plan has been suggested to you!",
-    "playdate_accepted": "Plan confirmed! Check your schedule"
+    "new_message": "You have a new message from Family {{familyName}}",
+    "playdate_proposed": "You've been sent a playdate suggestion!",
+    "playdate_accepted": "Playdate confirmed! Check your schedule",
+    "empty": "No new notifications."
   },
   "metrics": {
     "title": "Platform Metrics",
@@ -412,7 +444,9 @@
       "subtitle": "Community in sync",
       "members": "families",
       "join": "Join group",
-      "prefix": { "crianza": "Active Parenting" },
+      "prefix": {
+        "crianza": "Active Parenting"
+      },
       "dummy1": {
         "desc": "Group to share experiences, family corners, and mutual support in the neighborhood."
       },
@@ -424,15 +458,57 @@
   },
   "admin": {
     "dashboard": {
-      "title": "Tracking Dashboard",
+      "title": "Tracking Panel",
       "subtitle": "Administrator",
-      "heading": "Tracking Dashboard - Admin"
+      "heading": "Tracking Panel - Administrator"
     },
     "table": {
       "neighborhood": "Neighborhood",
       "captured": "Captured",
       "converted": "Converted",
-      "progress": "Progress"
+      "progress": "Progress",
+      "email": "Email",
+      "actions": "Actions",
+      "id": "ID",
+      "verifyBtn": "Verify",
+      "rejectBtn": "Reject",
+      "rejectTitle": "Reject request",
+      "rejectSubtitle": "The user will receive this reason by email.",
+      "rejectPlaceholder": "Reason for rejection...",
+      "rejectConfirm": "Confirm rejection",
+      "noPending": "No pending families",
+      "loading": "Loading requests...",
+      "errorVerify": "Failed to verify user.",
+      "errorReject": "Failed to reject user."
     }
+  },
+  "resetPassword": {
+    "title": "New password",
+    "subtitle": "Choose a secure password",
+    "newPassword": "New password",
+    "confirmPassword": "Confirm password",
+    "submit": "Update password",
+    "success": "Password updated! Redirecting...",
+    "errorMatch": "Passwords do not match",
+    "errorLength": "Minimum 8 characters",
+    "errorExpired": "The link has expired or is invalid"
+  },
+  "qr": {
+    "emailPlaceholder": "example@email.com",
+    "neighborhoodPlaceholder": "Select your neighborhood...",
+    "sending": "Sending...",
+    "voteButton": "Vote for {{neighborhood}}!",
+    "successTitle": "Registered!",
+    "successBody": "We'll notify you when the pilot in {{neighborhood}} is ready.",
+    "goalText": "{{count}} more families needed to launch!",
+    "goalReached": "🎉 Pilot launched!",
+    "consentText": "I have read and accept the privacy policy. I understand that my email will be used only to contact me about the LittleNeighbors pilot and will be deleted or anonymised after 12 months if I don't complete registration.",
+    "privacyLink": "privacy policy",
+    "privacyTitle": "Privacy Policy",
+    "privacyClose": "Got it",
+    "privacyFooter": "Your data is processed in accordance with GDPR (EU) 2016/679.",
+    "errorConflict": "This family has already voted for this neighborhood!",
+    "errorRate": "Too many attempts. Please wait a few minutes.",
+    "errorGeneric": "Could not connect to the server. Please try again."
   }
 }

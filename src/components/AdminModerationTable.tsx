@@ -69,7 +69,7 @@ const AdminModerationTable = () => {
       <div className="fixed top-8 left-6 z-50">
         <button
           onClick={() => navigate('/admin/stats')}
-          className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-xl text-white rounded-full border border-white/20 hover:bg-white/20 transition-all"
+          className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-xl text-black rounded-full border border-white/20 hover:bg-white/20 transition-all"
         >
           <ArrowLeft className="w-4 h-4" />
           <span className="font-black text-[10px] uppercase tracking-widest">
@@ -126,14 +126,14 @@ const AdminModerationTable = () => {
       <div className="max-w-4xl mx-auto mt-24 px-4 pb-8">
         <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl animate-in fade-in zoom-in duration-500 overflow-hidden">
           {loading ? (
-            <div className="py-20 flex flex-col items-center gap-3 text-white/70">
+            <div className="py-20 flex flex-col items-center gap-3 text-black/70">
               <Loader2 className="w-8 h-8 animate-spin" />
               <span className="font-black tracking-widest uppercase text-xs">
                 Loading requests...
               </span>
             </div>
           ) : users.length === 0 ? (
-            <div className="py-20 flex flex-col items-center gap-3 text-white/60">
+            <div className="py-20 flex flex-col items-center gap-3 text-black/60">
               <Users className="w-10 h-10" />
               <span className="font-black tracking-widest uppercase text-xs">
                 No pending families

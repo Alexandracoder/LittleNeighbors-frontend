@@ -71,7 +71,8 @@
     "myChats": "MIS CHATS",
     "verifyTitle": "La seguridad primero",
     "verifyWarning": "Verifica tu identidad para conectar de forma segura con otras familias.",
-    "verifyBtn": "VERIFICAR AHORA"
+    "verifyBtn": "VERIFICAR AHORA",
+    "myChildren": "Mis peques"
   },
   "family": {
     "create": {
@@ -162,7 +163,10 @@
     "subtitle": "Encontrar compañeros de juego",
     "loading": "Cargando barrio...",
     "activeProfile": "Perfil activo:",
-    "mode": { "neighborhood": "Mi Barrio", "city": "Toda la ciudad" },
+    "mode": {
+      "neighborhood": "Mi Barrio",
+      "city": "Toda la ciudad"
+    },
     "scope": {
       "my_neighborhood": "Mi Barrio",
       "entire_city": "Toda la ciudad"
@@ -232,7 +236,9 @@
     "profilePrefix": "Perfil de",
     "matchStatus": "Buscando nuevos amigos..."
   },
-  "status": { "unverified": "Sin verificar" },
+  "status": {
+    "unverified": "Sin verificar"
+  },
   "events": {
     "page": {
       "title": "Eventos del Barrio",
@@ -253,6 +259,7 @@
       "nameLabel": "Título",
       "dateLabel": "Fecha",
       "neighborhoodLabel": "Barrio",
+      "neighborhoodHint": "Solo las familias de este barrio recibirán la notificación.",
       "locationLabel": "Ubicación exacta (haz clic en el mapa):",
       "descriptionLabel": "Descripción",
       "placeholderName": "ej., Picnic en el parque",
@@ -265,8 +272,10 @@
       "editButton": "Editar",
       "deleteButton": "Eliminar",
       "neighborhoodFallback": "Valencia",
-      "confirmDelete": "¿Estás seguro de que quieres eliminar este evento?",
-      "errorDelete": "Error al eliminar el evento.",
+      "confirmDelete": "¿Seguro que quieres eliminar este evento?",
+      "errorDeleteOwnership": "Solo la familia que creó este evento puede eliminarlo.",
+      "errorDeleteNotFound": "Este evento ya no existe.",
+      "errorDelete": "No se pudo eliminar el evento. Inténtalo de nuevo.",
       "errorLoad": "No pudimos cargar los eventos."
     },
     "list": {
@@ -282,8 +291,12 @@
       "titleHighlight": "Plan",
       "subtitle": "Elige una hora para conocer a tu vecino, Agendas de juego activas",
       "with": "Plan con",
-      "dummy1": { "title": "Merienda y juegos en el parque" },
-      "dummy2": { "title": "Paseo en bici y columpios" }
+      "dummy1": {
+        "title": "Merienda y juegos en el parque"
+      },
+      "dummy2": {
+        "title": "Paseo en bici y columpios"
+      }
     },
     "form": {
       "proposeShort": "Proponer",
@@ -298,7 +311,9 @@
       "submitIdle": "Enviar Propuesta",
       "submitLoading": "Enviando..."
     },
-    "card": { "matchRef": "ID Ref" },
+    "card": {
+      "matchRef": "ID Ref"
+    },
     "status": {
       "accepted": "Aceptado",
       "pending": "Pendiente",
@@ -322,14 +337,31 @@
   "profile": {
     "deleteConfirm": "¿Estás seguro de que quieres eliminar este perfil?",
     "deleteError": "No se pudo eliminar el perfil.",
-    "deleteTitle": "Eliminar Perfil"
+    "deleteTitle": "Eliminar Perfil",
+    "title": "Mi Perfil",
+    "subtitle": "Datos de tu familia",
+    "notFound": "No se encontró el perfil familiar.",
+    "representative": "Representante familiar",
+    "neighborhood": "Barrio",
+    "aboutUs": "Sobre nosotros",
+    "familyName": "Nombre de familia",
+    "editButton": "Editar perfil",
+    "neighborhoodLockedNote": "El barrio no se puede cambiar desde aquí — contacta con soporte si necesitas actualizarlo.",
+    "savedToast": "Perfil actualizado correctamente",
+    "status": {
+      "pregnant": "Embarazo",
+      "newParents": "Nuevos padres",
+      "established": "Familia establecida",
+      "surprise": "Sorpresa en camino"
+    }
   },
   "notifications": {
     "title": "Notificaciones",
     "viewAll": "Ver todas",
     "new_message": "Tienes un mensaje nuevo de la Familia {{familyName}}",
     "playdate_proposed": "¡Te han sugerido un plan!",
-    "playdate_accepted": "¡Plan confirmado! Revisa tu agenda"
+    "playdate_accepted": "¡Plan confirmado! Revisa tu agenda",
+    "empty": "No tienes notificaciones nuevas."
   },
   "metrics": {
     "title": "Métricas de la Plataforma",
@@ -412,7 +444,9 @@
       "subtitle": "Comunidad en sintonía",
       "members": "familias",
       "join": "Unirse al grupo",
-      "prefix": { "crianza": "Crianza Activa" },
+      "prefix": {
+        "crianza": "Crianza Activa"
+      },
       "dummy1": {
         "desc": "Grupo para compartir experiencias, rincones familiares y apoyo mutuo en el barrio."
       },
@@ -432,7 +466,49 @@
       "neighborhood": "Barrio",
       "captured": "Captados",
       "converted": "Convertidos",
-      "progress": "Progreso"
+      "progress": "Progreso",
+      "email": "Email",
+      "actions": "Acciones",
+      "id": "ID",
+      "verifyBtn": "Verificar",
+      "rejectBtn": "Rechazar",
+      "rejectTitle": "Rechazar solicitud",
+      "rejectSubtitle": "El usuario recibirá este motivo por email.",
+      "rejectPlaceholder": "Motivo del rechazo...",
+      "rejectConfirm": "Confirmar rechazo",
+      "noPending": "Sin familias pendientes",
+      "loading": "Cargando solicitudes...",
+      "errorVerify": "Error al verificar el usuario.",
+      "errorReject": "Error al rechazar el usuario."
     }
+  },
+  "resetPassword": {
+    "title": "Nueva contraseña",
+    "subtitle": "Elige una contraseña segura",
+    "newPassword": "Nueva contraseña",
+    "confirmPassword": "Confirmar contraseña",
+    "submit": "Actualizar contraseña",
+    "success": "¡Contraseña actualizada! Redirigiendo...",
+    "errorMatch": "Las contraseñas no coinciden",
+    "errorLength": "Mínimo 8 caracteres",
+    "errorExpired": "El enlace ha expirado o no es válido"
+  },
+  "qr": {
+    "emailPlaceholder": "ejemplo@correo.com",
+    "neighborhoodPlaceholder": "Selecciona tu barrio...",
+    "sending": "Enviando...",
+    "voteButton": "¡Voto por {{neighborhood}}!",
+    "successTitle": "¡Registrado!",
+    "successBody": "Te avisaremos cuando el piloto en {{neighborhood}} esté listo.",
+    "goalText": "¡Faltan {{count}} familias para activar el piloto!",
+    "goalReached": "🎉 ¡Piloto activado!",
+    "consentText": "He leído y acepto la política de privacidad. Entiendo que mi email se usará únicamente para contactarme sobre el piloto de LittleNeighbors y será eliminado o anonimizado en 12 meses si no completo el registro.",
+    "privacyLink": "política de privacidad",
+    "privacyTitle": "Política de Privacidad",
+    "privacyClose": "Entendido",
+    "privacyFooter": "Tus datos se tratan conforme al RGPD (UE) 2016/679.",
+    "errorConflict": "¡Esta familia ya ha votado por este barrio!",
+    "errorRate": "Demasiados intentos. Por favor, espera unos minutos.",
+    "errorGeneric": "No se pudo conectar con el servidor. Inténtalo de nuevo."
   }
 }

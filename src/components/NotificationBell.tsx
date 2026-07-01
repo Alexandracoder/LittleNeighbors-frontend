@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Bell, Calendar, Heart, MessageCircle, X } from 'lucide-react'
+import { Bell, Calendar, Heart, MessageCircle, Sparkles, X } from 'lucide-react'
 import { Client } from '@stomp/stompjs'
 import SockJS from 'sockjs-client'
 // Importamos WS_BASE_URL directamente desde api.ts
@@ -10,7 +10,12 @@ interface Notification {
   id: number
   title: string
   message: string
-  type: 'EVENT_CREATED' | 'MATCH_SUCCESS' | 'CHAT_MESSAGE' | 'SYSTEM'
+  type:
+    | 'EVENT_CREATED'
+    | 'MATCH_SUCCESS'
+    | 'CHAT_MESSAGE'
+    | 'PLAYDATE_REQUEST'
+    | 'SYSTEM'
   isRead: boolean
   createdAt: string
 }
@@ -83,6 +88,14 @@ export default function NotificationBell() {
         )
       case 'MATCH_SUCCESS':
         return <Heart className="w-4 h-4 text-pink-400" aria-hidden="true" />
+      case 'PLAYDATE_REQUEST':
+        return (
+          <Sparkles className="w-4 h-4 text-purple-400" aria-hidden="true" />
+        )
+      case 'CHAT_MESSAGE':
+        return (
+          <MessageCircle className="w-4 h-4 text-blue-400" aria-hidden="true" />
+        )
       default:
         return (
           <MessageCircle className="w-4 h-4 text-blue-400" aria-hidden="true" />
