@@ -19,7 +19,9 @@
     "explore": "Explore",
     "upcoming": "Upcoming Playdates",
     "groups": "Neighborhood Groups",
-    "events": "Events"
+    "events": "Events",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
   },
   "auth": {
     "login": {
@@ -219,7 +221,8 @@
       "pending": "PENDING",
       "match": "MATCH!",
       "aiThinking": "AI Thinking..."
-    }
+    },
+    "titleWith": "Chat with {{name}}"
   },
   "matches": {
     "title": "My Chats",
@@ -353,7 +356,12 @@
       "newParents": "New parents",
       "established": "Established family",
       "surprise": "Surprise on the way"
-    }
+    },
+    "saveError": "Couldn't save the profile. Please try again.",
+    "changePhoto": "Change photo",
+    "photoNotConfigured": "Photo upload isn't configured in this environment yet.",
+    "photoUpdated": "Photo updated",
+    "photoUploadError": "Couldn't upload the photo."
   },
   "notifications": {
     "title": "Notifications",
@@ -510,5 +518,22 @@
     "errorConflict": "This family has already voted for this neighborhood!",
     "errorRate": "Too many attempts. Please wait a few minutes.",
     "errorGeneric": "Could not connect to the server. Please try again."
+  },
+  "privacy": {
+    "title": "Privacy policy",
+    "version": "Version",
+    "lastUpdated": "June 2026",
+    "whoTitle": "Who processes your data?",
+    "whoBody": "LittleNeighbors processes the data you provide when registering and creating your family profile and your children's profiles, in order to offer you the neighborhood family-connection service.",
+    "whatTitle": "What data do we process?",
+    "whatBody": "Contact details (name, email), family profile data (neighborhood, photo, description) and data about the children you add (name, age or date of birth, interests). You enter the latter as their legal guardian, and it is used exclusively for the app's features (finding other families, organizing playdates).",
+    "baseTitle": "Legal basis",
+    "baseBody": "Your explicit consent (Art. 6.1.a GDPR), given when you register. You can withdraw it at any time by requesting the deletion of your account.",
+    "rightsTitle": "Your rights",
+    "rightsBody": "You can access, rectify, delete your data or your children's data, or object to its processing, by writing to contact@littleneighbors.com.",
+    "consentLabel": "I have read and accept the",
+    "consentLinkText": "privacy policy",
+    "consentRequired": "You must accept the privacy policy to continue.",
+    "footerLink": "Privacy"
   }
 }

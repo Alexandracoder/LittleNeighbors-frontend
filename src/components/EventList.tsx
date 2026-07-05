@@ -1,5 +1,6 @@
 import { EventCard } from './EventCard'
 import api from '../services/api'
+import { toast } from 'react-hot-toast'
 
 interface EventListProps {
   events: any[]
@@ -27,12 +28,12 @@ export const EventList = ({
     } catch (err: any) {
       console.error('Error during DELETE request:', err)
       if (err.response?.status === 403) {
-        alert('Solo la familia que creó este evento puede eliminarlo.')
+        toast.error('Solo la familia que creó este evento puede eliminarlo.')
       } else if (err.response?.status === 404) {
-        alert('Este evento ya no existe.')
+        toast.error('Este evento ya no existe.')
         onRefresh()
       } else {
-        alert('No se pudo eliminar el evento. Inténtalo de nuevo.')
+        toast.error('No se pudo eliminar el evento. Inténtalo de nuevo.')
       }
     }
   }

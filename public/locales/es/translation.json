@@ -19,7 +19,9 @@
     "explore": "Explorar",
     "upcoming": "Próximos planes",
     "groups": "Grupos del barrio",
-    "events": "Eventos"
+    "events": "Eventos",
+    "openMenu": "Abrir menú",
+    "closeMenu": "Cerrar menú"
   },
   "auth": {
     "login": {
@@ -219,7 +221,8 @@
       "pending": "PENDIENTE",
       "match": "¡MATCH!",
       "aiThinking": "IA pensando..."
-    }
+    },
+    "titleWith": "Chat con {{name}}"
   },
   "matches": {
     "title": "Mis Chats",
@@ -353,7 +356,12 @@
       "newParents": "Nuevos padres",
       "established": "Familia establecida",
       "surprise": "Sorpresa en camino"
-    }
+    },
+    "saveError": "No se pudo guardar el perfil. Inténtalo de nuevo.",
+    "changePhoto": "Cambiar foto",
+    "photoNotConfigured": "La subida de fotos aún no está configurada en este entorno.",
+    "photoUpdated": "Foto actualizada",
+    "photoUploadError": "No se pudo subir la foto."
   },
   "notifications": {
     "title": "Notificaciones",
@@ -510,5 +518,22 @@
     "errorConflict": "¡Esta familia ya ha votado por este barrio!",
     "errorRate": "Demasiados intentos. Por favor, espera unos minutos.",
     "errorGeneric": "No se pudo conectar con el servidor. Inténtalo de nuevo."
+  },
+  "privacy": {
+    "title": "Política de privacidad",
+    "version": "Versión",
+    "lastUpdated": "junio 2026",
+    "whoTitle": "¿Quién trata tus datos?",
+    "whoBody": "LittleNeighbors trata los datos que nos facilitas al registrarte, crear tu perfil familiar y el de tus hijos, para poder ofrecerte el servicio de conexión con familias de tu barrio.",
+    "whatTitle": "¿Qué datos tratamos?",
+    "whatBody": "Datos de contacto (nombre, email), datos del perfil familiar (barrio, foto, descripción) y datos de los niños que añadas (nombre, edad o fecha de nacimiento, intereses). Estos últimos los introduces tú como responsable legal, y se usan exclusivamente para las funciones de la app (encontrar otras familias, organizar quedadas).",
+    "baseTitle": "Base legal",
+    "baseBody": "Tu consentimiento explícito (Art. 6.1.a RGPD), otorgado al registrarte. Puedes retirarlo en cualquier momento solicitando la baja de tu cuenta.",
+    "rightsTitle": "Tus derechos",
+    "rightsBody": "Puedes acceder, rectificar, eliminar tus datos o los de tus hijos, u oponerte a su tratamiento, escribiendo a contact@littleneighbors.com.",
+    "consentLabel": "He leído y acepto la",
+    "consentLinkText": "política de privacidad",
+    "consentRequired": "Debes aceptar la política de privacidad para continuar.",
+    "footerLink": "Privacidad"
   }
 }

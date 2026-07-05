@@ -1,7 +1,13 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'react-hot-toast'
 import { familyApi } from '../services/api'
+import {
+  uploadFamilyPhoto,
+  isImageUploadConfigured,
+  ImageUploadError,
+} from '../services/imageUpload'
 import { FamilyResponseDTO, FamilyRequestDTO } from '../types'
 import MainLayout from '../components/layout/MainLayout'
 import {
@@ -12,6 +18,7 @@ import {
   Loader2,
   CheckCircle,
   Home,
+  Camera,
 } from 'lucide-react'
 import profileBg from '../assets/neighborhood-picnic.png'
 
@@ -23,7 +30,9 @@ const ProfilePage = () => {
   const [editing, setEditing] = useState(false)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [uploadingPhoto, setUploadingPhoto] = useState(false)
   const [form, setForm] = useState<Partial<FamilyRequestDTO>>({})
+  const photoInputRef = useRef<HTMLInputElement>(null)
 
   const STATUS_LABELS: Record<string, string> = {
     PREGNANT: t('profile.status.pregnant', 'Embarazo'),
@@ -65,8 +74,49 @@ const ProfilePage = () => {
       setTimeout(() => setSaved(false), 2500)
     } catch (err) {
       console.error('Error updating family profile:', err)
+      toast.error(
+        t('profile.saveError', 'No se pudo guardar el perfil. Inténtalo de nuevo.'),
+      )
     } finally {
       setSaving(false)
+    }
+  }
+
+  const handlePhotoSelected = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = e.target.files?.[0]
+    e.target.value = '' // permite volver a elegir el mismo archivo después
+    if (!file || !family) return
+
+    if (!isImageUploadConfigured()) {
+      toast.error(
+        t(
+          'profile.photoNotConfigured',
+          'La subida de fotos aún no está configurada en este entorno.',
+        ),
+      )
+      return
+    }
+
+    setUploadingPhoto(true)
+    try {
+      const url = await uploadFamilyPhoto(file)
+      const updated = await familyApi.update(family.id, {
+        ...(form as FamilyRequestDTO),
+        profilePictureUrl: url,
+      })
+      setFamily(updated)
+      setForm(f => ({ ...f, profilePictureUrl: url }))
+      toast.success(t('profile.photoUpdated', 'Foto actualizada'))
+    } catch (err) {
+      const message =
+        err instanceof ImageUploadError
+          ? err.message
+          : t('profile.photoUploadError', 'No se pudo subir la foto.')
+      toast.error(message)
+    } finally {
+      setUploadingPhoto(false)
     }
   }
 
@@ -111,15 +161,42 @@ const ProfilePage = () => {
         {/* Card principal */}
         <div className="bg-white rounded-[2rem] shadow-xl overflow-hidden">
           <div className="bg-[#2D2D2D] px-6 py-8 flex flex-col items-center text-center">
-            <div className="w-20 h-20 rounded-full bg-orange-100 flex items-center justify-center mb-3 overflow-hidden">
-              {family.profilePictureUrl ? (
-                <img
-                  src={family.profilePictureUrl}
-                  alt={family.familyName}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <User className="w-9 h-9 text-orange-500" />
+            <div className="relative mb-3">
+              <div className="w-20 h-20 rounded-full bg-orange-100 flex items-center justify-center overflow-hidden">
+                {family.profilePictureUrl ? (
+                  <img
+                    src={family.profilePictureUrl}
+                    alt={family.familyName}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <User className="w-9 h-9 text-orange-500" />
+                )}
+              </div>
+
+              {editing && (
+                <>
+                  <input
+                    ref={photoInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    className="hidden"
+                    onChange={handlePhotoSelected}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => photoInputRef.current?.click()}
+                    disabled={uploadingPhoto}
+                    aria-label={t('profile.changePhoto', 'Cambiar foto')}
+                    className="absolute -bottom-1 -right-1 w-8 h-8 bg-[#FF8A5C] hover:bg-[#ff7a45] text-white rounded-full flex items-center justify-center shadow-lg border-2 border-[#2D2D2D] transition-all disabled:opacity-60"
+                  >
+                    {uploadingPhoto ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <Camera className="w-3.5 h-3.5" />
+                    )}
+                  </button>
+                </>
               )}
             </div>
             <h2 className="text-white font-black text-lg uppercase tracking-tight">

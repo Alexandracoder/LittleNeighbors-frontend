@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'react-hot-toast'
 import { childApi } from '../services/api'
 import { useAuth } from '../context/AuthContext'
 import type { ChildResponseDTO } from '../types'
@@ -85,7 +86,7 @@ const handleSuccess = async () => {
       await refreshStatus()
       await refreshProfile()
     } catch (err) {
-      alert(t('profile.deleteError'))
+      toast.error(t('profile.deleteError'))
     } finally {
       setDeleteModal({ isOpen: false, childId: null })
     }

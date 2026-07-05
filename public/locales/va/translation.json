@@ -19,7 +19,9 @@
     "explore": "Explorar",
     "upcoming": "Pròxims plans",
     "groups": "Grups del barri",
-    "events": "Esdeveniments"
+    "events": "Esdeveniments",
+    "openMenu": "Obrir menú",
+    "closeMenu": "Tancar menú"
   },
   "auth": {
     "login": {
@@ -219,7 +221,8 @@
       "pending": "PENDENT",
       "match": "¡MATCH!",
       "aiThinking": "IA pensant..."
-    }
+    },
+    "titleWith": "Xat amb {{name}}"
   },
   "matches": {
     "title": "Els meus Xats",
@@ -353,7 +356,12 @@
       "newParents": "Nous pares",
       "established": "Família establerta",
       "surprise": "Sorpresa en camí"
-    }
+    },
+    "saveError": "No s'ha pogut guardar el perfil. Torna-ho a intentar.",
+    "changePhoto": "Canviar foto",
+    "photoNotConfigured": "La pujada de fotos encara no està configurada en este entorn.",
+    "photoUpdated": "Foto actualitzada",
+    "photoUploadError": "No s'ha pogut pujar la foto."
   },
   "notifications": {
     "title": "Notificacions",
@@ -510,5 +518,22 @@
     "errorConflict": "Aquesta família ja ha votat per este barri!",
     "errorRate": "Massa intents. Per favor, espera uns minuts.",
     "errorGeneric": "No s'ha pogut connectar amb el servidor. Torna-ho a intentar."
+  },
+  "privacy": {
+    "title": "Política de privacitat",
+    "version": "Versió",
+    "lastUpdated": "juny 2026",
+    "whoTitle": "Qui tracta les teues dades?",
+    "whoBody": "LittleNeighbors tracta les dades que ens facilites en registrar-te, crear el teu perfil familiar i el dels teus fills, per a poder oferir-te el servei de connexió amb famílies del teu barri.",
+    "whatTitle": "Quines dades tractem?",
+    "whatBody": "Dades de contacte (nom, email), dades del perfil familiar (barri, foto, descripció) i dades dels xiquets que afegisques (nom, edat o data de naixement, interessos). Estes últimes les introduïxes tu com a responsable legal, i s'usen exclusivament per a les funcions de l'app (trobar altres famílies, organitzar quedades).",
+    "baseTitle": "Base legal",
+    "baseBody": "El teu consentiment explícit (Art. 6.1.a RGPD), atorgat en registrar-te. Pots retirar-lo en qualsevol moment sol·licitant la baixa del teu compte.",
+    "rightsTitle": "Els teus drets",
+    "rightsBody": "Pots accedir, rectificar, eliminar les teues dades o les dels teus fills, o oposar-te al seu tractament, escrivint a contact@littleneighbors.com.",
+    "consentLabel": "He llegit i accepte la",
+    "consentLinkText": "política de privacitat",
+    "consentRequired": "Has d'acceptar la política de privacitat per a continuar.",
+    "footerLink": "Privacitat"
   }
 }

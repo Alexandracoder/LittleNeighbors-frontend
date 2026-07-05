@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { toast } from 'react-hot-toast'
 import adminService from '../services/adminService'
 import { User } from '../types'
 import MainLayout from '../components/layout/MainLayout'
@@ -37,7 +38,7 @@ const AdminModerationTable = () => {
       await adminService.verifyUser(id)
       await fetchUsers()
     } catch {
-      alert('Failed to verify user.')
+      toast.error('Failed to verify user.')
     } finally {
       setActionLoading(null)
     }
@@ -50,7 +51,7 @@ const AdminModerationTable = () => {
       await adminService.rejectUser(rejectTarget, rejectReason.trim())
       await fetchUsers()
     } catch {
-      alert('Failed to reject user.')
+      toast.error('Failed to reject user.')
     } finally {
       setActionLoading(null)
       setRejectTarget(null)
