@@ -60,7 +60,7 @@ export default function CreateFamily() {
 
       const response = await familyApi.create(familyRequest)
 
-      handleFamilyCreation({
+      await handleFamilyCreation({
         family: response.family,
         accessToken: response.accessToken,
         refreshToken: response.refreshToken,

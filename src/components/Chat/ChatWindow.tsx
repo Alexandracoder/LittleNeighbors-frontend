@@ -192,7 +192,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   }
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center p-2 md:p-6 relative">
+    <div className="min-h-screen w-full flex items-center justify-center p-0 sm:p-2 md:p-6 relative">
       <div
         className="absolute inset-0 z-0"
         style={{
@@ -203,21 +203,24 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
         aria-hidden="true"
       />
       <main
-        className="relative w-full max-w-2xl bg-white rounded-[3rem] shadow-2xl flex flex-col h-[90vh] border-[6px] border-white overflow-hidden z-20"
+        className="relative w-full max-w-2xl bg-white rounded-none sm:rounded-[3rem] shadow-2xl flex flex-col h-screen sm:h-[90vh] border-0 sm:border-[6px] border-white overflow-hidden z-20"
         role="main"
       >
-        <header className="bg-[#FF9E91] px-6 py-5 flex items-center justify-between z-10 border-b border-gray-100 shadow-sm">
-          <div className="flex items-center gap-3">
+        <header className="bg-[#FF9E91] px-4 sm:px-6 py-4 sm:py-5 flex items-center justify-between gap-2 z-10 border-b border-gray-100 shadow-sm">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <button
               onClick={() => navigate(-1)}
-              className="p-2 hover:bg-black/5 rounded-full transition-colors"
+              className="p-2 hover:bg-black/5 rounded-full transition-colors shrink-0"
             >
               <ChevronLeft size={24} className="text-gray-900" />
             </button>
-            <div>
-              <h1 className="text-xl font-black text-gray-900 uppercase italic tracking-tighter leading-none">
+            <div className="min-w-0">
+              <h1 className="text-base sm:text-xl font-black text-gray-900 uppercase italic tracking-tighter leading-none truncate">
                 {neighborName
-                  ? `CHAT CON ${neighborName}`
+                  ? t('chat.titleWith', {
+                      name: neighborName,
+                      defaultValue: `Chat con ${neighborName}`,
+                    })
                   : t('chat.title', 'LITTLE CHAT')}
               </h1>
               <div className="flex items-center gap-1.5 mt-1" role="status">
@@ -261,7 +264,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                 console.error(e)
               }
             }}
-            className="bg-gray-800 text-[#FF9E91] px-4 py-2 rounded-2xl text-[10px] font-black border border-[#FF9E91] shadow-sm active:scale-95 transition-all"
+            className="bg-gray-800 text-[#FF9E91] px-3 sm:px-4 py-2 rounded-2xl text-[9px] sm:text-[10px] font-black border border-[#FF9E91] shadow-sm active:scale-95 transition-all shrink-0 whitespace-nowrap"
           >
             {matchStatus === 'ACCEPTED'
               ? t('chat.match_active', 'MATCH! 🌟')

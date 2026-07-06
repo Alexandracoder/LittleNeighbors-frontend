@@ -10,6 +10,7 @@ import type {
 import FamilyCard from '../components/FamilyCard'
 import MainLayout from '../components/layout/MainLayout'
 import bgImage from '../assets/littleneighbor_playing.png'
+import { translateNicknameOrDefault } from '../utils/nicknames'
 
 
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
@@ -42,7 +43,7 @@ L.Marker.prototype.options.icon = DefaultIcon
 
 export default function ExplorePage() {
   const navigate = useNavigate()
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const [searchParams] = useSearchParams()
 
   const [families, setFamilies] = useState<FamilyResponseDTO[]>([])
@@ -74,35 +75,8 @@ export default function ExplorePage() {
     null,
   )
 
-  const getTranslatedNickname = (nickname: string, gender: string) => {
-    if (!nickname) {
-      return gender === 'BOY'
-        ? t('children.card.titleBoy')
-        : t('children.card.titleGirl')
-    }
-    const parts = nickname.split(' ')
-    if (parts.length === 2) {
-      const [adj, noun] = parts
-      const adjKey = adj.toLowerCase()
-      const nounKey = noun.toLowerCase()
-
-      const hasAdj =
-        i18n.hasResourceBundle(i18n.language, 'translation') &&
-        i18n.exists(`nicknames.adjectives.${adjKey}`)
-      const hasNoun =
-        i18n.hasResourceBundle(i18n.language, 'translation') &&
-        i18n.exists(`nicknames.nouns.${nounKey}`)
-
-      if (hasAdj && hasNoun) {
-        const translatedAdj = t(`nicknames.adjectives.${adjKey}`)
-        const translatedNoun = t(`nicknames.nouns.${nounKey}`)
-        return `${
-          translatedAdj.charAt(0).toUpperCase() + translatedAdj.slice(1)
-        } ${translatedNoun.charAt(0).toUpperCase() + translatedNoun.slice(1)}`
-      }
-    }
-    return nickname
-  }
+  const getTranslatedNickname = (nickname: string, gender: string) =>
+    translateNicknameOrDefault(nickname, gender, t)
 
   useEffect(() => {
     const initData = async () => {
@@ -203,7 +177,9 @@ setFamilies(uniqueFamilies)
         f.latitude !== null &&
         f.longitude !== null &&
         f.latitude !== undefined &&
-        f.longitude !== undefined,
+        f.longitude !== undefined &&
+        !Number.isNaN(f.latitude) &&
+        !Number.isNaN(f.longitude),
     )
   }, [families])
 

@@ -14,13 +14,13 @@ import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import type { ChildResponseDTO } from '../types'
 import { childApi } from '../services/api'
+import { translateNickname } from '../utils/nicknames'
 
 
 import avatar1 from '../assets/Avatar1.jpg'
 import avatar2 from '../assets/Avatar2.jpg'
 import avatar3 from '../assets/Avatar3.jpg'
 import avatar4 from '../assets/Avatar4.jpg'
-import i18n from '../i18n'
 
 
 const localAvatars = [avatar1, avatar2, avatar3, avatar4]
@@ -78,37 +78,7 @@ export default function ChildCard({
     }
     return t('children.card.ageDefault')
   }
-const getTitle = () => {
-  if (!child.nickname) return t('children.card.titleDefault')
-
-
-  const parts = child.nickname.split(' ')
-
-  if (parts.length === 2) {
-    const [adj, noun] = parts
-
-    const adjKey = adj.toLowerCase()
-    const nounKey = noun.toLowerCase()
-
-    const hasAdj =
-      i18n.hasResourceBundle(i18n.language, 'translation') &&
-      i18n.exists(`nicknames.adjectives.${adjKey}`)
-    const hasNoun =
-      i18n.hasResourceBundle(i18n.language, 'translation') &&
-      i18n.exists(`nicknames.nouns.${nounKey}`)
-
-    if (hasAdj && hasNoun) {
-      const translatedAdj = t(`nicknames.adjectives.${adjKey}`)
-      const translatedNoun = t(`nicknames.nouns.${nounKey}`)
-
-      return `${
-        translatedAdj.charAt(0).toUpperCase() + translatedAdj.slice(1)
-      } ${translatedNoun.charAt(0).toUpperCase() + translatedNoun.slice(1)}`
-    }
-  }
-
-  return child.nickname
-}
+const getTitle = () => translateNickname(child.nickname, t) || t('children.card.titleDefault')
 
   const handleMatchRequest = async () => {
     if (!myChildId) return

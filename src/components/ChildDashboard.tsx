@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useState, useEffect, useCallback } from 'react'
+import { translateNickname } from '../utils/nicknames'
 import {
   Heart,
   Calendar,
@@ -48,23 +49,9 @@ export default function ChildDashboard() {
     loadData()
   }, [loadData])
 
-  // Función unificada para traducir el nickname técnico (ej: magic_lion)
-  const getTranslatedNickname = (nick: string | undefined) => {
-    if (!nick) return ''
-    if (!nick.includes('_')) return nick
-
-    const [adj, icon] = nick.split('_')
-    const translatedAdj = t(`nicknames.adjectives.${adj.toLowerCase()}`, {
-      defaultValue: adj,
-    })
-    const translatedIcon = t(`nicknames.nouns.${icon.toLowerCase()}`, {
-      defaultValue: icon,
-    })
-
-    return `${translatedAdj.charAt(0).toUpperCase() + translatedAdj.slice(1)} ${
-      translatedIcon.charAt(0).toUpperCase() + translatedIcon.slice(1)
-    }`
-  }
+  // Traducción del nickname técnico (ej: magic_lion) centralizada en utils/nicknames.ts
+  const getTranslatedNickname = (nick: string | undefined) =>
+    translateNickname(nick, t)
 
   const currentChild = currentUser?.family?.children?.find(
     c => String(c.id) === String(id),
@@ -162,16 +149,16 @@ export default function ChildDashboard() {
         </section>
       )}
 
-      <div className="w-full bg-[#c87a4b] rounded-[3.5rem] p-8 shadow-2xl border-4 border-white/10 relative overflow-hidden flex flex-col items-center">
+      <div className="w-full bg-[#c87a4b] rounded-[3rem] sm:rounded-[3.5rem] p-5 sm:p-8 shadow-2xl border-4 border-white/10 relative overflow-hidden flex flex-col items-center">
         <div className="absolute top-0 w-56 h-12 bg-transparent rounded-b-[3rem] pointer-events-none"></div>
-        <div className="bg-[#b36638] absolute top-0 px-12 py-3 rounded-b-[2.5rem] shadow-inner border-x border-b border-white/5 flex items-center justify-center">
-          <span className="text-white text-[11px] font-black uppercase tracking-widest opacity-90">
+        <div className="bg-[#b36638] absolute top-0 px-8 sm:px-12 py-3 rounded-b-[2.5rem] shadow-inner border-x border-b border-white/5 flex items-center justify-center">
+          <span className="text-white text-[10px] sm:text-[11px] font-black uppercase tracking-widest opacity-90 whitespace-nowrap">
             {t('child.dashboard.title', 'Playdates Dashboard')}
           </span>
         </div>
 
-        <div className="flex flex-col items-center mt-10 mb-8 w-full relative z-10">
-          <div className="relative w-32 h-32 mb-4">
+        <div className="flex flex-col items-center mt-10 mb-8 w-full relative z-10 px-2">
+          <div className="relative w-28 h-28 sm:w-32 sm:h-32 mb-4">
             <img
               src={currentAvatar}
               className="w-full h-full rounded-full border-4 border-white shadow-2xl bg-white p-1 object-cover"
@@ -182,7 +169,7 @@ export default function ChildDashboard() {
             </div>
           </div>
 
-          <h2 className="text-3xl font-black text-white uppercase tracking-tight drop-shadow-md bg-black/10 px-6 py-1.5 rounded-full backdrop-blur-sm border border-white/10">
+          <h2 className="text-xl sm:text-3xl font-black text-white uppercase tracking-tight drop-shadow-md bg-black/10 px-4 sm:px-6 py-1.5 rounded-full backdrop-blur-sm border border-white/10 max-w-full truncate">
             {currentChild?.nickname
               ? getTranslatedNickname(currentChild.nickname)
               : `${t('child.dashboard.profilePrefix', 'Profile of')} #${id}`}
@@ -255,7 +242,7 @@ export default function ChildDashboard() {
 
       {isPlaydatesModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-fade-in">
-          <div className="bg-slate-900/80 backdrop-blur-2xl rounded-[3rem] w-full max-w-xl p-8 relative shadow-2xl border border-white/10 text-white transform transition-all animate-zoom-in">
+          <div className="bg-slate-900/80 backdrop-blur-2xl rounded-[2rem] sm:rounded-[3rem] w-full max-w-xl p-5 sm:p-8 relative shadow-2xl border border-white/10 text-white transform transition-all animate-zoom-in">
             <button
               onClick={() => setIsPlaydatesModalOpen(false)}
               className="absolute top-6 right-6 text-white/40 hover:text-white bg-white/10 p-2 rounded-full transition-colors"
@@ -267,7 +254,7 @@ export default function ChildDashboard() {
                 <Calendar className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h3 className="text-2xl font-black uppercase tracking-tight">
+                <h3 className="text-xl sm:text-2xl font-black uppercase tracking-tight">
                   {t('common.upcoming', 'Upcoming Playdates')}
                 </h3>
                 <p className="text-[10px] uppercase font-bold text-white/40 tracking-wider">
@@ -322,7 +309,7 @@ export default function ChildDashboard() {
 
       {isCommunityModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-fade-in">
-          <div className="bg-slate-900/80 backdrop-blur-2xl rounded-[3rem] w-full max-w-xl p-8 relative shadow-2xl border border-white/10 text-white transform transition-all animate-zoom-in">
+          <div className="bg-slate-900/80 backdrop-blur-2xl rounded-[2rem] sm:rounded-[3rem] w-full max-w-xl p-5 sm:p-8 relative shadow-2xl border border-white/10 text-white transform transition-all animate-zoom-in">
             <button
               onClick={() => setIsCommunityModalOpen(false)}
               className="absolute top-6 right-6 text-white/40 hover:text-white bg-white/10 p-2 rounded-full transition-colors"
@@ -334,7 +321,7 @@ export default function ChildDashboard() {
                 <Users className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h3 className="text-2xl font-black uppercase tracking-tight">
+                <h3 className="text-xl sm:text-2xl font-black uppercase tracking-tight">
                   {t('common.groups', 'Neighborhood Groups')}
                 </h3>
                 <p className="text-[10px] uppercase font-bold text-white/40 tracking-wider">
