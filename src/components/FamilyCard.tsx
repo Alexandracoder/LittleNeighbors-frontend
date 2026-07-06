@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import type { FamilyResponseDTO, InterestResponseDTO } from '../types'
 import matchService from '../services/matchService'
 import { toast } from 'react-hot-toast'
+import { translateNicknameOrDefault } from '../utils/nicknames'
 
 interface FamilyCardProps {
   family: FamilyResponseDTO
@@ -18,42 +19,13 @@ export default function FamilyCard({
   myInterestIds = [],
 }: FamilyCardProps) {
   const navigate = useNavigate()
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const [connectingChildId, setConnectingChildId] = useState<number | null>(
     null,
   )
 
-
-  const getTranslatedNickname = (nickname: string, gender: string) => {
-    if (!nickname) {
-      return gender === 'BOY'
-        ? t('children.card.titleBoy')
-        : t('children.card.titleGirl')
-    }
-
-    const parts = nickname.split(' ')
-    if (parts.length === 2) {
-      const [adj, noun] = parts
-      const adjKey = adj.toLowerCase()
-      const nounKey = noun.toLowerCase()
-
-      const hasAdj =
-        i18n.hasResourceBundle(i18n.language, 'translation') &&
-        i18n.exists(`nicknames.adjectives.${adjKey}`)
-      const hasNoun =
-        i18n.hasResourceBundle(i18n.language, 'translation') &&
-        i18n.exists(`nicknames.nouns.${nounKey}`)
-
-      if (hasAdj && hasNoun) {
-        const translatedAdj = t(`nicknames.adjectives.${adjKey}`)
-        const translatedNoun = t(`nicknames.nouns.${nounKey}`)
-        return `${
-          translatedAdj.charAt(0).toUpperCase() + translatedAdj.slice(1)
-        } ${translatedNoun.charAt(0).toUpperCase() + translatedNoun.slice(1)}`
-      }
-    }
-    return nickname
-  }
+  const getTranslatedNickname = (nickname: string, gender: string) =>
+    translateNicknameOrDefault(nickname, gender, t)
 
   const sortedInterests = useMemo(() => {
     const all: InterestResponseDTO[] = family.children.flatMap(

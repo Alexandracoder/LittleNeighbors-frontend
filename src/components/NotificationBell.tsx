@@ -140,7 +140,7 @@ export default function NotificationBell() {
             onClick={() => setIsOpen(false)}
           />
           <div
-            className="absolute right-0 mt-4 w-80 bg-slate-900/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl z-20 overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+            className="fixed sm:absolute left-4 right-4 sm:left-auto top-20 sm:top-auto sm:right-0 sm:mt-4 w-auto sm:w-80 max-w-sm mx-auto sm:mx-0 bg-slate-900/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl z-20 overflow-hidden animate-in fade-in zoom-in-95 duration-200"
             role="dialog"
             aria-label="Notifications panel"
           >

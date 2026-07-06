@@ -75,13 +75,13 @@ return (
     subtitle={t('dashboard.subtitle')}
     showGlassCard={false}
   >
-    <div className="fixed top-20 left-0 w-full px-6 md:px-12 flex justify-between items-center z-[60]">
+    <div className="fixed top-20 left-0 w-full px-4 sm:px-6 md:px-12 flex justify-between items-center z-[60] gap-2">
       <button
         onClick={() => navigate(-1)}
-        className="flex items-center gap-2 px-5 py-2.5 bg-white/10 backdrop-blur-xl text-white rounded-full border border-white/20 hover:bg-white/20 transition-all active:scale-95 group shadow-xl"
+        className="flex items-center gap-2 px-3.5 sm:px-5 py-2.5 bg-white/10 backdrop-blur-xl text-white rounded-full border border-white/20 hover:bg-white/20 transition-all active:scale-95 group shadow-xl shrink-0"
       >
         <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-        <span className="font-black uppercase tracking-widest text-[10px]">
+        <span className="hidden sm:inline font-black uppercase tracking-widest text-[10px]">
           {t('common.back')}
         </span>
       </button>
@@ -89,56 +89,56 @@ return (
       <div className="flex items-center gap-3">
         <button
           onClick={() => navigate('/profile')}
-          className="flex items-center gap-2 px-5 py-2.5 bg-white/10 backdrop-blur-xl text-white/80 hover:text-white rounded-full border border-white/20 hover:bg-white/20 transition-all active:scale-95 group shadow-xl"
+          className="flex items-center gap-2 px-3.5 sm:px-5 py-2.5 bg-white/10 backdrop-blur-xl text-white/80 hover:text-white rounded-full border border-white/20 hover:bg-white/20 transition-all active:scale-95 group shadow-xl shrink-0"
         >
           <User className="w-4 h-4" />
-          <span className="font-black uppercase tracking-widest text-[10px]">
+          <span className="hidden sm:inline font-black uppercase tracking-widest text-[10px]">
             {t('dashboard.myProfile', 'Mi perfil')}
           </span>
         </button>
       </div>
     </div>
 
-    <div className="flex flex-col items-center gap-6 mt-20 animate-in fade-in zoom-in duration-1000">
+    <div className="flex flex-col items-center gap-6 mt-20 animate-in fade-in zoom-in duration-1000 px-4">
       <div className="flex flex-wrap justify-center gap-4 w-full">
         <button
           onClick={() => navigate('/explore')}
-          className="flex items-center gap-4 px-12 py-6 bg-[#F28749] text-white rounded-full shadow-2xl shadow-orange-950/40 transition-all hover:scale-105 active:scale-95 border-2 border-white/20"
+          className="flex items-center gap-3 sm:gap-4 px-8 sm:px-12 py-5 sm:py-6 bg-[#F28749] text-white rounded-full shadow-2xl shadow-orange-950/40 transition-all hover:scale-105 active:scale-95 border-2 border-white/20 max-w-full"
         >
-          <Search className="w-6 h-6" />
-          <span className="font-black uppercase tracking-widest text-sm">
+          <Search className="w-5 h-5 sm:w-6 sm:h-6 shrink-0" />
+          <span className="font-black uppercase tracking-widest text-xs sm:text-sm">
             {t('dashboard.findNeighbors')}
           </span>
         </button>
       </div>
 
-      <div className="flex flex-wrap justify-center gap-4 max-w-2xl mb-4">
+      <div className="flex flex-wrap justify-center gap-3 sm:gap-4 max-w-2xl mb-4 px-2">
         <button
           onClick={() => navigate('/schedules')}
-          className="flex items-center gap-3 px-8 py-4 bg-white/10 backdrop-blur-xl text-white rounded-full border-2 border-white/20 shadow-xl transition-all hover:bg-white/20 hover:scale-105 active:scale-95"
+          className="flex items-center gap-2 sm:gap-3 px-5 sm:px-8 py-3.5 sm:py-4 bg-white/10 backdrop-blur-xl text-white rounded-full border-2 border-white/20 shadow-xl transition-all hover:bg-white/20 hover:scale-105 active:scale-95"
         >
-          <Calendar className="w-5 h-5 text-[#F28749]" />
-          <span className="font-black uppercase tracking-widest text-xs">
+          <Calendar className="w-5 h-5 text-[#F28749] shrink-0" />
+          <span className="font-black uppercase tracking-widest text-xs whitespace-nowrap">
             {t('dashboard.myPlaydates')}
           </span>
         </button>
 
         <button
           onClick={() => navigate('/events')}
-          className="flex items-center gap-3 px-8 py-4 bg-white/10 backdrop-blur-xl text-white rounded-full border-2 border-white/20 shadow-xl transition-all hover:bg-white/20 hover:scale-105 active:scale-95"
+          className="flex items-center gap-2 sm:gap-3 px-5 sm:px-8 py-3.5 sm:py-4 bg-white/10 backdrop-blur-xl text-white rounded-full border-2 border-white/20 shadow-xl transition-all hover:bg-white/20 hover:scale-105 active:scale-95"
         >
-          <MapPin className="w-5 h-5 text-[#F28749]" />
-          <span className="font-black uppercase tracking-widest text-xs">
+          <MapPin className="w-5 h-5 text-[#F28749] shrink-0" />
+          <span className="font-black uppercase tracking-widest text-xs whitespace-nowrap">
             {t('dashboard.events')}
           </span>
         </button>
 
         <button
           onClick={() => navigate('/add-child')}
-          className="flex items-center gap-3 px-8 py-4 bg-white/10 backdrop-blur-xl text-white rounded-full border-2 border-white/20 shadow-xl transition-all hover:bg-white/20 hover:scale-105 active:scale-95"
+          className="flex items-center gap-2 sm:gap-3 px-5 sm:px-8 py-3.5 sm:py-4 bg-white/10 backdrop-blur-xl text-white rounded-full border-2 border-white/20 shadow-xl transition-all hover:bg-white/20 hover:scale-105 active:scale-95"
         >
-          <Baby className="w-5 h-5 text-[#F28749]" />
-          <span className="font-black uppercase tracking-widest text-xs">
+          <Baby className="w-5 h-5 text-[#F28749] shrink-0" />
+          <span className="font-black uppercase tracking-widest text-xs whitespace-nowrap">
             {t('dashboard.myChildren', 'Mis peques')}
           </span>
         </button>

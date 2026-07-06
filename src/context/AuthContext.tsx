@@ -34,7 +34,7 @@ interface AuthContextType {
     family: FamilyResponseDTO
     accessToken: string
     refreshToken: string
-  }) => void
+  }) => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -208,7 +208,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }
 
-  const handleFamilyCreation = (responseData: {
+  const handleFamilyCreation = async (responseData: {
     family: FamilyResponseDTO
     accessToken: string
     refreshToken: string
@@ -258,13 +258,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     setFamilyEntity(responseData.family)
 
-    setStatus({
-      hasFamily: true,
-      hasChildren: false,
-      isRegistrationComplete: false,
-      roles: extractedRoles as any,
-      verificationStatus: 'PENDING_REVIEW',
-    })
+    // Antes se fijaba aquí un status "de mentira" (verificationStatus
+    // hardcodeado a PENDING_REVIEW) sin consultar nunca al backend. Eso
+    // hacía que la card del niño se quedara mostrando "sin verificar" para
+    // siempre, aunque el admin ya hubiera aprobado la cuenta, porque nada
+    // volvía a refrescar ese valor. Ahora pedimos el estado real.
+    try {
+      const currentStatus = await userApi.getStatus()
+      setStatus(currentStatus)
+    } catch (error) {
+      console.error('Error fetching status after family creation:', error)
+      // Fallback conservador: si no se puede confirmar el estado real,
+      // asumimos que hace falta revisión antes que asumir VERIFIED a ciegas.
+      setStatus({
+        hasFamily: true,
+        hasChildren: false,
+        isRegistrationComplete: false,
+        roles: extractedRoles as any,
+        verificationStatus: 'PENDING_REVIEW',
+      })
+    }
   }
 
   const login = async (credentials: AuthRequest): Promise<User | null> => {

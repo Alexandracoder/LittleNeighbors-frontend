@@ -1,5 +1,5 @@
 import { useState, FormEvent, useEffect } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { UserPlus, Mail, Lock, ArrowRight } from 'lucide-react'
 import { authApi } from '../services/api'
 import { useAuth } from '../context/AuthContext'
@@ -23,6 +23,7 @@ export default function Register() {
     password: '',
     inviteToken: inviteToken || '',
   })
+  const [consentGiven, setConsentGiven] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -35,10 +36,21 @@ export default function Register() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setError('')
+
+    if (!consentGiven) {
+      setError(
+        t(
+          'privacy.consentRequired',
+          'Debes aceptar la política de privacidad para continuar.',
+        ),
+      )
+      return
+    }
+
     setLoading(true)
 
     try {
-      await authApi.register(formData)
+      await authApi.register({ ...formData, consentGiven })
       const loggedUser = await login({
         email: formData.email,
         password: formData.password,
@@ -58,7 +70,17 @@ export default function Register() {
         }
       }
     } catch (err: any) {
-      setError(err.response?.data?.message || t('auth.register.errorDefault'))
+      const fieldErrors = err.response?.data?.errors
+      const firstFieldError =
+        fieldErrors && typeof fieldErrors === 'object'
+          ? (Object.values(fieldErrors)[0] as string | undefined)
+          : undefined
+
+      setError(
+        firstFieldError ||
+          err.response?.data?.message ||
+          t('auth.register.errorDefault'),
+      )
     } finally {
       setLoading(false)
     }
@@ -172,9 +194,34 @@ export default function Register() {
                   onChange={handleChange}
                   className="w-full pl-12 pr-4 py-4 border border-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-[#F28749] bg-white/50"
                   placeholder={t('auth.register.passwordPlaceholder')}
+                  minLength={8}
+                  title={t(
+                    'auth.register.passwordMinLength',
+                    'Debe tener al menos 8 caracteres',
+                  )}
                   required
                 />
               </div>
+
+              <label className="flex items-start gap-3 text-xs text-gray-600 px-1">
+                <input
+                  type="checkbox"
+                  checked={consentGiven}
+                  onChange={e => setConsentGiven(e.target.checked)}
+                  className="mt-0.5 w-4 h-4 accent-[#F28749] shrink-0"
+                  required
+                />
+                <span>
+                  {t('privacy.consentLabel', 'He leído y acepto la')}{' '}
+                  <Link
+                    to="/privacy"
+                    target="_blank"
+                    className="text-[#F28749] font-bold hover:underline"
+                  >
+                    {t('privacy.consentLinkText', 'política de privacidad')}
+                  </Link>
+                </span>
+              </label>
 
               {error && (
                 <div className="bg-red-50 text-red-600 p-3 rounded-xl text-sm text-center font-bold">
@@ -184,8 +231,8 @@ export default function Register() {
 
               <button
                 type="submit"
-                disabled={loading}
-                className="w-full bg-[#F28749] text-white font-black py-5 rounded-2xl shadow-xl hover:opacity-90 transition-all transform hover:-translate-y-1 mt-4 uppercase tracking-widest"
+                disabled={loading || !consentGiven}
+                className="w-full bg-[#F28749] text-white font-black py-5 rounded-2xl shadow-xl hover:opacity-90 transition-all transform hover:-translate-y-1 mt-4 uppercase tracking-widest disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
               >
                 {loading
                   ? t('auth.register.submitLoading')

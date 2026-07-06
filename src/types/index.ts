@@ -45,6 +45,8 @@ export interface RegisterRequest {
   lastName: string
   email: string
   password?: string
+  inviteToken?: string
+  consentGiven: boolean
 }
 
 export interface DecodedToken {

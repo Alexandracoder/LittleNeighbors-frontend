@@ -7,6 +7,7 @@ import {
   Outlet,
 } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { Toaster } from 'react-hot-toast'
 import Navbar from './components/Navbar'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -15,6 +16,7 @@ import ChatWindow from './components/Chat/ChatWindow'
 import AddPlaydatePage from './pages/AddPlaydatePage'
 import Login from './components/Login'
 import Register from './components/Register'
+import PrivacyPage from './pages/PrivacyPage'
 import CreateFamily from './components/CreateFamily'
 import Dashboard from './components/Dashboard'
 import AddChildPage from './pages/AddChildren'
@@ -62,7 +64,7 @@ function ChatWrapper() {
   if (loading) return <LoadingScreen />
   if (!user || !token || !matchId) return <Navigate to="/dashboard" replace />
   return (
-    <div className="h-screen w-full bg-[#FDF8F3] p-4">
+    <div className="h-screen w-full bg-[#FDF8F3] p-0 sm:p-4">
       <ChatWindow matchId={matchId} currentUser={user} token={token} />
     </div>
   )
@@ -88,6 +90,7 @@ function AppContent() {
         element={!user ? <Register /> : <Navigate to="/" replace />}
       />
       <Route path="/qr-landing" element={<QrLandingPage />} />
+      <Route path="/privacy" element={<PrivacyPage />} />
 
       <Route element={<AppLayout />}>
         <Route
@@ -248,6 +251,17 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
+        <Toaster
+          position="top-center"
+          toastOptions={{
+            duration: 4000,
+            style: {
+              fontWeight: 700,
+              fontSize: '13px',
+              borderRadius: '16px',
+            },
+          }}
+        />
         <AppContent />
       </AuthProvider>
     </BrowserRouter>

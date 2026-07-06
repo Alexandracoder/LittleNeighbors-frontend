@@ -1,12 +1,14 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { childApi, interestApi } from '../services/api'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'react-hot-toast'
 import type {
   ChildRequestDTO,
   ChildResponseDTO,
   InterestResponseDTO,
 } from '../types'
 import { X, Save, Loader2, Heart, Sparkles, AlignLeft } from 'lucide-react'
+import { translateNickname, generateMagicNickname } from '../utils/nicknames'
 
 interface ChildFormProps {
   initialData?: ChildResponseDTO | null
@@ -22,6 +24,7 @@ export default function ChildForm({
   const { t } = useTranslation()
   const [loading, setLoading] = useState(false)
   const [allInterests, setAllInterests] = useState<InterestResponseDTO[]>([])
+  const nicknameInputRef = useRef<HTMLInputElement>(null)
 
   const [formData, setFormData] = useState<ChildRequestDTO>({
     nickname: '',
@@ -33,14 +36,7 @@ export default function ChildForm({
     description: '',
   })
 
-  const getTranslatedNickname = (nick: string) => {
-    if (!nick || !nick.includes('_')) return nick
-    const [adj, icon] = nick.split('_')
-    return `${t(`nicknames.adjectives.${adj}`, { defaultValue: adj })} ${t(
-      `nicknames.nouns.${icon}`,
-      { defaultValue: icon },
-    )}`
-  }
+  const getTranslatedNickname = (nick: string) => translateNickname(nick, t)
 
   useEffect(() => {
     const loadInterests = async () => {
@@ -67,38 +63,18 @@ export default function ChildForm({
   }, [initialData])
 
   const generateMagicNick = () => {
-    const adjectives = [
-      'magic',
-      'brave',
-      'creative',
-      'explorer',
-      'artist',
-      'captain',
-      'happy',
-      'shiny',
-      'curious',
-      'little',
-    ]
-    const icons = [
-      'lion',
-      'star',
-      'dolphin',
-      'fox',
-      'bear',
-      'wizard',
-      'koala',
-      'astronaut',
-      'rocket',
-      'eagle',
-    ]
-
-    const randomAdj = adjectives[Math.floor(Math.random() * adjectives.length)]
-    const randomIcon = icons[Math.floor(Math.random() * icons.length)]
-
     setFormData(prev => ({
       ...prev,
-      nickname: `${randomAdj}_${randomIcon}`,
+      nickname: generateMagicNickname(),
     }))
+
+    // Seleccionamos el texto generado para que, si el padre/madre cambia de
+    // idea, con solo empezar a escribir se reemplace entero — sin tener que
+    // borrar manualmente el apodo mágico primero.
+    requestAnimationFrame(() => {
+      nicknameInputRef.current?.focus()
+      nicknameInputRef.current?.select()
+    })
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -125,7 +101,7 @@ export default function ChildForm({
       onSuccess(savedChild)
     } catch (err) {
       console.error('Persistence error:', err)
-      alert(t('children.form.errorSave'))
+      toast.error(t('children.form.errorSave'))
     } finally {
       setLoading(false)
     }
@@ -166,6 +142,7 @@ export default function ChildForm({
         </label>
         <div className="relative group">
           <input
+            ref={nicknameInputRef}
             type="text"
             required
             placeholder={t('children.form.nicknamePlaceholder')}
