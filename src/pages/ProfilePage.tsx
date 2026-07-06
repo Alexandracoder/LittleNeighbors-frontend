@@ -20,7 +20,7 @@ import {
   Home,
   Camera,
 } from 'lucide-react'
-import profileBg from '../assets/neighborhood-picnic.png'
+import profileBg from '../assets/for-pregnants.png'
 
 const ProfilePage = () => {
   const navigate = useNavigate()
