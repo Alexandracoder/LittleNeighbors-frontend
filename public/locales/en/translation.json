@@ -320,7 +320,8 @@
       "submitIdle": "Send Proposal",
       "submitLoading": "Sending...",
       "createSuccess": "Playdate proposal sent! 🎉",
-      "createError": "Couldn't create the playdate. Please try again."
+      "createError": "Couldn't create the playdate. Please try again.",
+      "rejectPlan": "Decline"
     },
     "card": {
       "matchRef": "Ref ID"
@@ -339,7 +340,10 @@
       "unverified": "Unverified",
       "loadError": "Couldn't load the schedule. Please try again.",
       "confirmSuccess": "Plan confirmed! 🚀",
-      "confirmError": "Couldn't confirm the playdate. Please try again."
+      "confirmError": "Couldn't confirm the playdate. Please try again.",
+      "waitingForNeighbor": "Waiting for your neighbor's response...",
+      "rejectSuccess": "Plan declined",
+      "rejectError": "Couldn't decline the playdate. Please try again."
     }
   },
   "welcome": {

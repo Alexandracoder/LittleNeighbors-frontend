@@ -27,6 +27,11 @@ const playdateService = {
     const response = await api.patch(`/playdates/${playdateId}/confirm`)
     return response.data
   },
+
+  reject: async (playdateId: number): Promise<Playdate> => {
+    const response = await api.patch(`/playdates/${playdateId}/reject`)
+    return response.data
+  },
 }
 
 export default playdateService

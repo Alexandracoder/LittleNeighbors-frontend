@@ -320,7 +320,8 @@
       "submitIdle": "Enviar Propuesta",
       "submitLoading": "Enviando...",
       "createSuccess": "¡Propuesta de quedada enviada! 🎉",
-      "createError": "No se pudo crear la quedada. Inténtalo de nuevo."
+      "createError": "No se pudo crear la quedada. Inténtalo de nuevo.",
+      "rejectPlan": "Rechazar"
     },
     "card": {
       "matchRef": "ID Ref"
@@ -339,7 +340,10 @@
       "unverified": "Sin verificar",
       "loadError": "No se pudo cargar la agenda. Inténtalo de nuevo.",
       "confirmSuccess": "¡Plan confirmado! 🚀",
-      "confirmError": "No se pudo confirmar la quedada. Inténtalo de nuevo."
+      "confirmError": "No se pudo confirmar la quedada. Inténtalo de nuevo.",
+      "waitingForNeighbor": "Esperando respuesta de tu vecino...",
+      "rejectSuccess": "Plan rechazado",
+      "rejectError": "No se pudo rechazar la quedada. Inténtalo de nuevo."
     }
   },
   "welcome": {

@@ -13,6 +13,7 @@ import { toast } from 'react-hot-toast'
 import { Client } from '@stomp/stompjs'
 import SockJS from 'sockjs-client'
 import playdateService from '../services/playdateService'
+import { familyApi } from '../services/api'
 import dashboardBg from '../assets/new-at-neigborhood.png'
 import { Playdate } from '../types'
 
@@ -28,7 +29,15 @@ const SchedulesPage: React.FC = () => {
   const [playdates, setPlaydates] = useState<Playdate[]>([])
   const [loading, setLoading] = useState(true)
   const [actionLoading, setActionLoading] = useState<number | null>(null)
+  const [myFamilyId, setMyFamilyId] = useState<number | null>(null)
   const stompClient = useRef<Client | null>(null)
+
+  useEffect(() => {
+    familyApi
+      .getMyFamily()
+      .then(family => setMyFamilyId(family?.id ?? null))
+      .catch(err => console.error('Error loading my family:', err))
+  }, [])
 
 
   const fetchPlaydates = useCallback(async () => {
@@ -102,6 +111,25 @@ const SchedulesPage: React.FC = () => {
         t(
           'playdates.status.confirmError',
           'No se pudo confirmar la quedada. Inténtalo de nuevo.',
+        ),
+      )
+    } finally {
+      setActionLoading(null)
+    }
+  }
+
+  const handleReject = async (playdateId: number) => {
+    setActionLoading(playdateId)
+    try {
+      await playdateService.reject(playdateId)
+      await fetchPlaydates()
+      toast(t('playdates.status.rejectSuccess', 'Plan rechazado'), { icon: '👋' })
+    } catch (error) {
+      console.error('Error rejecting playdate:', error)
+      toast.error(
+        t(
+          'playdates.status.rejectError',
+          'No se pudo rechazar la quedada. Inténtalo de nuevo.',
         ),
       )
     } finally {
@@ -269,25 +297,62 @@ const SchedulesPage: React.FC = () => {
                   </div>
 
                   {/* ACCIÓN DE CONFIRMACIÓN */}
-                  {!isAccepted ? (
-                    <button
-                      onClick={() => handleConfirm(pd.id)}
-                      disabled={actionLoading === pd.id}
-                      className="mt-6 w-full bg-[#F28749] hover:bg-[#e0763a] disabled:opacity-50 text-white py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] transition-all shadow-lg active:scale-[0.98] flex items-center justify-center gap-2"
-                    >
-                      {actionLoading === pd.id
-                        ? t('playdates.status.confirming', 'Confirmando...')
-                        : t('playdates.form.confirmPlan', 'Confirmar Plan')}
-                    </button>
-                  ) : (
-                    <div className="mt-6 w-full bg-green-50 border border-green-100 text-green-600 py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] flex items-center justify-center gap-2">
-                      <CheckCircle2 size={16} />
-                      {t(
-                        'playdates.status.planConfirmed',
-                        '¡Plan Confirmado! 🚀',
-                      )}
-                    </div>
-                  )}
+                  {(() => {
+                    if (isAccepted) {
+                      return (
+                        <div className="mt-6 w-full bg-green-50 border border-green-100 text-green-600 py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] flex items-center justify-center gap-2">
+                          <CheckCircle2 size={16} />
+                          {t(
+                            'playdates.status.planConfirmed',
+                            '¡Plan Confirmado! 🚀',
+                          )}
+                        </div>
+                      )
+                    }
+
+                    // BUG reportado: antes cualquiera de las dos personas
+                    // veía el botón "Confirmar", incluida la que había
+                    // propuesto el plan — así que la propia creadora podía
+                    // auto-confirmarlo y la otra familia nunca llegaba a
+                    // decidir nada. Ahora solo se muestran los botones de
+                    // confirmar/rechazar a quien NO la creó.
+                    const isCreator =
+                      pd.createdByFamilyId != null &&
+                      myFamilyId != null &&
+                      pd.createdByFamilyId === myFamilyId
+
+                    if (isCreator) {
+                      return (
+                        <div className="mt-6 w-full bg-orange-50 border border-orange-100 text-orange-500 py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] flex items-center justify-center gap-2">
+                          {t(
+                            'playdates.status.waitingForNeighbor',
+                            'Esperando respuesta de tu vecino...',
+                          )}
+                        </div>
+                      )
+                    }
+
+                    return (
+                      <div className="mt-6 flex gap-3">
+                        <button
+                          onClick={() => handleReject(pd.id)}
+                          disabled={actionLoading === pd.id}
+                          className="flex-1 bg-white border-2 border-gray-200 hover:border-red-300 hover:text-red-500 disabled:opacity-50 text-gray-500 py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] transition-all active:scale-[0.98]"
+                        >
+                          {t('playdates.form.rejectPlan', 'Rechazar')}
+                        </button>
+                        <button
+                          onClick={() => handleConfirm(pd.id)}
+                          disabled={actionLoading === pd.id}
+                          className="flex-1 bg-[#F28749] hover:bg-[#e0763a] disabled:opacity-50 text-white py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] transition-all shadow-lg active:scale-[0.98] flex items-center justify-center gap-2"
+                        >
+                          {actionLoading === pd.id
+                            ? t('playdates.status.confirming', 'Confirmando...')
+                            : t('playdates.form.confirmPlan', 'Confirmar Plan')}
+                        </button>
+                      </div>
+                    )
+                  })()}
                 </div>
               )
             })}

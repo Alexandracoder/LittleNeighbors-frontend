@@ -240,6 +240,7 @@ export interface Playdate {
   createdAt: string
   updatedAt?: string
   neighborName?: string
+  createdByFamilyId?: number | null
 }
 
 export interface PlaydateRequest {

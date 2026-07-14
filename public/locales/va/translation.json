@@ -320,7 +320,8 @@
       "submitIdle": "Enviar Proposta",
       "submitLoading": "Enviant...",
       "createSuccess": "Proposta de quedada enviada! 🎉",
-      "createError": "No s'ha pogut crear la quedada. Torna-ho a provar."
+      "createError": "No s'ha pogut crear la quedada. Torna-ho a provar.",
+      "rejectPlan": "Rebutjar"
     },
     "card": {
       "matchRef": "ID Ref"
@@ -339,7 +340,10 @@
       "unverified": "Sense verificar",
       "loadError": "No s'ha pogut carregar l'agenda. Torna-ho a provar.",
       "confirmSuccess": "Pla confirmat! 🚀",
-      "confirmError": "No s'ha pogut confirmar la quedada. Torna-ho a provar."
+      "confirmError": "No s'ha pogut confirmar la quedada. Torna-ho a provar.",
+      "waitingForNeighbor": "Esperant resposta del teu veí...",
+      "rejectSuccess": "Pla rebutjat",
+      "rejectError": "No s'ha pogut rebutjar la quedada. Torna-ho a provar."
     }
   },
   "welcome": {
