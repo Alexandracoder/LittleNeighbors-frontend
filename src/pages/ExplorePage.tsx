@@ -74,6 +74,7 @@ export default function ExplorePage() {
   const [ageRange, setAgeRange] = useState<{ min: number; max: number } | null>(
     null,
   )
+  const [includePregnant, setIncludePregnant] = useState(false)
 
   const getTranslatedNickname = (nickname: string, gender: string) =>
     translateNicknameOrDefault(nickname, gender, t)
@@ -117,6 +118,7 @@ export default function ExplorePage() {
         maxAge: ageRange ? ageRange.max : 12,
         interestIds:
           selectedInterestIds.length > 0 ? selectedInterestIds : undefined,
+        includePregnant,
         scope: searchMode,
       }
 
@@ -136,7 +138,7 @@ setFamilies(uniqueFamilies)
     } finally {
       setLoading(false)
     }
-  }, [myChildId, ageRange, selectedInterestIds, searchMode])
+  }, [myChildId, ageRange, selectedInterestIds, includePregnant, searchMode])
 
   useEffect(() => {
     loadFamilies()
@@ -167,8 +169,9 @@ setFamilies(uniqueFamilies)
     let count = 0
     if (ageRange) count++
     if (selectedInterestIds.length > 0) count += selectedInterestIds.length
+    if (includePregnant) count++
     return count
-  }, [ageRange, selectedInterestIds])
+  }, [ageRange, selectedInterestIds, includePregnant])
 
   
   const familiesWithCoordinates = useMemo(() => {
@@ -348,6 +351,39 @@ setFamilies(uniqueFamilies)
               </button>
             </div>
             <div className="flex flex-col gap-6">
+              <div>
+                <label className="text-[9px] font-black text-[#F28749] uppercase tracking-[0.2em] mb-2 block">
+                  {t('explore.filters.pregnancyLabel', 'Familias embarazadas')}
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setIncludePregnant(prev => !prev)}
+                  className={`w-full flex items-center justify-between gap-3 rounded-2xl px-4 py-3.5 border text-xs font-bold transition-all ${
+                    includePregnant
+                      ? 'bg-[#F28749] border-[#F28749] text-white'
+                      : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10'
+                  }`}
+                >
+                  <span className="flex items-center gap-2">
+                    <span className="text-lg">🤰</span>
+                    {t(
+                      'explore.filters.pregnancyToggle',
+                      'Mostrar también familias en camino',
+                    )}
+                  </span>
+                  <span
+                    className={`w-10 h-6 rounded-full relative transition-all ${
+                      includePregnant ? 'bg-white/30' : 'bg-black/20'
+                    }`}
+                  >
+                    <span
+                      className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow-md transition-all ${
+                        includePregnant ? 'left-[18px]' : 'left-0.5'
+                      }`}
+                    />
+                  </span>
+                </button>
+              </div>
               <div>
                 <label className="text-[9px] font-black text-[#F28749] uppercase tracking-[0.2em] mb-2 block">
                   {t('explore.filters.ageRangeLabel')}

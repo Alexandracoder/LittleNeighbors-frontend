@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Bell, Calendar, Heart, MessageCircle, Sparkles, X } from 'lucide-react'
 import { Client } from '@stomp/stompjs'
 import SockJS from 'sockjs-client'
@@ -12,16 +13,21 @@ interface Notification {
   message: string
   type:
     | 'EVENT_CREATED'
+    | 'EVENT_UPDATED'
+    | 'EVENT_CANCELLED'
     | 'MATCH_SUCCESS'
+    | 'MATCH_CONFIRMED'
     | 'CHAT_MESSAGE'
     | 'PLAYDATE_REQUEST'
     | 'SYSTEM'
+  relatedId: number | null
   isRead: boolean
   createdAt: string
 }
 
 export default function NotificationBell() {
   const { t } = useTranslation()
+  const navigate = useNavigate()
   const [isOpen, setIsOpen] = useState(false)
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
@@ -80,13 +86,44 @@ export default function NotificationBell() {
     }
   }
 
+  // Lleva al usuario al sitio correspondiente según el tipo de notificación.
+  // relatedId apunta a: matchId (chat/match/solicitud de quedada) o
+  // eventId (eventos de barrio). Antes solo se marcaba como leída y no
+  // pasaba nada más al hacer click.
+  const handleNotificationClick = (notification: Notification) => {
+    if (!notification.isRead) markAsRead(notification.id)
+    setIsOpen(false)
+
+    switch (notification.type) {
+      case 'CHAT_MESSAGE':
+      case 'MATCH_SUCCESS':
+      case 'MATCH_CONFIRMED':
+      case 'PLAYDATE_REQUEST':
+        if (notification.relatedId) {
+          navigate(`/chat/${notification.relatedId}`)
+        }
+        break
+      case 'EVENT_CREATED':
+      case 'EVENT_UPDATED':
+      case 'EVENT_CANCELLED':
+        navigate('/events')
+        break
+      default:
+        // SYSTEM u otros tipos sin destino claro: solo se marca como leída.
+        break
+    }
+  }
+
   const getIcon = (type: string) => {
     switch (type) {
       case 'EVENT_CREATED':
+      case 'EVENT_UPDATED':
+      case 'EVENT_CANCELLED':
         return (
           <Calendar className="w-4 h-4 text-orange-400" aria-hidden="true" />
         )
       case 'MATCH_SUCCESS':
+      case 'MATCH_CONFIRMED':
         return <Heart className="w-4 h-4 text-pink-400" aria-hidden="true" />
       case 'PLAYDATE_REQUEST':
         return (
@@ -169,7 +206,7 @@ export default function NotificationBell() {
                 notifications.map(notification => (
                   <div
                     key={notification.id}
-                    onClick={() => markAsRead(notification.id)}
+                    onClick={() => handleNotificationClick(notification)}
                     className={`p-4 border-b border-white/5 cursor-pointer transition-colors hover:bg-white/5 flex gap-3 ${
                       !notification.isRead ? 'bg-orange-500/5' : 'opacity-60'
                     }`}

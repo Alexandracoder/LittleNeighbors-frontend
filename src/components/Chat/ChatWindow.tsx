@@ -13,6 +13,7 @@ import { Client } from '@stomp/stompjs'
 import SockJS from 'sockjs-client'
 import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
+import { toast } from 'react-hot-toast'
 import api, { WS_BASE_URL } from '../../services/api'
 import matchService from '../../services/matchService'
 import forPregnantsBg from '../../assets/for-pregnants.png'
@@ -262,6 +263,18 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                 }
               } catch (e) {
                 console.error(e)
+                // matchService ya re-lanza un Error con el mensaje que
+                // manda el backend en "message" (p.ej. el aviso cálido del
+                // límite semanal de conexiones). Antes esto se perdía en
+                // consola y el usuario no se enteraba de nada.
+                const msg =
+                  e instanceof Error && e.message
+                    ? e.message
+                    : t(
+                        'chat.confirmError',
+                        'No se pudo confirmar el match. Inténtalo de nuevo.',
+                      )
+                toast.error(msg, { duration: 6000 })
               }
             }}
             className="bg-gray-800 text-[#FF9E91] px-3 sm:px-4 py-2 rounded-2xl text-[9px] sm:text-[10px] font-black border border-[#FF9E91] shadow-sm active:scale-95 transition-all shrink-0 whitespace-nowrap"

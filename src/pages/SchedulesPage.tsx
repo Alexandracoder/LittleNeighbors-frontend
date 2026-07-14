@@ -9,6 +9,7 @@ import {
   Plus,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'react-hot-toast'
 import { Client } from '@stomp/stompjs'
 import SockJS from 'sockjs-client'
 import playdateService from '../services/playdateService'
@@ -41,6 +42,12 @@ const SchedulesPage: React.FC = () => {
       }
     } catch (error) {
       console.error('Error fetching playdates:', error)
+      toast.error(
+        t(
+          'playdates.status.loadError',
+          'No se pudo cargar la agenda. Inténtalo de nuevo.',
+        ),
+      )
     } finally {
       setLoading(false)
     }
@@ -88,8 +95,15 @@ const SchedulesPage: React.FC = () => {
     try {
       await playdateService.confirm(playdateId)
       await fetchPlaydates()
+      toast.success(t('playdates.status.confirmSuccess', '¡Plan confirmado! 🚀'))
     } catch (error) {
       console.error('Error confirming playdate:', error)
+      toast.error(
+        t(
+          'playdates.status.confirmError',
+          'No se pudo confirmar la quedada. Inténtalo de nuevo.',
+        ),
+      )
     } finally {
       setActionLoading(null)
     }

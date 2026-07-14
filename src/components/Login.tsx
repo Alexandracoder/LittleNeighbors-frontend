@@ -12,6 +12,7 @@ export default function Login() {
   const navigate = useNavigate()
 
   const [showForm, setShowForm] = useState(false)
+  const [bgLoaded, setBgLoaded] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -59,13 +60,28 @@ export default function Login() {
         ))}
       </div>
 
-      {/* Imagen de fondo con blur dinámico */}
+      {/* Imagen de fondo con blur dinámico.
+          Antes esto era un <div> con backgroundImage por CSS: el navegador
+          no le da prioridad de descarga y, sobre todo justo después de un
+          logout (recarga completa de la página), se veía primero el botón
+          y unos instantes después la foto. Ahora usamos:
+          1) un degradado de marca como fondo instantáneo (sin blanco/vacío)
+          2) una <img> real (loading="eager") que hace fade-in suave al
+             terminar de cargar, en vez de aparecer de golpe. */}
       <div
-        className="absolute inset-0 z-0 transition-all duration-1000 ease-in-out"
+        className="absolute inset-0 z-0 bg-gradient-to-br from-[#FF8A5C] via-[#F28749] to-[#e0763d]"
+        aria-hidden="true"
+      />
+      <img
+        src={loginBg}
+        alt=""
+        aria-hidden="true"
+        loading="eager"
+        decoding="async"
+        onLoad={() => setBgLoaded(true)}
+        className="absolute inset-0 z-0 w-full h-full object-cover transition-all duration-1000 ease-in-out"
         style={{
-          backgroundImage: `url(${loginBg})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
+          opacity: bgLoaded ? 1 : 0,
           filter: showForm
             ? 'blur(8px) brightness(0.6)'
             : 'blur(0px) brightness(0.95)',

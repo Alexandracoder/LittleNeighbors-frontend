@@ -144,6 +144,7 @@ export interface ChildSummaryDTO {
 export interface ChildRequestDTO {
   nickname: string
   birthDate: string
+  dueDate?: string
   lifeStage: string
   gender: 'BOY' | 'GIRL' | 'SURPRISE' | 'PREGNANT'
   description?: string
@@ -159,6 +160,7 @@ export interface ChildResponseDTO {
   lifeStage: string
   description?: string
   birthDate: string
+  dueDate?: string
   age: number
   interests: InterestResponseDTO[]
   familyId: number
@@ -245,8 +247,13 @@ export interface PlaydateRequest {
   startTime: string
   description?: string
   matchId: number
-  location: string
-  status: 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'CANCELLED'
+  // El backend no tiene columna "location" en playdates, y "status"
+  // siempre lo fija el servidor (PENDING al crear). Se dejan opcionales
+  // por si en el futuro se añaden, pero no deben ser obligatorios: antes
+  // esto hacía que TypeScript marcara como inválida la llamada real que sí
+  // coincide con lo que espera el backend (AddPlaydatePage.tsx).
+  location?: string
+  status?: 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'CANCELLED'
 }
 
 // ==========================================

@@ -7,6 +7,7 @@ import {
   AlignLeft,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'react-hot-toast'
 import DatePicker, { registerLocale } from 'react-datepicker'
 import { format } from 'date-fns'
 import { enUS as en } from 'date-fns/locale'
@@ -51,9 +52,18 @@ export default function AddPlaydatePage() {
         matchId: Number(matchId),
       })
 
+      toast.success(
+        t('playdates.form.createSuccess', '¡Propuesta de quedada enviada! 🎉'),
+      )
       navigate(`/schedules/${matchId}`)
     } catch (error) {
       console.error('Error:', error)
+      toast.error(
+        t(
+          'playdates.form.createError',
+          'No se pudo crear la quedada. Inténtalo de nuevo.',
+        ),
+      )
     } finally {
 
       setLoading(false)

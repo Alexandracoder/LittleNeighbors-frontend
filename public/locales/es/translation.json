@@ -102,7 +102,8 @@
       "descriptionFallback": "¡Buscando nuevos amigos en la comunidad!",
       "selectPlaymate": "Elige con quién hablar:",
       "newborn": "RECIÉN NACIDO RECOMENDADO",
-      "yearsOldSuffix": "AÑOS"
+      "yearsOldSuffix": "AÑOS",
+      "pregnant": "Embarazada"
     }
   },
   "children": {
@@ -134,7 +135,9 @@
       "submitUpdate": "ACTUALIZAR PERFIL",
       "errorSave": "Error al guardar perfil. Inténtalo de nuevo.",
       "bioLabel": "Biografía",
-      "bioPlaceholder": "Cuéntanos un poco sobre..."
+      "bioPlaceholder": "Cuéntanos un poco sobre...",
+      "dueDateLabel": "Fecha prevista de parto",
+      "genderPregnant": "Embarazada 🤰"
     },
     "card": {
       "titleBoy": "Niño",
@@ -190,7 +193,9 @@
       "ageRangePreschoolers": "Preescolar (3-5)",
       "ageRangeSchool": "Edad escolar (6+)",
       "interestsLabel": "Intereses",
-      "clearAll": "Limpiar filtros"
+      "clearAll": "Limpiar filtros",
+      "pregnancyLabel": "Familias embarazadas",
+      "pregnancyToggle": "Mostrar también familias en camino"
     },
     "errorProfile": "Por favor, completa primero el perfil de tu familia.",
     "errorFamilies": "No se encontraron familias."
@@ -222,7 +227,8 @@
       "match": "¡MATCH!",
       "aiThinking": "IA pensando..."
     },
-    "titleWith": "Chat con {{name}}"
+    "titleWith": "Chat con {{name}}",
+    "confirmError": "No se pudo confirmar el match. Inténtalo de nuevo."
   },
   "matches": {
     "title": "Mis Chats",
@@ -312,7 +318,9 @@
       "detailsPlaceholder": "¿Algo más que deba saber tu vecino?",
       "confirmPlan": "Confirmar este plan",
       "submitIdle": "Enviar Propuesta",
-      "submitLoading": "Enviando..."
+      "submitLoading": "Enviando...",
+      "createSuccess": "¡Propuesta de quedada enviada! 🎉",
+      "createError": "No se pudo crear la quedada. Inténtalo de nuevo."
     },
     "card": {
       "matchRef": "ID Ref"
@@ -328,7 +336,10 @@
       "proposedLocation": "Ubicación Propuesta",
       "planConfirmed": "¡Genial! Hay un plan",
       "tapToSuggest": "Toca para sugerir el primer plan",
-      "unverified": "Sin verificar"
+      "unverified": "Sin verificar",
+      "loadError": "No se pudo cargar la agenda. Inténtalo de nuevo.",
+      "confirmSuccess": "¡Plan confirmado! 🚀",
+      "confirmError": "No se pudo confirmar la quedada. Inténtalo de nuevo."
     }
   },
   "welcome": {
@@ -421,7 +432,14 @@
     "wind band music": "Música de banda",
     "albufera boat trips": "Paseos en barca por la Albufera",
     "calderona mountain hiking": "Senderismo por la Calderona",
-    "robotics at city of arts": "Robótica en la Ciudad de las Artes"
+    "robotics at city of arts": "Robótica en la Ciudad de las Artes",
+    "pregnancy yoga": "Yoga prenatal",
+    "birth preparation classes": "Clases de preparación al parto",
+    "postpartum support": "Apoyo postparto",
+    "breastfeeding support": "Apoyo a la lactancia",
+    "maternity walks": "Paseos para embarazadas",
+    "pregnancy swimming": "Natación para embarazadas",
+    "baby shower planning": "Organización de baby shower"
   },
   "nicknames": {
     "adjectives": {

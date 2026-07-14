@@ -102,7 +102,8 @@
       "descriptionFallback": "Looking for new friends in the community!",
       "selectPlaymate": "Choose someone to talk to:",
       "newborn": "RECOMMENDED NEWBORN",
-      "yearsOldSuffix": "YEARS OLD"
+      "yearsOldSuffix": "YEARS OLD",
+      "pregnant": "Expecting"
     }
   },
   "children": {
@@ -134,7 +135,9 @@
       "submitUpdate": "UPDATE PROFILE",
       "errorSave": "Error saving profile. Try again.",
       "bioLabel": "Biography",
-      "bioPlaceholder": "Tell us a bit about..."
+      "bioPlaceholder": "Tell us a bit about...",
+      "dueDateLabel": "Due date",
+      "genderPregnant": "Pregnant 🤰"
     },
     "card": {
       "titleBoy": "Boy",
@@ -190,7 +193,9 @@
       "ageRangePreschoolers": "Preschool (3-5)",
       "ageRangeSchool": "School age (6+)",
       "interestsLabel": "Interests",
-      "clearAll": "Clear filters"
+      "clearAll": "Clear filters",
+      "pregnancyLabel": "Pregnant families",
+      "pregnancyToggle": "Also show families expecting a baby"
     },
     "errorProfile": "Please complete your family profile first.",
     "errorFamilies": "No families found."
@@ -222,7 +227,8 @@
       "match": "MATCH!",
       "aiThinking": "AI Thinking..."
     },
-    "titleWith": "Chat with {{name}}"
+    "titleWith": "Chat with {{name}}",
+    "confirmError": "Couldn't confirm the match. Please try again."
   },
   "matches": {
     "title": "My Chats",
@@ -312,7 +318,9 @@
       "detailsPlaceholder": "Anything else your neighbor should know?",
       "confirmPlan": "Confirm this plan",
       "submitIdle": "Send Proposal",
-      "submitLoading": "Sending..."
+      "submitLoading": "Sending...",
+      "createSuccess": "Playdate proposal sent! 🎉",
+      "createError": "Couldn't create the playdate. Please try again."
     },
     "card": {
       "matchRef": "Ref ID"
@@ -328,7 +336,10 @@
       "proposedLocation": "Proposed Location",
       "planConfirmed": "Great! There's a plan",
       "tapToSuggest": "Tap to suggest the first plan",
-      "unverified": "Unverified"
+      "unverified": "Unverified",
+      "loadError": "Couldn't load the schedule. Please try again.",
+      "confirmSuccess": "Plan confirmed! 🚀",
+      "confirmError": "Couldn't confirm the playdate. Please try again."
     }
   },
   "welcome": {
@@ -421,7 +432,14 @@
     "wind band music": "Wind Band Music",
     "albufera boat trips": "Albufera Boat Trips",
     "calderona mountain hiking": "Calderona Mountain Hiking",
-    "robotics at city of arts": "Robotics at the City of Arts"
+    "robotics at city of arts": "Robotics at the City of Arts",
+    "pregnancy yoga": "Pregnancy Yoga",
+    "birth preparation classes": "Birth Preparation Classes",
+    "postpartum support": "Postpartum Support",
+    "breastfeeding support": "Breastfeeding Support",
+    "maternity walks": "Maternity Walks",
+    "pregnancy swimming": "Pregnancy Swimming",
+    "baby shower planning": "Baby Shower Planning"
   },
   "nicknames": {
     "adjectives": {

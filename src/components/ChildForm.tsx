@@ -32,6 +32,7 @@ export default function ChildForm({
     lifeStage: 'PREGNANCY',
     age: 0,
     birthDate: '',
+    dueDate: '',
     interestIds: [],
     description: '',
   })
@@ -56,6 +57,7 @@ export default function ChildForm({
         lifeStage: initialData.lifeStage as any,
         age: initialData.age ?? 0,
         birthDate: initialData.birthDate || '',
+        dueDate: initialData.dueDate || '',
         interestIds: initialData.interests?.map(i => i.id) || [],
         description: initialData.description || '',
       })
@@ -88,6 +90,7 @@ export default function ChildForm({
       ...formData,
       nickname: sanitizedNickname,
       birthDate: formData.lifeStage === 'BORN' ? formData.birthDate : '',
+      dueDate: formData.lifeStage === 'PREGNANCY' ? formData.dueDate : '',
       age: formData.lifeStage === 'PREGNANCY' ? 0 : Number(formData.age),
     }
 
@@ -203,7 +206,7 @@ export default function ChildForm({
               {t('children.form.genderSurprise')}
             </option>
             <option value="PREGNANT">
-              {t('children.form.genderPregnant', 'Embarazada')}
+              {t('children.form.genderPregnant')}
             </option>
           </select>
         </div>
@@ -220,6 +223,23 @@ export default function ChildForm({
               value={formData.birthDate}
               onChange={e =>
                 setFormData({ ...formData, birthDate: e.target.value })
+              }
+              className="w-full p-4 bg-gray-50 border-2 border-transparent focus:border-[#FF8A5C] rounded-2xl font-bold outline-none"
+            />
+          </div>
+        )}
+
+        {formData.lifeStage === 'PREGNANCY' && (
+          <div className="space-y-3 md:col-span-2 animate-in fade-in slide-in-from-top-2 duration-300">
+            <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">
+              {t('children.form.dueDateLabel', 'Fecha prevista de parto')}
+            </label>
+            <input
+              type="date"
+              min={today}
+              value={formData.dueDate}
+              onChange={e =>
+                setFormData({ ...formData, dueDate: e.target.value })
               }
               className="w-full p-4 bg-gray-50 border-2 border-transparent focus:border-[#FF8A5C] rounded-2xl font-bold outline-none"
             />

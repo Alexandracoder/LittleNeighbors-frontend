@@ -121,6 +121,8 @@ export const familyApi = {
     minAge: number
     maxAge: number
     interestIds?: number[]
+    includePregnant?: boolean
+    scope?: 'neighborhood' | 'city'
   }): Promise<FamilyResponseDTO[]> => {
     const response = await api.get<FamilyResponseDTO[]>('/families/explore', {
       params: {
@@ -130,6 +132,8 @@ export const familyApi = {
         ...(filters.interestIds && filters.interestIds.length > 0
           ? { interestIds: filters.interestIds }
           : {}),
+        ...(filters.includePregnant ? { includePregnant: true } : {}),
+        ...(filters.scope === 'city' ? { citywide: true } : {}),
       },
     })
     return response.data

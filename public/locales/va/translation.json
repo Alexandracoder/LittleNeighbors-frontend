@@ -102,7 +102,8 @@
       "descriptionFallback": "Buscant nous amics en la comunitat!",
       "selectPlaymate": "Tria amb qui parlar:",
       "newborn": "ACABAT DE NAIXER RECOMANAT",
-      "yearsOldSuffix": "ANYS"
+      "yearsOldSuffix": "ANYS",
+      "pregnant": "Embarassada"
     }
   },
   "children": {
@@ -134,7 +135,9 @@
       "submitUpdate": "ACTUALITZAR PERFIL",
       "errorSave": "Error en guardar perfil. Torna a intentar-ho.",
       "bioLabel": "Biografia",
-      "bioPlaceholder": "Conta'ns una miqueta sobre..."
+      "bioPlaceholder": "Conta'ns una miqueta sobre...",
+      "dueDateLabel": "Data prevista de part",
+      "genderPregnant": "Embarassada 🤰"
     },
     "card": {
       "titleBoy": "Xiquet",
@@ -190,7 +193,9 @@
       "ageRangePreschoolers": "Preescolar (3-5)",
       "ageRangeSchool": "Edat escolar (6+)",
       "interestsLabel": "Interessos",
-      "clearAll": "Netejar filtres"
+      "clearAll": "Netejar filtres",
+      "pregnancyLabel": "Famílies embarassades",
+      "pregnancyToggle": "Mostrar també famílies en camí"
     },
     "errorProfile": "Per favor, completa primer el perfil de la teua família.",
     "errorFamilies": "No s'han trobat famílies."
@@ -222,7 +227,8 @@
       "match": "¡MATCH!",
       "aiThinking": "IA pensant..."
     },
-    "titleWith": "Xat amb {{name}}"
+    "titleWith": "Xat amb {{name}}",
+    "confirmError": "No s'ha pogut confirmar el match. Torna-ho a provar."
   },
   "matches": {
     "title": "Els meus Xats",
@@ -312,7 +318,9 @@
       "detailsPlaceholder": "Alguna cosa més que haja de saber el teu veí?",
       "confirmPlan": "Confirmar este pla",
       "submitIdle": "Enviar Proposta",
-      "submitLoading": "Enviant..."
+      "submitLoading": "Enviant...",
+      "createSuccess": "Proposta de quedada enviada! 🎉",
+      "createError": "No s'ha pogut crear la quedada. Torna-ho a provar."
     },
     "card": {
       "matchRef": "ID Ref"
@@ -328,7 +336,10 @@
       "proposedLocation": "Ubicació Proposada",
       "planConfirmed": "Genial! Hi ha un pla",
       "tapToSuggest": "Toca per a suggerir el primer pla",
-      "unverified": "Sense verificar"
+      "unverified": "Sense verificar",
+      "loadError": "No s'ha pogut carregar l'agenda. Torna-ho a provar.",
+      "confirmSuccess": "Pla confirmat! 🚀",
+      "confirmError": "No s'ha pogut confirmar la quedada. Torna-ho a provar."
     }
   },
   "welcome": {
@@ -421,7 +432,14 @@
     "wind band music": "Música de banda",
     "albufera boat trips": "Passejos en barca per l'Albufera",
     "calderona mountain hiking": "Senderisme per la Calderona",
-    "robotics at city of arts": "Robòtica a la Ciutat de les Arts"
+    "robotics at city of arts": "Robòtica a la Ciutat de les Arts",
+    "pregnancy yoga": "Ioga prenatal",
+    "birth preparation classes": "Classes de preparació al part",
+    "postpartum support": "Suport postpart",
+    "breastfeeding support": "Suport a la lactància",
+    "maternity walks": "Passejades per a embarassades",
+    "pregnancy swimming": "Natació per a embarassades",
+    "baby shower planning": "Organització de baby shower"
   },
   "nicknames": {
     "adjectives": {

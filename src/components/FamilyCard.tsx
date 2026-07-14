@@ -137,7 +137,11 @@ export default function FamilyCard({
             >
               <div className="flex items-center gap-4 z-10">
                 <span className="text-2xl drop-shadow-md group-hover/item:scale-110 transition-transform">
-                  {child.gender === 'BOY' ? '👦' : '👧'}
+                  {child.lifeStage === 'PREGNANCY'
+                    ? '🤰'
+                    : child.gender === 'BOY'
+                      ? '👦'
+                      : '👧'}
                 </span>
                 <div className="text-left">
                   <div
@@ -153,9 +157,11 @@ export default function FamilyCard({
                       isConnecting ? 'text-[#333D47]/60' : 'text-white/40'
                     }`}
                   >
-                    {child.age === 0
-                      ? t('family.card.newborn')
-                      : `${child.age} ${t('family.card.yearsOldSuffix')}`}
+                    {child.lifeStage === 'PREGNANCY'
+                      ? t('family.card.pregnant', 'Embarazada')
+                      : child.age === 0
+                        ? t('family.card.newborn')
+                        : `${child.age} ${t('family.card.yearsOldSuffix')}`}
                   </div>
                 </div>
               </div>
