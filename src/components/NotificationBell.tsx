@@ -1,9 +1,17 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Bell, Calendar, Heart, MessageCircle, Sparkles, X } from 'lucide-react'
+import {
+  Bell,
+  Calendar,
+  Heart,
+  MessageCircle,
+  Sparkles,
+  X,
+  XCircle,
+} from 'lucide-react'
 import { Client } from '@stomp/stompjs'
 import SockJS from 'sockjs-client'
-// Importamos WS_BASE_URL directamente desde api.ts
+
 import { notificationApi, WS_BASE_URL } from '../services/api'
 import { useTranslation } from 'react-i18next'
 
@@ -19,6 +27,7 @@ interface Notification {
     | 'MATCH_CONFIRMED'
     | 'CHAT_MESSAGE'
     | 'PLAYDATE_REQUEST'
+    | 'PLAYDATE_REJECTED'
     | 'SYSTEM'
   relatedId: number | null
   isRead: boolean
@@ -86,10 +95,6 @@ export default function NotificationBell() {
     }
   }
 
-  // Lleva al usuario al sitio correspondiente según el tipo de notificación.
-  // relatedId apunta a: matchId (chat/match/solicitud de quedada) o
-  // eventId (eventos de barrio). Antes solo se marcaba como leída y no
-  // pasaba nada más al hacer click.
   const handleNotificationClick = (notification: Notification) => {
     if (!notification.isRead) markAsRead(notification.id)
     setIsOpen(false)
@@ -97,10 +102,15 @@ export default function NotificationBell() {
     switch (notification.type) {
       case 'CHAT_MESSAGE':
       case 'MATCH_SUCCESS':
-      case 'MATCH_CONFIRMED':
-      case 'PLAYDATE_REQUEST':
         if (notification.relatedId) {
           navigate(`/chat/${notification.relatedId}`)
+        }
+        break
+      case 'MATCH_CONFIRMED':
+      case 'PLAYDATE_REQUEST':
+      case 'PLAYDATE_REJECTED':
+        if (notification.relatedId) {
+          navigate(`/schedules/${notification.relatedId}`)
         }
         break
       case 'EVENT_CREATED':
@@ -109,7 +119,6 @@ export default function NotificationBell() {
         navigate('/events')
         break
       default:
-        // SYSTEM u otros tipos sin destino claro: solo se marca como leída.
         break
     }
   }
@@ -129,6 +138,8 @@ export default function NotificationBell() {
         return (
           <Sparkles className="w-4 h-4 text-purple-400" aria-hidden="true" />
         )
+      case 'PLAYDATE_REJECTED':
+        return <XCircle className="w-4 h-4 text-gray-400" aria-hidden="true" />
       case 'CHAT_MESSAGE':
         return (
           <MessageCircle className="w-4 h-4 text-blue-400" aria-hidden="true" />

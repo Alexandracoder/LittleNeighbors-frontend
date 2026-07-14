@@ -6,6 +6,7 @@ import {
   MapPin,
   Clock,
   CheckCircle2,
+  XCircle,
   Plus,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -19,7 +20,7 @@ import { Playdate } from '../types'
 
 const ENV_API_URL =
   import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'
-const WS_BASE_URL = ENV_API_URL.replace('/api', '') 
+const WS_BASE_URL = ENV_API_URL.replace('/api', '')
 
 const SchedulesPage: React.FC = () => {
   const { t, i18n } = useTranslation()
@@ -38,7 +39,6 @@ const SchedulesPage: React.FC = () => {
       .then(family => setMyFamilyId(family?.id ?? null))
       .catch(err => console.error('Error loading my family:', err))
   }, [])
-
 
   const fetchPlaydates = useCallback(async () => {
     try {
@@ -66,17 +66,13 @@ const SchedulesPage: React.FC = () => {
     fetchPlaydates()
   }, [fetchPlaydates])
 
-
   useEffect(() => {
     if (!matchId) return
-
 
     const token = localStorage.getItem('accessToken') || ''
 
     const client = new Client({
-      webSocketFactory: () =>
-      
-        new SockJS(`${WS_BASE_URL}/ws-little-neighbors`),
+      webSocketFactory: () => new SockJS(`${WS_BASE_URL}/ws-little-neighbors`),
       connectHeaders: {
         Authorization: token.startsWith('Bearer ') ? token : `Bearer ${token}`,
       },
@@ -104,7 +100,9 @@ const SchedulesPage: React.FC = () => {
     try {
       await playdateService.confirm(playdateId)
       await fetchPlaydates()
-      toast.success(t('playdates.status.confirmSuccess', '¡Plan confirmado! 🚀'))
+      toast.success(
+        t('playdates.status.confirmSuccess', '¡Plan confirmado! 🚀'),
+      )
     } catch (error) {
       console.error('Error confirming playdate:', error)
       toast.error(
@@ -123,7 +121,9 @@ const SchedulesPage: React.FC = () => {
     try {
       await playdateService.reject(playdateId)
       await fetchPlaydates()
-      toast(t('playdates.status.rejectSuccess', 'Plan rechazado'), { icon: '👋' })
+      toast(t('playdates.status.rejectSuccess', 'Plan rechazado'), {
+        icon: '👋',
+      })
     } catch (error) {
       console.error('Error rejecting playdate:', error)
       toast.error(
@@ -223,6 +223,7 @@ const SchedulesPage: React.FC = () => {
             {playdates.map(pd => {
               const { day, month, time } = formatDateInfo(pd.startTime)
               const isAccepted = pd.status === 'ACCEPTED'
+              const isRejected = pd.status === 'REJECTED'
 
               return (
                 <div
@@ -234,7 +235,11 @@ const SchedulesPage: React.FC = () => {
                       {/* BLOQUE DE FECHA ESTILO CALENDARIO */}
                       <div
                         className={`w-16 h-16 shrink-0 ${
-                          isAccepted ? 'bg-green-500' : 'bg-[#F28749]'
+                          isAccepted
+                            ? 'bg-green-500'
+                            : isRejected
+                            ? 'bg-gray-400'
+                            : 'bg-[#F28749]'
                         } rounded-[1.5rem] flex flex-col items-center justify-center text-white shadow-lg transition-colors`}
                       >
                         <span className="text-[10px] font-black uppercase leading-none">
@@ -287,11 +292,15 @@ const SchedulesPage: React.FC = () => {
                       className={`px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-widest shrink-0 ${
                         isAccepted
                           ? 'bg-green-100 text-green-600'
+                          : isRejected
+                          ? 'bg-gray-100 text-gray-500'
                           : 'bg-orange-100 text-orange-600'
                       }`}
                     >
                       {isAccepted
                         ? t('playdates.status.accepted', 'ACEPTADO')
+                        : isRejected
+                        ? t('playdates.status.rejected', 'RECHAZADO')
                         : t('playdates.status.pending', 'PENDIENTE')}
                     </div>
                   </div>
@@ -306,6 +315,20 @@ const SchedulesPage: React.FC = () => {
                             'playdates.status.planConfirmed',
                             '¡Plan Confirmado! 🚀',
                           )}
+                        </div>
+                      )
+                    }
+
+                    // BUG reportado: un plan RECHAZADO caía en el mismo
+                    // "else" que uno PENDIENTE, así que la creadora seguía
+                    // viendo "Esperando respuesta de tu vecino..." aunque
+                    // ya le hubieran dicho que no. Hay que cortar aquí
+                    // antes de mirar quién es la creadora.
+                    if (isRejected) {
+                      return (
+                        <div className="mt-6 w-full bg-gray-50 border border-gray-200 text-gray-500 py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] flex items-center justify-center gap-2">
+                          <XCircle size={16} />
+                          {t('playdates.status.planRejected', 'Plan rechazado')}
                         </div>
                       )
                     }

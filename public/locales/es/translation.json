@@ -557,5 +557,29 @@
     "consentLinkText": "política de privacidad",
     "consentRequired": "Debes aceptar la política de privacidad para continuar.",
     "footerLink": "Privacidad"
+  },
+  "es": {
+    "playdates": {
+      "status": {
+        "rejected": "RECHAZADO",
+        "planRejected": "Plan rechazado"
+      }
+    }
+  },
+  "en": {
+    "playdates": {
+      "status": {
+        "rejected": "DECLINED",
+        "planRejected": "Plan declined"
+      }
+    }
+  },
+  "va": {
+    "playdates": {
+      "status": {
+        "rejected": "REBUTJAT",
+        "planRejected": "Pla rebutjat"
+      }
+    }
   }
 }
