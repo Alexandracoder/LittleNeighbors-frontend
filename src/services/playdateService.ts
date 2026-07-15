@@ -32,6 +32,10 @@ const playdateService = {
     const response = await api.patch(`/playdates/${playdateId}/reject`)
     return response.data
   },
+
+  delete: async (playdateId: number): Promise<void> => {
+    await api.delete(`/playdates/${playdateId}`)
+  },
 }
 
 export default playdateService

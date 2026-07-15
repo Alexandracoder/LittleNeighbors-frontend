@@ -7,8 +7,10 @@ import {
   Clock,
   CheckCircle2,
   XCircle,
+  Trash2,
   Plus,
 } from 'lucide-react'
+import ConfirmModal from '../components/ui/ConfirmModal'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'react-hot-toast'
 import { Client } from '@stomp/stompjs'
@@ -31,6 +33,10 @@ const SchedulesPage: React.FC = () => {
   const [loading, setLoading] = useState(true)
   const [actionLoading, setActionLoading] = useState<number | null>(null)
   const [myFamilyId, setMyFamilyId] = useState<number | null>(null)
+  const [deleteModal, setDeleteModal] = useState<{
+    isOpen: boolean
+    playdateId: number | null
+  }>({ isOpen: false, playdateId: null })
   const stompClient = useRef<Client | null>(null)
 
   useEffect(() => {
@@ -134,6 +140,32 @@ const SchedulesPage: React.FC = () => {
       )
     } finally {
       setActionLoading(null)
+    }
+  }
+
+  const requestDelete = (playdateId: number) => {
+    setDeleteModal({ isOpen: true, playdateId })
+  }
+
+  const handleDelete = async () => {
+    const playdateId = deleteModal.playdateId
+    if (!playdateId) return
+    setActionLoading(playdateId)
+    try {
+      await playdateService.delete(playdateId)
+      setPlaydates(prev => prev.filter(pd => pd.id !== playdateId))
+      toast.success(t('playdates.status.deleteSuccess', 'Quedada eliminada'))
+    } catch (error) {
+      console.error('Error deleting playdate:', error)
+      toast.error(
+        t(
+          'playdates.status.deleteError',
+          'No se pudo eliminar la quedada. Inténtalo de nuevo.',
+        ),
+      )
+    } finally {
+      setActionLoading(null)
+      setDeleteModal({ isOpen: false, playdateId: null })
     }
   }
 
@@ -287,21 +319,31 @@ const SchedulesPage: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* BADGE DE ESTADO */}
-                    <div
-                      className={`px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-widest shrink-0 ${
-                        isAccepted
-                          ? 'bg-green-100 text-green-600'
+                    {/* BADGE DE ESTADO + BORRAR */}
+                    <div className="flex flex-col items-end gap-2 shrink-0">
+                      <div
+                        className={`px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-widest shrink-0 ${
+                          isAccepted
+                            ? 'bg-green-100 text-green-600'
+                            : isRejected
+                            ? 'bg-gray-100 text-gray-500'
+                            : 'bg-orange-100 text-orange-600'
+                        }`}
+                      >
+                        {isAccepted
+                          ? t('playdates.status.accepted', 'ACEPTADO')
                           : isRejected
-                          ? 'bg-gray-100 text-gray-500'
-                          : 'bg-orange-100 text-orange-600'
-                      }`}
-                    >
-                      {isAccepted
-                        ? t('playdates.status.accepted', 'ACEPTADO')
-                        : isRejected
-                        ? t('playdates.status.rejected', 'RECHAZADO')
-                        : t('playdates.status.pending', 'PENDIENTE')}
+                          ? t('playdates.status.rejected', 'RECHAZADO')
+                          : t('playdates.status.pending', 'PENDIENTE')}
+                      </div>
+                      <button
+                        onClick={() => requestDelete(pd.id)}
+                        disabled={actionLoading === pd.id}
+                        title={t('playdates.form.deleteFromAgenda', 'Borrar de la agenda')}
+                        className="text-gray-300 hover:text-red-500 disabled:opacity-40 transition-colors p-1"
+                      >
+                        <Trash2 size={14} />
+                      </button>
                     </div>
                   </div>
 
@@ -408,6 +450,19 @@ const SchedulesPage: React.FC = () => {
           </div>
         )}
       </div>
+
+      <ConfirmModal
+        isOpen={deleteModal.isOpen}
+        title={t('playdates.form.deleteTitle', '¿Borrar de la agenda?')}
+        message={t(
+          'playdates.form.deleteConfirm',
+          'Esta acción no se puede deshacer.',
+        )}
+        confirmText={t('common.delete', 'Eliminar')}
+        cancelText={t('common.cancel', 'Cancelar')}
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteModal({ isOpen: false, playdateId: null })}
+      />
     </div>
   )
 }

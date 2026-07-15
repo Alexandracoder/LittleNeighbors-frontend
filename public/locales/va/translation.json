@@ -258,7 +258,9 @@
       "backToDashboard": "Tornar al tauler",
       "noEventsTitle": "Sense plans encara",
       "noEventsSubtitle": "Sigues el primer a fer el pas. Organitza una trobada i connecta amb la teua zona.",
-      "createFirstButton": "Començar ara"
+      "createFirstButton": "Començar ara",
+      "scopeNeighborhood": "El meu barri",
+      "scopeCity": "Tota la ciutat"
     },
     "form": {
       "createTag": "Nou esdeveniment",
@@ -285,7 +287,9 @@
       "errorDeleteOwnership": "Només la família que va crear este esdeveniment pot eliminar-lo.",
       "errorDeleteNotFound": "Este esdeveniment ja no existix.",
       "errorDelete": "No s'ha pogut eliminar l'esdeveniment. Torna-ho a intentar.",
-      "errorLoad": "No hem pogut carregar els esdeveniments."
+      "errorLoad": "No hem pogut carregar els esdeveniments.",
+      "hideFromMe": "Llevar de la meua vista",
+      "organizedBy": "Organitza"
     },
     "list": {
       "empty": "No hi ha esdeveniments pròxims a València. Crea el primer!",
@@ -321,7 +325,10 @@
       "submitLoading": "Enviant...",
       "createSuccess": "Proposta de quedada enviada! 🎉",
       "createError": "No s'ha pogut crear la quedada. Torna-ho a provar.",
-      "rejectPlan": "Rebutjar"
+      "rejectPlan": "Rebutjar",
+      "deleteFromAgenda": "Esborrar de l'agenda",
+      "deleteTitle": "Esborrar de l'agenda?",
+      "deleteConfirm": "Aquesta acció no es pot desfer."
     },
     "card": {
       "matchRef": "ID Ref"
@@ -343,7 +350,9 @@
       "confirmError": "No s'ha pogut confirmar la quedada. Torna-ho a provar.",
       "waitingForNeighbor": "Esperant resposta del teu veí...",
       "rejectSuccess": "Pla rebutjat",
-      "rejectError": "No s'ha pogut rebutjar la quedada. Torna-ho a provar."
+      "rejectError": "No s'ha pogut rebutjar la quedada. Torna-ho a provar.",
+      "deleteSuccess": "Quedada eliminada",
+      "deleteError": "No s'ha pogut eliminar la quedada. Torna-ho a provar."
     }
   },
   "welcome": {

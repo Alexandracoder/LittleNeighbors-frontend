@@ -9,6 +9,8 @@ interface EventListProps {
   error: string | null
   onRefresh: () => void
   onEdit: (event: any) => void
+  onHide: (id: number) => void
+  myFamilyId: number | null
 }
 
 export const EventList = ({
@@ -18,6 +20,8 @@ export const EventList = ({
   error,
   onRefresh,
   onEdit,
+  onHide,
+  myFamilyId,
 }: EventListProps) => {
   const handleDelete = async (id: number) => {
     if (!window.confirm('¿Seguro que quieres eliminar este evento?')) return
@@ -56,6 +60,8 @@ export const EventList = ({
             neighborhoods={neighborhoods}
             onDelete={() => handleDelete(event.id)}
             onEdit={() => onEdit(event)}
+            onHide={() => onHide(event.id)}
+            isOwner={myFamilyId != null && event.creatorFamilyId === myFamilyId}
           />
         ))
       )}

@@ -258,7 +258,9 @@
       "backToDashboard": "Back to dashboard",
       "noEventsTitle": "No events yet",
       "noEventsSubtitle": "Be the first to take the step. Organize a meetup and connect with your area.",
-      "createFirstButton": "Start now"
+      "createFirstButton": "Start now",
+      "scopeNeighborhood": "My neighborhood",
+      "scopeCity": "Whole city"
     },
     "form": {
       "createTag": "New event",
@@ -285,7 +287,9 @@
       "errorDeleteOwnership": "Only the family that created this event can delete it.",
       "errorDeleteNotFound": "This event no longer exists.",
       "errorDelete": "Could not delete the event. Please try again.",
-      "errorLoad": "Could not load events."
+      "errorLoad": "Could not load events.",
+      "hideFromMe": "Remove from my view",
+      "organizedBy": "Organized by"
     },
     "list": {
       "empty": "No upcoming events in Valencia. Create the first one!",
@@ -321,7 +325,10 @@
       "submitLoading": "Sending...",
       "createSuccess": "Playdate proposal sent! 🎉",
       "createError": "Couldn't create the playdate. Please try again.",
-      "rejectPlan": "Decline"
+      "rejectPlan": "Decline",
+      "deleteFromAgenda": "Delete from agenda",
+      "deleteTitle": "Delete from agenda?",
+      "deleteConfirm": "This action cannot be undone."
     },
     "card": {
       "matchRef": "Ref ID"
@@ -343,7 +350,9 @@
       "confirmError": "Couldn't confirm the playdate. Please try again.",
       "waitingForNeighbor": "Waiting for your neighbor's response...",
       "rejectSuccess": "Plan declined",
-      "rejectError": "Couldn't decline the playdate. Please try again."
+      "rejectError": "Couldn't decline the playdate. Please try again.",
+      "deleteSuccess": "Playdate deleted",
+      "deleteError": "Couldn't delete the playdate. Please try again."
     }
   },
   "welcome": {

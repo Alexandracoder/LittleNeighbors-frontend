@@ -8,7 +8,7 @@ import { EventModal } from '../components/EventModal'
 import { CreateEventForm } from '../components/CreateEventForm'
 import { MapComponent } from './MapComponent'
 import MainLayout from '../components/layout/MainLayout'
-import api from '../services/api'
+import api, { familyApi } from '../services/api'
 
 export default function EventsPage() {
   const { t } = useTranslation()
@@ -20,11 +20,13 @@ export default function EventsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isMapVisible, setIsMapVisible] = useState(false)
   const [eventToEdit, setEventToEdit] = useState<any>(null)
+  const [myFamilyId, setMyFamilyId] = useState<number | null>(null)
+  const [citywide, setCitywide] = useState(false)
 
   useEffect(() => {
     const loadData = async () => {
       try {
-        await Promise.all([fetchEvents(), fetchNeighborhoods()])
+        await Promise.all([fetchEvents(), fetchNeighborhoods(), fetchMyFamilyId()])
       } catch (err) {
         console.error('Error inicializando datos de la página:', err)
       } finally {
@@ -33,6 +35,31 @@ export default function EventsPage() {
     }
     loadData()
   }, [])
+
+  useEffect(() => {
+    // Se salta el primer render (ya lo carga loadData de arriba) y solo
+    // refresca cuando la persona cambia el toggle manualmente.
+    if (loading) return
+    fetchEvents(citywide)
+  }, [citywide])
+
+  const fetchMyFamilyId = async () => {
+    try {
+      const family = await familyApi.getMyFamily()
+      setMyFamilyId(family?.id ?? null)
+    } catch (err) {
+      console.error('Error cargando mi familia:', err)
+    }
+  }
+
+  const handleHide = async (eventId: number) => {
+    try {
+      await api.post(`/events/${eventId}/hide`)
+      setEvents(prev => prev.filter(e => e.id !== eventId))
+    } catch (err) {
+      console.error('Error ocultando evento:', err)
+    }
+  }
 
   const fetchNeighborhoods = async () => {
     try {
@@ -43,7 +70,7 @@ export default function EventsPage() {
     }
   }
 
-  const fetchEvents = async () => {
+  const fetchEvents = async (citywideOverride?: boolean) => {
     try {
       const res = await api.get('/events/map', {
         params: {
@@ -51,6 +78,7 @@ export default function EventsPage() {
           maxLat: 90,
           minLon: -180,
           maxLon: 180,
+          citywide: citywideOverride ?? citywide,
         },
       })
       setEvents(res.data)
@@ -113,6 +141,30 @@ export default function EventsPage() {
           </div>
         </div>
 
+        {/* TOGGLE BARRIO / TODA LA CIUDAD */}
+        <div className="flex items-center gap-2 bg-white/10 backdrop-blur-xl p-1.5 rounded-full border border-white/20 shadow-lg w-fit">
+          <button
+            onClick={() => setCitywide(false)}
+            className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${
+              !citywide
+                ? 'bg-[#F28749] text-white shadow-md'
+                : 'text-white/60 hover:text-white'
+            }`}
+          >
+            {t('events.page.scopeNeighborhood', 'Mi barrio')}
+          </button>
+          <button
+            onClick={() => setCitywide(true)}
+            className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${
+              citywide
+                ? 'bg-[#F28749] text-white shadow-md'
+                : 'text-white/60 hover:text-white'
+            }`}
+          >
+            {t('events.page.scopeCity', 'Toda la ciudad')}
+          </button>
+        </div>
+
         {isMapVisible && (
           <div className="h-[400px] w-full relative overflow-hidden rounded-[3rem] border-4 border-white/30 shadow-2xl transition-all animate-in fade-in zoom-in duration-500 mb-8">
             <MapComponent
@@ -170,6 +222,8 @@ export default function EventsPage() {
                 error={error}
                 onRefresh={fetchEvents}
                 onEdit={handleEditClick}
+                onHide={handleHide}
+                myFamilyId={myFamilyId}
               />
             </>
           )}

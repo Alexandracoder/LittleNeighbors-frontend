@@ -258,7 +258,9 @@
       "backToDashboard": "Volver al panel",
       "noEventsTitle": "Sin planes aún",
       "noEventsSubtitle": "Sé el primero en dar el paso. Organiza una reunión y conecta con tu zona.",
-      "createFirstButton": "Empezar ahora"
+      "createFirstButton": "Empezar ahora",
+      "scopeNeighborhood": "Mi barrio",
+      "scopeCity": "Toda la ciudad"
     },
     "form": {
       "createTag": "Nuevo evento",
@@ -285,7 +287,9 @@
       "errorDeleteOwnership": "Solo la familia que creó este evento puede eliminarlo.",
       "errorDeleteNotFound": "Este evento ya no existe.",
       "errorDelete": "No se pudo eliminar el evento. Inténtalo de nuevo.",
-      "errorLoad": "No pudimos cargar los eventos."
+      "errorLoad": "No pudimos cargar los eventos.",
+      "hideFromMe": "Quitar de mi vista",
+      "organizedBy": "Organiza"
     },
     "list": {
       "empty": "No hay eventos próximos en Valencia. ¡Crea el primero!",
@@ -321,7 +325,10 @@
       "submitLoading": "Enviando...",
       "createSuccess": "¡Propuesta de quedada enviada! 🎉",
       "createError": "No se pudo crear la quedada. Inténtalo de nuevo.",
-      "rejectPlan": "Rechazar"
+      "rejectPlan": "Rechazar",
+      "deleteFromAgenda": "Borrar de la agenda",
+      "deleteTitle": "¿Borrar de la agenda?",
+      "deleteConfirm": "Esta acción no se puede deshacer."
     },
     "card": {
       "matchRef": "ID Ref"
@@ -343,7 +350,9 @@
       "confirmError": "No se pudo confirmar la quedada. Inténtalo de nuevo.",
       "waitingForNeighbor": "Esperando respuesta de tu vecino...",
       "rejectSuccess": "Plan rechazado",
-      "rejectError": "No se pudo rechazar la quedada. Inténtalo de nuevo."
+      "rejectError": "No se pudo rechazar la quedada. Inténtalo de nuevo.",
+      "deleteSuccess": "Quedada eliminada",
+      "deleteError": "No se pudo eliminar la quedada. Inténtalo de nuevo."
     }
   },
   "welcome": {
