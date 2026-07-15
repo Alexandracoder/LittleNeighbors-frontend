@@ -23,7 +23,6 @@ import AddChildPage from './pages/AddChildren'
 import ExplorePage from './pages/ExplorePage'
 import EventsPage from './pages/EventsPage'
 import SchedulesPage from './pages/SchedulesPage'
-import Welcome from './pages/Welcome'
 import { QrLandingPage } from './pages/QrLandingPage'
 import ChildDashboard from './components/ChildDashboard'
 import { AdminDashboard } from './components/AdminDashboard'
@@ -195,16 +194,6 @@ function AppContent() {
           }
         />
         <Route
-          path="/welcome"
-          element={
-            <ProtectedRoute allowedRoles={['ROLE_FAMILY']}>
-              <OnboardingGuard>
-                <Welcome />
-              </OnboardingGuard>
-            </ProtectedRoute>
-          }
-        />
-        <Route
           path="/admin/stats"
           element={
             <ProtectedRoute allowedRoles={['ADMIN', 'ROLE_ADMIN']}>
@@ -220,7 +209,6 @@ function AppContent() {
             </ProtectedRoute>
           }
         />
-
         <Route
           path="/messages/:recipientId"
           element={

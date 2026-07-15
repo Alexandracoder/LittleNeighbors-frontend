@@ -361,11 +361,6 @@ const SchedulesPage: React.FC = () => {
                       )
                     }
 
-                    // BUG reportado: un plan RECHAZADO caía en el mismo
-                    // "else" que uno PENDIENTE, así que la creadora seguía
-                    // viendo "Esperando respuesta de tu vecino..." aunque
-                    // ya le hubieran dicho que no. Hay que cortar aquí
-                    // antes de mirar quién es la creadora.
                     if (isRejected) {
                       return (
                         <div className="mt-6 w-full bg-gray-50 border border-gray-200 text-gray-500 py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] flex items-center justify-center gap-2">
@@ -375,12 +370,7 @@ const SchedulesPage: React.FC = () => {
                       )
                     }
 
-                    // BUG reportado: antes cualquiera de las dos personas
-                    // veía el botón "Confirmar", incluida la que había
-                    // propuesto el plan — así que la propia creadora podía
-                    // auto-confirmarlo y la otra familia nunca llegaba a
-                    // decidir nada. Ahora solo se muestran los botones de
-                    // confirmar/rechazar a quien NO la creó.
+
                     const isCreator =
                       pd.createdByFamilyId != null &&
                       myFamilyId != null &&
