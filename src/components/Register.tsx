@@ -2,7 +2,6 @@ import { useState, FormEvent, useEffect } from 'react'
 import { useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { UserPlus, Mail, Lock, ArrowRight } from 'lucide-react'
 import { authApi } from '../services/api'
-import { useAuth } from '../context/AuthContext'
 import { useTranslation } from 'react-i18next'
 import registerBg from '../assets/moving.png'
 
@@ -10,7 +9,6 @@ export default function Register() {
   const { t, i18n } = useTranslation()
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
-  const { login } = useAuth()
 
   // Extraer el token de la URL: ?invite=TOKEN
   const inviteToken = searchParams.get('invite')
@@ -26,6 +24,7 @@ export default function Register() {
   const [consentGiven, setConsentGiven] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [registered, setRegistered] = useState(false)
 
   useEffect(() => {
     if (inviteToken) {
@@ -51,24 +50,11 @@ export default function Register() {
 
     try {
       await authApi.register({ ...formData, consentGiven })
-      const loggedUser = await login({
-        email: formData.email,
-        password: formData.password,
-      })
-
-      if (loggedUser) {
-        const roles = loggedUser.roles || []
-        const hasFamilyRole = roles.some((role: any) => {
-          if (typeof role === 'string') return role === 'FAMILY'
-          return role?.name === 'FAMILY'
-        })
-
-        if (hasFamilyRole) {
-          navigate('/dashboard', { replace: true })
-        } else {
-          navigate('/create-family', { replace: true })
-        }
-      }
+      // Antes se intentaba hacer login automático justo aquí, pero ahora
+      // el email tiene que verificarse primero (ver VerifyEmailPage), así
+      // que ese login fallaría siempre para una cuenta recién creada.
+      // Mostramos la pantalla de "revisa tu correo" en su lugar.
+      setRegistered(true)
     } catch (err: any) {
       const fieldErrors = err.response?.data?.errors
       const firstFieldError =
@@ -138,6 +124,29 @@ export default function Register() {
             >
               <span>{t('auth.register.cta')}</span>
               <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
+            </button>
+          </div>
+        ) : registered ? (
+          <div className="bg-white/90 backdrop-blur-xl rounded-[3rem] shadow-2xl p-10 border-t-[10px] border-[#F28749] animate-in zoom-in duration-500 text-center">
+            <div className="flex justify-center mb-6">
+              <div className="bg-[#F28749] p-4 rounded-3xl shadow-lg">
+                <Mail className="w-8 h-8 text-white" />
+              </div>
+            </div>
+            <h2 className="text-2xl font-black text-[#333D47] mb-4 uppercase tracking-tighter">
+              {t('auth.register.checkEmailTitle', '¡Revisa tu correo!')}
+            </h2>
+            <p className="text-gray-500 font-medium mb-8">
+              {t(
+                'auth.register.checkEmailBody',
+                'Te hemos enviado un enlace para verificar tu cuenta. Ábrelo para poder entrar en LittleNeighbors.',
+              )}
+            </p>
+            <button
+              onClick={() => navigate('/login')}
+              className="text-[#F28749] font-bold text-sm hover:underline"
+            >
+              {t('auth.register.linkLogin')}
             </button>
           </div>
         ) : (

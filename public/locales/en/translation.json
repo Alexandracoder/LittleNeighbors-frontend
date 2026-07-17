@@ -38,7 +38,9 @@
       "linkRegister": "I am a new neighbor",
       "linkBack": "Back to main page",
       "errorInvalidCredentials": "Invalid email or password.",
-      "errorConnection": "Connection error. Is the server running?"
+      "errorConnection": "Connection error. Is the server running?",
+      "errorUnverifiedEmail": "Verify your email before logging in. Check your inbox.",
+      "errorBlocked": "This account has been blocked. Contact support."
     },
     "register": {
       "title": "Join the neighborhood",
@@ -53,7 +55,9 @@
       "submitLoading": "Creating...",
       "linkLogin": "Already a neighbor? Log in here",
       "linkBack": "Back",
-      "errorDefault": "Registration error."
+      "errorDefault": "Registration error.",
+      "checkEmailTitle": "Check your email!",
+      "checkEmailBody": "We've sent you a link to verify your account. Open it to log in to LittleNeighbors."
     }
   },
   "navigation": {
@@ -289,7 +293,10 @@
       "errorDelete": "Could not delete the event. Please try again.",
       "errorLoad": "Could not load events.",
       "hideFromMe": "Remove from my view",
-      "organizedBy": "Organized by"
+      "organizedBy": "Organized by",
+      "deleteForbidden": "Only the family that created this event can delete it.",
+      "deleteNotFound": "This event no longer exists.",
+      "deleteError": "Couldn't delete the event. Please try again."
     },
     "list": {
       "empty": "No upcoming events in Valencia. Create the first one!",
@@ -590,5 +597,14 @@
         "planRejected": "Pla rebutjat"
       }
     }
+  },
+  "verifyEmail": {
+    "title": "Verifying your email",
+    "loading": "One moment, please...",
+    "success": "Email verified! We can now review your profile.",
+    "redirecting": "Redirecting to login...",
+    "errorMissing": "Invalid verification link",
+    "errorExpired": "The link has expired or is invalid",
+    "backToLogin": "Back to login"
   }
 }

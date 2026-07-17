@@ -38,7 +38,9 @@
       "linkRegister": "Soy un vecino nuevo",
       "linkBack": "Volver a la página principal",
       "errorInvalidCredentials": "Correo o contraseña no válidos.",
-      "errorConnection": "Error de conexión. ¿Está el servidor activo?"
+      "errorConnection": "Error de conexión. ¿Está el servidor activo?",
+      "errorUnverifiedEmail": "Verifica tu email antes de entrar. Revisa tu bandeja de entrada.",
+      "errorBlocked": "Esta cuenta ha sido bloqueada. Contacta con soporte."
     },
     "register": {
       "title": "Únete al barrio",
@@ -53,7 +55,9 @@
       "submitLoading": "Creando...",
       "linkLogin": "¿Ya eres vecino? Inicia sesión aquí",
       "linkBack": "Volver",
-      "errorDefault": "Error en el registro."
+      "errorDefault": "Error en el registro.",
+      "checkEmailTitle": "¡Revisa tu correo!",
+      "checkEmailBody": "Te hemos enviado un enlace para verificar tu cuenta. Ábrelo para poder entrar en LittleNeighbors."
     }
   },
   "navigation": {
@@ -289,7 +293,10 @@
       "errorDelete": "No se pudo eliminar el evento. Inténtalo de nuevo.",
       "errorLoad": "No pudimos cargar los eventos.",
       "hideFromMe": "Quitar de mi vista",
-      "organizedBy": "Organiza"
+      "organizedBy": "Organiza",
+      "deleteForbidden": "Solo la familia que creó este evento puede eliminarlo.",
+      "deleteNotFound": "Este evento ya no existe.",
+      "deleteError": "No se pudo eliminar el evento. Inténtalo de nuevo."
     },
     "list": {
       "empty": "No hay eventos próximos en Valencia. ¡Crea el primero!",
@@ -590,5 +597,14 @@
         "planRejected": "Pla rebutjat"
       }
     }
+  },
+  "verifyEmail": {
+    "title": "Verificando tu email",
+    "loading": "Un momento, por favor...",
+    "success": "¡Email verificado! Ya podemos revisar tu perfil.",
+    "redirecting": "Redirigiendo al login...",
+    "errorMissing": "Enlace de verificación no válido",
+    "errorExpired": "El enlace ha expirado o no es válido",
+    "backToLogin": "Volver al login"
   }
 }

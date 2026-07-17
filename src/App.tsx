@@ -32,6 +32,7 @@ import ForgotPassword from './components/ForgotPassword'
 import MessagesPage from './components/MessagesPage'
 import ProfilePage from './pages/ProfilePage'
 import ResetPasswordPage from './pages/ResetPasswordPage'
+import VerifyEmailPage from './pages/VerifyEmailPage'
 
 const LoadingScreen = () => {
   const { t, ready } = useTranslation()
@@ -105,6 +106,7 @@ function AppContent() {
 
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
+        <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
 
         <Route
           path="/create-family"

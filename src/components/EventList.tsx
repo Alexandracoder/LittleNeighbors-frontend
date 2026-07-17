@@ -1,6 +1,7 @@
 import { EventCard } from './EventCard'
 import api from '../services/api'
 import { toast } from 'react-hot-toast'
+import { useTranslation } from 'react-i18next'
 
 interface EventListProps {
   events: any[]
@@ -23,8 +24,10 @@ export const EventList = ({
   onHide,
   myFamilyId,
 }: EventListProps) => {
+  const { t } = useTranslation()
+
   const handleDelete = async (id: number) => {
-    if (!window.confirm('¿Seguro que quieres eliminar este evento?')) return
+    if (!window.confirm(t('events.card.confirmDelete', '¿Seguro que quieres eliminar este evento?'))) return
 
     try {
       await api.delete(`/events/${id}`)
@@ -32,12 +35,12 @@ export const EventList = ({
     } catch (err: any) {
       console.error('Error during DELETE request:', err)
       if (err.response?.status === 403) {
-        toast.error('Solo la familia que creó este evento puede eliminarlo.')
+        toast.error(t('events.card.deleteForbidden', 'Solo la familia que creó este evento puede eliminarlo.'))
       } else if (err.response?.status === 404) {
-        toast.error('Este evento ya no existe.')
+        toast.error(t('events.card.deleteNotFound', 'Este evento ya no existe.'))
         onRefresh()
       } else {
-        toast.error('No se pudo eliminar el evento. Inténtalo de nuevo.')
+        toast.error(t('events.card.deleteError', 'No se pudo eliminar el evento. Inténtalo de nuevo.'))
       }
     }
   }

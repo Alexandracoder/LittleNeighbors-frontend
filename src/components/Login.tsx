@@ -32,7 +32,29 @@ export default function Login() {
       navigate('/', { replace: true })
     } catch (err: any) {
       if (err.response?.status === 401) {
-        setError(t('auth.login.errorInvalidCredentials'))
+        // El backend distingue credenciales inválidas de "email sin
+        // verificar" o "cuenta bloqueada", pero manda el texto en inglés
+        // fijo (no localizado). Lo traducimos aquí según el caso, en vez
+        // de mostrar el inglés sin más o perder la distinción con un
+        // mensaje genérico único.
+        const backendMessage: string = err.response?.data?.error || ''
+        if (backendMessage.toLowerCase().includes('verify your email')) {
+          setError(
+            t(
+              'auth.login.errorUnverifiedEmail',
+              'Verifica tu email antes de entrar. Revisa tu bandeja de entrada.',
+            ),
+          )
+        } else if (backendMessage.toLowerCase().includes('blocked')) {
+          setError(
+            t(
+              'auth.login.errorBlocked',
+              'Esta cuenta ha sido bloqueada. Contacta con soporte.',
+            ),
+          )
+        } else {
+          setError(t('auth.login.errorInvalidCredentials'))
+        }
       } else {
         setError(t('auth.login.errorConnection'))
       }

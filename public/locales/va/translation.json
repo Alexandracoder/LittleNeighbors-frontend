@@ -38,7 +38,9 @@
       "linkRegister": "Soc un veí nou",
       "linkBack": "Tornar a la pàgina principal",
       "errorInvalidCredentials": "Correu o contrasenya no vàlids.",
-      "errorConnection": "Error de connexió. Està el servidor actiu?"
+      "errorConnection": "Error de connexió. Està el servidor actiu?",
+      "errorUnverifiedEmail": "Verifica el teu correu abans d'entrar. Revisa la teua safata d'entrada.",
+      "errorBlocked": "Este compte ha sigut bloquejat. Contacta amb suport."
     },
     "register": {
       "title": "Uneix-te al barri",
@@ -53,7 +55,9 @@
       "submitLoading": "Creant...",
       "linkLogin": "Ja eres veí? Inicia sessió ací",
       "linkBack": "Tornar",
-      "errorDefault": "Error en el registre."
+      "errorDefault": "Error en el registre.",
+      "checkEmailTitle": "Revisa el teu correu!",
+      "checkEmailBody": "T'hem enviat un enllaç per a verificar el teu compte. Obri'l per a poder entrar a LittleNeighbors."
     }
   },
   "navigation": {
@@ -289,7 +293,10 @@
       "errorDelete": "No s'ha pogut eliminar l'esdeveniment. Torna-ho a intentar.",
       "errorLoad": "No hem pogut carregar els esdeveniments.",
       "hideFromMe": "Llevar de la meua vista",
-      "organizedBy": "Organitza"
+      "organizedBy": "Organitza",
+      "deleteForbidden": "Només la família que va crear este esdeveniment pot eliminar-lo.",
+      "deleteNotFound": "Este esdeveniment ja no existeix.",
+      "deleteError": "No s'ha pogut eliminar l'esdeveniment. Torna-ho a provar."
     },
     "list": {
       "empty": "No hi ha esdeveniments pròxims a València. Crea el primer!",
@@ -590,5 +597,14 @@
         "planRejected": "Pla rebutjat"
       }
     }
+  },
+  "verifyEmail": {
+    "title": "Verificant el teu correu",
+    "loading": "Un moment, per favor...",
+    "success": "Correu verificat! Ja podem revisar el teu perfil.",
+    "redirecting": "Redirigint al login...",
+    "errorMissing": "Enllaç de verificació no vàlid",
+    "errorExpired": "L'enllaç ha caducat o no és vàlid",
+    "backToLogin": "Tornar al login"
   }
 }
