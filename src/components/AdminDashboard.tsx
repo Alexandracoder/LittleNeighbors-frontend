@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
+import { ShieldCheck } from 'lucide-react'
 import { adminApi } from '../services/api'
 import MainLayout from '../components/layout/MainLayout'
 import dashboardBg from '../assets/Stats_image.png'
@@ -12,6 +14,7 @@ interface DetailedStats {
 
 export const AdminDashboard: React.FC = () => {
   const { t } = useTranslation()
+  const navigate = useNavigate()
   const [stats, setStats] = useState<Record<string, number>>({})
   const [detailedStats, setDetailedStats] = useState<
     Record<string, DetailedStats>
@@ -48,9 +51,43 @@ export const AdminDashboard: React.FC = () => {
       subtitle={t('admin.dashboard.subtitle')}
     >
       <div style={{ padding: '40px', fontFamily: 'system-ui, sans-serif' }}>
-        <h1 style={{ marginBottom: '30px' }}>
-          {t('admin.dashboard.heading')} 📊
-        </h1>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '30px',
+            flexWrap: 'wrap',
+            gap: '16px',
+          }}
+        >
+          <h1 style={{ margin: 0 }}>{t('admin.dashboard.heading')} 📊</h1>
+
+          {/* Antes no había forma de llegar a moderación desde aquí:
+              había que teclear /admin/moderation a mano en la URL. */}
+          <button
+            onClick={() => navigate('/admin/moderation')}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '10px 20px',
+              backgroundColor: '#F28749',
+              color: 'white',
+              border: 'none',
+              borderRadius: '999px',
+              fontWeight: 700,
+              fontSize: '13px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              cursor: 'pointer',
+              boxShadow: '0 2px 8px rgba(242,135,73,0.35)',
+            }}
+          >
+            <ShieldCheck size={16} />
+            {t('admin.dashboard.goToModeration', 'Ir a moderación')}
+          </button>
+        </div>
 
         <table
           style={{

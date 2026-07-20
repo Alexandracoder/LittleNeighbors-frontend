@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'react-hot-toast'
 import api from '../services/api'
-import { MailCheck, Loader2, CheckCircle, XCircle } from 'lucide-react'
+import { MailCheck, Loader2, CheckCircle, XCircle, Send } from 'lucide-react'
 import bgImage from '../assets/welcome-on-board.png'
 
 const VerifyEmailPage = () => {
@@ -13,6 +14,9 @@ const VerifyEmailPage = () => {
     'loading',
   )
   const [error, setError] = useState('')
+  const [resendEmail, setResendEmail] = useState('')
+  const [resending, setResending] = useState(false)
+  const [resendSent, setResendSent] = useState(false)
 
   useEffect(() => {
     const verify = async () => {
@@ -38,6 +42,28 @@ const VerifyEmailPage = () => {
     }
     verify()
   }, [token])
+
+  const handleResend = async () => {
+    if (!resendEmail.trim()) return
+    setResending(true)
+    try {
+      await api.post('/auth/resend-verification', { email: resendEmail.trim() })
+      setResendSent(true)
+      toast.success(
+        t(
+          'verifyEmail.resendSuccess',
+          'Si el correo existe, te hemos enviado un nuevo enlace.',
+        ),
+      )
+    } catch (err) {
+      console.error('Error resending verification email:', err)
+      toast.error(
+        t('verifyEmail.resendError', 'No se pudo reenviar. Inténtalo de nuevo.'),
+      )
+    } finally {
+      setResending(false)
+    }
+  }
 
   return (
     <div
@@ -83,11 +109,50 @@ const VerifyEmailPage = () => {
         )}
 
         {status === 'error' && (
-          <div className="flex flex-col items-center gap-4 py-6">
+          <div className="flex flex-col items-center gap-4 py-6 w-full">
             <XCircle className="w-16 h-16 text-red-500" />
             <p className="text-sm text-red-600 font-bold text-center">
               {error}
             </p>
+
+            {!resendSent ? (
+              <div className="w-full flex flex-col gap-3 mt-2">
+                <p className="text-xs text-gray-400 text-center">
+                  {t(
+                    'verifyEmail.resendPrompt',
+                    '¿El enlace ha caducado? Pide uno nuevo:',
+                  )}
+                </p>
+                <input
+                  type="email"
+                  value={resendEmail}
+                  onChange={e => setResendEmail(e.target.value)}
+                  placeholder={t(
+                    'verifyEmail.resendPlaceholder',
+                    'Tu correo electrónico',
+                  )}
+                  className="w-full p-3 bg-gray-50 border-2 border-transparent focus:border-[#FF8A5C] rounded-2xl font-medium text-sm outline-none"
+                />
+                <button
+                  onClick={handleResend}
+                  disabled={resending || !resendEmail.trim()}
+                  className="w-full flex items-center justify-center gap-2 bg-[#F28749] hover:bg-[#e0763a] disabled:opacity-50 text-white py-3 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all"
+                >
+                  <Send size={14} />
+                  {resending
+                    ? t('verifyEmail.resending', 'Enviando...')
+                    : t('verifyEmail.resendButton', 'Reenviar enlace')}
+                </button>
+              </div>
+            ) : (
+              <p className="text-xs text-green-600 font-bold text-center">
+                {t(
+                  'verifyEmail.resendSuccess',
+                  'Si el correo existe, te hemos enviado un nuevo enlace.',
+                )}
+              </p>
+            )}
+
             <Link
               to="/login"
               className="text-xs font-black uppercase tracking-widest text-[#F28749] hover:underline mt-2"

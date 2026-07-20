@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Mail, ArrowLeft, Send } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'react-hot-toast'
 import api from '../services/api'
 import loginBg from '../assets/playing-together.png'
 
@@ -24,6 +25,15 @@ export default function ForgotPassword() {
       setSuccess(true)
     } catch (err) {
       console.error(err)
+      // Antes no había ningún aviso aquí: si la petición fallaba (o
+      // colgaba hasta hacer timeout), el botón simplemente volvía a
+      // estar disponible sin explicar nada.
+      toast.error(
+        t(
+          'auth.forgot.error',
+          'No se pudo procesar la solicitud. Inténtalo de nuevo.',
+        ),
+      )
     } finally {
       setLoading(false)
     }

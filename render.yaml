@@ -1,0 +1,41 @@
+services:
+  # Frontend — Static Site
+  - type: web
+    name: littleneighbors-frontend
+    runtime: static
+    buildCommand: npm ci && npm run build
+    staticPublishPath: ./dist
+    pullRequestPreviewsEnabled: false
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin
+      # Si cambias el dominio del backend o añades un dominio propio,
+      # actualiza aquí los orígenes de connect-src/img-src.
+      - path: /*
+        name: Content-Security-Policy
+        value: >-
+          default-src 'self';
+          script-src 'self';
+          style-src 'self' 'unsafe-inline';
+          img-src 'self' data: https:;
+          font-src 'self' data:;
+          connect-src 'self' https://littleneighbors-backend.onrender.com wss://littleneighbors-backend.onrender.com https://api.cloudinary.com;
+          frame-ancestors 'none';
+          base-uri 'self';
+          form-action 'self'
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_BASE_URL
+        sync: false
+      - key: VITE_WS_URL
+        sync: false

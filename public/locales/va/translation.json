@@ -58,6 +58,14 @@
       "errorDefault": "Error en el registre.",
       "checkEmailTitle": "Revisa el teu correu!",
       "checkEmailBody": "T'hem enviat un enllaç per a verificar el teu compte. Obri'l per a poder entrar a LittleNeighbors."
+    },
+    "forgot": {
+      "title": "Has oblidat la teua contrasenya?",
+      "subtitle": "No et preocupes, li passa a qualsevol veí. Introdueix el teu correu i t'enviarem un enllaç per a restablir-la.",
+      "submit": "Enviar enllaç",
+      "successTitle": "Correu enviat!",
+      "successSubtitle": "Si eixe correu existeix a la nostra comunitat, rebràs un enllaç per a restablir la teua contrasenya en uns minuts.",
+      "error": "No s'ha pogut processar la sol·licitud. Torna-ho a provar."
     }
   },
   "navigation": {
@@ -506,7 +514,8 @@
     "dashboard": {
       "title": "Tauler de Seguiment",
       "subtitle": "Administrador",
-      "heading": "Tauler de Seguiment - Administrador"
+      "heading": "Tauler de Seguiment - Administrador",
+      "goToModeration": "Anar a moderació"
     },
     "table": {
       "neighborhood": "Barri",
@@ -605,6 +614,12 @@
     "redirecting": "Redirigint al login...",
     "errorMissing": "Enllaç de verificació no vàlid",
     "errorExpired": "L'enllaç ha caducat o no és vàlid",
-    "backToLogin": "Tornar al login"
+    "backToLogin": "Tornar al login",
+    "resendPrompt": "L'enllaç ha caducat? Demana'n un de nou:",
+    "resendPlaceholder": "El teu correu electrònic",
+    "resendButton": "Reenviar enllaç",
+    "resending": "Enviant...",
+    "resendSuccess": "Si el correu existeix, t'hem enviat un nou enllaç.",
+    "resendError": "No s'ha pogut reenviar. Torna-ho a provar."
   }
 }

@@ -58,6 +58,14 @@
       "errorDefault": "Error en el registro.",
       "checkEmailTitle": "¡Revisa tu correo!",
       "checkEmailBody": "Te hemos enviado un enlace para verificar tu cuenta. Ábrelo para poder entrar en LittleNeighbors."
+    },
+    "forgot": {
+      "title": "¿Olvidaste tu contraseña?",
+      "subtitle": "No te preocupes, le pasa a cualquier vecino. Introduce tu correo y te enviamos un enlace para restablecerla.",
+      "submit": "Enviar enlace",
+      "successTitle": "¡Correo enviado!",
+      "successSubtitle": "Si ese correo existe en nuestra comunidad, recibirás un enlace para restablecer tu contraseña en unos minutos.",
+      "error": "No se pudo procesar la solicitud. Inténtalo de nuevo."
     }
   },
   "navigation": {
@@ -506,7 +514,8 @@
     "dashboard": {
       "title": "Panel de Seguimiento",
       "subtitle": "Administrador",
-      "heading": "Panel de Seguimiento - Administrador"
+      "heading": "Panel de Seguimiento - Administrador",
+      "goToModeration": "Ir a moderación"
     },
     "table": {
       "neighborhood": "Barrio",
@@ -605,6 +614,12 @@
     "redirecting": "Redirigiendo al login...",
     "errorMissing": "Enlace de verificación no válido",
     "errorExpired": "El enlace ha expirado o no es válido",
-    "backToLogin": "Volver al login"
+    "backToLogin": "Volver al login",
+    "resendPrompt": "¿El enlace ha caducado? Pide uno nuevo:",
+    "resendPlaceholder": "Tu correo electrónico",
+    "resendButton": "Reenviar enlace",
+    "resending": "Enviando...",
+    "resendSuccess": "Si el correo existe, te hemos enviado un nuevo enlace.",
+    "resendError": "No se pudo reenviar. Inténtalo de nuevo."
   }
 }

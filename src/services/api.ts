@@ -22,11 +22,17 @@ export const WS_BASE_URL = API_BASE_URL.replace(/\/api\/?$/, '')
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: { 'Content-Type': 'application/json' },
+  // Antes no había timeout: si el backend se quedaba colgado (como pasó
+  // con el envío síncrono de emails), la petición se quedaba "pending"
+  // en el navegador sin límite. 15s da margen de sobra para peticiones
+  // normales sin dejar a la persona esperando indefinidamente.
+  timeout: 15000,
 })
 
 const refreshApi = axios.create({
   baseURL: API_BASE_URL,
   headers: { 'Content-Type': 'application/json' },
+  timeout: 15000,
 })
 
 api.interceptors.request.use(

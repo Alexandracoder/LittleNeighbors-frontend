@@ -58,6 +58,14 @@
       "errorDefault": "Registration error.",
       "checkEmailTitle": "Check your email!",
       "checkEmailBody": "We've sent you a link to verify your account. Open it to log in to LittleNeighbors."
+    },
+    "forgot": {
+      "title": "Forgot your password?",
+      "subtitle": "No worries, it happens to any neighbor. Enter your email and we'll send you a link to reset it.",
+      "submit": "Send link",
+      "successTitle": "Email sent!",
+      "successSubtitle": "If that email exists in our community, you'll receive a password reset link in a few minutes.",
+      "error": "Couldn't process the request. Please try again."
     }
   },
   "navigation": {
@@ -506,7 +514,8 @@
     "dashboard": {
       "title": "Tracking Panel",
       "subtitle": "Administrator",
-      "heading": "Tracking Panel - Administrator"
+      "heading": "Tracking Panel - Administrator",
+      "goToModeration": "Go to moderation"
     },
     "table": {
       "neighborhood": "Neighborhood",
@@ -605,6 +614,12 @@
     "redirecting": "Redirecting to login...",
     "errorMissing": "Invalid verification link",
     "errorExpired": "The link has expired or is invalid",
-    "backToLogin": "Back to login"
+    "backToLogin": "Back to login",
+    "resendPrompt": "Link expired? Get a new one:",
+    "resendPlaceholder": "Your email address",
+    "resendButton": "Resend link",
+    "resending": "Sending...",
+    "resendSuccess": "If that email exists, we've sent you a new link.",
+    "resendError": "Couldn't resend. Please try again."
   }
 }

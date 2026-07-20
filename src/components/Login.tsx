@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Home, Mail, Lock, ArrowRight } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useTranslation } from 'react-i18next'
+import api from '../services/api'
 
 import loginBg from '../assets/playing-together.png'
 
@@ -17,6 +18,8 @@ export default function Login() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [isUnverifiedError, setIsUnverifiedError] = useState(false)
+  const [resendDone, setResendDone] = useState(false)
 
   if (!ready) {
     return null
@@ -26,6 +29,8 @@ export default function Login() {
     e.preventDefault()
     setLoading(true)
     setError('')
+    setIsUnverifiedError(false)
+    setResendDone(false)
 
     try {
       await login({ email, password })
@@ -45,6 +50,7 @@ export default function Login() {
               'Verifica tu email antes de entrar. Revisa tu bandeja de entrada.',
             ),
           )
+          setIsUnverifiedError(true)
         } else if (backendMessage.toLowerCase().includes('blocked')) {
           setError(
             t(
@@ -193,6 +199,34 @@ export default function Login() {
               {error && (
                 <div className="bg-red-50 text-red-600 p-3 rounded-xl text-sm text-center font-bold">
                   {error}
+                </div>
+              )}
+
+              {isUnverifiedError && (
+                <div className="text-center">
+                  {resendDone ? (
+                    <p className="text-xs text-green-600 font-bold">
+                      {t(
+                        'verifyEmail.resendSuccess',
+                        'Si el correo existe, te hemos enviado un nuevo enlace.',
+                      )}
+                    </p>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        try {
+                          await api.post('/auth/resend-verification', { email })
+                          setResendDone(true)
+                        } catch (err) {
+                          console.error('Error resending verification:', err)
+                        }
+                      }}
+                      className="text-xs font-black uppercase tracking-widest text-[#F28749] hover:underline"
+                    >
+                      {t('verifyEmail.resendButton', 'Reenviar enlace')}
+                    </button>
+                  )}
                 </div>
               )}
 
