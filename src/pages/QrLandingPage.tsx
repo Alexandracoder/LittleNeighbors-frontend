@@ -5,7 +5,7 @@ import api from '../services/api'
 const PRIVACY_POLICY_VERSION = '1.0'
 const GOAL = 20
 
-const BARRIOS = ['Benimaclet', 'Ruzafa', 'Arrancapins', 'Cabañal', 'Velluters']
+const BARRIOS = ['Benimaclet', 'Ruzafa', 'Arrancapins', 'Cabañal', 'Velluters', 'Nou Moles', 'El Carmen', 'Patraix', 'Campanar', 'La Xerea']
 
 export const QrLandingPage: React.FC = () => {
   const [searchParams] = useSearchParams()
@@ -263,7 +263,7 @@ export const QrLandingPage: React.FC = () => {
               <p>
                 <strong className="text-gray-700">Responsable:</strong>{' '}
                 LittleNeighbors (Alexandra Coder). Contacto:
-                hola@littleneighbors.app
+                privacy@littleneighbors.es
               </p>
               <p>
                 <strong className="text-gray-700">Finalidad:</strong> Gestionar
@@ -289,7 +289,7 @@ export const QrLandingPage: React.FC = () => {
                 <strong className="text-gray-700">Tus derechos:</strong> Puedes
                 ejercer tus derechos de acceso, rectificación, supresión,
                 oposición, portabilidad y limitación escribiendo a
-                hola@littleneighbors.app. Tienes derecho a presentar reclamación
+                privacy@littleneighbors.es. Tienes derecho a presentar reclamación
                 ante la AEPD (aepd.es).
               </p>
               <p>
