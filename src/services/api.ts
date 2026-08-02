@@ -39,8 +39,16 @@ const refreshApi = axios.create({
 
 api.interceptors.request.use(
   config => {
+    // Antes se adjuntaba el token (si existía en localStorage) a TODAS
+    // las peticiones, incluidas las públicas como /public/pilot-lead.
+    // Si ese token estaba caducado (p.ej. de una sesión de admin de
+    // pruebas anterior en el mismo navegador), Spring intentaba
+    // validarlo igualmente y devolvía 401, aunque la ruta fuera
+    // pública y no necesitara ningún token. Ahora las rutas públicas
+    // se dejan sin cabecera Authorization.
+    const isPublicEndpoint = config.url?.includes('/public/')
     const token = localStorage.getItem('accessToken')
-    if (token) config.headers.Authorization = `Bearer ${token}`
+    if (token && !isPublicEndpoint) config.headers.Authorization = `Bearer ${token}`
     return config
   },
   error => Promise.reject(error),
@@ -51,7 +59,15 @@ api.interceptors.response.use(
   async error => {
     const originalRequest = error.config
 
-
+    // Antes, si una petición hacía timeout (o fallaba por red) en un
+    // sitio de la app que no tenía su propio manejo de error específico,
+    // el usuario no veía nada: la petición simplemente desaparecía
+    // (como pasó hoy con el login/registro durante el cold start:
+    // "(canceled)" en la pestaña Network y silencio total en la UI).
+    // Este aviso global actúa como red de seguridad para cualquier
+    // llamada de la app, la maneje o no el componente que la hizo.
+    // El login/registro ya tienen su propio mensaje más específico
+    // (ver Login.tsx), así que no duplicamos el aviso ahí.
     const isTimeout = error.code === 'ECONNABORTED'
     const isNetworkError = !error.response && error.code !== 'ECONNABORTED'
     const isAuthEndpoint =
@@ -63,7 +79,7 @@ api.interceptors.response.use(
         isTimeout
           ? 'La solicitud está tardando demasiado. Inténtalo de nuevo.'
           : 'No se pudo conectar con el servidor. Comprueba tu conexión.',
-        { duration: 6000, id: 'network-error' },
+        { duration: 6000, id: 'network-error' }, // id fijo: evita apilar toasts iguales si fallan varias peticiones a la vez
       )
     }
 
@@ -93,7 +109,12 @@ api.interceptors.response.use(
         return api(originalRequest)
       } catch (refreshError) {
         localStorage.clear()
-
+        // Antes esto redirigía SIEMPRE a /login, incluso si el 401 venía
+        // de una página pública (p.ej. /qr-landing con un token viejo/
+        // caducado de una sesión anterior en el mismo navegador). Un
+        // visitante anónimo escaneando el QR no debería acabar en la
+        // pantalla de login solo porque quedó un token expirado en
+        // localStorage de una prueba anterior.
         const publicPaths = ['/qr-landing', '/privacy', '/login', '/register']
         const isPublicPage = publicPaths.some(p =>
           window.location.pathname.startsWith(p),
