@@ -27,6 +27,7 @@ import { QrLandingPage } from './pages/QrLandingPage'
 import ChildDashboard from './components/ChildDashboard'
 import { AdminDashboard } from './components/AdminDashboard'
 import AdminModerationTable from './components/AdminModerationTable'
+import AdminPhotoModerationTable from './components/AdminPhotoModerationTable'
 import 'leaflet/dist/leaflet.css'
 import ForgotPassword from './components/ForgotPassword'
 import MessagesPage from './components/MessagesPage'
@@ -208,6 +209,14 @@ function AppContent() {
           element={
             <ProtectedRoute allowedRoles={['ADMIN', 'ROLE_ADMIN']}>
               <AdminModerationTable />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/photo-moderation"
+          element={
+            <ProtectedRoute allowedRoles={['ADMIN', 'ROLE_ADMIN']}>
+              <AdminPhotoModerationTable />
             </ProtectedRoute>
           }
         />

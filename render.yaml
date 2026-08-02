@@ -26,7 +26,7 @@ services:
           style-src 'self' 'unsafe-inline';
           img-src 'self' data: https:;
           font-src 'self' data:;
-          connect-src 'self' https://littleneighbors-backend.onrender.com wss://littleneighbors-backend.onrender.com https://api.cloudinary.com;
+          connect-src 'self' https://littleneighbors.onrender.com wss://littleneighbors.onrender.com https://api.cloudinary.com;
           frame-ancestors 'none';
           base-uri 'self';
           form-action 'self'

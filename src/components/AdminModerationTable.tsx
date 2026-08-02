@@ -4,7 +4,7 @@ import { toast } from 'react-hot-toast'
 import adminService from '../services/adminService'
 import { User } from '../types'
 import MainLayout from '../components/layout/MainLayout'
-import { ArrowLeft, CheckCircle, XCircle, Loader2, Users } from 'lucide-react'
+import { ArrowLeft, CheckCircle, XCircle, Loader2, Users, Image } from 'lucide-react'
 import dashboardBg from '../assets/Verification_image.png'
 
 const AdminModerationTable = () => {
@@ -75,6 +75,19 @@ const AdminModerationTable = () => {
           <ArrowLeft className="w-4 h-4" />
           <span className="font-black text-[10px] uppercase tracking-widest">
             Back to Stats
+          </span>
+        </button>
+      </div>
+
+      {/* Fotos pendientes de revisión */}
+      <div className="fixed top-8 right-6 z-50">
+        <button
+          onClick={() => navigate('/admin/photo-moderation')}
+          className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-xl text-black rounded-full border border-white/20 hover:bg-white/20 transition-all"
+        >
+          <Image className="w-4 h-4" />
+          <span className="font-black text-[10px] uppercase tracking-widest">
+            Fotos pendientes
           </span>
         </button>
       </div>
