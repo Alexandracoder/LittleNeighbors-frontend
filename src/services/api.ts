@@ -51,15 +51,7 @@ api.interceptors.response.use(
   async error => {
     const originalRequest = error.config
 
-    // Antes, si una petición hacía timeout (o fallaba por red) en un
-    // sitio de la app que no tenía su propio manejo de error específico,
-    // el usuario no veía nada: la petición simplemente desaparecía
-    // (como pasó hoy con el login/registro durante el cold start:
-    // "(canceled)" en la pestaña Network y silencio total en la UI).
-    // Este aviso global actúa como red de seguridad para cualquier
-    // llamada de la app, la maneje o no el componente que la hizo.
-    // El login/registro ya tienen su propio mensaje más específico
-    // (ver Login.tsx), así que no duplicamos el aviso ahí.
+
     const isTimeout = error.code === 'ECONNABORTED'
     const isNetworkError = !error.response && error.code !== 'ECONNABORTED'
     const isAuthEndpoint =
@@ -71,7 +63,7 @@ api.interceptors.response.use(
         isTimeout
           ? 'La solicitud está tardando demasiado. Inténtalo de nuevo.'
           : 'No se pudo conectar con el servidor. Comprueba tu conexión.',
-        { duration: 6000, id: 'network-error' }, // id fijo: evita apilar toasts iguales si fallan varias peticiones a la vez
+        { duration: 6000, id: 'network-error' },
       )
     }
 
@@ -101,7 +93,14 @@ api.interceptors.response.use(
         return api(originalRequest)
       } catch (refreshError) {
         localStorage.clear()
-        window.location.href = '/login'
+
+        const publicPaths = ['/qr-landing', '/privacy', '/login', '/register']
+        const isPublicPage = publicPaths.some(p =>
+          window.location.pathname.startsWith(p),
+        )
+        if (!isPublicPage) {
+          window.location.href = '/login'
+        }
         return Promise.reject(refreshError)
       }
     }
