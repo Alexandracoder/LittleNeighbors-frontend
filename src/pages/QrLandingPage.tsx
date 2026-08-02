@@ -5,12 +5,11 @@ import api from '../services/api'
 const PRIVACY_POLICY_VERSION = '1.0'
 const GOAL = 20
 
-const BARRIOS = ['Benimaclet', 'Ruzafa', 'Arrancapins', 'Cabañal', 'Velluters', 'Nou Moles', 'El Carmen', 'Patraix', 'Campanar', 'La Xerea']
-
 export const QrLandingPage: React.FC = () => {
   const [searchParams] = useSearchParams()
   const [email, setEmail] = useState('')
   const [barrio, setBarrio] = useState('')
+  const [barrios, setBarrios] = useState<string[]>([])
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
   const [votosContador, setVotosContador] = useState(0)
@@ -21,7 +20,7 @@ export const QrLandingPage: React.FC = () => {
   const fetchContador = async (nombreBarrio: string) => {
     try {
       const { data } = await api.get(
-        `/api/public/pilot-lead/count?neighborhood=${encodeURIComponent(
+        `/public/pilot-lead/count?neighborhood=${encodeURIComponent(
           nombreBarrio,
         )}`,
       )
@@ -30,6 +29,22 @@ export const QrLandingPage: React.FC = () => {
       // no bloquear la UI si falla el contador
     }
   }
+
+  useEffect(() => {
+    // Antes esta lista estaba hardcodeada aquí (y duplicada a mano en el
+    // backend, en AdminController), así que cada barrio nuevo del piloto
+    // había que añadirlo en dos sitios y era fácil olvidarse de uno.
+    // Ahora se pide al backend, que es la única fuente de verdad
+    // (com.alexandracoder.littleneighbors.qr.PilotBarrios).
+    api
+      .get('/public/pilot-lead/barrios')
+      .then(({ data }) => setBarrios(data))
+      .catch(() => {
+        // Si falla, dejamos el desplegable vacío en vez de romper el
+        // formulario entero; el usuario puede recargar la página.
+        setBarrios([])
+      })
+  }, [])
 
   useEffect(() => {
     const barrioParam = searchParams.get('barrio')
@@ -51,7 +66,7 @@ export const QrLandingPage: React.FC = () => {
     setMensajeError(null)
 
     try {
-      await api.post('/api/public/pilot-lead', {
+      await api.post('/public/pilot-lead', {
         email,
         neighborhood: barrio,
         consentGiven: true,
@@ -164,7 +179,7 @@ export const QrLandingPage: React.FC = () => {
                       className="w-full p-3.5 bg-gray-50 border-2 border-transparent focus:border-[#FF8A5C] rounded-2xl text-sm font-bold outline-none transition-all"
                     >
                       <option value="">Selecciona tu barrio...</option>
-                      {BARRIOS.map(b => (
+                      {barrios.map(b => (
                         <option key={b} value={b}>
                           {b}
                         </option>
@@ -282,7 +297,7 @@ export const QrLandingPage: React.FC = () => {
               <p>
                 <strong className="text-gray-700">Destinatarios:</strong> No
                 cedemos tus datos a terceros. El servicio de email de
-                notificación (Resend) actúa como encargado del tratamiento bajo
+                notificación (Brevo) actúa como encargado del tratamiento bajo
                 contrato.
               </p>
               <p>
