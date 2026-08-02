@@ -277,7 +277,7 @@ export const QrLandingPage: React.FC = () => {
             <div className="text-xs text-gray-500 space-y-3 leading-relaxed">
               <p>
                 <strong className="text-gray-700">Responsable:</strong>{' '}
-                LittleNeighbors (Alexandra Coder). Contacto:
+                LittleNeighbors (Murry Rojas). Contacto:
                 privacy@littleneighbors.es
               </p>
               <p>
