@@ -40,7 +40,8 @@
       "errorInvalidCredentials": "Correo o contraseña no válidos.",
       "errorConnection": "Error de conexión. ¿Está el servidor activo?",
       "errorUnverifiedEmail": "Verifica tu email antes de entrar. Revisa tu bandeja de entrada.",
-      "errorBlocked": "Esta cuenta ha sido bloqueada. Contacta con soporte."
+      "errorBlocked": "Esta cuenta ha sido bloqueada. Contacta con soporte.",
+      "errorTooManyAttempts": "Demasiados intentos. Espera unos minutos antes de volver a intentarlo."
     },
     "register": {
       "title": "Únete al barrio",
@@ -240,7 +241,8 @@
       "aiThinking": "IA pensando..."
     },
     "titleWith": "Chat con {{name}}",
-    "confirmError": "No se pudo confirmar el match. Inténtalo de nuevo."
+    "confirmError": "No se pudo confirmar el match. Inténtalo de nuevo.",
+    "connectionError": "No se pudo conectar al chat. Verifica tu cuenta o inténtalo de nuevo más tarde."
   },
   "matches": {
     "title": "Mis Chats",

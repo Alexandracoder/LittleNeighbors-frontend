@@ -113,8 +113,19 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
       },
       onDisconnect: () => setIsConnected(false),
       onStompError: frame => {
+        // Antes esto solo se veía en la consola del navegador: si la
+        // conexión de chat fallaba (p.ej. cuenta sin verificar, token
+        // caducado, etc.) el usuario no se enteraba de nada, solo veía
+        // que los mensajes no se enviaban sin ninguna explicación.
         console.error('Broker reported error: ' + frame.headers['message'])
         setIsConnected(false)
+        toast.error(
+          t(
+            'chat.connectionError',
+            'No se pudo conectar al chat. Verifica tu cuenta o inténtalo de nuevo más tarde.',
+          ),
+          { duration: 6000 },
+        )
       },
     })
 

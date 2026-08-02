@@ -40,7 +40,8 @@
       "errorInvalidCredentials": "Invalid email or password.",
       "errorConnection": "Connection error. Is the server running?",
       "errorUnverifiedEmail": "Verify your email before logging in. Check your inbox.",
-      "errorBlocked": "This account has been blocked. Contact support."
+      "errorBlocked": "This account has been blocked. Contact support.",
+      "errorTooManyAttempts": "Too many attempts. Please wait a few minutes before trying again."
     },
     "register": {
       "title": "Join the neighborhood",
@@ -240,7 +241,8 @@
       "aiThinking": "AI Thinking..."
     },
     "titleWith": "Chat with {{name}}",
-    "confirmError": "Couldn't confirm the match. Please try again."
+    "confirmError": "Couldn't confirm the match. Please try again.",
+    "connectionError": "Couldn't connect to chat. Check your account or try again later."
   },
   "matches": {
     "title": "My Chats",

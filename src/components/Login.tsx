@@ -61,6 +61,16 @@ export default function Login() {
         } else {
           setError(t('auth.login.errorInvalidCredentials'))
         }
+      } else if (err.response?.status === 429) {
+        // Antes caía en el "else" genérico de abajo y mostraba "Error de
+        // conexión, ¿está el servidor activo?", que es confuso y falso
+        // cuando en realidad es un límite de intentos.
+        setError(
+          t(
+            'auth.login.errorTooManyAttempts',
+            'Demasiados intentos. Espera unos minutos antes de volver a intentarlo.',
+          ),
+        )
       } else {
         setError(t('auth.login.errorConnection'))
       }

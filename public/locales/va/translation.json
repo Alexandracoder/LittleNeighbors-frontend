@@ -40,7 +40,8 @@
       "errorInvalidCredentials": "Correu o contrasenya no vàlids.",
       "errorConnection": "Error de connexió. Està el servidor actiu?",
       "errorUnverifiedEmail": "Verifica el teu correu abans d'entrar. Revisa la teua safata d'entrada.",
-      "errorBlocked": "Este compte ha sigut bloquejat. Contacta amb suport."
+      "errorBlocked": "Este compte ha sigut bloquejat. Contacta amb suport.",
+      "errorTooManyAttempts": "Massa intents. Espera uns minuts abans de tornar-ho a intentar."
     },
     "register": {
       "title": "Uneix-te al barri",
@@ -240,7 +241,8 @@
       "aiThinking": "IA pensant..."
     },
     "titleWith": "Xat amb {{name}}",
-    "confirmError": "No s'ha pogut confirmar el match. Torna-ho a provar."
+    "confirmError": "No s'ha pogut confirmar el match. Torna-ho a provar.",
+    "connectionError": "No s'ha pogut connectar al xat. Verifica el teu compte o torna-ho a intentar més tard."
   },
   "matches": {
     "title": "Els meus Xats",

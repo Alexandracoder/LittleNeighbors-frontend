@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { toast } from 'react-hot-toast'
 import type {
   AuthRequest,
   AuthResponse,
@@ -22,17 +23,18 @@ export const WS_BASE_URL = API_BASE_URL.replace(/\/api\/?$/, '')
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: { 'Content-Type': 'application/json' },
-  // Antes no había timeout: si el backend se quedaba colgado (como pasó
-  // con el envío síncrono de emails), la petición se quedaba "pending"
-  // en el navegador sin límite. 15s da margen de sobra para peticiones
-  // normales sin dejar a la persona esperando indefinidamente.
-  timeout: 15000,
+  // Ahora que el backend está en un plan de Render que no se duerme, ya
+  // no hace falta un timeout corto para protegerse de un cold start de
+  // más de un minuto — pero se deja algo de margen extra (20s en vez de
+  // 15s) para picos puntuales de carga sin dejar a la persona esperando
+  // indefinidamente si algo se queda realmente colgado.
+  timeout: 20000,
 })
 
 const refreshApi = axios.create({
   baseURL: API_BASE_URL,
   headers: { 'Content-Type': 'application/json' },
-  timeout: 15000,
+  timeout: 20000,
 })
 
 api.interceptors.request.use(
@@ -48,6 +50,30 @@ api.interceptors.response.use(
   response => response,
   async error => {
     const originalRequest = error.config
+
+    // Antes, si una petición hacía timeout (o fallaba por red) en un
+    // sitio de la app que no tenía su propio manejo de error específico,
+    // el usuario no veía nada: la petición simplemente desaparecía
+    // (como pasó hoy con el login/registro durante el cold start:
+    // "(canceled)" en la pestaña Network y silencio total en la UI).
+    // Este aviso global actúa como red de seguridad para cualquier
+    // llamada de la app, la maneje o no el componente que la hizo.
+    // El login/registro ya tienen su propio mensaje más específico
+    // (ver Login.tsx), así que no duplicamos el aviso ahí.
+    const isTimeout = error.code === 'ECONNABORTED'
+    const isNetworkError = !error.response && error.code !== 'ECONNABORTED'
+    const isAuthEndpoint =
+      originalRequest?.url?.includes('/auth/login') ||
+      originalRequest?.url?.includes('/auth/register')
+
+    if ((isTimeout || isNetworkError) && !isAuthEndpoint) {
+      toast.error(
+        isTimeout
+          ? 'La solicitud está tardando demasiado. Inténtalo de nuevo.'
+          : 'No se pudo conectar con el servidor. Comprueba tu conexión.',
+        { duration: 6000, id: 'network-error' }, // id fijo: evita apilar toasts iguales si fallan varias peticiones a la vez
+      )
+    }
 
     if (
       originalRequest.url?.includes('/auth/login') ||
