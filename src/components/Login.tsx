@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext'
 import { useTranslation } from 'react-i18next'
 import api from '../services/api'
 
-import loginBg from '../assets/playing-together.png'
+import loginBg from '../assets/Foto login App.png'
 
 export default function Login() {
   const { t, i18n, ready } = useTranslation()
