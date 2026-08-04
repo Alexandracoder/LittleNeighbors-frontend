@@ -306,7 +306,13 @@
       "organizedBy": "Organiza",
       "deleteForbidden": "Solo la familia que creó este evento puede eliminarlo.",
       "deleteNotFound": "Este evento ya no existe.",
-      "deleteError": "No se pudo eliminar el evento. Inténtalo de nuevo."
+      "deleteError": "No se pudo eliminar el evento. Inténtalo de nuevo.",
+      "attendButton": "Apuntarme",
+      "attending": "¡Voy!",
+      "attendeeCount_one": "{{count}} asistente",
+      "attendeeCount_other": "{{count}} asistentes",
+      "attendError": "No se pudo actualizar tu asistencia. Inténtalo de nuevo.",
+      "attendNotFound": "Este evento ya no existe."
     },
     "list": {
       "empty": "No hay eventos próximos en Valencia. ¡Crea el primero!",

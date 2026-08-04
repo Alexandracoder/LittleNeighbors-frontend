@@ -6,6 +6,7 @@ import {
   Heart,
   MessageCircle,
   Sparkles,
+  Users,
   X,
   XCircle,
 } from 'lucide-react'
@@ -23,6 +24,7 @@ interface Notification {
     | 'EVENT_CREATED'
     | 'EVENT_UPDATED'
     | 'EVENT_CANCELLED'
+    | 'EVENT_ATTENDANCE_CONFIRMED'
     | 'MATCH_SUCCESS'
     | 'MATCH_CONFIRMED'
     | 'CHAT_MESSAGE'
@@ -116,6 +118,7 @@ export default function NotificationBell() {
       case 'EVENT_CREATED':
       case 'EVENT_UPDATED':
       case 'EVENT_CANCELLED':
+      case 'EVENT_ATTENDANCE_CONFIRMED':
         navigate('/events')
         break
       default:
@@ -130,6 +133,10 @@ export default function NotificationBell() {
       case 'EVENT_CANCELLED':
         return (
           <Calendar className="w-4 h-4 text-orange-400" aria-hidden="true" />
+        )
+      case 'EVENT_ATTENDANCE_CONFIRMED':
+        return (
+          <Users className="w-4 h-4 text-orange-400" aria-hidden="true" />
         )
       case 'MATCH_SUCCESS':
       case 'MATCH_CONFIRMED':

@@ -306,7 +306,13 @@
       "organizedBy": "Organitza",
       "deleteForbidden": "Només la família que va crear este esdeveniment pot eliminar-lo.",
       "deleteNotFound": "Este esdeveniment ja no existeix.",
-      "deleteError": "No s'ha pogut eliminar l'esdeveniment. Torna-ho a provar."
+      "deleteError": "No s'ha pogut eliminar l'esdeveniment. Torna-ho a provar.",
+      "attendButton": "M'apunte",
+      "attending": "Vaig!",
+      "attendeeCount_one": "{{count}} assistent",
+      "attendeeCount_other": "{{count}} assistents",
+      "attendError": "No s'ha pogut actualitzar la teua assistència. Torna-ho a intentar.",
+      "attendNotFound": "Este esdeveniment ja no existix."
     },
     "list": {
       "empty": "No hi ha esdeveniments pròxims a València. Crea el primer!",

@@ -306,7 +306,13 @@
       "organizedBy": "Organized by",
       "deleteForbidden": "Only the family that created this event can delete it.",
       "deleteNotFound": "This event no longer exists.",
-      "deleteError": "Couldn't delete the event. Please try again."
+      "deleteError": "Couldn't delete the event. Please try again.",
+      "attendButton": "I'm in",
+      "attending": "I'm going!",
+      "attendeeCount_one": "{{count}} attendee",
+      "attendeeCount_other": "{{count}} attendees",
+      "attendError": "Couldn't update your attendance. Please try again.",
+      "attendNotFound": "This event no longer exists."
     },
     "list": {
       "empty": "No upcoming events in Valencia. Create the first one!",

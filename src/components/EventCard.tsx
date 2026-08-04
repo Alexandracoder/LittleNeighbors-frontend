@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { Calendar, Clock, MapPin, Edit3, Trash2, EyeOff } from 'lucide-react'
+import { Calendar, Clock, MapPin, Edit3, Trash2, EyeOff, Users, Check } from 'lucide-react'
 
 interface EventCardProps {
   event: any
@@ -7,7 +7,9 @@ interface EventCardProps {
   onEdit: (event: any) => void
   onDelete: (id: number) => void
   onHide: (id: number) => void
+  onToggleAttend: (id: number) => void
   isOwner: boolean
+  attendLoading?: boolean
 }
 
 export const EventCard = ({
@@ -16,12 +18,17 @@ export const EventCard = ({
   onEdit,
   onDelete,
   onHide,
+  onToggleAttend,
   isOwner,
+  attendLoading,
 }: EventCardProps) => {
   const { t } = useTranslation()
 
   const neighborhoodName =
     neighborhoods.find(n => n.id === event.neighborhoodId)?.name || 'Valencia'
+
+  const attendeeCount = event.attendeeCount ?? 0
+  const isAttending = event.isAttending ?? false
 
   return (
     <div className="group bg-white/40 backdrop-blur-md p-6 rounded-[2.5rem] border border-white/50 shadow-xl mb-6 transition-all hover:-translate-y-2 hover:shadow-2xl active:scale-[0.98]">
@@ -72,6 +79,10 @@ export const EventCard = ({
             minute: '2-digit',
           })}
         </div>
+        <div className="flex items-center gap-1.5 bg-white/30 px-3 py-1.5 rounded-full">
+          <Users className="w-3 h-3 text-[#F28749]" />
+          {t('events.card.attendeeCount', { count: attendeeCount })}
+        </div>
       </div>
 
       {isOwner ? (
@@ -92,13 +103,36 @@ export const EventCard = ({
           </button>
         </div>
       ) : (
-        <button
-          onClick={() => onHide(event.id)}
-          className="w-full flex items-center justify-center gap-2 bg-white/50 text-gray-500 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-gray-200 transition-all shadow-sm border border-white"
-        >
-          <EyeOff className="w-3 h-3" />
-          {t('events.card.hideFromMe', 'Quitar de mi vista')}
-        </button>
+        <div className="grid grid-cols-2 gap-4">
+          <button
+            onClick={() => onToggleAttend(event.id)}
+            disabled={attendLoading}
+            className={`flex items-center justify-center gap-2 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all shadow-sm border disabled:opacity-60 disabled:cursor-not-allowed ${
+              isAttending
+                ? 'bg-green-500/10 text-green-700 border-green-100 hover:bg-green-500 hover:text-white'
+                : 'bg-[#F28749]/10 text-[#F28749] border-orange-100 hover:bg-[#F28749] hover:text-white'
+            }`}
+          >
+            {isAttending ? (
+              <>
+                <Check className="w-3 h-3" />
+                {t('events.card.attending', '¡Voy!')}
+              </>
+            ) : (
+              <>
+                <Users className="w-3 h-3" />
+                {t('events.card.attendButton', 'Apuntarme')}
+              </>
+            )}
+          </button>
+          <button
+            onClick={() => onHide(event.id)}
+            className="flex items-center justify-center gap-2 bg-white/50 text-gray-500 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-gray-200 transition-all shadow-sm border border-white"
+          >
+            <EyeOff className="w-3 h-3" />
+            {t('events.card.hideFromMe', 'Quitar de mi vista')}
+          </button>
+        </div>
       )}
     </div>
   )

@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { EventCard } from './EventCard'
 import api from '../services/api'
 import { toast } from 'react-hot-toast'
@@ -11,6 +12,7 @@ interface EventListProps {
   onRefresh: () => void
   onEdit: (event: any) => void
   onHide: (id: number) => void
+  onAttendChange: (id: number, isAttending: boolean) => void
   myFamilyId: number | null
 }
 
@@ -22,9 +24,11 @@ export const EventList = ({
   onRefresh,
   onEdit,
   onHide,
+  onAttendChange,
   myFamilyId,
 }: EventListProps) => {
   const { t } = useTranslation()
+  const [attendLoadingId, setAttendLoadingId] = useState<number | null>(null)
 
   const handleDelete = async (id: number) => {
     if (!window.confirm(t('events.card.confirmDelete', '¿Seguro que quieres eliminar este evento?'))) return
@@ -42,6 +46,33 @@ export const EventList = ({
       } else {
         toast.error(t('events.card.deleteError', 'No se pudo eliminar el evento. Inténtalo de nuevo.'))
       }
+    }
+  }
+
+  const handleToggleAttend = async (id: number) => {
+    const event = events.find(e => e.id === id)
+    if (!event) return
+
+    const wasAttending = event.isAttending ?? false
+    setAttendLoadingId(id)
+
+    try {
+      if (wasAttending) {
+        await api.delete(`/events/${id}/attend`)
+      } else {
+        await api.post(`/events/${id}/attend`)
+      }
+      onAttendChange(id, !wasAttending)
+    } catch (err: any) {
+      console.error('Error al apuntarse/desapuntarse del evento:', err)
+      if (err.response?.status === 404) {
+        toast.error(t('events.card.attendNotFound', 'Este evento ya no existe.'))
+        onRefresh()
+      } else {
+        toast.error(t('events.card.attendError', 'No se pudo actualizar tu asistencia. Inténtalo de nuevo.'))
+      }
+    } finally {
+      setAttendLoadingId(null)
     }
   }
 
@@ -64,7 +95,9 @@ export const EventList = ({
             onDelete={() => handleDelete(event.id)}
             onEdit={() => onEdit(event)}
             onHide={() => onHide(event.id)}
+            onToggleAttend={() => handleToggleAttend(event.id)}
             isOwner={myFamilyId != null && event.creatorFamilyId === myFamilyId}
+            attendLoading={attendLoadingId === event.id}
           />
         ))
       )}

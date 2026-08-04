@@ -61,6 +61,22 @@ export default function EventsPage() {
     }
   }
 
+  const handleAttendChange = (eventId: number, isAttending: boolean) => {
+    setEvents(prev =>
+      prev.map(e => {
+        if (e.id !== eventId) return e
+        const currentCount = e.attendeeCount ?? 0
+        return {
+          ...e,
+          isAttending,
+          attendeeCount: isAttending
+            ? currentCount + 1
+            : Math.max(0, currentCount - 1),
+        }
+      }),
+    )
+  }
+
   const fetchNeighborhoods = async () => {
     try {
       const res = await api.get('/neighborhoods')
@@ -223,6 +239,7 @@ export default function EventsPage() {
                 onRefresh={fetchEvents}
                 onEdit={handleEditClick}
                 onHide={handleHide}
+                onAttendChange={handleAttendChange}
                 myFamilyId={myFamilyId}
               />
             </>
