@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import { UserPlus, Users, MapPin, CalendarHeart } from 'lucide-react'
 import api from '../services/api'
 
 const PRIVACY_POLICY_VERSION = '1.0'
@@ -107,6 +108,25 @@ export const QrLandingPage: React.FC = () => {
         </div>
 
         <div className="p-6 space-y-5">
+          {/* Cómo funciona — antes no había ninguna explicación de la app
+              antes de pedir el email; ahora la persona sabe qué está
+              aceptando antes de dejar su correo. */}
+          <div className="space-y-2.5">
+            {[
+              { icon: UserPlus, text: 'Te registras y verificas tu email' },
+              { icon: Users, text: 'Creas el perfil de tu familia' },
+              { icon: MapPin, text: 'Descubres familias cerca de ti' },
+              { icon: CalendarHeart, text: 'Organizáis quedadas y eventos' },
+            ].map(({ icon: Icon, text }, i) => (
+              <div key={i} className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-xl bg-orange-50 flex items-center justify-center flex-shrink-0">
+                  <Icon className="w-4 h-4 text-orange-500" strokeWidth={2.5} />
+                </div>
+                <p className="text-xs font-bold text-[#2D2D2D]">{text}</p>
+              </div>
+            ))}
+          </div>
+
           {/* Barra de progreso */}
           {barrio && (
             <div className="bg-orange-50 rounded-2xl p-4 border border-orange-100">

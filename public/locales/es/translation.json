@@ -41,7 +41,13 @@
       "errorConnection": "Error de conexión. ¿Está el servidor activo?",
       "errorUnverifiedEmail": "Verifica tu email antes de entrar. Revisa tu bandeja de entrada.",
       "errorBlocked": "Esta cuenta ha sido bloqueada. Contacta con soporte.",
-      "errorTooManyAttempts": "Demasiados intentos. Espera unos minutos antes de volver a intentarlo."
+      "errorTooManyAttempts": "Demasiados intentos. Espera unos minutos antes de volver a intentarlo.",
+      "howItWorks": {
+        "step1": "Regístrate y verifica tu email",
+        "step2": "Crea el perfil de tu familia",
+        "step3": "Descubre familias cerca de ti",
+        "step4": "Organizad quedadas y eventos"
+      }
     },
     "register": {
       "title": "Únete al barrio",

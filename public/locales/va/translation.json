@@ -41,7 +41,13 @@
       "errorConnection": "Error de connexió. Està el servidor actiu?",
       "errorUnverifiedEmail": "Verifica el teu correu abans d'entrar. Revisa la teua safata d'entrada.",
       "errorBlocked": "Este compte ha sigut bloquejat. Contacta amb suport.",
-      "errorTooManyAttempts": "Massa intents. Espera uns minuts abans de tornar-ho a intentar."
+      "errorTooManyAttempts": "Massa intents. Espera uns minuts abans de tornar-ho a intentar.",
+      "howItWorks": {
+        "step1": "Registra't i verifica el teu email",
+        "step2": "Crea el perfil de la teua família",
+        "step3": "Descobreix famílies prop de tu",
+        "step4": "Organitzeu quedades i esdeveniments"
+      }
     },
     "register": {
       "title": "Uneix-te al barri",

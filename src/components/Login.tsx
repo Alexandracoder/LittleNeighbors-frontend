@@ -1,11 +1,11 @@
 import { useState, FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Home, Mail, Lock, ArrowRight } from 'lucide-react'
+import { Home, Mail, Lock, ArrowRight, UserPlus, Users, MapPin, CalendarHeart } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useTranslation } from 'react-i18next'
 import api from '../services/api'
 
-import loginBg from '../assets/Foto login App.png'
+import loginBg from '../assets/playing-together.png'
 
 export default function Login() {
   const { t, i18n, ready } = useTranslation()
@@ -131,10 +131,10 @@ export default function Login() {
         {!showForm ? (
           /* Pantalla de bienvenida inicial */
           <div className="text-center animate-in fade-in zoom-in duration-700">
-            <h1 className="text-6xl font-black text-white mb-4 drop-shadow-2xl italic">
+            <h1 className="text-6xl font-black text-brand-dark mb-4 drop-shadow-[0_2px_6px_rgba(255,255,255,0.85)] italic">
               {t('auth.login.title')}
             </h1>
-            <p className="text-2xl text-white/90 mb-10 font-medium drop-shadow-lg text-balance">
+            <p className="text-2xl text-brand-dark/90 mb-10 font-medium drop-shadow-[0_1px_4px_rgba(255,255,255,0.85)] text-balance">
               {t('auth.login.subtitle')}
             </p>
             <button
@@ -144,6 +144,29 @@ export default function Login() {
               <span>{t('auth.login.cta')}</span>
               <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
             </button>
+
+            {/* Cómo funciona — antes la pantalla de bienvenida no explicaba
+                nada de la app a quien llega por primera vez sin pasar por
+                un flyer QR; tarjeta con fondo propio para que se lea bien
+                encima de cualquier foto de fondo. */}
+            <div className="grid grid-cols-2 gap-3 mt-10 max-w-sm mx-auto">
+              {[
+                { icon: UserPlus, text: t('auth.login.howItWorks.step1', 'Regístrate y verifica tu email') },
+                { icon: Users, text: t('auth.login.howItWorks.step2', 'Crea el perfil de tu familia') },
+                { icon: MapPin, text: t('auth.login.howItWorks.step3', 'Descubre familias cerca de ti') },
+                { icon: CalendarHeart, text: t('auth.login.howItWorks.step4', 'Organizad quedadas y eventos') },
+              ].map(({ icon: Icon, text }, i) => (
+                <div
+                  key={i}
+                  className="flex flex-col items-center gap-1.5 bg-white/90 backdrop-blur-md rounded-2xl p-3 shadow-lg"
+                >
+                  <Icon className="w-5 h-5 text-brand-orange" strokeWidth={2.5} />
+                  <p className="text-[11px] font-bold text-brand-dark text-center leading-tight">
+                    {text}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
         ) : (
           /* Tarjeta de Login estilo "Clean Card" con la Casita Superior flotante */

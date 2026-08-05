@@ -41,7 +41,13 @@
       "errorConnection": "Connection error. Is the server running?",
       "errorUnverifiedEmail": "Verify your email before logging in. Check your inbox.",
       "errorBlocked": "This account has been blocked. Contact support.",
-      "errorTooManyAttempts": "Too many attempts. Please wait a few minutes before trying again."
+      "errorTooManyAttempts": "Too many attempts. Please wait a few minutes before trying again.",
+      "howItWorks": {
+        "step1": "Sign up and verify your email",
+        "step2": "Create your family profile",
+        "step3": "Discover families near you",
+        "step4": "Organize meetups and events"
+      }
     },
     "register": {
       "title": "Join the neighborhood",
