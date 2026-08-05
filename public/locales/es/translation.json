@@ -523,7 +523,10 @@
       "title": "Panel de Seguimiento",
       "subtitle": "Administrador",
       "heading": "Panel de Seguimiento - Administrador",
-      "goToModeration": "Ir a moderación"
+      "goToModeration": "Ir a moderación",
+      "totalVisits": "Visitas totales",
+      "uniqueVisitors": "Visitantes únicos",
+      "uniqueVisitors30d": "Visitantes únicos (30 días)"
     },
     "table": {
       "neighborhood": "Barrio",
@@ -629,5 +632,9 @@
     "resending": "Enviando...",
     "resendSuccess": "Si el correo existe, te hemos enviado un nuevo enlace.",
     "resendError": "No se pudo reenviar. Inténtalo de nuevo."
+  },
+  "footer": {
+    "allRightsReserved": "Todos los derechos reservados",
+    "madeBy": "Creada por Alexandra, fundadora y desarrolladora"
   }
 }

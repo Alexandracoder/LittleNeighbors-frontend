@@ -12,6 +12,18 @@ interface DetailedStats {
   tasaConversion: number
 }
 
+interface DailyVisits {
+  date: string
+  uniqueVisitors: number
+}
+
+interface SiteVisitStats {
+  totalVisits: number
+  uniqueVisitors: number
+  uniqueVisitorsLast30Days: number
+  last30Days: DailyVisits[]
+}
+
 export const AdminDashboard: React.FC = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -19,19 +31,22 @@ export const AdminDashboard: React.FC = () => {
   const [detailedStats, setDetailedStats] = useState<
     Record<string, DetailedStats>
   >({})
+  const [siteVisits, setSiteVisits] = useState<SiteVisitStats | null>(null)
   const [loading, setLoading] = useState(true)
   const GOAL = 20
 
   useEffect(() => {
     const fetchAdminData = async () => {
       try {
-        const [statsData, detailedData] = await Promise.all([
+        const [statsData, detailedData, siteVisitData] = await Promise.all([
           adminApi.getStats(),
           adminApi.getDetailedStats(),
+          adminApi.getSiteVisitStats(),
         ])
 
         setStats(statsData)
         setDetailedStats(detailedData)
+        setSiteVisits(siteVisitData)
       } catch (error) {
         console.error('Error fetching admin stats:', error)
       } finally {
@@ -88,6 +103,66 @@ export const AdminDashboard: React.FC = () => {
             {t('admin.dashboard.goToModeration', 'Ir a moderación')}
           </button>
         </div>
+
+        {siteVisits && (
+          <div
+            style={{
+              display: 'flex',
+              gap: '16px',
+              flexWrap: 'wrap',
+              marginBottom: '30px',
+            }}
+          >
+            <div
+              style={{
+                flex: '1 1 180px',
+                backgroundColor: '#fff',
+                borderRadius: '12px',
+                padding: '20px',
+                boxShadow: '0 2px 5px rgba(0,0,0,0.05)',
+              }}
+            >
+              <p style={{ margin: 0, fontSize: '12px', color: '#7f8c8d', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                {t('admin.dashboard.totalVisits', 'Visitas totales')}
+              </p>
+              <p style={{ margin: '6px 0 0', fontSize: '28px', fontWeight: 800 }}>
+                {siteVisits.totalVisits}
+              </p>
+            </div>
+            <div
+              style={{
+                flex: '1 1 180px',
+                backgroundColor: '#fff',
+                borderRadius: '12px',
+                padding: '20px',
+                boxShadow: '0 2px 5px rgba(0,0,0,0.05)',
+              }}
+            >
+              <p style={{ margin: 0, fontSize: '12px', color: '#7f8c8d', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                {t('admin.dashboard.uniqueVisitors', 'Visitantes únicos')}
+              </p>
+              <p style={{ margin: '6px 0 0', fontSize: '28px', fontWeight: 800 }}>
+                {siteVisits.uniqueVisitors}
+              </p>
+            </div>
+            <div
+              style={{
+                flex: '1 1 180px',
+                backgroundColor: '#fff',
+                borderRadius: '12px',
+                padding: '20px',
+                boxShadow: '0 2px 5px rgba(0,0,0,0.05)',
+              }}
+            >
+              <p style={{ margin: 0, fontSize: '12px', color: '#7f8c8d', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                {t('admin.dashboard.uniqueVisitors30d', 'Visitantes únicos (30 días)')}
+              </p>
+              <p style={{ margin: '6px 0 0', fontSize: '28px', fontWeight: 800, color: '#27ae60' }}>
+                {siteVisits.uniqueVisitorsLast30Days}
+              </p>
+            </div>
+          </div>
+        )}
 
         <table
           style={{

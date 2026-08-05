@@ -523,7 +523,10 @@
       "title": "Tauler de Seguiment",
       "subtitle": "Administrador",
       "heading": "Tauler de Seguiment - Administrador",
-      "goToModeration": "Anar a moderació"
+      "goToModeration": "Anar a moderació",
+      "totalVisits": "Visites totals",
+      "uniqueVisitors": "Visitants únics",
+      "uniqueVisitors30d": "Visitants únics (30 dies)"
     },
     "table": {
       "neighborhood": "Barri",
@@ -629,5 +632,9 @@
     "resending": "Enviant...",
     "resendSuccess": "Si el correu existeix, t'hem enviat un nou enllaç.",
     "resendError": "No s'ha pogut reenviar. Torna-ho a provar."
+  },
+  "footer": {
+    "allRightsReserved": "Tots els drets reservats",
+    "madeBy": "Creada per Alexandra, fundadora i desenvolupadora"
   }
 }

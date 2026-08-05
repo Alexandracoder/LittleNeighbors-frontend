@@ -267,6 +267,10 @@ export const adminApi = {
     const response = await api.get('/admin/stats/detailed')
     return response.data
   },
+  getSiteVisitStats: async () => {
+    const response = await api.get('/admin/stats/site-visits')
+    return response.data
+  },
 }
 
 export default api

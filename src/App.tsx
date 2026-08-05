@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import {
   BrowserRouter,
   Routes,
@@ -34,6 +35,8 @@ import MessagesPage from './components/MessagesPage'
 import ProfilePage from './pages/ProfilePage'
 import ResetPasswordPage from './pages/ResetPasswordPage'
 import VerifyEmailPage from './pages/VerifyEmailPage'
+import { Footer } from './components/Footer'
+import { trackVisitOncePerDay } from './utils/siteVisit'
 
 const LoadingScreen = () => {
   const { t, ready } = useTranslation()
@@ -73,6 +76,14 @@ function ChatWrapper() {
 
 function AppContent() {
   const { user, loading } = useAuth()
+
+  // Se registra una vez por montaje (equivale a una vez por carga de la
+  // app), y la propia utilidad ya limita a una visita por día por
+  // visitante, así que no hace falta repetirlo por cambio de ruta.
+  useEffect(() => {
+    trackVisitOncePerDay(window.location.pathname)
+  }, [])
+
   if (loading) return <LoadingScreen />
 
   const getHomeRoute = (roles: string[] = []) =>
@@ -262,6 +273,7 @@ function App() {
           }}
         />
         <AppContent />
+        <Footer />
       </AuthProvider>
     </BrowserRouter>
   )

@@ -523,7 +523,10 @@
       "title": "Tracking Panel",
       "subtitle": "Administrator",
       "heading": "Tracking Panel - Administrator",
-      "goToModeration": "Go to moderation"
+      "goToModeration": "Go to moderation",
+      "totalVisits": "Total visits",
+      "uniqueVisitors": "Unique visitors",
+      "uniqueVisitors30d": "Unique visitors (30 days)"
     },
     "table": {
       "neighborhood": "Neighborhood",
@@ -629,5 +632,9 @@
     "resending": "Sending...",
     "resendSuccess": "If that email exists, we've sent you a new link.",
     "resendError": "Couldn't resend. Please try again."
+  },
+  "footer": {
+    "allRightsReserved": "All rights reserved",
+    "madeBy": "Built by Alexandra, founder and developer"
   }
 }
