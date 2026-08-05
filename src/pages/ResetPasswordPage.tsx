@@ -32,13 +32,23 @@ const ResetPasswordPage = () => {
       setSuccess(true)
       setTimeout(() => navigate('/login'), 3000)
     } catch (err: any) {
-      setError(
-        err.response?.data ||
-          t(
-            'resetPassword.errorExpired',
-            'El enlace ha expirado o no es válido',
-          ),
-      )
+      // El backend a veces responde con un string plano (errores 400 como
+      // token inválido/expirado) y a veces con el objeto JSON
+      // {message, timestamp, status} del GlobalExceptionHandler (errores
+      // 500). Antes esto último se guardaba tal cual en el estado y React
+      // intentaba renderizar el objeto directamente como texto, lo cual
+      // rompe toda la página (Error #31: objects are not valid as a React
+      // child).
+      const data = err.response?.data
+      const message =
+        typeof data === 'string'
+          ? data
+          : data?.message ||
+            t(
+              'resetPassword.errorExpired',
+              'El enlace ha expirado o no es válido',
+            )
+      setError(message)
     } finally {
       setLoading(false)
     }
