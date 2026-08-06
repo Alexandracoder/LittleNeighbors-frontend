@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import api from '../services/api'
 import { Lock, Loader2, CheckCircle, XCircle } from 'lucide-react'
+import { PasswordInput } from '../components/PasswordInput'
 import bgImage from '../assets/welcome-on-board.png'
 
 const ResetPasswordPage = () => {
@@ -92,27 +93,29 @@ const ResetPasswordPage = () => {
               <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 block mb-2">
                 {t('resetPassword.newPassword', 'Nueva contraseña')}
               </label>
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full p-4 bg-gray-50 border-2 border-transparent focus:border-[#FF8A5C] rounded-2xl font-bold outline-none transition-all"
-              />
+              <div className="relative">
+                <PasswordInput
+                  required
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full p-4 pr-12 bg-gray-50 border-2 border-transparent focus:border-[#FF8A5C] rounded-2xl font-bold outline-none transition-all"
+                />
+              </div>
             </div>
             <div>
               <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 block mb-2">
                 {t('resetPassword.confirmPassword', 'Confirmar contraseña')}
               </label>
-              <input
-                type="password"
-                required
-                value={confirm}
-                onChange={e => setConfirm(e.target.value)}
-                placeholder="••••••••"
-                className="w-full p-4 bg-gray-50 border-2 border-transparent focus:border-[#FF8A5C] rounded-2xl font-bold outline-none transition-all"
-              />
+              <div className="relative">
+                <PasswordInput
+                  required
+                  value={confirm}
+                  onChange={e => setConfirm(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full p-4 pr-12 bg-gray-50 border-2 border-transparent focus:border-[#FF8A5C] rounded-2xl font-bold outline-none transition-all"
+                />
+              </div>
             </div>
 
             {error && (

@@ -4,6 +4,7 @@ import { Home, Mail, Lock, ArrowRight, UserPlus, Users, MapPin, CalendarHeart } 
 import { useAuth } from '../context/AuthContext'
 import { useTranslation } from 'react-i18next'
 import api from '../services/api'
+import { PasswordInput } from './PasswordInput'
 
 import loginBg from '../assets/playing-together.png'
 
@@ -205,11 +206,11 @@ export default function Login() {
               {/* Input Password */}
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-orange w-5 h-5" />
-                <input
-                  type="password"
+                <PasswordInput
                   value={password}
                   onChange={e => setPassword(e.target.value)}
-                  className="w-full pl-12 pr-4 py-4 border-b-2 border-gray-200 outline-none focus:border-brand-orange bg-transparent transition-colors text-gray-700"
+                  className="w-full pl-12 pr-12 py-4 border-b-2 border-gray-200 outline-none focus:border-brand-orange bg-transparent transition-colors text-gray-700"
+                  eyeColorClassName="text-brand-orange"
                   placeholder={t('auth.login.passwordPlaceholder')}
                   required
                 />

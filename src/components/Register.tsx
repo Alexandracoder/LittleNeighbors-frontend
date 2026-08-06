@@ -4,6 +4,7 @@ import { UserPlus, Mail, Lock, ArrowRight } from 'lucide-react'
 import { authApi } from '../services/api'
 import { useTranslation } from 'react-i18next'
 import registerBg from '../assets/moving.png'
+import { PasswordInput } from './PasswordInput'
 
 export default function Register() {
   const { t, i18n } = useTranslation()
@@ -196,12 +197,12 @@ export default function Register() {
               </div>
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-[#F28749] w-5 h-5" />
-                <input
+                <PasswordInput
                   name="password"
-                  type="password"
                   value={formData.password}
                   onChange={handleChange}
-                  className="w-full pl-12 pr-4 py-4 border border-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-[#F28749] bg-white/50"
+                  className="w-full pl-12 pr-12 py-4 border border-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-[#F28749] bg-white/50"
+                  eyeColorClassName="text-[#F28749]"
                   placeholder={t('auth.register.passwordPlaceholder')}
                   minLength={8}
                   title={t(
