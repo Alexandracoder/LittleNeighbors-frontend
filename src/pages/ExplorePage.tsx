@@ -11,6 +11,8 @@ import FamilyCard from '../components/FamilyCard'
 import MainLayout from '../components/layout/MainLayout'
 import bgImage from '../assets/littleneighbor_playing.png'
 import { translateNicknameOrDefault } from '../utils/nicknames'
+import { useAuth } from '../context/AuthContext'
+import { Link } from 'react-router-dom'
 
 
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
@@ -29,6 +31,7 @@ import {
   X,
   Map,
   Grid,
+  ShieldCheck,
 } from 'lucide-react'
 
 
@@ -45,6 +48,16 @@ export default function ExplorePage() {
   const navigate = useNavigate()
   const { t } = useTranslation()
   const [searchParams] = useSearchParams()
+  const { status } = useAuth()
+
+  // Sin verificar: solo vemos el mapa anonimizado (mapPins), nunca perfiles
+  // completos. El backend ya rechaza /explore para no verificados, pero
+  // aquí evitamos directamente la llamada que fallaría, y mostramos en su
+  // lugar el resumen (/explore/map-summary), que sí está siempre abierto.
+  const isVerified = status?.verificationStatus === 'VERIFIED'
+  const [mapPins, setMapPins] = useState<
+    { latitude: number; longitude: number }[]
+  >([])
 
   const [families, setFamilies] = useState<FamilyResponseDTO[]>([])
   const [availableInterests, setAvailableInterests] = useState<
@@ -59,6 +72,10 @@ export default function ExplorePage() {
 
 
   const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid')
+
+  useEffect(() => {
+    if (!isVerified) setViewMode('map')
+  }, [isVerified])
 
 
   const valenciaCenter: [number, number] = [39.4699, -0.3763]
@@ -109,6 +126,21 @@ export default function ExplorePage() {
   }, [searchParams])
 
   const loadFamilies = useCallback(async () => {
+    if (!isVerified) {
+      // Sin verificar: solo el resumen anónimo del mapa, nada de perfiles.
+      setLoading(true)
+      try {
+        const pins = await familyApi.exploreMapSummary(searchMode)
+        setMapPins(Array.isArray(pins) ? pins : [])
+        setFamilies([])
+      } catch (err) {
+        console.error('Error loading map summary:', err)
+      } finally {
+        setLoading(false)
+      }
+      return
+    }
+
     if (!myChildId) return
     setLoading(true)
     try {
@@ -138,7 +170,14 @@ setFamilies(uniqueFamilies)
     } finally {
       setLoading(false)
     }
-  }, [myChildId, ageRange, selectedInterestIds, includePregnant, searchMode])
+  }, [
+    isVerified,
+    myChildId,
+    ageRange,
+    selectedInterestIds,
+    includePregnant,
+    searchMode,
+  ])
 
   useEffect(() => {
     loadFamilies()
@@ -273,7 +312,8 @@ setFamilies(uniqueFamilies)
           </div>
 
           <div className="flex items-center gap-2">
-            {/* 🗺️ BOTÓN TOGGLE MAPA / GRID */}
+            {/* 🗺️ BOTÓN TOGGLE MAPA / GRID — oculto sin verificar: solo hay mapa */}
+            {isVerified && (
             <button
               onClick={() =>
                 setViewMode(prev => (prev === 'grid' ? 'map' : 'grid'))
@@ -292,6 +332,7 @@ setFamilies(uniqueFamilies)
                 </>
               )}
             </button>
+            )}
 
             {/* Botón Controlador de Filtros */}
             <button
@@ -458,12 +499,55 @@ setFamilies(uniqueFamilies)
 
         {/* SECCIÓN DE RESULTADOS: RENDERIZADO CONDICIONAL MAPA / GRID */}
         <div className="mt-2">
+          {!isVerified && (
+            <div className="mb-6 bg-white/10 border border-white/20 backdrop-blur-md rounded-3xl p-5 flex flex-col sm:flex-row items-center gap-4">
+              <ShieldCheck className="w-8 h-8 text-[#F28749] shrink-0" />
+              <div className="flex-1 text-center sm:text-left">
+                <p className="text-white font-black text-sm">
+                  {t(
+                    'explore.verifyBannerTitle',
+                    'Verifica tu identidad para ver perfiles',
+                  )}
+                </p>
+                <p className="text-white/70 text-xs font-medium">
+                  {t(
+                    'explore.verifyBannerBody',
+                    'Por ahora solo puedes ver cuántas familias hay en el mapa. Verifícate para conocerlas.',
+                  )}
+                </p>
+              </div>
+              <Link
+                to="/verify-id"
+                className="shrink-0 px-5 py-2.5 bg-[#F28749] hover:bg-[#e0763d] text-white rounded-full text-[10px] font-black uppercase tracking-widest transition-colors"
+              >
+                {t('explore.verifyBannerCta', 'Verificarme')}
+              </Link>
+            </div>
+          )}
+
           {loading ? (
             <div className="flex flex-col items-center justify-center py-32 bg-white/5 backdrop-blur-sm rounded-[3rem] border-2 border-dashed border-white/10">
               <div className="animate-spin h-14 w-14 border-4 border-[#F28749] border-t-transparent rounded-full mb-6" />
               <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">
                 {t('explore.loading')}
               </span>
+            </div>
+          ) : !isVerified ? (
+            /* 🗺️ MAPA ANÓNIMO: solo puntos, sin nombre/foto/descripción — nada identificable hasta estar verificada */
+            <div className="w-full h-[500px] rounded-[2.5rem] overflow-hidden border border-white/20 shadow-2xl backdrop-blur-md relative z-10">
+              <MapContainer
+                center={valenciaCenter}
+                zoom={13}
+                className="w-full h-full"
+              >
+                <TileLayer
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+                {mapPins.map((pin, i) => (
+                  <Marker key={i} position={[pin.latitude, pin.longitude]} />
+                ))}
+              </MapContainer>
             </div>
           ) : families.length > 0 ? (
             viewMode === 'grid' ? (

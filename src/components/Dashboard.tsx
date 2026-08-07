@@ -1,5 +1,5 @@
 import { useEffect, useState, MouseEvent } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useTranslation } from 'react-i18next'
 import { childApi } from '../services/api'
@@ -21,11 +21,20 @@ import dashboardBg from '../assets/neighborhood-picnic.png'
 
 export default function Dashboard() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const { t } = useTranslation()
   const { familyEntity, status, loading, logout, token } = useAuth()
   const [, setChildren] = useState<ChildResponseDTO[]>([])
   const [activeChats, setActiveChats] = useState<any[]>([])
   const [, setFetching] = useState(false)
+
+  // Si venimos del botón "Ver matches" del perfil de un niño concreto
+  // (ChildDashboard), filtramos la lista a solo sus matches en vez de
+  // mostrar los de toda la familia mezclados.
+  const childIdFilter = searchParams.get('childId')
+  const visibleChats = childIdFilter
+    ? activeChats.filter(chat => String(chat.myChildId) === childIdFilter)
+    : activeChats
 
   useEffect(() => {
     if (familyEntity && token) {
@@ -150,15 +159,25 @@ return (
       </div>
 
       {/* Sección de "Mis Chats" integrada */}
-      {activeChats.length > 0 && (
+      {(visibleChats.length > 0 || childIdFilter) && (
         <div className="w-full max-w-xl mt-4 px-4">
           <h2 className="text-white text-[11px] font-black uppercase tracking-widest mb-3 flex items-center gap-2 opacity-90 justify-center md:justify-start">
             <MessageSquare size={14} className="text-[#F28749]" />
-            {t('dashboard.myChats', 'MIS CONVERSACIONES')}
+            {childIdFilter
+              ? t('dashboard.childMatches', 'MATCHES DE ESTE PEQUE')
+              : t('dashboard.myChats', 'MIS CONVERSACIONES')}
           </h2>
 
+          {visibleChats.length === 0 ? (
+            <p className="text-white/70 text-xs font-bold text-center md:text-left px-1">
+              {t(
+                'dashboard.noChildMatchesYet',
+                'Todavía no tiene matches. ¡Vuelve pronto!',
+              )}
+            </p>
+          ) : (
           <div className="grid gap-2.5 w-full">
-            {activeChats.map(chat => (
+            {visibleChats.map(chat => (
               <button
                 key={chat.matchId}
                 onClick={() => navigate(`/chat/${chat.matchId}`)}
@@ -201,6 +220,7 @@ return (
               </button>
             ))}
           </div>
+          )}
         </div>
       )}
     </div>

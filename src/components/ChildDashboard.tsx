@@ -190,11 +190,11 @@ export default function ChildDashboard() {
               </p>
             </div>
             <button
-              onClick={() => navigate('/explore')}
+              onClick={() => navigate(`/dashboard?childId=${id}`)}
               disabled={currentUser?.verificationStatus !== 'VERIFIED'}
               className="w-full py-3 bg-[#be642a] hover:bg-[#a5521f] text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-colors shadow-md disabled:opacity-40 disabled:cursor-not-allowed border border-white/10"
             >
-              {t('common.explore', 'Explore')}
+              {t('common.viewMatches', 'Ver matches')}
             </button>
           </div>
 

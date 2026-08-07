@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router-dom'
 
 export const Footer = () => {
   const { t } = useTranslation()
@@ -11,6 +12,15 @@ export const Footer = () => {
       </p>
       <p className="text-[10px] text-gray-300 font-medium mt-1">
         {t('footer.madeBy', 'Creada por Alexandra, fundadora y desarrolladora')}
+      </p>
+      <p className="text-[10px] text-gray-300 font-medium mt-2">
+        <Link to="/about" className="hover:text-[#F28749] hover:underline">
+          {t('footer.aboutLink', 'Quiénes somos · Contacto · Ubicación')}
+        </Link>
+        {' · '}
+        <Link to="/privacy" className="hover:text-[#F28749] hover:underline">
+          {t('footer.privacyLink', 'Privacidad')}
+        </Link>
       </p>
     </footer>
   )

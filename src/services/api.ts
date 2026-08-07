@@ -190,6 +190,15 @@ export const familyApi = {
     })
     return response.data
   },
+  exploreMapSummary: async (
+    scope?: 'neighborhood' | 'city',
+  ): Promise<{ latitude: number; longitude: number }[]> => {
+    const response = await api.get<{ latitude: number; longitude: number }[]>(
+      '/families/explore/map-summary',
+      { params: scope === 'city' ? { citywide: true } : {} },
+    )
+    return response.data
+  },
 }
 
 export const childApi = {
@@ -232,6 +241,13 @@ export const interestApi = {
 export const userApi = {
   getStatus: async (): Promise<UserStatusDTO> => {
     const response = await api.get<UserStatusDTO>('/users/me/status')
+    return response.data
+  },
+  submitVerification: async (idDocumentUrl: string, selfieUrl: string) => {
+    const response = await api.post('/users/me/verification', {
+      idDocumentUrl,
+      selfieUrl,
+    })
     return response.data
   },
 }

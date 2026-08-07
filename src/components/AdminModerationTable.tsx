@@ -162,6 +162,7 @@ const AdminModerationTable = () => {
                     <tr className="border-b border-white/10 uppercase text-[10px] tracking-widest opacity-70">
                       <th className="p-4 text-left">ID</th>
                       <th className="p-4 text-left">Email</th>
+                      <th className="p-4 text-left">Documentos</th>
                       <th className="p-4 text-center">Acciones</th>
                     </tr>
                   </thead>
@@ -176,6 +177,44 @@ const AdminModerationTable = () => {
                         </td>
                         <td className="p-4 font-bold text-sm break-all">
                           {user.email}
+                        </td>
+                        <td className="p-4">
+                          {user.idDocumentUrl || user.selfieUrl ? (
+                            <div className="flex gap-2">
+                              {user.idDocumentUrl && (
+                                <a
+                                  href={user.idDocumentUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  title="Ver documento de identidad"
+                                >
+                                  <img
+                                    src={user.idDocumentUrl}
+                                    alt="Documento de identidad"
+                                    className="w-14 h-14 object-cover rounded-lg border border-white/20 hover:border-[#F28749] transition-colors"
+                                  />
+                                </a>
+                              )}
+                              {user.selfieUrl && (
+                                <a
+                                  href={user.selfieUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  title="Ver selfie"
+                                >
+                                  <img
+                                    src={user.selfieUrl}
+                                    alt="Selfie"
+                                    className="w-14 h-14 object-cover rounded-lg border border-white/20 hover:border-[#F28749] transition-colors"
+                                  />
+                                </a>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="text-[10px] text-white/30 italic">
+                              Sin documentos enviados
+                            </span>
+                          )}
                         </td>
                         <td className="p-4">
                           <div className="flex justify-center gap-2">
@@ -219,6 +258,28 @@ const AdminModerationTable = () => {
                         {user.email}
                       </p>
                     </div>
+                    {(user.idDocumentUrl || user.selfieUrl) && (
+                      <div className="flex gap-2">
+                        {user.idDocumentUrl && (
+                          <a href={user.idDocumentUrl} target="_blank" rel="noopener noreferrer">
+                            <img
+                              src={user.idDocumentUrl}
+                              alt="Documento de identidad"
+                              className="w-16 h-16 object-cover rounded-lg border border-white/20"
+                            />
+                          </a>
+                        )}
+                        {user.selfieUrl && (
+                          <a href={user.selfieUrl} target="_blank" rel="noopener noreferrer">
+                            <img
+                              src={user.selfieUrl}
+                              alt="Selfie"
+                              className="w-16 h-16 object-cover rounded-lg border border-white/20"
+                            />
+                          </a>
+                        )}
+                      </div>
+                    )}
                     <div className="flex gap-2">
                       <button
                         disabled={actionLoading !== null}

@@ -18,6 +18,8 @@ import AddPlaydatePage from './pages/AddPlaydatePage'
 import Login from './components/Login'
 import Register from './components/Register'
 import PrivacyPage from './pages/PrivacyPage'
+import AboutPage from './pages/AboutPage'
+import VerifyIdPage from './pages/VerifyIdPage'
 import CreateFamily from './components/CreateFamily'
 import Dashboard from './components/Dashboard'
 import AddChildPage from './pages/AddChildren'
@@ -103,6 +105,7 @@ function AppContent() {
       />
       <Route path="/qr-landing" element={<QrLandingPage />} />
       <Route path="/privacy" element={<PrivacyPage />} />
+      <Route path="/about" element={<AboutPage />} />
 
       <Route element={<AppLayout />}>
         <Route
@@ -119,6 +122,14 @@ function AppContent() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
         <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
+        <Route
+          path="/verify-id"
+          element={
+            <ProtectedRoute allowedRoles={['ROLE_USER', 'ROLE_FAMILY']}>
+              <VerifyIdPage />
+            </ProtectedRoute>
+          }
+        />
 
         <Route
           path="/create-family"

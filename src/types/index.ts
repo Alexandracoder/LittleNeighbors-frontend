@@ -69,6 +69,8 @@ export interface User {
   verificationStatus?: UserStatusType
   rejectionReason?: string
   userRoles?: string
+  idDocumentUrl?: string
+  selfieUrl?: string
 }
 
 export interface UserStatusDTO {
