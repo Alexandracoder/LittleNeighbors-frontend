@@ -70,6 +70,18 @@ const OnboardingGuard: React.FC<OnboardingGuardProps> = ({ children }) => {
     (familyEntity !== null && Object.keys(familyEntity).length > 0)
   const hasChildren = status?.hasChildren === true
 
+  // Tras completar familia + hijo, un único empujón para verificar la
+  // identidad — no se repite si ya se descartó una vez (localStorage), para
+  // no bloquear el uso normal de la app a quien no quiere verificarse
+  // todavía (puede seguir viendo el mapa/su perfil sin problema).
+  const verificationPromptDismissed =
+    localStorage.getItem('ln_verify_prompt_dismissed') === 'true'
+  const shouldPromptVerification =
+    hasFamily &&
+    hasChildren &&
+    status?.verificationStatus === 'UNVERIFIED' &&
+    !verificationPromptDismissed
+
   if (!hasFamily) {
     if (location.pathname !== '/create-family') {
       return <Navigate to="/create-family" replace />
@@ -77,6 +89,10 @@ const OnboardingGuard: React.FC<OnboardingGuardProps> = ({ children }) => {
   } else if (!hasChildren) {
     if (location.pathname !== '/add-child') {
       return <Navigate to="/add-child" replace />
+    }
+  } else if (shouldPromptVerification) {
+    if (location.pathname !== '/verify-id') {
+      return <Navigate to="/verify-id" replace state={{ fromOnboarding: true }} />
     }
   } else {
     if (

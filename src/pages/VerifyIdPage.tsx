@@ -178,6 +178,20 @@ export default function VerifyIdPage() {
               )}
               {t('verifyId.submitBtn', 'Enviar para revisión')}
             </button>
+
+            <button
+              onClick={() => {
+                // Solo evita que el onboarding vuelva a insistir en cada
+                // login — no cambia nada en el backend. La persona sigue
+                // pudiendo verificarse cuando quiera desde aquí mismo o
+                // desde el banner de Explorar.
+                localStorage.setItem('ln_verify_prompt_dismissed', 'true')
+                navigate('/dashboard')
+              }}
+              className="w-full mt-3 py-3 text-gray-400 hover:text-gray-600 font-bold text-[10px] uppercase tracking-widest transition-colors"
+            >
+              {t('verifyId.skipForNow', 'Más tarde')}
+            </button>
           </>
         )}
       </div>
