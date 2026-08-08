@@ -71,7 +71,7 @@ export default function PrivacyPage() {
             <p>
               {t(
                 'privacy.rightsBody',
-                'Puedes acceder, rectificar, eliminar tus datos o los de tus hijos, u oponerte a su tratamiento, escribiendo a contact@littleneighbors.com.',
+                'Puedes acceder, rectificar, eliminar tus datos o los de tus hijos, u oponerte a su tratamiento, escribiendo a privacy@littleneighbors.com.',
               )}
             </p>
           </section>

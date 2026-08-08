@@ -19,6 +19,7 @@ import {
   CheckCircle,
   Home,
   Camera,
+  AlertTriangle,
 } from 'lucide-react'
 import profileBg from '../assets/for-pregnants.png'
 
@@ -174,29 +175,28 @@ const ProfilePage = () => {
                 )}
               </div>
 
+              <input
+                ref={photoInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="hidden"
+                onChange={handlePhotoSelected}
+              />
+
               {editing && (
-                <>
-                  <input
-                    ref={photoInputRef}
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp"
-                    className="hidden"
-                    onChange={handlePhotoSelected}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => photoInputRef.current?.click()}
-                    disabled={uploadingPhoto}
-                    aria-label={t('profile.changePhoto', 'Cambiar foto')}
-                    className="absolute -bottom-1 -right-1 w-8 h-8 bg-[#FF8A5C] hover:bg-[#ff7a45] text-white rounded-full flex items-center justify-center shadow-lg border-2 border-[#2D2D2D] transition-all disabled:opacity-60"
-                  >
-                    {uploadingPhoto ? (
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    ) : (
-                      <Camera className="w-3.5 h-3.5" />
-                    )}
-                  </button>
-                </>
+                <button
+                  type="button"
+                  onClick={() => photoInputRef.current?.click()}
+                  disabled={uploadingPhoto}
+                  aria-label={t('profile.changePhoto', 'Cambiar foto')}
+                  className="absolute -bottom-1 -right-1 w-8 h-8 bg-[#FF8A5C] hover:bg-[#ff7a45] text-white rounded-full flex items-center justify-center shadow-lg border-2 border-[#2D2D2D] transition-all disabled:opacity-60"
+                >
+                  {uploadingPhoto ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <Camera className="w-3.5 h-3.5" />
+                  )}
+                </button>
               )}
             </div>
             <h2 className="text-white font-black text-lg uppercase tracking-tight">
@@ -206,6 +206,36 @@ const ProfilePage = () => {
               {STATUS_LABELS[family.status] ?? family.status}
             </p>
           </div>
+
+          {family.photoModerationStatus === 'REJECTED' && (
+            <div className="bg-red-50 border-b-2 border-red-100 px-6 py-4 flex items-start gap-3">
+              <AlertTriangle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-xs font-black text-red-700">
+                  {t(
+                    'profile.photoRejectedTitle',
+                    'Tu foto de perfil no fue aprobada',
+                  )}
+                </p>
+                <p className="text-[11px] text-red-600 font-medium mt-0.5">
+                  {t(
+                    'profile.photoRejectedBody',
+                    'No cumple las normas de la comunidad. Sube otra para que las demás familias puedan verla.',
+                  )}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => photoInputRef.current?.click()}
+                  disabled={uploadingPhoto}
+                  className="mt-2 text-[10px] font-black uppercase tracking-widest text-red-700 underline disabled:opacity-50"
+                >
+                  {uploadingPhoto
+                    ? t('profile.uploading', 'Subiendo...')
+                    : t('profile.changePhoto', 'Cambiar foto')}
+                </button>
+              </div>
+            </div>
+          )}
 
           <div className="p-6 space-y-4">
             {!editing ? (

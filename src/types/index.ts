@@ -205,6 +205,7 @@ export interface FamilyResponseDTO {
   status: 'PREGNANT' | 'NEW_PARENTS' | 'ESTABLISHED_FAMILY' | 'SURPRISE'
   familyInterests: string[]
   children: ChildSummaryDTO[]
+  photoModerationStatus?: 'PENDING' | 'APPROVED' | 'REJECTED'
 }
 
 // ==========================================

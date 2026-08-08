@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Calendar, AlignLeft, MapPin, Save, Send, Info } from 'lucide-react'
+import { toast } from 'react-hot-toast'
 import { MapComponent } from '../pages/MapComponent'
 import api from '../services/api'
 
@@ -140,8 +141,32 @@ export const CreateEventForm = ({
         await api.post('/events', payload)
       }
       onSuccess()
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error en la petición:', err)
+
+      // Antes esto solo se veía en la consola del navegador: si por
+      // ejemplo la cuenta no estaba VERIFIED, el backend rechazaba la
+      // petición pero la persona no se enteraba de nada — el formulario
+      // simplemente no hacía nada visible.
+      const data = err.response?.data
+      const backendMessage = typeof data === 'string' ? data : data?.message
+
+      const isVerificationError =
+        typeof backendMessage === 'string' &&
+        backendMessage.toLowerCase().includes('verified')
+
+      toast.error(
+        isVerificationError
+          ? t(
+              'events.form.verificationRequired',
+              'Necesitas verificar tu identidad para crear eventos.',
+            )
+          : backendMessage ||
+              t(
+                'events.form.genericError',
+                'No se pudo guardar el evento. Inténtalo de nuevo.',
+              ),
+      )
     }
   }
 

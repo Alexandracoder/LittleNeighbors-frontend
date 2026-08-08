@@ -65,9 +65,24 @@ export const EventList = ({
       onAttendChange(id, !wasAttending)
     } catch (err: any) {
       console.error('Error al apuntarse/desapuntarse del evento:', err)
+      const backendMessage =
+        typeof err.response?.data === 'string'
+          ? err.response.data
+          : err.response?.data?.message
+
       if (err.response?.status === 404) {
         toast.error(t('events.card.attendNotFound', 'Este evento ya no existe.'))
         onRefresh()
+      } else if (
+        typeof backendMessage === 'string' &&
+        backendMessage.toLowerCase().includes('verified')
+      ) {
+        toast.error(
+          t(
+            'events.card.attendVerificationRequired',
+            'Necesitas verificar tu identidad para apuntarte a eventos.',
+          ),
+        )
       } else {
         toast.error(t('events.card.attendError', 'No se pudo actualizar tu asistencia. Inténtalo de nuevo.'))
       }
