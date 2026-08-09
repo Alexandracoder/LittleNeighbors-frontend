@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'react-hot-toast'
 import { familyApi } from '../services/api'
@@ -20,11 +21,14 @@ import {
   Home,
   Camera,
   AlertTriangle,
+  ShieldCheck,
+  ShieldAlert,
 } from 'lucide-react'
 import profileBg from '../assets/for-pregnants.png'
 
 const ProfilePage = () => {
   const navigate = useNavigate()
+  const { status } = useAuth()
   const { t } = useTranslation()
   const [family, setFamily] = useState<FamilyResponseDTO | null>(null)
   const [loading, setLoading] = useState(true)
@@ -236,6 +240,50 @@ const ProfilePage = () => {
               </div>
             </div>
           )}
+
+          <div className="p-6 pb-0">
+            {status?.verificationStatus === 'VERIFIED' ? (
+              <div className="bg-emerald-50 border-2 border-emerald-100 rounded-2xl p-4 flex items-center gap-3">
+                <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0" />
+                <p className="text-xs font-black text-emerald-700">
+                  {t('profile.identityVerified', 'Identidad verificada')}
+                </p>
+              </div>
+            ) : status?.verificationStatus === 'PENDING_REVIEW' ? (
+              <div className="bg-orange-50 border-2 border-orange-100 rounded-2xl p-4 flex items-center gap-3">
+                <ShieldAlert className="w-5 h-5 text-orange-500 shrink-0" />
+                <p className="text-xs font-black text-orange-700">
+                  {t(
+                    'profile.identityPending',
+                    'Verificación de identidad en revisión',
+                  )}
+                </p>
+              </div>
+            ) : (
+              <Link
+                to="/verify-id"
+                className="flex items-center gap-3 bg-[#F28749]/10 hover:bg-[#F28749]/20 border-2 border-[#F28749]/20 rounded-2xl p-4 transition-colors"
+              >
+                <ShieldAlert className="w-5 h-5 text-[#F28749] shrink-0" />
+                <div className="flex-1">
+                  <p className="text-xs font-black text-[#F28749]">
+                    {status?.verificationStatus === 'REJECTED'
+                      ? t(
+                          'profile.identityRejectedCta',
+                          'Verificación rechazada — vuelve a intentarlo',
+                        )
+                      : t('profile.identityCta', 'Verifica tu identidad')}
+                  </p>
+                  <p className="text-[10px] text-[#F28749]/70 font-bold mt-0.5">
+                    {t(
+                      'profile.identityCtaBody',
+                      'Necesario para ver perfiles y crear eventos',
+                    )}
+                  </p>
+                </div>
+              </Link>
+            )}
+          </div>
 
           <div className="p-6 space-y-4">
             {!editing ? (

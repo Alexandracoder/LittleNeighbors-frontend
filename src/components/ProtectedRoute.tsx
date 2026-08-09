@@ -40,7 +40,15 @@ export default function ProtectedRoute({
     )
 
     if (!hasPermission) {
-      return <Navigate to="/dashboard" replace />
+      // Antes esto mandaba SIEMPRE a /dashboard, pero /dashboard también
+      // exige ROLE_USER/ROLE_FAMILY — así que una cuenta solo-ADMIN caía
+      // en un bucle de redirección (de ahí la pantalla en blanco). Ahora
+      // se manda a un destino acorde al rol real de la persona.
+      const roles = (user.roles || []).map(r => String(r))
+      const fallback = roles.some(r => r.includes('ADMIN'))
+        ? '/admin/stats'
+        : '/dashboard'
+      return <Navigate to={fallback} replace />
     }
   }
 
