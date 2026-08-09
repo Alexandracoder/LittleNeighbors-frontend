@@ -222,10 +222,11 @@ const ProfilePage = () => {
                   )}
                 </p>
                 <p className="text-[11px] text-red-600 font-medium mt-0.5">
-                  {t(
-                    'profile.photoRejectedBody',
-                    'No cumple las normas de la comunidad. Sube otra para que las demás familias puedan verla.',
-                  )}
+                  {family.photoRejectionReason ||
+                    t(
+                      'profile.photoRejectedBody',
+                      'No cumple las normas de la comunidad. Sube otra para que las demás familias puedan verla.',
+                    )}
                 </p>
                 <button
                   type="button"

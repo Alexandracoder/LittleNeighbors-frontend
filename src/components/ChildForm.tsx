@@ -9,6 +9,7 @@ import type {
 } from '../types'
 import { X, Save, Loader2, Heart, Sparkles, AlignLeft } from 'lucide-react'
 import { translateNickname, generateMagicNickname } from '../utils/nicknames'
+import ChildAvatarPicker from './ChildAvatarPicker'
 
 interface ChildFormProps {
   initialData?: ChildResponseDTO | null
@@ -35,6 +36,7 @@ export default function ChildForm({
     dueDate: '',
     interestIds: [],
     description: '',
+    avatarKey: undefined,
   })
 
   const getTranslatedNickname = (nick: string) => translateNickname(nick, t)
@@ -60,6 +62,7 @@ export default function ChildForm({
         dueDate: initialData.dueDate || '',
         interestIds: initialData.interests?.map(i => i.id) || [],
         description: initialData.description || '',
+        avatarKey: initialData.avatarKey,
       })
     }
   }, [initialData])
@@ -169,6 +172,11 @@ export default function ChildForm({
           </button>
         </div>
       </div>
+
+      <ChildAvatarPicker
+        value={formData.avatarKey}
+        onChange={avatarKey => setFormData(prev => ({ ...prev, avatarKey }))}
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-3">

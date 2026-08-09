@@ -141,6 +141,7 @@ export interface ChildSummaryDTO {
   age: number
   lifeStage: string
   interests?: InterestResponseDTO[]
+  avatarKey?: string
 }
 
 export interface ChildRequestDTO {
@@ -153,6 +154,7 @@ export interface ChildRequestDTO {
   profilePictureUrl?: string
   interestIds: number[]
   age: number
+  avatarKey?: string
 }
 
 export interface ChildResponseDTO {
@@ -168,6 +170,7 @@ export interface ChildResponseDTO {
   familyId: number
   profilePictureUrl?: string
   avatarUrl?: string
+  avatarKey?: string
 }
 
 // ==========================================
@@ -206,6 +209,7 @@ export interface FamilyResponseDTO {
   familyInterests: string[]
   children: ChildSummaryDTO[]
   photoModerationStatus?: 'PENDING' | 'APPROVED' | 'REJECTED'
+  photoRejectionReason?: string
 }
 
 // ==========================================

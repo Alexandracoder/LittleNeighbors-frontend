@@ -32,8 +32,10 @@ const adminService = {
     await api.post(`/admin/moderation/photos/${familyId}/approve`)
   },
 
-  rejectPhoto: async (familyId: number): Promise<void> => {
-    await api.post(`/admin/moderation/photos/${familyId}/reject`)
+  rejectPhoto: async (familyId: number, reason: string): Promise<void> => {
+    await api.post(`/admin/moderation/photos/${familyId}/reject`, reason, {
+      headers: { 'Content-Type': 'text/plain' },
+    })
   },
 }
 

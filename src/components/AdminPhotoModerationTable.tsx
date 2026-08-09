@@ -12,6 +12,8 @@ const AdminPhotoModerationTable = () => {
   const [families, setFamilies] = useState<FamilyResponseDTO[]>([])
   const [loading, setLoading] = useState<boolean>(true)
   const [actionLoading, setActionLoading] = useState<number | null>(null)
+  const [rejectTarget, setRejectTarget] = useState<number | null>(null)
+  const [rejectReason, setRejectReason] = useState('')
 
   const fetchPendingPhotos = async () => {
     setLoading(true)
@@ -42,16 +44,22 @@ const AdminPhotoModerationTable = () => {
     }
   }
 
-  const handleReject = async (familyId: number) => {
-    setActionLoading(familyId)
+  // Antes rechazaba directamente sin pedir motivo — ahora abre el modal,
+  // igual que ya hacía la verificación de identidad, para que la familia
+  // sepa qué corregir antes de subir otra foto.
+  const handleRejectConfirm = async () => {
+    if (rejectTarget === null || !rejectReason.trim()) return
+    setActionLoading(rejectTarget)
     try {
-      await adminService.rejectPhoto(familyId)
-      setFamilies(prev => prev.filter(f => f.id !== familyId))
+      await adminService.rejectPhoto(rejectTarget, rejectReason.trim())
+      setFamilies(prev => prev.filter(f => f.id !== rejectTarget))
       toast.success('Foto rechazada.')
     } catch {
       toast.error('No se pudo rechazar la foto.')
     } finally {
       setActionLoading(null)
+      setRejectTarget(null)
+      setRejectReason('')
     }
   }
 
@@ -139,7 +147,7 @@ const AdminPhotoModerationTable = () => {
                       </button>
                       <button
                         disabled={actionLoading !== null}
-                        onClick={() => handleReject(family.id)}
+                        onClick={() => setRejectTarget(family.id)}
                         className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest bg-red-500/20 hover:bg-red-500/40 border border-red-500/30 text-white disabled:opacity-40 transition-all"
                       >
                         <XCircle className="w-3 h-3" />
@@ -153,6 +161,50 @@ const AdminPhotoModerationTable = () => {
           )}
         </div>
       </div>
+
+      {/* Reject modal */}
+      {rejectTarget !== null && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="w-full max-w-sm bg-white rounded-3xl p-6 shadow-2xl">
+            <h3 className="font-black text-sm uppercase tracking-widest text-[#2D2D2D] mb-1">
+              Rechazar foto
+            </h3>
+            <p className="text-xs text-gray-400 mb-4">
+              La familia verá este motivo en su perfil.
+            </p>
+            <textarea
+              autoFocus
+              value={rejectReason}
+              onChange={e => setRejectReason(e.target.value)}
+              placeholder="Motivo del rechazo..."
+              rows={3}
+              className="w-full p-3 text-sm bg-gray-50 border-2 border-transparent focus:border-red-400 rounded-2xl outline-none resize-none font-medium text-[#2D2D2D] mb-4"
+            />
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  setRejectTarget(null)
+                  setRejectReason('')
+                }}
+                className="flex-1 py-3 rounded-2xl border-2 border-gray-200 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:border-gray-300 transition-all"
+              >
+                Cancelar
+              </button>
+              <button
+                disabled={!rejectReason.trim() || actionLoading !== null}
+                onClick={handleRejectConfirm}
+                className="flex-1 py-3 rounded-2xl bg-red-500 text-white text-[10px] font-black uppercase tracking-widest hover:bg-red-600 transition-all disabled:opacity-40 flex items-center justify-center gap-2"
+              >
+                {actionLoading !== null ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  'Confirmar rechazo'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </MainLayout>
   )
 }

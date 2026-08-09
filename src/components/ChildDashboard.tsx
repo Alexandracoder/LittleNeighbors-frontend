@@ -26,6 +26,7 @@ import avatar3 from '../assets/Avatar3.jpg'
 import avatar4 from '../assets/Avatar4.jpg'
 
 const localAvatars = [avatar1, avatar2, avatar3, avatar4]
+import { CHILD_AVATARS } from '../utils/childAvatars'
 
 export default function ChildDashboard() {
   const { id } = useParams()
@@ -103,8 +104,14 @@ export default function ChildDashboard() {
     },
   ]
 
+  // Mismo criterio que en ChildCard: se respeta el avatar elegido de
+  // verdad si existe, y solo se usa el reparto pseudoaleatorio antiguo
+  // como último recurso.
+  const chosenAvatar = currentChild?.avatarKey
+    ? CHILD_AVATARS.find(a => a.key === currentChild.avatarKey)?.src
+    : null
   const currentAvatarIndex = Math.abs(Number(id || 0)) % localAvatars.length
-  const currentAvatar = localAvatars[currentAvatarIndex]
+  const currentAvatar = chosenAvatar ?? localAvatars[currentAvatarIndex]
 
   return (
     <MainLayout
