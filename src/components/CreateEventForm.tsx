@@ -209,15 +209,40 @@ export const CreateEventForm = ({
           <label className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest">
             <Calendar className="w-3 h-3" /> {t('events.form.dateLabel')}
           </label>
-          <input
-            type="datetime-local"
-            className="w-full bg-gray-50/50 border border-gray-100 rounded-2xl px-5 py-4 text-sm font-bold text-gray-700 focus:bg-white outline-none"
-            value={formData.eventDate}
-            onChange={e =>
-              setFormData({ ...formData, eventDate: e.target.value })
-            }
-            required
-          />
+          <div className="grid grid-cols-2 gap-2">
+            <input
+              type="date"
+              className="w-full bg-gray-50/50 border border-gray-100 rounded-2xl px-4 py-4 text-sm font-bold text-gray-700 focus:bg-white outline-none"
+              value={formData.eventDate.split('T')[0] || ''}
+              onChange={e => {
+                // Separado en dos inputs a propósito: datetime-local
+                // combinado tiene un bug conocido en React donde el
+                // segmento de la hora no llega a confirmarse si el
+                // componente se re-renderiza en cada pulsación.
+                const time = formData.eventDate.split('T')[1] || '00:00'
+                setFormData(prev => ({
+                  ...prev,
+                  eventDate: `${e.target.value}T${time}`,
+                }))
+              }}
+              required
+            />
+            <input
+              type="time"
+              className="w-full bg-gray-50/50 border border-gray-100 rounded-2xl px-4 py-4 text-sm font-bold text-gray-700 focus:bg-white outline-none"
+              value={formData.eventDate.split('T')[1] || ''}
+              onChange={e => {
+                const datePart =
+                  formData.eventDate.split('T')[0] ||
+                  new Date().toISOString().split('T')[0]
+                setFormData(prev => ({
+                  ...prev,
+                  eventDate: `${datePart}T${e.target.value}`,
+                }))
+              }}
+              required
+            />
+          </div>
         </div>
         <div className="space-y-2">
           <label className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest">
