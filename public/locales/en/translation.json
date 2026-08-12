@@ -422,7 +422,53 @@
     "new_message": "You have a new message from Family {{familyName}}",
     "playdate_proposed": "You've been sent a playdate suggestion!",
     "playdate_accepted": "Playdate confirmed! Check your schedule",
-    "empty": "No new notifications."
+    "empty": "No new notifications.",
+    "types": {
+      "PLAYDATE_REQUEST": {
+        "title": "New playdate proposal",
+        "body": "{{param1}} proposed a plan: \"{{param2}}\""
+      },
+      "MATCH_CONFIRMED": {
+        "title": "Plan confirmed!",
+        "body": "Your proposal \"{{param1}}\" has been confirmed 🎉"
+      },
+      "PLAYDATE_REJECTED": {
+        "title": "Plan declined",
+        "body": "Your proposal \"{{param1}}\" could not be confirmed this time."
+      },
+      "EVENT_CREATED": {
+        "title": "New plan in your neighborhood!",
+        "body": "{{param1}} organized: {{param2}}"
+      },
+      "EVENT_ATTENDANCE_CONFIRMED": {
+        "title": "Someone's joining your event!",
+        "body": "{{param1}} is attending: {{param2}}"
+      },
+      "EVENT_UPDATED": {
+        "title": "Event updated",
+        "body": "Details have been updated for: {{param1}}"
+      },
+      "EVENT_CANCELLED": {
+        "title": "Event cancelled",
+        "body": "{{param1}} has been cancelled"
+      },
+      "CHAT_MESSAGE": {
+        "title": "New message",
+        "body": "You have a new message from {{param1}}"
+      },
+      "MATCH_SUCCESS": {
+        "title": "Match confirmed!",
+        "body": "You can now contact the {{param1}} family."
+      },
+      "MATCH_REQUEST": {
+        "title": "New connection request",
+        "body": "{{param1}} wants to connect with your family."
+      },
+      "SYSTEM": {
+        "title": "Notice",
+        "body": "{{param1}}"
+      }
+    }
   },
   "metrics": {
     "title": "Platform Metrics",

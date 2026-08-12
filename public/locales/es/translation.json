@@ -422,7 +422,53 @@
     "new_message": "Tienes un mensaje nuevo de la Familia {{familyName}}",
     "playdate_proposed": "¡Te han sugerido un plan!",
     "playdate_accepted": "¡Plan confirmado! Revisa tu agenda",
-    "empty": "No tienes notificaciones nuevas."
+    "empty": "No tienes notificaciones nuevas.",
+    "types": {
+      "PLAYDATE_REQUEST": {
+        "title": "Nueva propuesta de quedada",
+        "body": "{{param1}} os ha propuesto un plan: \"{{param2}}\""
+      },
+      "MATCH_CONFIRMED": {
+        "title": "¡Plan confirmado!",
+        "body": "Vuestra propuesta \"{{param1}}\" ha sido confirmada 🎉"
+      },
+      "PLAYDATE_REJECTED": {
+        "title": "Plan rechazado",
+        "body": "Vuestra propuesta \"{{param1}}\" no ha podido confirmarse esta vez."
+      },
+      "EVENT_CREATED": {
+        "title": "¡Nuevo plan en tu barrio!",
+        "body": "{{param1}} ha organizado: {{param2}}"
+      },
+      "EVENT_ATTENDANCE_CONFIRMED": {
+        "title": "¡Alguien se apunta a tu evento!",
+        "body": "{{param1}} va a: {{param2}}"
+      },
+      "EVENT_UPDATED": {
+        "title": "Evento actualizado",
+        "body": "Se han actualizado los detalles de: {{param1}}"
+      },
+      "EVENT_CANCELLED": {
+        "title": "Evento cancelado",
+        "body": "Se ha cancelado: {{param1}}"
+      },
+      "CHAT_MESSAGE": {
+        "title": "Nuevo mensaje",
+        "body": "Tienes un mensaje nuevo de {{param1}}"
+      },
+      "MATCH_SUCCESS": {
+        "title": "¡Match confirmado!",
+        "body": "Ya puedes contactar con la familia {{param1}}."
+      },
+      "MATCH_REQUEST": {
+        "title": "Nueva solicitud de conexión",
+        "body": "{{param1}} quiere conectar con tu familia."
+      },
+      "SYSTEM": {
+        "title": "Aviso",
+        "body": "{{param1}}"
+      }
+    }
   },
   "metrics": {
     "title": "Métricas de la Plataforma",

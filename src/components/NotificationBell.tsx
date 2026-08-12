@@ -18,8 +18,8 @@ import { useTranslation } from 'react-i18next'
 
 interface Notification {
   id: number
-  title: string
-  message: string
+  title: string | null
+  message: string | null
   type:
     | 'EVENT_CREATED'
     | 'EVENT_UPDATED'
@@ -27,6 +27,7 @@ interface Notification {
     | 'EVENT_ATTENDANCE_CONFIRMED'
     | 'MATCH_SUCCESS'
     | 'MATCH_CONFIRMED'
+    | 'MATCH_REQUEST'
     | 'CHAT_MESSAGE'
     | 'PLAYDATE_REQUEST'
     | 'PLAYDATE_REJECTED'
@@ -34,6 +35,8 @@ interface Notification {
   relatedId: number | null
   isRead: boolean
   createdAt: string
+  param1?: string | null
+  param2?: string | null
 }
 
 export default function NotificationBell() {
@@ -85,6 +88,23 @@ export default function NotificationBell() {
     }
   }, [])
 
+  // Notificaciones nuevas: type + param1/param2 -> texto construido con
+  // i18next en el idioma activo. Notificaciones antiguas (de antes de este
+  // cambio, sin param1) no tienen esos datos guardados -> se sigue
+  // mostrando el title/message tal cual se guardó en su momento.
+  const getNotificationText = (n: Notification) => {
+    if (n.param1 !== undefined && n.param1 !== null) {
+      return {
+        title: t(`notifications.types.${n.type}.title`),
+        body: t(`notifications.types.${n.type}.body`, {
+          param1: n.param1,
+          param2: n.param2 ?? '',
+        }),
+      }
+    }
+    return { title: n.title ?? '', body: n.message ?? '' }
+  }
+
   const markAsRead = async (id: number) => {
     try {
       await notificationApi.markAsRead(id)
@@ -114,6 +134,9 @@ export default function NotificationBell() {
         if (notification.relatedId) {
           navigate(`/schedules/${notification.relatedId}`)
         }
+        break
+      case 'MATCH_REQUEST':
+        navigate('/dashboard')
         break
       case 'EVENT_CREATED':
       case 'EVENT_UPDATED':
@@ -145,6 +168,8 @@ export default function NotificationBell() {
         return (
           <Sparkles className="w-4 h-4 text-purple-400" aria-hidden="true" />
         )
+      case 'MATCH_REQUEST':
+        return <Users className="w-4 h-4 text-purple-400" aria-hidden="true" />
       case 'PLAYDATE_REJECTED':
         return <XCircle className="w-4 h-4 text-gray-400" aria-hidden="true" />
       case 'CHAT_MESSAGE':
@@ -221,7 +246,9 @@ export default function NotificationBell() {
                   {t('notifications.empty')}
                 </div>
               ) : (
-                notifications.map(notification => (
+                notifications.map(notification => {
+                  const { title, body } = getNotificationText(notification)
+                  return (
                   <div
                     key={notification.id}
                     onClick={() => handleNotificationClick(notification)}
@@ -232,10 +259,10 @@ export default function NotificationBell() {
                     <div className="mt-1">{getIcon(notification.type)}</div>
                     <div className="flex-1">
                       <p className="text-xs font-bold text-white mb-1">
-                        {notification.title}
+                        {title}
                       </p>
                       <p className="text-[11px] text-white/60 leading-relaxed">
-                        {notification.message}
+                        {body}
                       </p>
                       <p className="text-[9px] text-white/30 mt-2 font-mono">
                         {new Date(notification.createdAt).toLocaleTimeString(
@@ -254,7 +281,8 @@ export default function NotificationBell() {
                       />
                     )}
                   </div>
-                ))
+                  )
+                })
               )}
             </div>
 

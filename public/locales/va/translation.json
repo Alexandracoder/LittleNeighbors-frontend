@@ -422,7 +422,53 @@
     "new_message": "Tens un missatge nou de la Família {{familyName}}",
     "playdate_proposed": "T'han suggerit un pla!",
     "playdate_accepted": "Pla confirmat! Revisa la teua agenda",
-    "empty": "No tens notificacions noves."
+    "empty": "No tens notificacions noves.",
+    "types": {
+      "PLAYDATE_REQUEST": {
+        "title": "Nova proposta de quedada",
+        "body": "{{param1}} vos ha proposat un pla: \"{{param2}}\""
+      },
+      "MATCH_CONFIRMED": {
+        "title": "Pla confirmat!",
+        "body": "La vostra proposta \"{{param1}}\" ha sigut confirmada 🎉"
+      },
+      "PLAYDATE_REJECTED": {
+        "title": "Pla rebutjat",
+        "body": "La vostra proposta \"{{param1}}\" no s'ha pogut confirmar esta vegada."
+      },
+      "EVENT_CREATED": {
+        "title": "Nou pla al teu barri!",
+        "body": "{{param1}} ha organitzat: {{param2}}"
+      },
+      "EVENT_ATTENDANCE_CONFIRMED": {
+        "title": "Algú s'apunta al teu esdeveniment!",
+        "body": "{{param1}} anirà a: {{param2}}"
+      },
+      "EVENT_UPDATED": {
+        "title": "Esdeveniment actualitzat",
+        "body": "S'han actualitzat els detalls de: {{param1}}"
+      },
+      "EVENT_CANCELLED": {
+        "title": "Esdeveniment cancel·lat",
+        "body": "S'ha cancel·lat: {{param1}}"
+      },
+      "CHAT_MESSAGE": {
+        "title": "Nou missatge",
+        "body": "Tens un missatge nou de {{param1}}"
+      },
+      "MATCH_SUCCESS": {
+        "title": "Match confirmat!",
+        "body": "Ja pots contactar amb la família {{param1}}."
+      },
+      "MATCH_REQUEST": {
+        "title": "Nova sol·licitud de connexió",
+        "body": "{{param1}} vol connectar amb la teua família."
+      },
+      "SYSTEM": {
+        "title": "Avís",
+        "body": "{{param1}}"
+      }
+    }
   },
   "metrics": {
     "title": "Mètriques de la Plataforma",
