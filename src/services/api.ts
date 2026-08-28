@@ -161,6 +161,10 @@ export const familyApi = {
     const response = await api.get<FamilyResponseDTO>('/families/my-family')
     return response.data
   },
+  getById: async (id: number): Promise<FamilyResponseDTO> => {
+    const response = await api.get<FamilyResponseDTO>(`/families/${id}`)
+    return response.data
+  },
   update: async (
     id: number,
     data: FamilyRequestDTO,

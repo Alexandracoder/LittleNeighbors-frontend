@@ -7,6 +7,21 @@ const adminService = {
     return response.data
   },
 
+  // Antes el admin solo veía estadísticas agregadas, sin forma de
+  // navegar los perfiles de familia uno a uno.
+  getAllFamilies: async (
+    page: number,
+    size = 20,
+  ): Promise<{
+    content: FamilyResponseDTO[]
+    totalPages: number
+    totalElements: number
+    number: number
+  }> => {
+    const response = await api.get('/families', { params: { page, size } })
+    return response.data
+  },
+
   verifyUser: async (userId: number): Promise<void> => {
     await api.post(`/admin/moderation/verify/${userId}`)
   },

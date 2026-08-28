@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
-import { ShieldCheck } from 'lucide-react'
+import { ShieldCheck, Users } from 'lucide-react'
 import { adminApi } from '../services/api'
 import MainLayout from '../components/layout/MainLayout'
 import dashboardBg from '../assets/Stats_image.png'
@@ -101,6 +101,28 @@ export const AdminDashboard: React.FC = () => {
           >
             <ShieldCheck size={16} />
             {t('admin.dashboard.goToModeration', 'Ir a moderación')}
+          </button>
+
+          <button
+            onClick={() => navigate('/admin/families')}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '10px 20px',
+              backgroundColor: '#2D2D2D',
+              color: 'white',
+              border: 'none',
+              borderRadius: '999px',
+              fontWeight: 700,
+              fontSize: '13px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              cursor: 'pointer',
+            }}
+          >
+            <Users size={16} />
+            {t('admin.dashboard.goToFamilies', 'Ver familias')}
           </button>
         </div>
 

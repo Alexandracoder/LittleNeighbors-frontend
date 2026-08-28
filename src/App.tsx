@@ -29,6 +29,7 @@ import SchedulesPage from './pages/SchedulesPage'
 import { QrLandingPage } from './pages/QrLandingPage'
 import ChildDashboard from './components/ChildDashboard'
 import { AdminDashboard } from './components/AdminDashboard'
+import AdminFamiliesPage from './pages/AdminFamiliesPage'
 import AdminModerationTable from './components/AdminModerationTable'
 import AdminPhotoModerationTable from './components/AdminPhotoModerationTable'
 import 'leaflet/dist/leaflet.css'
@@ -231,6 +232,14 @@ function AppContent() {
           element={
             <ProtectedRoute allowedRoles={['ADMIN', 'ROLE_ADMIN']}>
               <AdminModerationTable />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/families"
+          element={
+            <ProtectedRoute allowedRoles={['ADMIN', 'ROLE_ADMIN']}>
+              <AdminFamiliesPage />
             </ProtectedRoute>
           }
         />
