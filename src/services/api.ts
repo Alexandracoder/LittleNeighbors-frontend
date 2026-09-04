@@ -172,6 +172,9 @@ export const familyApi = {
     const response = await api.put<FamilyResponseDTO>(`/families/${id}`, data)
     return response.data
   },
+  delete: async (id: number): Promise<void> => {
+    await api.delete(`/families/${id}`)
+  },
   explore: async (filters: {
     currentChildId: number
     minAge: number
