@@ -4,6 +4,7 @@ import adminService from '../services/adminService'
 import { familyApi } from '../services/api'
 import { FamilyResponseDTO } from '../types'
 import MainLayout from '../components/layout/MainLayout'
+import ModerationThumbnail from '../components/ModerationThumbnail'
 import {
   ArrowLeft,
   Loader2,
@@ -185,7 +186,7 @@ export default function AdminFamiliesPage() {
                   }}
                 >
                   {f.profilePictureUrl ? (
-                    <img
+                    <ModerationThumbnail
                       src={f.profilePictureUrl}
                       alt=""
                       style={{ width: '100%', height: '100%', objectFit: 'cover' }}
@@ -346,7 +347,7 @@ export default function AdminFamiliesPage() {
                     }}
                   >
                     {selectedFamily.profilePictureUrl ? (
-                      <img
+                      <ModerationThumbnail
                         src={selectedFamily.profilePictureUrl}
                         alt=""
                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
