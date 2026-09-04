@@ -139,6 +139,22 @@ const AdminModerationTable = () => {
 
       {/* Main Content */}
       <div className="max-w-4xl mx-auto mt-24 px-4 pb-8">
+        {/* TEMPORAL — panel de depuración de URLs, quitar cuando se
+            resuelva el problema de las fotos que no cargan. */}
+        {!loading && users.length > 0 && (
+          <div className="mb-4 bg-black/80 text-lime-300 rounded-2xl p-4 font-mono text-[11px] overflow-x-auto">
+            <p className="text-white font-bold mb-2 uppercase tracking-widest text-[10px]">
+              🔍 Debug — URLs en crudo de los documentos pendientes
+            </p>
+            {users.map(u => (
+              <div key={u.id} className="mb-2 break-all">
+                <span className="text-orange-300">#{u.id} {u.email}</span>
+                <div>DNI: {u.idDocumentUrl ? u.idDocumentUrl : '⚠️ VACÍO / NULL'}</div>
+                <div>Selfie: {u.selfieUrl ? u.selfieUrl : '⚠️ VACÍO / NULL'}</div>
+              </div>
+            ))}
+          </div>
+        )}
         <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl animate-in fade-in zoom-in duration-500 overflow-hidden">
           {loading ? (
             <div className="py-20 flex flex-col items-center gap-3 text-black/70">
