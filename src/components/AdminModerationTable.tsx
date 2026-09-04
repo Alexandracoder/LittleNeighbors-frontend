@@ -4,6 +4,7 @@ import { toast } from 'react-hot-toast'
 import adminService from '../services/adminService'
 import { User } from '../types'
 import MainLayout from '../components/layout/MainLayout'
+import ModerationThumbnail from '../components/ModerationThumbnail'
 import { ArrowLeft, CheckCircle, XCircle, Loader2, Users, Image } from 'lucide-react'
 import dashboardBg from '../assets/Verification_image.png'
 
@@ -188,7 +189,7 @@ const AdminModerationTable = () => {
                                   rel="noopener noreferrer"
                                   title="Ver documento de identidad"
                                 >
-                                  <img
+                                  <ModerationThumbnail
                                     src={user.idDocumentUrl}
                                     alt="Documento de identidad"
                                     className="w-14 h-14 object-cover rounded-lg border border-white/20 hover:border-[#F28749] transition-colors"
@@ -202,7 +203,7 @@ const AdminModerationTable = () => {
                                   rel="noopener noreferrer"
                                   title="Ver selfie"
                                 >
-                                  <img
+                                  <ModerationThumbnail
                                     src={user.selfieUrl}
                                     alt="Selfie"
                                     className="w-14 h-14 object-cover rounded-lg border border-white/20 hover:border-[#F28749] transition-colors"
@@ -262,7 +263,7 @@ const AdminModerationTable = () => {
                       <div className="flex gap-2">
                         {user.idDocumentUrl && (
                           <a href={user.idDocumentUrl} target="_blank" rel="noopener noreferrer">
-                            <img
+                            <ModerationThumbnail
                               src={user.idDocumentUrl}
                               alt="Documento de identidad"
                               className="w-16 h-16 object-cover rounded-lg border border-white/20"
@@ -271,7 +272,7 @@ const AdminModerationTable = () => {
                         )}
                         {user.selfieUrl && (
                           <a href={user.selfieUrl} target="_blank" rel="noopener noreferrer">
-                            <img
+                            <ModerationThumbnail
                               src={user.selfieUrl}
                               alt="Selfie"
                               className="w-16 h-16 object-cover rounded-lg border border-white/20"

@@ -4,6 +4,7 @@ import { toast } from 'react-hot-toast'
 import adminService from '../services/adminService'
 import { FamilyResponseDTO } from '../types'
 import MainLayout from '../components/layout/MainLayout'
+import ModerationThumbnail from '../components/ModerationThumbnail'
 import { ArrowLeft, CheckCircle, XCircle, Loader2, ImageOff } from 'lucide-react'
 import dashboardBg from '../assets/Verification_image.png'
 
@@ -107,7 +108,7 @@ const AdminPhotoModerationTable = () => {
                 >
                   <div className="aspect-square w-full bg-black/20">
                     {family.profilePictureUrl ? (
-                      <img
+                      <ModerationThumbnail
                         src={family.profilePictureUrl}
                         alt={family.familyName}
                         className="w-full h-full object-cover"
