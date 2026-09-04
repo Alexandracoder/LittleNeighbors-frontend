@@ -4,7 +4,6 @@ import { toast } from 'react-hot-toast'
 import adminService from '../services/adminService'
 import { FamilyResponseDTO } from '../types'
 import MainLayout from '../components/layout/MainLayout'
-import ModerationThumbnail from '../components/ModerationThumbnail'
 import { ArrowLeft, CheckCircle, XCircle, Loader2, ImageOff } from 'lucide-react'
 import dashboardBg from '../assets/Verification_image.png'
 
@@ -45,9 +44,6 @@ const AdminPhotoModerationTable = () => {
     }
   }
 
-  // Antes rechazaba directamente sin pedir motivo — ahora abre el modal,
-  // igual que ya hacía la verificación de identidad, para que la familia
-  // sepa qué corregir antes de subir otra foto.
   const handleRejectConfirm = async () => {
     if (rejectTarget === null || !rejectReason.trim()) return
     setActionLoading(rejectTarget)
@@ -108,7 +104,7 @@ const AdminPhotoModerationTable = () => {
                 >
                   <div className="aspect-square w-full bg-black/20">
                     {family.profilePictureUrl ? (
-                      <ModerationThumbnail
+                      <img
                         src={family.profilePictureUrl}
                         alt={family.familyName}
                         className="w-full h-full object-cover"
@@ -163,7 +159,6 @@ const AdminPhotoModerationTable = () => {
         </div>
       </div>
 
-      {/* Reject modal */}
       {rejectTarget !== null && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
           <div className="w-full max-w-sm bg-white rounded-3xl p-6 shadow-2xl">
