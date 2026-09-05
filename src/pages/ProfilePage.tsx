@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'react-hot-toast'
-import { familyApi } from '../services/api'
+import { familyApi, authApi } from '../services/api'
 import {
   uploadFamilyPhoto,
   isImageUploadConfigured,
@@ -24,6 +24,7 @@ import {
   ShieldCheck,
   ShieldAlert,
   Trash2,
+  UserX,
   X,
 } from 'lucide-react'
 import profileBg from '../assets/for-pregnants.png'
@@ -42,6 +43,8 @@ const ProfilePage = () => {
   const photoInputRef = useRef<HTMLInputElement>(null)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [showDeleteAccountConfirm, setShowDeleteAccountConfirm] = useState(false)
+  const [deletingAccount, setDeletingAccount] = useState(false)
 
   const STATUS_LABELS: Record<string, string> = {
     PREGNANT: t('profile.status.pregnant', 'Embarazo'),
@@ -111,6 +114,31 @@ const ProfilePage = () => {
       )
       setDeleting(false)
       setShowDeleteConfirm(false)
+    }
+  }
+
+  const handleDeleteAccount = async () => {
+    setDeletingAccount(true)
+    try {
+      await authApi.deleteAccount()
+      toast.success(
+        t(
+          'profile.deleteAccountSuccess',
+          'Tu cuenta se ha eliminado por completo.',
+        ),
+      )
+      logout()
+      navigate('/')
+    } catch (err) {
+      console.error('Error deleting account:', err)
+      toast.error(
+        t(
+          'profile.deleteAccountError',
+          'No se pudo eliminar la cuenta. Inténtalo de nuevo.',
+        ),
+      )
+      setDeletingAccount(false)
+      setShowDeleteAccountConfirm(false)
     }
   }
 
@@ -460,25 +488,46 @@ const ProfilePage = () => {
           </div>
         )}
 
-        {/* Zona de peligro: borrar perfil */}
+        {/* Gestionar cuenta: borrar perfil / eliminar cuenta */}
         {!editing && (
-          <div className="bg-white rounded-3xl p-5 border-2 border-red-100">
-            <p className="text-[11px] font-black text-red-400 uppercase tracking-widest mb-1">
-              {t('profile.dangerZone', 'Zona de peligro')}
-            </p>
-            <p className="text-xs text-gray-400 mb-3 leading-relaxed">
-              {t(
-                'profile.deleteExplainer',
-                'Esto borra tu perfil de familia, tus hijos y tus conexiones. No se puede deshacer.',
-              )}
-            </p>
-            <button
-              onClick={() => setShowDeleteConfirm(true)}
-              className="flex items-center gap-2 py-3 px-4 border-2 border-red-200 text-red-500 font-black rounded-2xl text-xs uppercase tracking-widest hover:bg-red-50 transition-all"
-            >
-              <Trash2 className="w-4 h-4" />
-              {t('profile.deleteButton', 'Borrar mi perfil')}
-            </button>
+          <div className="bg-white rounded-3xl p-5 border border-gray-100 space-y-5">
+            <div>
+              <p className="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1">
+                {t('profile.manageAccount', 'Gestionar mi cuenta')}
+              </p>
+              <p className="text-xs text-gray-400 mb-3 leading-relaxed">
+                {t(
+                  'profile.deleteExplainer',
+                  'Borra tu perfil de familia, tus hijos y tus conexiones. Podrás volver a crear un perfil con el mismo email más adelante si quieres. No se puede deshacer.',
+                )}
+              </p>
+              <button
+                onClick={() => setShowDeleteConfirm(true)}
+                className="flex items-center gap-2 py-3 px-4 border-2 border-gray-200 text-gray-500 font-black rounded-2xl text-xs uppercase tracking-widest hover:bg-gray-50 transition-all"
+              >
+                <Trash2 className="w-4 h-4" />
+                {t('profile.deleteButton', 'Borrar mi perfil')}
+              </button>
+            </div>
+
+            <div className="pt-4 border-t border-gray-100">
+              <p className="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1">
+                {t('profile.deleteAccountZone', 'Eliminar cuenta')}
+              </p>
+              <p className="text-xs text-gray-400 mb-3 leading-relaxed">
+                {t(
+                  'profile.deleteAccountExplainer',
+                  'Elimina también tu cuenta de acceso (email y contraseña). Si vuelves, tendrás que registrarte de nuevo desde cero.',
+                )}
+              </p>
+              <button
+                onClick={() => setShowDeleteAccountConfirm(true)}
+                className="flex items-center gap-2 py-3 px-4 border-2 border-gray-200 text-gray-500 font-black rounded-2xl text-xs uppercase tracking-widest hover:bg-gray-50 transition-all"
+              >
+                <UserX className="w-4 h-4" />
+                {t('profile.deleteAccountButton', 'Eliminar cuenta')}
+              </button>
+            </div>
           </div>
         )}
       </div>
@@ -528,6 +577,57 @@ const ProfilePage = () => {
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
                   t('profile.deleteConfirmButton', 'Sí, borrar')
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Modal confirmación de eliminar cuenta */}
+      {showDeleteAccountConfirm && (
+        <div
+          className="fixed inset-0 bg-black/55 flex items-center justify-center z-[100] p-5"
+          onClick={() => !deletingAccount && setShowDeleteAccountConfirm(false)}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            className="bg-white rounded-3xl max-w-sm w-full p-7 relative"
+          >
+            {!deletingAccount && (
+              <button
+                onClick={() => setShowDeleteAccountConfirm(false)}
+                className="absolute top-4 right-4 w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+            <UserX className="w-8 h-8 text-red-500 mb-3" />
+            <h3 className="text-lg font-black text-[#2D2D2D] mb-2">
+              {t('profile.deleteAccountConfirmTitle', '¿Eliminar tu cuenta?')}
+            </h3>
+            <p className="text-sm text-gray-500 mb-6 leading-relaxed">
+              {t(
+                'profile.deleteAccountConfirmBody',
+                'Se borrará tu perfil de familia, tus hijos, tus conexiones y también tu cuenta de acceso (email y contraseña). No podrás volver a entrar con este email — tendrías que registrarte de nuevo. Esta acción no se puede deshacer.',
+              )}
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowDeleteAccountConfirm(false)}
+                disabled={deletingAccount}
+                className="flex-1 py-3.5 border-2 border-gray-200 text-gray-400 font-black rounded-2xl text-xs uppercase tracking-widest disabled:opacity-40"
+              >
+                {t('common.cancel', 'Cancelar')}
+              </button>
+              <button
+                onClick={handleDeleteAccount}
+                disabled={deletingAccount}
+                className="flex-1 py-3.5 bg-red-500 text-white font-black rounded-2xl text-xs uppercase tracking-widest hover:bg-red-600 transition-all disabled:opacity-40 flex items-center justify-center gap-2"
+              >
+                {deletingAccount ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  t('profile.deleteAccountConfirmButton', 'Sí, eliminar cuenta')
                 )}
               </button>
             </div>

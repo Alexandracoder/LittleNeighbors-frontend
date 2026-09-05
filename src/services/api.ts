@@ -141,6 +141,9 @@ export const authApi = {
     const response = await api.post<AuthResponse>('/auth/refresh', data)
     return response.data
   },
+  deleteAccount: async (): Promise<void> => {
+    await api.delete('/auth/me')
+  },
 }
 
 export const neighborhoodApi = {
