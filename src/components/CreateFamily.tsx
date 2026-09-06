@@ -68,7 +68,24 @@ export default function CreateFamily() {
 
       navigate('/add-child', { replace: true })
     } catch (err: any) {
-      setError(t('family.create.errorDefault'))
+      // Antes se mostraba siempre el mismo mensaje genérico, así que un
+      // fallo de validación real (p.ej. la biografía vacía, que el
+      // backend exige con @NotBlank aunque el textarea no lo marcaba
+      // como obligatorio) quedaba indistinguible de cualquier otro
+      // error — la familia se quedaba sin saber qué corregir. Mismo
+      // patrón que ya usa Register.tsx: mostrar el error de campo real
+      // si el backend lo manda.
+      const fieldErrors = err.response?.data?.errors
+      const firstFieldError =
+        fieldErrors && typeof fieldErrors === 'object'
+          ? (Object.values(fieldErrors)[0] as string | undefined)
+          : undefined
+
+      setError(
+        firstFieldError ||
+          err.response?.data?.message ||
+          t('family.create.errorDefault'),
+      )
     } finally {
       setLoading(false)
     }
@@ -183,6 +200,7 @@ export default function CreateFamily() {
                   onChange={e => setDescription(e.target.value)}
                   className="w-full p-5 bg-gray-100 border-2 border-transparent focus:border-orange-500 focus:bg-white rounded-3xl h-32 outline-none transition-all font-medium resize-none"
                   placeholder={t('family.create.bioPlaceholder')}
+                  required
                 />
               </div>
 
