@@ -184,7 +184,11 @@ export interface FamilyRequestDTO {
   familyName: string
   description: string
   profilePictureUrl: string
-  neighborhoodId: number
+  neighborhoodId?: number
+  // Localidad escrita a mano cuando no está en la lista de barrios piloto
+  // (p.ej. un pueblo fuera de Valencia capital) — uno de los dos es
+  // obligatorio, nunca los dos a la vez.
+  customLocationName?: string
 }
 
 export interface FamilyResponseDTO {
@@ -201,6 +205,7 @@ export interface FamilyResponseDTO {
   longitude: number
   neighborhoodId: number
   neighborhoodName: string
+  customLocationName?: string
   neighborhood: NeighborhoodDTO
   streetName: string
   postalCode: string

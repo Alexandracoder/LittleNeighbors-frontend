@@ -13,6 +13,7 @@ export default function CreateFamily() {
   const [familyName, setFamilyName] = useState('')
   const [description, setDescription] = useState('')
   const [neighborhoodId, setNeighborhoodId] = useState<number>(0)
+  const [customLocationName, setCustomLocationName] = useState('')
   const [neighborhoods, setNeighborhoods] = useState<NeighborhoodResponseDTO[]>(
     [],
   )
@@ -43,6 +44,15 @@ export default function CreateFamily() {
       setError(t('family.create.errorNoNeighborhood'))
       return
     }
+    if (neighborhoodId === -1 && !customLocationName.trim()) {
+      setError(
+        t(
+          'family.create.errorNoCustomLocation',
+          'Escribe tu localidad para continuar',
+        ),
+      )
+      return
+    }
 
     setLoading(true)
     setError(null)
@@ -52,7 +62,9 @@ export default function CreateFamily() {
         representativeName,
         familyName,
         description,
-        neighborhoodId,
+        neighborhoodId: neighborhoodId === -1 ? undefined : neighborhoodId,
+        customLocationName:
+          neighborhoodId === -1 ? customLocationName.trim() : undefined,
         profilePictureUrl: '',
         status: 'SURPRISE',
         familyInterests: [],
@@ -187,8 +199,27 @@ export default function CreateFamily() {
                         {n.name} - {n.cityName}
                       </option>
                     ))}
+                    <option value={-1}>
+                      {t(
+                        'family.create.neighborhoodOtherOption',
+                        'Mi localidad no está en la lista',
+                      )}
+                    </option>
                   </select>
                 </div>
+                {neighborhoodId === -1 && (
+                  <input
+                    value={customLocationName}
+                    onChange={e => setCustomLocationName(e.target.value)}
+                    className="w-full p-5 bg-gray-100 border-2 border-transparent focus:border-orange-500 focus:bg-white rounded-3xl outline-none transition-all font-medium"
+                    placeholder={t(
+                      'family.create.customLocationPlaceholder',
+                      'Escribe tu localidad (pueblo, ciudad...)',
+                    )}
+                    maxLength={255}
+                    required
+                  />
+                )}
               </div>
 
               <div className="space-y-2">
