@@ -69,11 +69,17 @@ const matchService = {
 }
 
 function handleError(context: string, error: unknown): never {
+  // Antes esto re-lanzaba `new Error(mensaje)` — un Error normal ya no
+  // lleva `.response`, así que cualquier componente que mirara
+  // `error.response?.data?.message` (el patrón habitual en el resto de
+  // la app) se quedaba sin el motivo real y mostraba un error genérico.
+  // Ahora se deja pasar el error de axios tal cual, intacto, para que
+  // cada sitio que lo consuma pueda seguir leyendo error.response
+  // normalmente.
   if (axios.isAxiosError(error)) {
     const serverMessage = error.response?.data?.message || error.response?.data
-    const finalMessage = serverMessage || error.message
-    console.error(`${context} ${finalMessage}`)
-    throw new Error(finalMessage)
+    console.error(`${context} ${serverMessage || error.message}`)
+    throw error
   }
 
   if (error instanceof Error) {

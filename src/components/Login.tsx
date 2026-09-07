@@ -1,10 +1,11 @@
-import { useState, FormEvent } from 'react'
+import { useState, FormEvent, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Home, Mail, Lock, ArrowRight, UserPlus, Users, MapPin, CalendarHeart } from 'lucide-react'
+import { Home, Mail, Lock, ArrowRight, UserPlus, Users, MapPin, CalendarHeart, HelpCircle } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useTranslation } from 'react-i18next'
 import api from '../services/api'
 import { PasswordInput } from './PasswordInput'
+import WelcomeExplainer, { hasSeenWelcomeExplainer } from './WelcomeExplainer'
 
 import loginBg from '../assets/playing-together.png'
 
@@ -21,6 +22,13 @@ export default function Login() {
   const [loading, setLoading] = useState(false)
   const [isUnverifiedError, setIsUnverifiedError] = useState(false)
   const [resendDone, setResendDone] = useState(false)
+  const [showExplainer, setShowExplainer] = useState(false)
+
+  useEffect(() => {
+    if (!hasSeenWelcomeExplainer()) {
+      setShowExplainer(true)
+    }
+  }, [])
 
   if (!ready) {
     return null
@@ -98,6 +106,15 @@ export default function Login() {
           </button>
         ))}
       </div>
+
+      {/* Botón para volver a ver el explicativo de bienvenida */}
+      <button
+        onClick={() => setShowExplainer(true)}
+        className="absolute top-6 left-6 z-50 flex items-center gap-1.5 px-4 h-10 rounded-full text-[11px] font-black text-white bg-white/10 border-2 border-white/20 hover:bg-white/30 backdrop-blur-md transition-all"
+      >
+        <HelpCircle className="w-4 h-4" />
+        ¿Cómo funciona?
+      </button>
 
       {/* Imagen de fondo con blur dinámico.
           Antes esto era un <div> con backgroundImage por CSS: el navegador
@@ -296,6 +313,11 @@ export default function Login() {
           </div>
         )}
       </div>
+
+      <WelcomeExplainer
+        open={showExplainer}
+        onClose={() => setShowExplainer(false)}
+      />
     </div>
   )
 }

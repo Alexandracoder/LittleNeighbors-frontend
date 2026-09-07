@@ -272,19 +272,18 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                     }),
                   })
                 }
-              } catch (e) {
+              } catch (e: any) {
                 console.error(e)
-                // matchService ya re-lanza un Error con el mensaje que
-                // manda el backend en "message" (p.ej. el aviso cálido del
-                // límite semanal de conexiones). Antes esto se perdía en
-                // consola y el usuario no se enteraba de nada.
+                // matchService ahora deja pasar el error de axios intacto
+                // (antes lo envolvía en un Error genérico y este mensaje se
+                // perdía) — mismo patrón que el resto de la app:
+                // error.response?.data?.message.
                 const msg =
-                  e instanceof Error && e.message
-                    ? e.message
-                    : t(
-                        'chat.confirmError',
-                        'No se pudo confirmar el match. Inténtalo de nuevo.',
-                      )
+                  e.response?.data?.message ||
+                  t(
+                    'chat.confirmError',
+                    'No se pudo confirmar el match. Inténtalo de nuevo.',
+                  )
                 toast.error(msg, { duration: 6000 })
               }
             }}

@@ -62,6 +62,9 @@ export default function FamilyCard({
     } catch (error: any) {
       console.error('Error breaking the ice:', error)
 
+      // matchService ahora deja pasar el error de axios intacto (ver el
+      // fix en matchService.ts), así que aquí sí funciona el patrón
+      // habitual del resto de la app.
       const backendMessage = error.response?.data?.message
 
       toast.error(
