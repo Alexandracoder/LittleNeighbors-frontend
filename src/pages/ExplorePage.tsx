@@ -64,6 +64,13 @@ export default function ExplorePage() {
     InterestResponseDTO[]
   >([])
   const [myChildren, setMyChildren] = useState<ChildSummaryDTO[]>([])
+  // Para poder avisar en la tarjeta de cada familia si conectar no va a
+  // funcionar (solo se permite dentro del mismo barrio/localidad) sin
+  // tener que esperar al error del backend.
+  const [myLocation, setMyLocation] = useState<{
+    neighborhoodId?: number | null
+    customLocationName?: string | null
+  }>({})
   const [loading, setLoading] = useState(false)
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false)
   const [searchMode, setSearchMode] = useState<'neighborhood' | 'city'>(
@@ -104,6 +111,11 @@ export default function ExplorePage() {
           familyApi.getMyFamily(),
         ])
         setAvailableInterests(interests)
+
+        setMyLocation({
+          neighborhoodId: myProfile?.neighborhoodId ?? null,
+          customLocationName: myProfile?.customLocationName ?? null,
+        })
 
         if (myProfile?.children?.length > 0) {
           setMyChildren(myProfile.children)
@@ -562,6 +574,8 @@ setFamilies(uniqueFamilies)
                       family={f}
                       myChildId={myChildId}
                       myInterestIds={myChildInterests}
+                      myNeighborhoodId={myLocation.neighborhoodId}
+                      myCustomLocationName={myLocation.customLocationName}
                     />
                   </div>
                 ))}
