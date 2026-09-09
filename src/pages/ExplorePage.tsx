@@ -63,7 +63,6 @@ export default function ExplorePage() {
   const [availableInterests, setAvailableInterests] = useState<
     InterestResponseDTO[]
   >([])
-<<<<<<< ours
   const [myChildren, setMyChildren] = useState<ChildSummaryDTO[]>([])
   // Para poder avisar en la tarjeta de cada familia si conectar no va a
   // funcionar (solo se permite dentro del mismo barrio/localidad) sin
@@ -72,16 +71,6 @@ export default function ExplorePage() {
     neighborhoodId?: number | null
     customLocationName?: string | null
   }>({})
-=======
-  const [myChildren, setMyChildren] = useState<ChildSummaryDTO[]>([])
-  // Para poder avisar en la tarjeta de cada familia si conectar no va a
-  // funcionar (solo se permite dentro del mismo barrio/localidad) sin
-  // tener que esperar al error del backend.
-  const [myLocation, setMyLocation] = useState<{
-    neighborhoodId?: number | null
-    customLocationName?: string | null
-  }>({})
->>>>>>> theirs
   const [loading, setLoading] = useState(false)
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false)
   const [searchMode, setSearchMode] = useState<'neighborhood' | 'city'>(
