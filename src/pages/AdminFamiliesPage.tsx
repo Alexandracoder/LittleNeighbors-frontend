@@ -415,10 +415,23 @@ export default function AdminFamiliesPage() {
                   </p>
                   <p style={{ fontSize: '13px', color: '#2D2D2D', margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <MapPin size={14} color="#F28749" />
-                    {[selectedFamily.streetName, selectedFamily.neighborhoodName, selectedFamily.cityName]
-                      .filter(Boolean)
-                      .join(', ') || 'Sin especificar'}
-                    {selectedFamily.postalCode ? ` (${selectedFamily.postalCode})` : ''}
+                    {/* Sin barrio de la lista (localidad libre, ver V23):
+                        streetName/cityName/postalCode son solo
+                        placeholders ("Not assigned"/"N/A") sin
+                        significado real, así que se ocultan y se muestra
+                        únicamente la localidad escrita a mano — antes
+                        salía literalmente "Not assigned, Torrent, Not
+                        assigned (N/A)". */}
+                    {selectedFamily.neighborhoodId
+                      ? [selectedFamily.streetName, selectedFamily.neighborhoodName, selectedFamily.cityName]
+                          .filter(Boolean)
+                          .join(', ') +
+                        (selectedFamily.postalCode && selectedFamily.postalCode !== 'N/A'
+                          ? ` (${selectedFamily.postalCode})`
+                          : '')
+                      : selectedFamily.customLocationName ||
+                        selectedFamily.neighborhoodName ||
+                        'Sin especificar'}
                   </p>
                 </div>
 

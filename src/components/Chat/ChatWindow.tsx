@@ -67,7 +67,8 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
             setMatchStatus(currentMatch.status)
             setIAccepted(currentMatch.status === 'ACCEPTED')
             setNeighborName(
-              currentMatch.theirFamilyName ||
+              currentMatch.theirRepresentativeName ||
+                currentMatch.theirFamilyName ||
                 t('chat.defaultNeighbor', 'Familia Vecina'),
             )
 

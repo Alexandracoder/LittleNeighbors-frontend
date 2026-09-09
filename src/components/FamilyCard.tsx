@@ -1,4 +1,4 @@
-import { MessageCircle, Loader2, MapPin, Heart, Sparkles } from 'lucide-react'
+import { MessageCircle, Loader2, MapPin, Heart, Sparkles, User } from 'lucide-react'
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -94,12 +94,20 @@ export default function FamilyCard({
       // habitual del resto de la app.
       const backendMessage = error.response?.data?.message
 
+      // Antes, si backendMessage faltaba (fallo de red, respuesta sin
+      // cuerpo JSON, etc.), el `|| t('common.error')` cortaba la cadena
+      // ahí mismo porque "Error" ya es un string válido y no vacío —
+      // nunca se llegaba al mensaje explicativo de más abajo. Se quita
+      // ese escalón intermedio para que sí se use.
       toast.error(
         backendMessage ||
-          t('common.error') ||
-          'No se pudo enviar la solicitud de conexión',
+          t(
+            'family.card.connectErrorFallback',
+            'No se pudo enviar la solicitud. Puede que ya no estéis en el mismo barrio, o que haya fallado la conexión — inténtalo de nuevo en un momento.',
+          ),
         {
           icon: '🔒',
+          duration: 6000,
           style: {
             border: '2px solid #EF4444',
             padding: '16px',
@@ -130,6 +138,14 @@ export default function FamilyCard({
             <h3 className="text-3xl font-black text-white uppercase italic tracking-tighter leading-none">
               {t('family.card.namePrefix')} {family.familyName}
             </h3>
+            {family.representativeName && (
+              <div className="flex items-center gap-1.5">
+                <User className="w-3 h-3 text-white/40" />
+                <span className="text-xs font-bold text-white/70">
+                  {family.representativeName}
+                </span>
+              </div>
+            )}
             <div className="flex items-center gap-1.5 mt-1">
               <MapPin className="w-3 h-3 text-[#F28749]" />
               <span className="text-[10px] font-bold text-white/50 uppercase tracking-widest">
