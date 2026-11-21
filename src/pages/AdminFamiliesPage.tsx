@@ -15,7 +15,7 @@ import {
   X,
   AlertTriangle,
 } from 'lucide-react'
-import dashboardBg from '../assets/neighborhood-picnic.png'
+import dashboardBg from '../assets/community-connecting.png'
 
 const STATUS_LABEL: Record<string, { label: string; color: string }> = {
   APPROVED: { label: 'Foto aprobada', color: '#22c55e' },

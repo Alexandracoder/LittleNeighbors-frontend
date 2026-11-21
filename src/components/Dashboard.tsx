@@ -17,7 +17,7 @@ import {
   MessageSquare,
   Sparkles,
 } from 'lucide-react'
-import dashboardBg from '../assets/neighborhood-picnic.png'
+import dashboardBg from '../assets/community-connecting.png'
 
 export default function Dashboard() {
   const navigate = useNavigate()

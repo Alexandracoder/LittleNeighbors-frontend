@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { UserPlus, Mail, Lock, ArrowRight } from 'lucide-react'
 import { authApi } from '../services/api'
 import { useTranslation } from 'react-i18next'
-import registerBg from '../assets/moving.png'
+import registerBg from '../assets/alone-in-neighborhood.png'
 import { PasswordInput } from './PasswordInput'
 
 export default function Register() {

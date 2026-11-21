@@ -10,7 +10,7 @@ import {
 } from '../services/imageUpload'
 import MainLayout from '../components/layout/MainLayout'
 import { ShieldCheck, ShieldAlert, Upload, Loader2, CheckCircle2 } from 'lucide-react'
-import bgImage from '../assets/littleneighbor_playing.png'
+import bgImage from '../assets/welcome-on-board.png'
 
 export default function VerifyIdPage() {
   const { t } = useTranslation()

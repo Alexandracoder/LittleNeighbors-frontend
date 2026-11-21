@@ -9,7 +9,7 @@ import type {
 } from '../types'
 import FamilyCard from '../components/FamilyCard'
 import MainLayout from '../components/layout/MainLayout'
-import bgImage from '../assets/littleneighbor_playing.png'
+import bgImage from '../assets/playing-around.png.jpg'
 import { translateNicknameOrDefault } from '../utils/nicknames'
 import { useAuth } from '../context/AuthContext'
 import { Link } from 'react-router-dom'

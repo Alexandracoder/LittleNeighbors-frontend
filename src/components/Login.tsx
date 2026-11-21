@@ -7,7 +7,7 @@ import api from '../services/api'
 import { PasswordInput } from './PasswordInput'
 import WelcomeExplainer, { hasSeenWelcomeExplainer } from './WelcomeExplainer'
 
-import loginBg from '../assets/playing-together.png'
+import loginBg from '../assets/welcome-on-board.png'
 
 export default function Login() {
   const { t, i18n, ready } = useTranslation()

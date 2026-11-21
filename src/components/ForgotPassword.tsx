@@ -4,7 +4,7 @@ import { Mail, ArrowLeft, Send } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'react-hot-toast'
 import api from '../services/api'
-import loginBg from '../assets/playing-together.png'
+import loginBg from '../assets/welcome-on-board.png'
 
 export default function ForgotPassword() {
   const { t, ready } = useTranslation()

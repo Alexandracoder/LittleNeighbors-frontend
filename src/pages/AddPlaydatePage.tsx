@@ -14,7 +14,7 @@ import { enUS as en } from 'date-fns/locale'
 import { es } from 'date-fns/locale/es'
 import { ca } from 'date-fns/locale/ca'
 import playdateService from '../services/playdateService'
-import dashboardBg from '../assets/neighborhood-picnic1.png'
+import dashboardBg from '../assets/playing-around.png.jpg'
 
 import 'react-datepicker/dist/react-datepicker.css'
 import './datepicker-custom.css'
