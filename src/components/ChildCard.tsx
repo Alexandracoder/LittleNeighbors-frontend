@@ -15,16 +15,10 @@ import { useTranslation } from 'react-i18next'
 import type { ChildResponseDTO } from '../types'
 import { childApi } from '../services/api'
 import { translateNickname } from '../utils/nicknames'
-import { CHILD_AVATARS } from '../utils/childAvatars'
-
-
-import avatar1 from '../assets/Avatar1.jpg'
-import avatar2 from '../assets/Avatar2.jpg'
-import avatar3 from '../assets/Avatar3.jpg'
-import avatar4 from '../assets/Avatar4.jpg'
-
-
-const localAvatars = [avatar1, avatar2, avatar3, avatar4]
+import {
+  getChildAvatarSrc,
+  getDefaultChildAvatarSrc,
+} from '../utils/childAvatars'
 
 interface ChildCardProps {
   child: ChildResponseDTO | null
@@ -58,11 +52,8 @@ export default function ChildCard({
   // elección real, ver ChildAvatarPicker) y solo se usa el reparto
   // antiguo como último recurso para niños creados antes de que existiera
   // esta opción.
-  const chosenAvatar = child.avatarKey
-    ? CHILD_AVATARS.find(a => a.key === child.avatarKey)?.src
-    : null
-  const avatarIndex = child.id ? child.id % localAvatars.length : 0
-  const avatarUrl = chosenAvatar ?? localAvatars[avatarIndex]
+  const avatarUrl =
+    getChildAvatarSrc(child.avatarKey) ?? getDefaultChildAvatarSrc(child.id)
 
   const handleGoToChat = () => {
     if (child.familyId) {
